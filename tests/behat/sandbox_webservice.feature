@@ -4,7 +4,8 @@ Feature: Test sandbox web service
   server (Jobe) via Ajax.
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email           |
       | teacher  | Teacher   | 1        | teacher@asd.com |
       | student  | Student   | 1        | student@asd.com |
@@ -30,19 +31,16 @@ Feature: Test sandbox web service
 
   @javascript
   Scenario: As a student if I try to initiate a WS request I get an error if the service is disabled.
-    When I am on the "Quiz 1" "mod_quiz > View" page logged in as student
+    Given the CodeRunner webservice is disabled
+    And I am on the "Quiz 1" "mod_quiz > View" page logged in as student
     And I press "Attempt quiz"
     And I press "Click me"
-    Then I should see "ERROR: qtype_coderunner/Sandbox web service disabled."
+    #Then I should see "ERROR: qtype_coderunner/Sandbox web service disabled."
+    Then I should see "ERROR: qtype_coderunner/Sandbox web service disabled. Talk to a sysadmin"
 
   @javascript
   Scenario: As a student I can initiate a WS request and see the outcome if the service is enabled.
-    When I log in as "admin"
-    And I navigate to "Plugins > CodeRunner" in site administration
-    And I set the following fields to these values:
-    | Enable sandbox web service | Yes |
-    And I press "Save changes"
-    And I log out
+    Given the CodeRunner webservice is enabled
     When I am on the "Quiz 1" "mod_quiz > View" page logged in as student
     And I press "Attempt quiz"
     And I press "Click me"

@@ -34,9 +34,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for UI parameters
+ * @coversNothing
  */
 class ui_parameters_test extends \qtype_coderunner_testcase {
-
     // Test that the json specifier for the graph_ui class can be loaded.
     public function test_params() {
         $graphuiparams = new \qtype_coderunner_ui_parameters('graph');
@@ -51,7 +51,11 @@ class ui_parameters_test extends \qtype_coderunner_testcase {
         $this->assertContains('noderadius', array_keys($paramsarray));
         $this->assertEquals(30, $paramsarray['noderadius']);
         $aceparams = new \qtype_coderunner_ui_parameters('ace');
-        $this->assertEmpty($aceparams->all_names());
+        $this->assertEquals(false, $aceparams->value('auto_switch_light_dark'));
+        $this->assertEquals("14px", $aceparams->value('font_size'));
+        $this->assertEquals(true, $aceparams->value('import_from_scratchpad'));
+        $this->assertEquals(false, $aceparams->value('live_autocompletion'));
+        $this->assertEquals("textmate", $aceparams->value('theme'));
     }
 
     // Test that we can get a list of all plugins and their parameter lists.
@@ -60,11 +64,9 @@ class ui_parameters_test extends \qtype_coderunner_testcase {
         $names = $plugins->all_names();
         $this->assertContains('ace', $names);
         $this->assertContains('graph', $names);
-        $aceparams = $plugins->parameters('ace');
-        $this->assertEquals(0, $aceparams->length());
-        $graphparams = $plugins->parameters('graph');
-        $this->assertEquals(26, $graphparams->value('noderadius'));
-        $this->assertContains('ace', $plugins->all_with_no_params());
+        $this->assertContains('gapfiller', $names);
+        $this->assertContains('html', $names);
+        $this->assertContains('scratchpad', $names);
     }
 
     // Test the dropdown list for the plugins.

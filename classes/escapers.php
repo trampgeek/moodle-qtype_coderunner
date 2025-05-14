@@ -17,17 +17,13 @@
 /**
  * coderunner escape functions for use with the Twig template library
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2011, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 // This class wraps the various escaper functions required by Twig.
 class qtype_coderunner_escapers {
-
     /**
      * An escaper for use with Python. Escapes only
      * double quote characters plus backslashes.
@@ -37,7 +33,7 @@ class qtype_coderunner_escapers {
      * @return typestudentanswervar
      */
     public static function python($environ, $s, $charset) {
-        return str_replace('"', '\"', str_replace('\\', '\\\\', $s));
+        return str_replace('"', '\"', str_replace('\\', '\\\\', $s ?? ''));
     }
 
     /**
@@ -51,9 +47,10 @@ class qtype_coderunner_escapers {
      */
     public static function matlab($environ, $s, $charset) {
         return str_replace(
-                    array("'",  "\n", "\r", '%'),
-                    array("''", '\\n',  '',  '%%'),
-                    str_replace('\\n', '\\\\n', $s));
+            ["'", "\n", "\r", '%'],
+            ["''", '\\n', '', '%%'],
+            str_replace('\\n', '\\\\n', $s)
+        );
     }
 
 
@@ -67,9 +64,9 @@ class qtype_coderunner_escapers {
      */
     public static function java($environ, $s, $charset) {
         return str_replace(
-                    array("'",    '"',  "\n",  "\r",   "\t",  "\f",  "\b"),
-                    array("\\'", '\\"', "\\n", "\\r", "\\t", "\\f", "\\b"),
-                    str_replace("\\", "\\\\", $s));
+            ["'", '"', "\n", "\r", "\t", "\f", "\b"],
+            ["\\'", '\\"', "\\n", "\\r", "\\t", "\\f", "\\b"],
+            str_replace("\\", "\\\\", $s)
+        );
     }
 }
-

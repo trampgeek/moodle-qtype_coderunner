@@ -5,7 +5,8 @@ Feature: Test editing and using attachments to a CodeRunner question
   I need to enable and configure them, then preview them.
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:

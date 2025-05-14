@@ -34,19 +34,15 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/helper.php');
 
 /**
- * Unit tests for the coderunner question type.
+ * More extensive testing of penalty regime.
  *
+ * @coversNothing
  * @copyright  2011 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/** More extensive testing of penalty regime.
- */
-
 class penaltyregime_test extends \qbehaviour_walkthrough_test_base {
-
     protected function setUp(): void {
-        global $CFG;
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
@@ -56,16 +52,16 @@ class penaltyregime_test extends \qbehaviour_walkthrough_test_base {
     // Check the resulting mark = $expected.
     public function run_with_regime($regime, $numbadattempts, $expected) {
         $helper = new \qtype_coderunner_test_helper();
-        $q = $helper->make_coderunner_question_sqr(array('penaltyregime' => $regime));
+        $q = $helper->make_coderunner_question_sqr(['penaltyregime' => $regime]);
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         for ($i = 1; $i <= $numbadattempts; $i++) {
             // Submit a totally wrong answer $numbadattempts times.
             $badanswer = 'def sqr(n): return ' . (-100 * $i);
-            $this->process_submission(array('-submit' => 1, 'answer' => $badanswer));
+            $this->process_submission(['-submit' => 1, 'answer' => $badanswer]);
             $this->check_current_mark(0.0);
         }
         // Now get it right.
-        $this->process_submission(array('-submit' => 1, 'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1, 'answer' => 'def sqr(n): return n * n']);
         $this->check_current_mark($expected);
     }
 

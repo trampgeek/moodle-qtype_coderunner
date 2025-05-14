@@ -34,9 +34,9 @@ $capabilities = [
         'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
         ],
-        'clonepermissionsfrom' => 'moodle/grade:viewhidden'
+        'clonepermissionsfrom' => 'moodle/grade:viewhidden',
     ],
 
     // Who can use the sandbox web service (and therefore use the ace_inline filter).
@@ -48,7 +48,7 @@ $capabilities = [
             'student'        => CAP_ALLOW,
             'teacher'        => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'manager'        => CAP_ALLOW
-        ]
-    ]
+            'manager'        => CAP_ALLOW,
+        ],
+    ],
 ];

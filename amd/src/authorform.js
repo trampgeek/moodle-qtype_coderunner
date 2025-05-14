@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/* jshint esversion: 6 */
+
 /**
  * JavaScript for handling UI actions in the question authoring form.
  *
@@ -22,6 +24,9 @@
  */
 
 define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function($, ui, str) {
+
+    // We need this to keep track of the current question type.
+    let currentQtype = "";
 
     // Define a mapping from the fields of the JSON object returned by an AJAX
     // 'get question type' request to the form elements. Only fields that
@@ -63,6 +68,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
      */
     function initEditForm() {
         var typeCombo = $('#id_coderunnertype'),
+            prototypeDisplay = $('#id_isprototype'),
             template = $('#id_template'),
             evaluatePerStudent = $('#id_templateparamsevalpertry'),
             globalextra = $('#id_globalextra'),
@@ -79,12 +85,13 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             isCustomised = customise.prop('checked'),
             prototypeType = $('#id_prototypetype'),
             preloadHdr = $('#id_answerpreloadhdr'),
-            typeName = $('#id_typename'),
             courseId = $('input[name="courseid"]').prop('value'),
             questiontypeHelpDiv = $('#qtype-help'),
             precheck = $('select#id_precheck'),
             testtypedivs = $('div.testtype'),
+            testsection = $('#id_testcasehdr'),
             brokenQuestion = $('#id_broken_question'),
+            badQuestionLoad = $('#id_bad_question_load'),
             uiplugin = $('#id_uiplugin'),
             uiparameters = $('#id_uiparameters');
 
@@ -100,7 +107,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         function setUi(taId, uiname) {
             var ta = $(document.getElementById(taId)),  // The jquery text area element(s).
                 lang,
-                currentLang = ta.attr('data-lang'),     // Language set by PHP.
                 paramsJson = ta.attr('data-params'),    // Ui params set by PHP.
                 params = {},
                 uiWrapper;
@@ -127,11 +133,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                 }
             }
 
-            uiWrapper = ta.data('current-ui-wrapper'); // Currently-active UI wrapper on this ta.
-
-            if (uiWrapper && uiWrapper.uiname === uiname && currentLang == lang) {
-                return; // We already have what we want - give up.
-            }
+            uiWrapper = ta[0].current_ui_wrapper; // Currently-active UI wrapper on this ta.
 
             ta.attr('data-lang', lang);
 
@@ -147,17 +149,23 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
         /**
          * Set the correct Ui controller on both the sample answer and the answer preload.
+         * The sample answer and answer preload have the data-params attribute which contains
+         * the UI params in a JSON from the current question merged with the prototype.
+         * Both of them are identical and are changed simultaneously; only checking
+         * answer as state is identical.
          * As a special case, we don't turn on the Ui controller in the answer
          * and answer preload fields when using Html-Ui and the ui-parameter
          * enable_in_editor is false.
+         *
          */
         function setUis() {
-            var uiname = uiplugin.val();
-            var enableUi = true;
-            if (uiname === 'html' && uiparameters.val().trim() !== '') {
+            let uiname = uiplugin.val();
+            let answer = $('#id_answer');
+            let enableUi = true;
+            if (uiname === 'html' && answer.attr('data-params') !== '') {
                 try {
-                    var uiparams = JSON.parse(uiparameters.val());
-                    if (uiparams.enable_in_editor === false) {
+                    let answerparams = JSON.parse(answer.attr('data-params'));
+                    if (answerparams.enable_in_editor === false) {
                         enableUi = false;
                     }
                 } catch (error) {
@@ -196,7 +204,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             if (useace.prop('checked')) {
                 for(var i = 0; i < taIds.length; i++) {
                     ta = $(document.getElementById(taIds[i]));
-                    uiWrapper = ta.data('current-ui-wrapper');
+                    uiWrapper = ta.get(0).current_ui_wrapper;
                     if (uiWrapper && stateOn) {
                         uiWrapper.restart();
                     } else if (uiWrapper && !stateOn) {
@@ -240,7 +248,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                 $(formspecifier[0]).prop(formspecifier[1], attrval);
             }
 
-            typeName.prop('value', newType);
             customise.prop('checked', false);
             str.get_string('coderunner_question_type', 'qtype_coderunner').then(function (s) {
                 questiontypeHelpDiv.html(detailsHtml(newType, s, response.questiontext));
@@ -255,17 +262,24 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * missing question type. Report the error with an alert, and replace
          * the template contents with an error message in case the user
          * saves the question and later wonders why it breaks.
+         * Returns the JSON error object for further use.
          * @param {string} questionType The CodeRunner (sub) question type.
-         * @param {string} error The error message to be reported.
+         * @param {string} error The error message as JSON encoded error => langstring,
+         * extra => components string.
+         * @return {JSON object} The JSON error object for further parsing.
          */
         function reportError(questionType, error) {
-            langStringAlert('prototype_load_failure', error);
+            const errorObject = JSON.parse(error);
             str.get_string('prototype_error', 'qtype_coderunner').then(function(s) {
-                var errorMessage = s + "\n";
-                errorMessage += error + '\n';
-                errorMessage += "CourseId: " + courseId + ", qtype: " + questionType;
-                template.prop('value', errorMessage);
+                str.get_string(errorObject.alert, 'qtype_coderunner', questionType).then(function(str) {
+                    langStringAlert('prototype_load_failure', str);
+                    let errorMessage = s + "\n";
+                    errorMessage += str + '\n';
+                    errorMessage += "CourseId: " + courseId + ", qtype: " + questionType;
+                    template.prop('value', errorMessage);
+                });
             });
+            return errorObject;
         }
 
         /**
@@ -332,9 +346,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         /**
          * Load the various customisation fields into the form from the
          * CodeRunner question type currently selected by the combobox.
+         * Looks at the preexisting type of the selected field.
          */
         function loadCustomisationFields() {
-            var newType = typeCombo.children('option:selected').text();
+            let newType = typeCombo.children('option:selected').text();
 
             if (newType !== '' && newType !== 'Undefined') {
                 // Prevent 'Undefined' ever being reselected.
@@ -348,14 +363,25 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                         sesskey: M.cfg.sesskey
                     },
                     function (outcome) {
+                        // Clean all warnings regardless.
+                        $('#id_qtype_coderunner_warning_div').empty();
                         if (outcome.success) {
                             copyFieldsFromQuestionType(newType, outcome);
                             setUis();
+                            loadUiParametersDescription();
+                            // Success, so remove the errors and change the current Qtype.
+                            currentQtype = newType;
+                            $('#id_qtype_coderunner_error_div').empty();
                         }
                         else {
-                            reportError(newType, outcome.error);
+                            const errorObject = reportError(newType, outcome.error);
+                            // Checks to see if there has been a change in type from last saved.
+                            // If so, put up a load error and keep type unchanged.
+                            if (currentQtype !== newType && errorObject.error === 'duplicateprototype') {
+                                showLoadTypeError(currentQtype, errorObject, newType);
+                                $("#id_coderunnertype").val(currentQtype);
+                            }
                         }
-
                     }
                 ).fail(function () {
                     // AJAX failed. We're dead, Fred. The attempt to get the
@@ -388,54 +414,69 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             return html;
         }
 
+
+
         /**
-         * Load the UI parameter description field by Ajax when the UI plugin
-         * is changed.
+         * Plug the UI info received by getJSON into the author form.
+         * @param {object} uiInfo The response data from the getJSON call
+         * @returns {undefined}
+         */
+        function updateUiParamsDescription(uiInfo) {
+            let currentuiparameters = uiparameters.val();
+            let paramDescriptionDiv = $('.ui_parameters_descr');
+            let hideUiParamsDescription = function() {
+                uiparameters.val(''); // Remove stray white space.
+                $('#fgroup_id_uiparametergroup').hide();
+            };
+            paramDescriptionDiv.empty();
+            if (uiInfo === null || (uiInfo.uiparamstable.length == 0 && currentuiparameters.trim() === '')) {
+                hideUiParamsDescription();
+            } else {
+                paramDescriptionDiv.append(uiInfo.header);
+                let showhidebutton = $('<button type="button" class="toggleuidetails">' + uiInfo.showdetails + '</button>');
+                if (uiInfo.uiparamstable.length != 0) {
+                    paramDescriptionDiv.append(showhidebutton);
+                    let table = $(UiParameterDescriptionTable(uiInfo));
+                    paramDescriptionDiv.append(table);
+                    table.hide();
+                    showhidebutton.click(function () {
+                        if (showhidebutton.html() == uiInfo.showdetails) {
+                            table.show();
+                            showhidebutton.html(uiInfo.hidedetails);
+                        } else {
+                            table.hide();
+                            showhidebutton.html(uiInfo.showdetails);
+                        }
+                    });
+                }
+                $('#fgroup_id_uiparametergroup').show();
+                if (useace.prop('checked')) {
+                    setUi('id_uiparameters', 'ace');
+                }
+            }
+        }
+
+        /**
+         * Load the UI parameter description field by Ajax initially or
+         * when the UI plugin is changed.
          */
         function loadUiParametersDescription() {
-            var newUi = uiplugin.children('option:selected').text();
-            $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/ajax.php',
-                {
-                    uiplugin: newUi,
-                    courseid: courseId,
-                    sesskey: M.cfg.sesskey
-                },
-                function (uiInfo) {
-                    var currentuiparameters = uiparameters.val(),
-                        paramDescriptionDiv = $('.ui_parameters_descr'),
-                        showhidebutton = $('<button type="button" class="toggleuidetails">' + uiInfo.showdetails + '</button>'),
-                        table;
-                    paramDescriptionDiv.empty();
-                    paramDescriptionDiv.append(uiInfo.header);
-                    if (uiInfo.uiparamstable.length == 0 && currentuiparameters.trim() === '') {
-                        uiparameters.val(''); // Remove stray white space.
-                        $('#fgroup_id_uiparametergroup').hide();
-                    } else {
-                        if (uiInfo.uiparamstable.length != 0) {
-                            paramDescriptionDiv.append(showhidebutton);
-                            table = $(UiParameterDescriptionTable(uiInfo));
-                            paramDescriptionDiv.append(table);
-                            table.hide();
-                            showhidebutton.click(function () {
-                                if (showhidebutton.html() == uiInfo.showdetails) {
-                                    table.show();
-                                    showhidebutton.html(uiInfo.hidedetails);
-                                } else {
-                                    table.hide();
-                                    showhidebutton.html(uiInfo.showdetails);
-                                }
-                            });
-                        }
-                        $('#fgroup_id_uiparametergroup').show();
-                        if (useace.prop('checked')) {
-                            setUi('id_uiparameters', 'ace');
-                        }
-                    }
-                }
-            ).fail(function () {
-                // AJAX failed.
-                langStringAlert('error_loading_ui_descr');
-            });
+            let newUi = uiplugin.children('option:selected').text();
+            if (newUi === '' || newUi === 'none') {
+                updateUiParamsDescription(null);
+            } else {
+                $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/ajax.php',
+                    {
+                        uiplugin: newUi,
+                        courseid: courseId,
+                        sesskey: M.cfg.sesskey
+                    },
+                    updateUiParamsDescription
+                ).fail(function () {
+                    // AJAX failed.
+                    langStringAlert('error_loading_ui_descr', `UI: ${newUi}`);
+                });
+            }
         }
 
         /**
@@ -473,14 +514,30 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         /**
          * If the brokenquestionmessage hidden element is not empty, insert the
          * given message as an error at the top of the question.
+         * itself to go back to the last valid value.
          */
         function checkForBrokenQuestion() {
-            var brokenQuestionMessage = brokenQuestion.prop('value'),
+            let brokenQuestionMessage = brokenQuestion.prop('value'),
                 messagePara = null;
             if (brokenQuestionMessage !== '') {
                 messagePara = $('<p>' + brokenQuestion.prop('value') + '</p>');
                 $('#id_qtype_coderunner_error_div').append(messagePara);
             }
+        }
+
+        /**
+         * Shows the load type error of the selected type if the selected type is
+         * faulty.
+         * @param {string} currentType The current type with its errors.
+         * @param {JSON Object} errorObject The JSON object containing a list of all the errors.
+         * @param {string} newType The new type string which it failed to load.
+         */
+        function showLoadTypeError(currentType, errorObject, newType) {
+            str.get_string('loadprototypeerror', 'qtype_coderunner',
+                { oldtype : currentType, crtype : newType, outputstring : errorObject.extras })
+                      .then(function(str) {
+                $('#id_qtype_coderunner_warning_div').append($('<p>' + str + '</p>'));
+            });
         }
 
         /*************************************************************
@@ -489,17 +546,24 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          *
          *************************************************************/
 
-        if (prototypeType.prop('value') == 1) {
-            // Editing a built-in question type: Dangerous!
-            str.get_string('proceed_at_own_risk', 'qtype_coderunner').then(function(s) {
-                alert(s);
-            });
-            prototypeType.prop('disabled', true);
-            typeCombo.prop('disabled', true);
-            customise.prop('disabled', true);
+        if (prototypeType.prop('value') != 0) {
+            // Display the prototype warning if it's a prototype and hide testboxes.
+            testsection.css('display', 'none');
+            prototypeDisplay.removeAttr('hidden');
+            if (prototypeType.prop('value') == 1) {
+                // Editing a built-in question type: Dangerous!
+                str.get_string('proceed_at_own_risk', 'qtype_coderunner').then(function(s) {
+                    alert(s);
+                });
+                prototypeType.prop('disabled', true);
+                customise.prop('disabled', true);
+            }
         }
 
         checkForBrokenQuestion();
+        badQuestionLoad.prop('hidden'); // Until we check it once.
+        // Keep track of the current prototype loaded.
+        currentQtype = typeCombo.children('option:selected').text();
 
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
@@ -524,7 +588,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         // Set up event Handlers.
 
         customise.on('change', function() {
-            var isCustomised = customise.prop('checked');
+            let isCustomised = customise.prop('checked');
             if (isCustomised) {
                 // Customisation is being turned on.
                 setCustomisationVisibility(true);
@@ -584,13 +648,25 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
         precheck.on('change', set_testtype_visibilities);
 
+        // Displays and hides the reason for the question type to be disabled.
+        // Also hides/shows the test cases section if prototype/not prototype.
+        prototypeType.on('change', function () {
+            if (prototypeType.prop('value') == '0') {
+                testsection.css('display', 'block');
+                prototypeDisplay.attr('hidden', '1');
+            } else {
+                testsection.css('display', 'none');
+                prototypeDisplay.removeAttr('hidden');
+            }
+        });
+
         // In order to initialise the Ui plugin when the answer preload section is
         // expanded, we monitor attribute mutations in the Answer Preload
         // header.
         var observer = new MutationObserver( function () {
             setUis();
         });
-        observer.observe(preloadHdr.get(0), {'attributes': true});
+        observer.observe(preloadHdr.get(0), {'attributes': true, 'attributeFilter':['class']});
 
         // Setup click handler for the buttons that allow users to replace the
         // expected output  with the output got from testing the answer program.
@@ -601,6 +677,11 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             $('#id_fail_expected_' + testCaseId).html(gotPre.text());
             $('.failrow_' + testCaseId).addClass('fixed');  // Fixed row.
             $(this).prop('disabled', true);
+        });
+
+        // On reloading the page, enable the typeCombo so that its value is POSTed.
+        $('.btn-primary').click(function() {
+            typeCombo.prop('disabled', false);
         });
     }
 

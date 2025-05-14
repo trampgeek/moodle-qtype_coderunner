@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.1.1 9 November 2022. Requires **MOODLE V4.0 or later**. Earlier versions
+Version: 5.6.4 April 13, 2025. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
@@ -51,6 +51,7 @@ unusual question type.
   - [The Twig QUESTION variable](#the-twig-question-variable)
   - [The Twig STUDENT variable](#the-twig-student-variable)
   - [Twig macros](#twig-macros)
+- [Use of the Precheck button](#use-of-the-precheck-button)
 - [Randomising questions](#randomising-questions)
   - [How it works](#how-it-works)
   - [Randomising per-student rather than per-question-attempt](#randomising-per-student-rather-than-per-question-attempt)
@@ -69,13 +70,26 @@ unusual question type.
   - [Extended column specifier syntax (*obsolescent*)](#extended-column-specifier-syntax-obsolescent)
   - [Default result columns](#default-result-columns)
 - [User-interface selection](#user-interface-selection)
-  - [The Graph UI](#the-graph-ui)
-  - [The Table UI](#the-table-ui)
-  - [The Gap Filler UI](#the-gap-filler-ui)
-  - [The Ace Gap Filler UI](#the-ace-gap-filler-ui)
+  - [Ace UI](#ace-ui)
+    - [Serialisation](#serialisation)
+    - [UI parameters](#ui-parameters)
+  - [Ace-gapfiller UI](#ace-gapfiller-ui)
+    - [Serialisation](#serialisation-1)
+    - [UI parameters](#ui-parameters-1)
+  - [Gap Filler UI](#gap-filler-ui)
+    - [Serialisation](#serialisation-2)
+    - [UI parameters](#ui-parameters-2)
+  - [Graph UI](#graph-ui)
+    - [Serialisation](#serialisation-3)
+    - [UI Parameters](#ui-parameters)
   - [The Html UI](#the-html-ui)
+    - [UI parameters](#ui-parameters-3)
+    - [Serialisation](#serialisation-4)
     - [The textareaId macro](#the-textareaid-macro)
-  - [Other UI plugins](#other-ui-plugins)
+  - [Scratchpad UI](#scratchpad-ui)
+    - [Serialisation](#serialisation-5)
+    - [UI parameters](#ui-parameters-4)
+  - [Table UI](#table-ui)
 - [User-defined question types](#user-defined-question-types)
   - [Prototype template parameters](#prototype-template-parameters)
 - [Supporting or implementing new languages](#supporting-or-implementing-new-languages)
@@ -114,7 +128,7 @@ However, it is also possible to configure CodeRunner questions so
 that the mark is determined by how many of the tests the code successfully passed.
 
 CodeRunner has been in use at the University of Canterbury for over ten years
-running many millions of student quiz question submissions in Python, C , JavaScript,
+running many millions of student quiz question submissions in Python, C, JavaScript,
 PHP, Octave and Matlab. It is used in laboratory work, assignments, tests and
 exams in multiple courses. In recent years CodeRunner has spread around the
 world and as of January 2021 is installed on over 1800 Moodle sites worldwide
@@ -192,8 +206,8 @@ OR
 1. Get the code using git by running the following commands in the
 top level folder of your Moodle install:
 
-        git clone https://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
-        git clone https://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner.git question/behaviour/adaptive_adapted_for_coderunner
+       git clone https://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
+       git clone https://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner.git question/behaviour/adaptive_adapted_for_coderunner
 
 Either way you may also need to change the ownership
 and access rights to ensure the directory and
@@ -361,7 +375,7 @@ the code or OS features within the Jobe container, e.g. to install new languages
 
 If you intend running unit tests you
 will also need to copy the file `tests/fixtures/test-sandbox-config-dist.php`
-to 'tests/fixtures/test-sandbox-config.php', then edit it to set the correct
+to `tests/fixtures/test-sandbox-config.php`, then edit it to set the correct
 host and any other necessary configuration for the Jobe server.
 
 Assuming you have built *Jobe* on a separate server, suitably firewalled,
@@ -386,22 +400,22 @@ are installed.
 
 Before running any tests you first need to copy the file
 `<moodlehome>/question/type/coderunner/tests/fixtures/test-sandbox-config-dist.php`
-to '<moodlehome>/question/type/coderunner/tests/fixtures/test-sandbox-config.php',
+to `<moodlehome>/question/type/coderunner/tests/fixtures/test-sandbox-config.php`,
 then edit it to set whatever configuration of sandboxes you wish to test,
 and to set the jobe host, if appropriate. You should then initialise
 the phpunit environment with the commands
 
-        cd <moodlehome>
-        sudo php admin/tool/phpunit/cli/init.php
+    cd <moodlehome>
+    sudo php admin/tool/phpunit/cli/init.php
 
 You can then run the full CodeRunner test suite with one of the following two commands,
 depending on which version of phpunit you're using:
 
-        sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
+    sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
 
 or
 
-        sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner_testsuite"
+    sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner_testsuite"
 
 If you're on a Red Hat or similar system in which the web server runs as
 *apache*, you should replace *www-data* with *apache.
@@ -441,7 +455,7 @@ You should then find the Uninstall link showing for CodeRunner in the Manage plu
 If not, you must still have some CodeRunner questions hidden away somewhere. If you
 have admin rights, you should be able to find them with the SQL command:
 
-        select id, category, name from mdl_question where qtype='coderunner';
+    select id, category, name from mdl_question where qtype='coderunner';
 
 If you have a lot of coderunner questions you *may* be able to just delete all the coderunner
 questions SQL but I'd be very reluctant to do that myself as it will break
@@ -792,7 +806,7 @@ where a 'match' is defined by the chosen grader: an exact match,
 a nearly exact match or a regular-expression match. There is also the possibility
 to perform grading with the the template itself using a 'template grader';
 this possibility is discussed later, in the section
-'[Grading with templates'](#grading-with-templates).
+[Grading with templates](#grading-with-templates).
 
 Expansion of the template is done by the
 [Twig](http://twig.sensiolabs.org/) template engine. The engine is given both
@@ -801,7 +815,7 @@ call the *Twig Context*. The default set of context variables is:
 
  * STUDENT\_ANSWER, which is the text that the student entered into the answer box.
  * TEST, which is a record containing the testcase. See [The Twig TEST variable](#the-twig-test-variable).
- * IS\_PRECHECK, which has the value 1 (True) if the template is being evaluated asY
+ * IS\_PRECHECK, which has the value 1 (True) if the template is being evaluated as
 a result of a student clicking the *Precheck* button or 0 (False) otherwise.
  * ANSWER\_LANGUAGE, which is meaningful only for multilanguage questions, for
 which it contains the language chosen by the student from a drop-down list. See
@@ -829,39 +843,39 @@ TWIG_VARIABLE (e.g. STUDENT\_ANSWER). As an example,
 the question type *c\_function*, which asks students to write a C function,
 might have the following template (if it used a per-test template):
 
-        #include <stdio.h>
-        #include <stdlib.h>
-        #include <ctype.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <ctype.h>
 
-        {{ STUDENT_ANSWER }}
+    {{ STUDENT_ANSWER }}
 
-        int main() {
-            {{ TEST.testcode }};
-            return 0;
-        }
+    int main() {
+        {{ TEST.testcode }};
+        return 0;
+    }
 
 A typical test (i.e. `TEST.testcode`) for a question asking students to write a
 function that
 returns the square of its parameter might be:
 
-        printf("%d\n", sqr(-9))
+    printf("%d\n", sqr(-9))
 
 with the expected output of 81. The result of substituting both the student
 code and the test code into the template might then be the following program
 (depending on the student's answer, of course):
 
-        #include <stdio.h>
-        #include <stdlib.h>
-        #include <ctype.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <ctype.h>
 
-        int sqr(int n) {
-            return n * n;
-        }
+    int sqr(int n) {
+        return n * n;
+    }
 
-        int main() {
-            printf("%d\n", sqr(-9));
-            return 0;
-        }
+    int main() {
+        printf("%d\n", sqr(-9));
+        return 0;
+    }
 
 When authoring a question you can inspect the template for your chosen
 question type by temporarily checking the 'Customise' checkbox. Additionally,
@@ -984,18 +998,18 @@ just, say, `sqr(-11)` rather than `printf("%d, sqr(-11));`
 
 You could set such a question using a template like:
 
-        #include <stdio.h>
-        #include <stdlib.h>
-        #include <ctype.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <ctype.h>
 
-        int sqr(int n) {
-           {{ STUDENT_ANSWER }}
-        }
+    int sqr(int n) {
+       {{ STUDENT_ANSWER }}
+    }
 
-        int main() {
-            printf("%d\n", {{ TEST.testcode }});
-            return 0;
-        }
+    int main() {
+        printf("%d\n", {{ TEST.testcode }});
+        return 0;
+    }
 
 The authoring interface
 allows the author to set the size of the student's answer box, and in a
@@ -1391,10 +1405,10 @@ student's first name:
     first_name = args['firstname']
     print(json.dumps({'func_name': func_name, 'first_name': first_name}))
 
-The question text could then say
+The question text could then say:
 
-Write a function {{ func_name }}() that prints a welcome message of the
-form "Hello {{ first_name }}!".
+`Write a function {{ func_name }}() that prints a welcome message of the
+form "Hello {{ first_name }}!".`
 
 Note that this simple example is chosen only to illustrate
 the technique. It is a very bad example of *when* to use
@@ -1435,8 +1449,6 @@ Not recommended!
 The template variable `TEST`, which is defined in the Twig context only when
 Twig is rendering a per-test template, contains the following attributes:
 
- * `TEST.rownum` The sequence number of this test (0, 1, 2 ...).
- * `TEST.questionid` The ID of the question being run. Not generally useful.
  * `TEST.testtype` The type of test, relevant only when Precheck is enabled
 for the question and is set to *Selected* so that the author has control over
 which tests get run. 0 denotes "run this test only when *Check* is clicked, 1 denotes "run this
@@ -1455,8 +1467,6 @@ this test.
 for this test.
  * `TEST.mark` How many marks to allocate to this test. Meaningful only if
 not using "All or nothing" grading.
- * `TEST.ordering` The number entered by the question author into the *Ordering*
-field of the test.
 
 ### The Twig TESTCASES variable
 
@@ -1489,9 +1499,9 @@ they are not available as global variables.
 Other fields are:
 
  * `QUESTION.name` The name of the question.
- * `QUESTION.generalfeedback The contents of the general feedback field in the
+ * `QUESTION.generalfeedback` The contents of the general feedback field in the
     question authoring form.
- * `QUESTION.generalfeedbackformat. The format of the general feedback. 0 = moodle,
+ * `QUESTION.generalfeedbackformat` The format of the general feedback. 0 = moodle,
    1 = HTML, 2 = Plain, 3 = Wiki, 4 = Markdown.
  * `QUESTION.questiontext` The question text itself
  * `QUESTION.answerpreload` The string that is preloaded into the answer box.
@@ -1508,8 +1518,8 @@ Other fields are:
    author. See under Combinator-template grading.
  * `QUESTION.language` The language being used to run the question in the sandbox,
 e.g. "Python3".
- * `QUESTION.precheck` The setting of the precheck dropdown: 0 = no precheck
-1 = precheck examples, 2 = precheck selected.
+ * `QUESTION.precheck` The setting of the precheck dropdown: 0 = no precheck, 1 = empty,
+2 = precheck examples, 3 = precheck selected, 4 = all.
  * `QUESTION.hidecheck` True if the *Hide check* checkbox is set.
  * `QUESTION.iscombinatortemplate` True if this is a combinator question.
  * `QUESTION.penaltyregime` The penalty regime for this question.
@@ -1610,6 +1620,53 @@ and label, which is checked only if ischecked is true.
 
 To reduce the risk that the UI element names conflict with existing UI element
 names in the Moodle page, all names are prefixed by `crui_`.
+
+## Use of the Precheck button
+
+The question authoring form allows the author to provide students
+with a *Precheck* button in addition to the normal *Check* button. 
+This is intended to allow students to do a penalty-free preliminary sanity check
+on their submission. The form of the sanity check can be controlled
+by the question author, but in the simplest case it is just a syntax
+check on their code.
+
+When the Precheck button is
+clicked, the answer is submitted for grading in the normal way except:
+
+  1. A Twig variable IS_PRECHECK is set to True. This is typically used by
+     template graders to control the feedback that is given to the student
+     when prechecking versus when doing a full check.
+  1. The set of testcases to be run is restricted according to the setting of
+     the Precheck dropdown menu in the authoring form. Options are:
+     * Empty: The list of testcases is a single empty testcase, which is
+      a hidden test with the empty string for testcode, stdin, expected and extra.
+     * Examples. The set of testcases is all the ones with the *Use as example*
+      checkbox checked.
+     * Selected. If this option has been chosen, each test case has a dropdown
+      menu labelled *Precheck test type*, with options *Check only*, *Precheck only*
+      and *Both*. The set of cases on a Precheck is then all those marked either
+      *Precheck only* or *Both*, while the set of cases on a full Check is
+      all those marked either *Check only* or *Both*.
+     * All. All testcases are included, as with a normal Check. This is
+      meaningful only if the question author has made use of the IS_PRECHECK
+      Twig variable to provide different feedback from the normal.
+
+The feedback presented to the student contains the output from the run,
+as with a full check, but no marking takes place, so there are no penalties.
+Additionally the correctness of the Precheck is indicated to the student by
+a striped background shading that is blue for an OK submission and red for a
+failed one. There may also be a "Precheck failed" warning message.
+
+The correctness of the precheck is determined as follows.
+
+  1. If the *Empty* precheck option has been set, and a combinator template grader has
+     not been used, any output (which is usually
+     compile errors) is taken to denote a failed precheck. In this case, there is also
+     an extra "Precheck failed" or "Precheck passed" message.
+  1. If a combinator template grader is being used, the Precheck is deemed correct
+     if the returned *Fraction* is 1. 
+  1. In all other cases, i.e. when a subset of test cases is being run, the
+     Precheck is correct only if all tests pass.
 
 ## Randomising questions
 
@@ -1775,36 +1832,36 @@ to true on newly created questions.
     1. Create a single random `index` variable and use that to index into
        separate animal and sound lists. For example:
 
-            {
-                {% set index = random(2) %}
-                "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
-                "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
+           {
+               {% set index = random(2) %}
+               "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
+               "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
 
     1. Select an animal at random from a list of Twig 'hash' objects, then plug
        each of the animal attributes into the JSON record. For example:
 
-            {
-                {% set obj = random([
-                    {'name': 'Dog', 'sound': 'Woof'},
-                    {'name': 'Cat', 'sound': 'Miaow'},
-                    {'name': 'Cow', 'sound': 'Moo'}
-                ]) %}
-                "animal": "{{ obj.name }}",
-                "sound":  "{{ obj.sound }}"
-             }
+           {
+               {% set obj = random([
+                   {'name': 'Dog', 'sound': 'Woof'},
+                   {'name': 'Cat', 'sound': 'Miaow'},
+                   {'name': 'Cow', 'sound': 'Moo'}
+               ]) %}
+               "animal": "{{ obj.name }}",
+               "sound":  "{{ obj.sound }}"
+           }
 
     1. Select an animal at random from a list of Twig 'hash' objects as above,
        but then json_encode the entire object as a single template parameter.
        For example
 
-            {
-                {% set animal = random([
-                    {'name': 'Dog', 'sound': 'Woof'},
-                    {'name': 'Cat', 'sound': 'Miaow'},
-                    {'name': 'Cow', 'sound': 'Moo'}
-                ]) %}
-                "animal": {{ animal | json_encode }}
-             }
+           {
+               {% set animal = random([
+                   {'name': 'Dog', 'sound': 'Woof'},
+                   {'name': 'Cat', 'sound': 'Miaow'},
+                   {'name': 'Cow', 'sound': 'Moo'}
+               ]) %}
+               "animal": {{ animal | json_encode }}
+           }
 
     In the last case, the template parameters will need to be referred to as
     {{ animal.name }} and {{ animal.sound }} instead of {{ animal }} and {{ sound }}.
@@ -1816,30 +1873,30 @@ to true on newly created questions.
    generate a JSON structure that defines a value `expression`, which
    is a random fully-parenthesised infix expression.
 
-        {% macro randomexpr(depth) %}
-        {% from _self import randomexpr as expr %}
-        {% if depth >= 5 %}{# Leaf nodes are random operands #}
-            {{- random(["a", "b", "c", "d"]) -}}
-        {% else %}{# Internal nodes are of the form ( expr op expr ) #}
-            {{- '(' -}}
-            {{- expr(depth + 1 + random(3)) -}}
-            {{- random(['*', '/', '+', '-']) -}}
-            {{- expr(depth + 1 + random(3)) -}}
-            {{- ')' -}}
-        {% endif %}
-        {% endmacro %}
+       {% macro randomexpr(depth) %}
+       {% from _self import randomexpr as expr %}
+       {% if depth >= 5 %}{# Leaf nodes are random operands #}
+           {{- random(["a", "b", "c", "d"]) -}}
+       {% else %}{# Internal nodes are of the form ( expr op expr ) #}
+           {{- '(' -}}
+           {{- expr(depth + 1 + random(3)) -}}
+           {{- random(['*', '/', '+', '-']) -}}
+           {{- expr(depth + 1 + random(3)) -}}
+           {{- ')' -}}
+       {% endif %}
+       {% endmacro %}
 
-        {% import _self as exp %}
-        { "expression": "{{ exp.randomexpr(0) }}"}
+       {% import _self as exp %}
+       { "expression": "{{ exp.randomexpr(0) }}"}
 
 
  This generates expressions like
 
-        (((c+b)+d)-(a*((c-a)-d)))
+    (((c+b)+d)-(a*((c-a)-d)))
 
  and
 
-        (((a/(a-d))-(c/b))+(d+(((d/c)/d)*(c+a))))
+    (((a/(a-d))-(c/b))+(d+(((d/c)/d)*(c+a))))
 
 1. The [TwigFiddle web site](http://twigfiddle.com) is useful for debugging Twig code
    in your template parameters.
@@ -1847,7 +1904,7 @@ to true on newly created questions.
    JSON. Alternatively, you can set up a trivial question that simply prints
    the values of the QUESTION.parameters Twig variable. For example (in Python)
 
-        print("""{{QUESTION.parameters | json_encode}}""")
+       print("""{{QUESTION.parameters | json_encode}}""")
 
 ## Grading with templates
 
@@ -1940,44 +1997,41 @@ The ultimate in grading flexibility is achieved by use of a "Combinator
 template grader", i.e. a TemplateGrader with the `Is combinator` checkbox checked.
 In this mode, the JSON string output by the template grader
 should again contain a 'fraction' field, this time for the total mark,
-and may contain zero or more of 'prologuehtml', 'testresults', 'columnformats',
-'epiloguehtml', 'showoutputonly', 'showdifferences' and 'graderstate'.
-attributes.
-The 'prologuehtml' and 'epiloguehtml' fields are html
-that is displayed respectively before and after the (optional) result table. The
-'testresults' field, if given, is a list of lists used to display some sort
-of result table. The first row is the column-header row and all other rows
-define the table body. Two special column header values exist: 'iscorrect'
+and may contain zero or more of the following attributes:
+
+ 1. prologuehtml: this is html that is displayed before the (optional) result table.
+ 1. epiloguehtml: this is html that is displayed after the (optional) result table.
+ 1. introductorhtml: this is like epiloguehtml except that it is visible only to
+    instructors.
+ 1. testresults: is a list of lists used to display a result table similar to
+that displayed by the built-in question types. The first row is the column-header
+row and all other rows define the table body. Two special column header values exist: 'iscorrect'
 and 'ishidden'. The \'iscorrect\' column(s) are used to display ticks or
 crosses for 1 or 0 row values respectively. The 'ishidden' column isn't
 actually displayed but 0 or 1 values in the column can be used to turn on and
 off row visibility. Students do not see hidden rows but markers and other
 staff do.
-
-If a 'testresults' field is present, there can also be a 'columnformats' field.
-This should have one format specifier per table column and each format specifier
+ 1. columnformats: this field is only meaningful if there is a testresults field.
+It is a list of format specifier strings, one per table column excluding the optional
+ishidden and iscorrect columns. Each format specifier
 should either be '%s', in which case all formatting is left to the renderer
 (which sanitises the field and encloses it in a &lt;pre&gt; element)
 or '%h' in which case the table cell is displayed directly without further
 processing. '%s' formatting is the default in the absence of an explicit
 'columnformats' field.
-
-The 'showoutputonly' attribute, if set true, results in the prologuehtml and
+ 1. showoutputonly: if set true, this results in the prologuehtml and
 epiloguehtml fields being displayed against a neutral background with the
 usual outcome message (e.g. "Passed all tests") suppressed. The mode is intended
 for use in pseudo-questions that can be used by students to experiment with a
-given bit of code. If this attribute is true the 'fraction' attribute is not
+given bit of code. The 'fraction' attribute is not
 required and is ignored if given. Since a mark is still required by the framework
 when a question is checked, full marks are awarded regardless of the result of
 the run but questions of this sort would normally not contribute marks towards
 a student's grade.
-
-The 'showdifferences' attribute can be added to the JSON outcome to render
-the standard 'Show differences' button after the result table; it is displayed
-only if there is actually a result table present and if full marks were not
+ 1. showdifferences: if set true, the standard 'Show differences' button
+ will be displayedafter the result table if full marks were not
 awarded to the question.
-
-The 'graderstate' attribute is a string value that is stored in the database
+ 1. graderstate: this is a string value that is stored in the database
 with the question attempt and is passed back to the combinator template grader
 code on the next attempt of that question as the field 'graderstate' of the
 'QUESTION.stepinfo' object. The use of this variable is entirely at the
@@ -1985,6 +2039,24 @@ discretion of the question author; the facility is available only to allow
 question authors to grade a submission differently according to what was
 previously submitted. It could, for example, be a json-encoded record of the
 correctness of the different tests.
+ 1. files (new, experimental): this allows the question author to return
+temporary files that are displayed within the response page. It is
+a JSON object mapping filenames to the corresponding
+base4 encoded file contents. This parameter is intended primarily for returning image files
+that will be displayed in the feedback, but could have other uses. If a 'files'
+attribute is present, the files are written to the Moodle file area and
+URLs generated to reference those files. The URLs are then used to update any
+occurrences of the strings
+ `src="filename"` or `href="filename"` within the 'prologuehtml', 'testresults',
+ 'epiloguehtml' and 'instructorhtml' attributes to use the full URL instead of just the
+ filename. Unmatched filenames are disregarded. Single quotes instead of double 
+ quotes can also be used in the 'src' and 'href' attribute assignments.
+Files are timestamped so the same filename can be used unambiguously
+in multiple grade responses. Warning: the files created in this way
+are temporary in the sense that they will not survive a course
+backup/restore sequence. They should only be referenced from within
+the question grading response. If really needed after a course
+restore they can be regenerated by a regrade.
 
 Combinator-template grading gives the user complete control of the feedback to
 the student as well as of the grading process. The ability to include HTML
@@ -2008,6 +2080,9 @@ be graded by a program. The second example, which is a bit more complicated,
 shows how we can test student code in a more complex manner than simply running
 tests and matching the output against the expected output.
 
+For a more comprehensive example, inspect the dotnet C# question prototype
+in the distribution's unsupported question types folder.
+
 ### A simple grading-template example
 A simple case in which one might use a template grader is where the
 answer supplied by the student isn't actually code to be run, but is some
@@ -2021,29 +2096,29 @@ should show how each line has been marked (right or wrong).
 
 A template grader for this situation might be the following
 
-        import json
+    import json
 
-        got = """{{ STUDENT_ANSWER | e('py') }}"""
-        expected = """{{ TEST.expected | e('py') }}"""
-        got_lines = got.split('\n')
-        expected_lines = expected.split('\n')
-        mark = 0
-        if len(got_lines) != 5:
-            comment = "Expected 5 lines, got {}".format(len(got_lines))
-        else:
-            comment = ''
-            for i in range(5):
-                if got_lines[i] == expected_lines[i]:
-                    mark += 1
-                    comment += "Line {} right\n".format(i)
-                else:
-                    comment += "Line {} wrong\n".format(i)
+    got = """{{ STUDENT_ANSWER | e('py') }}"""
+    expected = """{{ TEST.expected | e('py') }}"""
+    got_lines = got.split('\n')
+    expected_lines = expected.split('\n')
+    mark = 0
+    if len(got_lines) != 5:
+        comment = "Expected 5 lines, got {}".format(len(got_lines))
+    else:
+        comment = ''
+        for i in range(5):
+            if got_lines[i] == expected_lines[i]:
+                mark += 1
+                comment += "Line {} right\n".format(i)
+            else:
+                comment += "Line {} wrong\n".format(i)
 
-        print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5, 'awarded': mark}))
+    print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5}))
 
 Note that in the above program the Python *dictionary*
 
-    {'got': got, 'comment': comment, 'fraction': mark / 5, 'awarded': mark}
+    {'got': got, 'comment': comment, 'fraction': mark / 5}
 
 gets converted by the call to json.dumps to a JSON object string, which looks
 syntactically similar but is in fact a different sort of entity altogether.
@@ -2051,11 +2126,18 @@ You should always use json.dumps, or its equivalent in other languages, to
 generate a valid JSON string, handling details like escaping of embedded
 newlines.
 
-In order to display the *comment* and *awarded* columns in the output JSON,
+In order to display the *comment* column in the output JSON,
 the 'Result columns' field of the question (in the 'customisation' part of
-the question authoring form) should include those field and their column headers, e.g.
+the question authoring form) should include that field and its column header, e.g.
 
-        [["Expected", "expected"], ["Got", "got"], ["Comment", "comment"], ["Mark", "awarded"]]
+    [["Expected", "expected"], ["Got", "got"], ["Comment", "comment"], ["Mark", "awarded"]]
+
+Note that the 'awarded' value, which is what is displayed in the 'Mark' column,
+is by default computed as the product of the
+faction and the number of marks allocated to the particular test case. You can
+alternatively include an 'awarded' attribute in the JSON but this is not
+generally recommended; if you do this, make sure that you award a mark in the
+range 0 to the number of marks allocated to the test case.
 
 The following two images show the student's result table after submitting
 a fully correct answer and a partially correct answer, respectively.
@@ -2070,8 +2152,9 @@ usual graders (e.g. exact or regular-expression matching of the program's
 output) are inadequate.
 
 As a simple example, suppose the student has to write their own Python square
-root function (perhaps as an exercise in Newton-Raphson iteration?), such
-that their answer, when squared, is within an absolute tolerance of 0.000001
+root function (perhaps as an exercise in Newton-Raphson iteration?), which is
+to be named *my_sqrt*. Their function is required to return an answer that
+is within an absolute tolerance of 0.000001
 of the correct answer. To prevent them from using the math module, any use
 of an import statement would need to be disallowed but we'll ignore that aspect
 in order to focus on the grading aspect.
@@ -2079,17 +2162,17 @@ in order to focus on the grading aspect.
 The simplest way to deal with this issue is to write a series of testcases
 of the form
 
-        approx = student_sqrt(2)
-        right_answer = math.sqrt(2)
-        if math.abs(approx - right_answer) < 0.00001:
-            print("OK")
-        else:
-            print("Fail (got {}, expected {})".format(approx, right_answer))
+    approx = my_sqrt(2)
+    right_answer = math.sqrt(2)
+    if math.abs(approx - right_answer) < 0.00001:
+        print("OK")
+    else:
+        print("Fail (got {}, expected {})".format(approx, right_answer))
 
 where the expected output is "OK". However, if one wishes to test the student's
 code with a large number of values - say 100 or more - this approach becomes
 impracticable. For that, we need to write our own tester, which we can do
-using a template grade.
+using a template grader.
 
 Template graders that run student-supplied code are somewhat tricky to write
 correctly, as they need to output a valid JSON record under all situations,
@@ -2098,47 +2181,47 @@ errors or syntax error. The safest approach is usually to run the student's
 code in a subprocess and then grade the output.
 
 A per-test template grader for the student square root question, which tests
-the student's *student_sqrt* function with 1000 random numbers in the range
+the student's *my_sqrt* function with 1000 random numbers in the range
 0 to 1000, might be as follows:
 
-        import subprocess, json, sys
-        student_func = """{{ STUDENT_ANSWER | e('py') }}"""
+    import subprocess, json, sys
+    student_func = """{{ STUDENT_ANSWER | e('py') }}"""
 
-        if 'import' in student_func:
-            output = 'The word "import" was found in your code!'
-            result = {'got': output, 'fraction': 0}
-            print(json.dumps(result))
-            sys.exit(0)
-
-        test_program = """import math
-        from random import uniform
-        TOLERANCE = 0.000001
-        NUM_TESTS = 1000
-        {{ STUDENT_ANSWER | e('py') }}
-        ok = True
-        for i in range(NUM_TESTS):
-            x = uniform(0, 1000)
-            stud_answer = student_sqrt(n)
-            right = math.sqrt(x)
-            if abs(right - stud_answer) > TOLERANCE:
-                print("Wrong sqrt for {}. Expected {}, got {}".format(x, right, stud_answer))
-                ok = False
-                break
-
-        if ok:
-            print("All good!")
-        """
-        try:
-            with open('code.py', 'w') as fout:
-                fout.write(test_program)
-            output = subprocess.check_output(['python3', 'code.py'],
-                stderr=subprocess.STDOUT, universal_newlines=True)
-        except subprocess.CalledProcessError as e:
-            output = e.output
-
-        mark = 1 if output.strip() == 'All good!' else 0
-        result = {'got': output, 'fraction': mark}
+    if 'import' in student_func:
+        output = 'The word "import" was found in your code!'
+        result = {'got': output, 'fraction': 0}
         print(json.dumps(result))
+        sys.exit(0)
+
+    test_program = """import math
+    from random import uniform
+    TOLERANCE = 0.000001
+    NUM_TESTS = 1000
+    {{ STUDENT_ANSWER | e('py') }}
+    ok = True
+    for i in range(NUM_TESTS):
+        x = uniform(0, 1000)
+        stud_answer = my_sqrt(n)
+        right = math.sqrt(x)
+        if abs(right - stud_answer) > TOLERANCE:
+            print("Wrong sqrt for {}. Expected {}, got {}".format(x, right, stud_answer))
+            ok = False
+            break
+
+    if ok:
+        print("All good!")
+    """
+    try:
+        with open('code.py', 'w') as fout:
+            fout.write(test_program)
+        output = subprocess.check_output(['python3', 'code.py'],
+            stderr=subprocess.STDOUT, universal_newlines=True)
+    except subprocess.CalledProcessError as e:
+        output = e.output
+
+    mark = 1 if output.strip() == 'All good!' else 0
+    result = {'got': output, 'fraction': mark}
+    print(json.dumps(result))
 
 The following figures show this question in action.
 
@@ -2221,7 +2304,7 @@ It was stated above that the values to be formatted by the format string (if
 given) were fields from the TestResult object. This is a slight simplification.
 The syntax actually allows for expressions of the form:
 
-        filter(testResultField [,testResultField]... )
+    filter(testResultField [,testResultField]... )
 
 where `filter` is the name of a built-in filter function that filters the
 given testResult field(s) in some way. Currently the only such built-in
@@ -2262,8 +2345,9 @@ unchecking a *Use Ace* checkbox, but this disabled it both for student answers
 and for the author's template.
 
 Since version 3.3.0, CodeRunner now supports pluggable user interfaces,
-although an administrator has to install the plugin. The two user interfaces
-currently built in to CodeRunner are Ace and Graph. The question author selects the required
+although an administrator has to install the plugin. The user interfaces
+currently built in to CodeRunner are Ace, Ace-gapfiller, Gapfiller, Graph,
+Scratchpad and Table. The question author selects the required
 user interface via a dropdown menu in the customisation section of the question
 author form. The selection controls editing of the sample answer and answer
 preload fields of the authoring form and the student's answer in the live
@@ -2271,144 +2355,102 @@ quiz. The Ace editor is always used for editing the template itself, unless
 turned off with the *Template uses ace* checkbox in the authoring
 form.
 
-### The Graph UI
+The value of the STUDENT_ANSWER variable seen by the template code is different
+for the various UI plugins. For example, with the Ace editor the STUDENT_ANSWER
+is simply the raw text edited by Ace, while for the Ace-gapfiller it's a JSON
+list of the string values that the student entered into the gaps.
 
-The Graph UI plugin
-provides simple graph-drawing capabilities to support
-questions where the student is asked to draw or edit a graph. By default the
-Graph UI, which was developed for Finite State Machines, draws directed graphs,
-allows nodes to be marked as *Accept* states and allows incoming start edges.
-For example:
-
-<img src="http://coderunner.org.nz/pluginfile.php/56/mod_page/content/30/Selection_309.png" />
-
-Clicking the Help button on the graph canvas displays information on how to
-draw graphs.
-
-Some limited control of the Graph UI is available to the question author
-via template parameters as follows:
-
-  1. isdirected - defaults to true. Set it to false for a non-directed graph.
-
-  1. isfsm - defaults to false. Set it to true to allow edges to enter the
-graph from space, i.e., without a start node. It also allows nodes to be marked
-as accept states by double clicking.
-
-  1. noderadius - defaults to 26. The radius of nodes, in pixels.
-
-  1. fontsize - defaults to 20. The size of the Arial font, in px.
-
-  1. textoffset. An offset in pixels used when positioning link label text.
-      Default 4.
-
-  1. locknodes. True to prevent the user from moving nodes. Useful when the
-answer box is preloaded with a graph that the student has to annotate by
-changing node or edge labels or by adding/removing edges. Note, though that
-nodes can still be added and deleted.
-
-  1. lockedges. True to prevent the user from dragging edges to change
-their curvature. Possibly useful if the
-answer box is preloaded with a graph that the student has to annotate by
-changing node or edge labels or by adding/removing edges. Also ensures that
-edges added by a student are straight, e.g. to draw a polygon on a set of
-given points. Note, though that edges can still be added and deleted.
-
-  1. helpmenutext - text to replace the default help menu text. Must be a
-     single JSON string written on line using "\n" to separate lines in the menu.
-     For example:
-
-        {"helpmenutext": "Line1\nLine2\nLine3"}
-
-    The default value, written here in multiple lines for readability, is:
-
-        - Double click at a blank space to create a new node/state.
-        - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
-          (FSMs). Double click again to unmark it.
-        - Click and drag to move a node.
-        - Alt click (or Ctrl alt click) and drag on a node to move a (sub)graph.
-        - Shift click inside one node and drag to another to create a link.
-        - Shift click on a blank space, drag to a node to create a start link (FSMs only).
-        - Click and drag a link to alter its curve.
-        - Click on a link/node to edit its text.
-        - Typing _ followed by a digit makes that digit a subscript.
-        - Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc).
-        - Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).
-
-For example, for a non-directed non-fsm graph set the template parameters field to
-
-        {"isdirected": false, "isfsm": false}
-
-or merge those values into any other template parameters required by the
-question.
-
-Other template parameters may be added as required by specific questions.
-
-Many thanks to Emily Price for the original implementation of the Graph UI.
+Most UI plugins support a few configuration options via a UI parameters entry
+field in the question authoring form.
 
 All active CodeRunner user interface plugins in both the question authoring
 form and the student's quiz page can be toggled off and on with a
 CTRL-ALT-M keypress, alternately exposing and hiding the underlying textarea element.
 
-### The Table UI
+The general behaviour, serialisation and UI parameters of the supported plugins
+are as follows.
 
-The table UI plug-in replaces the usual textarea answer element with an HTML table,
-into which the student must enter text data. All cells in the table are
-HTML *textarea* elements. The question author can enable *Add row* and
-*Delete row* buttons that allow the student to add or delete rows. The configuration
-of the table is set by the following template parameters, where the first two
-are required and the rest are optional.
+### Ace UI
 
- * `num_rows` (required): sets the (initial) number of table rows, excluding the header.
- * `num_columns` (required): sets the number of table columns.
- * `column_headers` (optional): a list of strings used for column headers. By default
-   no column headers are used.
- * `row_labels` (optional): a list of strings used for row labels. By
-   default no row labels are used.
- * `lines_per_cell` (optional): the initial number of rows for each of the
-   table text-area cells. Default 2.
- * `column_width_percents` (optional): a list of numeric percentage widths of the different
-   columns. For example, if there are two columns, and the first one is to
-   occupy one-quarter of the available width, the list should be \[25, 75\].
-   By default all columns have the same width.
- * `dynamic_rows` (optional): set `true` to enable the addition of *Add row*
-   and *Delete row* buttons through which the student can alter the number of
-   rows. The number of rows can never be less than the initial `num_rows` value.
- * `locked_cells` (optional): an array of 2-element [row, column] cell specifiers.
-   The specified cells are rendered to HTML with the *disabled* attribute, so
-   cannot be changed by the user. For example
+This is the default UI interface and is the one most-commonly used for programming
+questions.
 
-        "locked_cells": [[0, 0], [1, 0]]
+#### Serialisation
+The serialisation is simply the raw text that the Ace editor is displaying.
 
-   to lock the leftmost column of rows 0 and 1.
-   This is primarily for use in conjunction with
-   an answer preload in which some cells are defined by the question author.
-   The preload answer must be defined before the locked_cells template
-   parameter is defined, or the question author will not be able to define
-   the required values in the first place.
+#### UI parameters
+Mostly the default configuration options will be used but a few
+specialised UI parameters exist:
 
-For example, the `python3\_program\_testing` question type uses the following
-UI parameter setting:
+ 1. auto_switch_light_dark. If true, this parameter allows a browser or OS
+       colour-scheme preference for a dark theme to override the default Ace
+       theme setting for a question. Default: false.
 
-    {
-        "num_rows": 3,
-        "num_columns": 2,
-        "column_headers": ["Test", "Result"],
-        "dynamic_rows": true
-    }
+ 1. font_size. The font-size for the Ace editor. Default: 14 px.
 
- The table serialisation is simply a JSON array of arrays containing all the
-table cells excluding the header row.
+ 1. import_from_scratchpad. True to allow the Ace editor to detect that a
+       question appears to have been configured for the scratchpad UI, and
+       extract the actual code from the JSON. Should not be changed from its
+       default of true unless you want students to edit JSON objects with an
+       'answer_code' key. Default: true.
 
-As a special case of the serialisation, if all values in the serialisation
-are empty strings, the serialisation is
-itself the empty string.
+ 1. live_autocompletion. Turns on the Ace editor auto-complete function.
 
-An example of the use of this UI type can be seen in the
-*python3_program_testing* prototype in the *samples* folder.
+ 1. theme. The theme to be used by the ace editor. Type ctrl + ',' within
+       the Ace editor to see a list of available themes. Default: textmate.
 
-### The Gap Filler UI
+If a user uses the ctrl + ',' option to select a theme, this theme will be used
+in all Ace editor windows within that browser until changed back.
 
-This plugin replaces the usual textarea answer box with a div
+
+### Ace-gapfiller UI
+A UI that presents the user with an Ace editor window containing code with some
+gaps in it. The user is expected to fill in the gaps. Only simple gaps at most
+one line in length are supported.
+
+The text to be displayed in the editor window is by default the contents of the
+globalextra field in the question author form, but can alternatively be set
+from the code in the first test case (see the ui_source UI parameter below).
+The text will normally be most of a program but with one or more bits replaced by a
+gap specifier of the form
+
+    {[20-40]}
+
+where the two numbers are the default field width and maximum field width
+respectively. It the second number (and the preceding '-') is omitted,
+the field width can expand arbitrarily.
+
+For example (a case in which the source is test0):
+
+<img src="https://coderunner.org.nz/pluginfile.php/56/mod_page/content/31/Screenshot%20from%202023-08-29%2016-50-18.png" />
+
+#### Serialisation
+
+The serialisation is a
+JSON list of strings, which are the values entered by the student into the
+gaps.
+
+#### UI parameters
+
+ 1. ui_source. This parameter specifies where to get the source text
+       to be displayed in the editor (with gaps as specified above).
+       The default value is "globalextra" but the alternative is "test0".
+       In the latter case, the contents of the test code field of the first
+       test is used. In this latter case, all other test cases should contain
+       corresponding gap fillers and the result table will substitute the
+       student's gap fillers into all tests with syntax colouring to denote
+       the substitution. In this mode, you can't use the "Use as example"
+       feature because the test code isn't defined until the student has
+       filled in the gaps.
+
+### Gap Filler UI
+
+This plugin is an older version of the Ace gapfiller UI and has largely been
+superseded by it. It does have one advantage over the Ace gapfiller: it
+allows for multiline HTML text area gaps as well as single line HTML input
+elements. But the program is displayed as simple non-syntax-coloured text.
+
+This UI replaces the usual textarea answer box with a div
 consisting of pre-formatted text supplied by the question author in either the
 "globalextra" field or the testcode field of the first test case, according
 to the ui parameter ui_source (default: globalextra).  HTML
@@ -2434,6 +2476,8 @@ where size, rows and column are integer literals. These respectively
 inject an HTML input element or a textarea element of the
 specified size.
 
+#### Serialisation
+
 The serialisation of the answer box contents, i.e. the text that is
 copied back into the textarea for submission
 as the answer, is simply a list of all the field values (strings), in order.
@@ -2441,30 +2485,122 @@ as the answer, is simply a list of all the field values (strings), in order.
 As a special case of the serialisation, if the value list is empty, the
 serialisation itself is the empty string.
 
-The delimiters for the input element insertion tags are by default '{[' and
-']}', but can be changed by an optional UI parameter delimiters,
-which must be a 2-element array of strings. For example:
+#### UI parameters
 
-    {"delimiters": ["{{", "}}"]}
+ 1. ui_source. As with the Ace gapfiller, this sets the source for the program
+       source with the inserted gaps. It can be set to "globalextra" to take
+       the HTML from the globalextra field or to "test0" to take if from the
+       test code of the first test case.
 
-Note that the double-brace delimiters in that example are the same as those
-used by Twig, so using them instead of the default would prevent you from
-ever adding Twig expansion (e.g. for randomisation) to the question. This is
-not recommended.
+ 1. delimiters. A 2-element array of the strings used to open and close the gap
+       description. Default ["{[", "]}"]
+
+ 1. sync_interval_secs. The time interval in seconds between calls to sync the
+       UI contents back to the question answer. 0 for no such auto-syncing.
 
 
-### The Ace Gap Filler UI
+### Graph UI
 
-This is a variant on the Gap Filler UI in which
-the text is rendered by the Ace editor with all usual syntax highlighting
-but the user can edit only the text in the gaps.
+The Graph UI plugin
+provides simple graph-drawing capabilities to support
+questions where the student is asked to draw or edit a graph. By default the
+Graph UI, which was developed for Finite State Machines, draws directed graphs,
+allows nodes to be marked as *Accept* states and allows incoming start edges.
+For example:
 
-It behaves exactly like the Gap Filler UI, above, except that it does not
-currently support the {[ rows, columns ]} syntax for multiline gaps. Only
-in-line gaps are supported. In addition, the field width can have a maximum
-width set, with a syntax like {[20-40]}, meaning the initial field width
-is 20 characters but can expand up to 40. If the maximum value is omitted, the
-field can expand to an arbitrary width.
+<img src="https://coderunner.org.nz/pluginfile.php/56/mod_page/content/30/Selection_309.png" />
+
+Clicking the Help button on the graph canvas displays information on how to
+draw graphs.
+
+#### Serialisation
+
+The serialised Graph UI STUDENT_ANSWER is a JSON object with the following attributes:
+
+ 1. nodes. An array of 2-element arrays [nodelabel, is_acceptor]. The 'is_acceptor'
+       value is a boolean that's true for accept state nodes in FSM graphs,
+       false otherwise.
+
+ 1. edges. An array of 3-element arrays [from_node_num, to_node_num, edge_label].
+       Node numbers are indices into the nodes array (0-origin).
+
+ 1. nodeGeometry. An array of 2-element arrays that are the coordinates of
+       the nodes.
+
+ 1. edgeGeometry. An array of JSON objects, that define the shape of the
+       in-general-circular arcs connecting two nodes. Hopefully you never need
+       to understand this attribute.
+
+#### UI Parameters
+
+Some limited control of the Graph UI is available to the question author
+via template parameters as follows:
+
+  1. isdirected - defaults to true. Set it to false for a non-directed graph.
+
+  1. isfsm - defaults to false. Set it to true to allow edges to enter the
+graph from space, i.e., without a start node. It also allows nodes to be marked
+as accept states by double clicking.
+
+  1. noderadius - defaults to 26. The radius of nodes, in pixels.
+
+  1. fontsize - defaults to 20. The size of the Arial font, in px.
+
+  1. textoffset. An offset in pixels used when positioning link label text.
+      Default 4.
+
+  1. locknodepositions. True to prevent the user from moving nodes. Useful when the
+answer box is preloaded with a graph that the student has to annotate by
+changing node or edge labels or by adding/removing edges. Note, though that
+nodes can still be added and deleted. See locknodeset. Default false.
+
+  1. locknodelabels. True to prevent the user from editing node labels. Also
+     prevents any new nodes having non-empty labels. Default false.
+
+  1. locknodeset. True to prevent user from adding or deleting nodes or toggling
+     node types to/from acceptors. Default false.
+
+  1. lockedgepositions. True to prevent the user from dragging edges to change
+     their curvature. Possibly useful if the
+     answer box is preloaded with a graph that the student has to annotate by
+     changing node or edge labels or by adding/removing edges. Also ensures that
+     edges added by a student are straight, e.g. to draw a polygon on a set of
+     given points. Note, though that edges can still be added and deleted. See lockedgeset.
+     Default false.
+
+  1. lockedgelabels. True to prevent the user from editing edge labels. Also
+     prevents any new edges from having labels. Default false.
+
+  1. lockedgeset. True to prevent the user from adding or deleting edges.
+     Default false.
+
+  1. helpmenutext - text to replace the default help menu text. Must be a
+     single JSON string written on line using "\n" to separate lines in the menu.
+     For example:
+
+        {"helpmenutext": "Line1\nLine2\nLine3"}
+
+    The default value, written here in multiple lines for readability, is:
+
+        - Double click at a blank space to create a new node/state.
+        - Double click an existing node to "mark" it e.g. as an accept state for Finite State Machines
+          (FSMs). Double click again to unmark it.
+        - Click and drag to move a node.
+        - Alt click (or Ctrl alt click) and drag on a node to move a (sub)graph.
+        - Shift click inside one node and drag to another to create a link.
+        - Shift click on a blank space, drag to a node to create a start link (FSMs only).
+        - Click and drag a link to alter its curve.
+        - Click on a link/node to edit its text.
+        - Typing _ followed by a digit makes that digit a subscript.
+        - Typing \\epsilon creates an epsilon character (and similarly for \\alpha, \\beta etc).
+        - Click on a link/node then press the Delete key to remove it (or function-delete on a Mac).
+
+For example, for a non-directed non-fsm graph set the UI parameters field to
+
+    {"isdirected": false, "isfsm": false}
+
+Many thanks to Emily Price for the original implementation of the Graph UI.
+
 
 ### The Html UI
 
@@ -2472,47 +2608,79 @@ The Html UI plug-in replaces the answer box with custom HTML provided by the
 question author. The HTML will usually include data entry fields such as
 html input and text area elements and it is the values that the user enters
 into these fields that constitutes the student answer. The HTML can
-also include JavaScript in `<script>` elements. Although
-very powerful, the mechanism is complex and there are several pitfalls. Caveat
-emptor!
-
-When the answer is submitted by the student, the UI extracts the values of all
-UI elements within the HTML that have the class 'coderunner-ui-element'.
-Each such element
-is expected to have a 'name' attribute as well and (name, value) pairs of all
-such elements are used to construct a single JSON object which is copied into
-the underlying textarea answerbox and returned as the answer. Since multiple
-UI elements can have the same name, the values in the JSON represention of
-the answer are always lists.  Each list contains all the values, in
-document order, of the results of calling the jquery val() method in turn
-on each of the UI elements with that name.
-This means that at least input, select and textarea
-elements are supported. Twig macros
-are provided to simplify entry of those elements; see [this section](#twig-macros).
-
-The author is responsible for checking the
-compatibility of any other elements entered using raw HTML with jquery's val() method.
-If an element lacks a *val* method, jquery *valHooks* can be used to define one.
+also include JavaScript in `<script>` elements.
 
 The HTML to use in the answer area must be provided as the contents of
-the `globalextra` field in the question authoring form.
+either the `globalextra` field  or the `prototypeextra` field (see UI parameters
+below) in the question authoring form.
 
-Care must be taken when using the Html UI to avoid using field names that conflict
+The CodeRunner-relevant HTML elements are required to have a name and the class
+'coderunner-ui-element'. They also need to support a call to the jquery *val()*
+method to get their values. HTML *input*, *select* and *textarea* elements are
+the most commonly used. If an element lacks a *val* method,
+jquery *valHooks* can be used to define one.
+
+Care must be taken when using the HTML UI to avoid using field names that conflict
 with any other named HTML elements in the page. It is recommended that a prefix
-of some sort, such as `crui_`, be used with all names.
+of some sort, such as `crui_` (for "CodeRunner UI"), be used with all names.
 
-When authoring a question that uses the Html UI, the answer and answer preload
-fields are *not* controlled by the UI, but are displayed as raw text.
-If data is to be entered into these fields,
-it must be of the form
+Although very powerful, and capable of implementing almost any custom user interface,
+the mechanism is complex and there are several pitfalls. Caveat
+emptor!
 
-    {"<fieldName>": "<fieldValueList>",...}
+#### UI parameters
 
-where fieldValueList is a list of all the values to be assigned to the fields
-with the given name, in document order. For complex UIs it is easiest to turn
-off validate on save, save the question, preview it, enter the right answers into
+  1. enable_in_editor. By default, when editing questions the UI manages
+       both the question answer and answer-preload fields. While this is
+       by far the most user-friendly way to operate, it doesn't allow for the
+       use of Twig in those fields, since Twig processing takes place on the
+       server, not in JavaScript in the client. If you wish to use Twig you
+       must set this UI parameter to false. Default: true.
+
+  1. html_src. This parameter specifies where the HTML code comes from.
+       It must be either "globalextra" to get the code from the current
+       question or "prototypeextra" to get it from the question's prototype
+       prototypeextra field.
+
+  1. sync_interval_secs. This sests the time interval in seconds between
+       calls to sync the UI contents serialisation back into the question
+       answer. 0 for no such auto-syncing.
+
+#### Serialisation
+
+The STUDENT_ANSWER is a JSON object with an attribute for every name used by
+CodeRunner-relevant elements
+within the HTML. Since multiple HTML
+elements can have the same name, the *value* of each named attribute
+is a *list* of strings, not a single string. The strings are in DOM
+order. Each individual value is extracted using the jquery *val()* method.
+
+As a trivial example, if the HTML supplied by the question author in the
+globalextra field were simply:
+
+    <input type="text" name="crui_input" class="coderunner-ui-element"
+     placeholder="Enter the word 'floodle' here">
+
+and the student entered 'floodle' in the text area as instructed, the serialisation
+would be
+
+    {"crui_input":["floodle"]}
+
+When authoring a question that uses the HTML UI, the answer and answer preload
+fields are by default also controlled by the UI. While this is most user-friendly presentation,
+it does not allow you to include Twig code in those fields. If you need
+to use Twig there, you must turn off the use of the UI within the question
+editing page by setting the UI parameter `enable_in_editor` to false:
+
+    {"enable_in_editor": false}
+
+The underlying serialisation is then displayed as raw JSON text. In this case
+editing the answer and answer preload text is difficult; the easiest approach
+is to save the question, preview it, enter the right answers into
 all fields, type CTRL-ALT-M to switch off the UI and expose the serialisation,
-then copy that serialisation back into the author form.
+then copy that serialisation back into the author form. But this rigmarole is
+only necessary when you need to use Twig within the answer or sample answer,
+which is rare.
 
 It is possible that the question author might want a dynamic answer box in
 which the student can add extra fields. A simple example of this is the Table UI,
@@ -2587,23 +2755,192 @@ be unique. For more information, see this CodeRunner author's forum thread
 where Markus Gafner (who contributed this workaround) shows a HtmlUI question
 with an embedded GraphUI question, plus other embedded questions.
 
+### Scratchpad UI
+This UI is an extension of the Ace UI. In addition to the usual Ace code edit
+window for the question answer, an optional extra "scratchpad" Ace edit window
+is available. If the student opens the scratchpad, they can add code to test
+their answer (or any other code they wish to run) and are presented with a *Run*
+button that submits the code from the scratchpad to the Jobe server using the
+CodeRunner webservice (which must be enabled for the UI to be usable). This
+essentially gives them a mini-IDE for each question. Their test code is
+saved alongside their answer when they submit ("Check") their question answer.
 
-### Other UI plugins
+Prior to opening the scratchpad, the student sees something like the following
+(where they have already written their answer):
 
-Question authors who have admin access to the Moodle server can write their
-own user-interface plugins; a JavaScript
-file with a name of the form `ui_something.js` in the
-folder
+<img src="https://coderunner.org.nz/pluginfile.php/56/mod_page/content/33/ScratchpadUI1.png">
 
-        <moodlehome>/question/type/coderunner/amd/src
+In use, the scratchpad UI looks like this:
 
-is assumed to be a user interface plugin and is automatically added to
-the drop-down menu of available plugins. Such plugin files must be AMD modules
-and must implement the interface defined in the file
+<img src="https://coderunner.org.nz/pluginfile.php/56/mod_page/content/33/ScratchpadUI2.png">
 
-        <moodlehome>/question/type/coderunner/amd/src/userinterfacewrapper.js
+Note that the student has the choice of running the scratchpad code in isolation
+or of running code consisting of their question answer followed by their
+scratchpad code.
 
-Writing UI plugins is, however, not a job for the faint hearted.
+In the simplest use cases, a question author can flip between the Ace-UI
+and the Scratchpad UI transparently. However, for question types like
+"Java write a function", the test needs boiler-plate code that is hidden
+from the student, so simply clicking the *Run* button won't behave the same
+as when the *Check* button is clicked. The question author can customise the
+behaviour of the scratchpad UI using the UI parameters below, but the process
+can be complex, particularly for question types that might need to collect
+images from the Jobe server. Some examples are given
+[here](https://coderunner.org.nz/mod/quiz/edit.php?cmid=548)
+on the CodeRunner demo site.
+
+#### Serialisation
+The serialisation is a JSON object with the following attributes. The values
+of all attributes are lists of strings, rather than just the strings themselves,
+for compatibility with the HTML UI, where there can be multiple HTML data-entry
+elements with the same name. (The original scratchpad question type at the
+University of Canterbury was implemented with the HTML UI, and we wanted
+compatibility with that).
+
+  1. `answer_code`: a singleton list containing the contents of the main
+       question answer box.
+
+  1. `test_code`: a singleton list containing the contents of the scratchpad.
+
+  1. `show_hide`: a singleton list containing either '0' or '1' depending
+       on whether the scratchpad is hidden or shown respectively.
+
+  1. `prefix_ans`: a singleton list containing either '0' or '1' depending on
+       whether or not the "Prefix with ans" checkbox is checked or not.
+
+#### UI parameters
+
+The set of UI parameters for the scratchpad is rather complex and you probably
+need to study the examples on the CodeRunner demo site (see above link) to understand
+these.
+
+  1. `scratchpad_name`. The text in the link used to open/close the scratchpad.
+       Default: "scratchpad".
+
+  1. `button_name`. The text in the Run button. Default: "Run".
+
+  1. `prefix_name`. Prefix with answer check-box label text. Default: "Prefix with answer".
+
+  1. `help_text`. The help text to show when a student clicks the help icon.
+
+  1. `run_lang`. The language to use when running the code on the Jobe server.
+       Default: null
+
+  1. `wrapper_src`. The location of wrapper to be used by the run button:
+       setting to 'globalextra' will use text in global extra field,
+       'prototypeextra' will use the prototype extra field. The wrapper is
+       code that wraps the student's scratchpad code; it can be used to
+       support additional functionality like boilerplate code for initialising
+       libraries, fetching images, etc. See
+
+  1. `output_display_mode`. Control how program output is displayed on runs.
+       There are three modes:
+
+     * `text`: Display the output as text, html escaped. (default)
+     * `json`: Display programs that output JSON, useful for capturing stdin
+                and displaying images. (recommended). Accepts JSON in the run
+                output with the fields:
+
+        + `returncode`: Exit code from program run.
+        + `stdout`: Stdout text from program run.
+        + `stderr`: Error text from program run.
+        + `files`: An object containing filenames mapped to base64
+                encoded images. These will be displayed below any stdout text.
+                When the returncode is set to 42, an HTML input field will be
+                added after the last stdout received. When the enter key is
+                pressed inside the input, the input's value is added to stdin
+                and the program is run again with this updated stdin.
+                This is repeated until returncode is not set to 42. This allows
+                simulation of interactive keyboard standard input within the
+                run (with considerable effort - see CodeRunner demo website).
+
+     * `html`: Display program output as raw html inside the output area. (advanced)
+                + This can be used to show images and insert other HTML.
+                + Giving an <input> element the class coderunner-run-input will
+               add an event: when the enter key is pressed inside the input,
+               the input's value is added to stdin and the program is run again
+               with this updated stdin.
+
+  1. `open_delimiter`. The opening delimiter to use when inserting answer or
+       Scratchpad code into the wrapper. It will replace the default value '{|'.
+
+  1. `close_delimiter`. The closing delimiter to use when inserting answer or
+       Scratchpad code into the wrapper. It will replace the default value '|}'.
+
+  1. `params`. Parameter for the sandbox webservice (e.g. to set timelimit).
+
+  1. `disable_scratchpad`. Disable the scratchpad, resulting in what looks to
+       the student like the Ace UI. This allows question authors to turn off
+       the scratchpad without having to customise the question (which then
+       becomes disassociated from the original question) or changing the
+       question type altogether.
+
+  1. `invert_prefix`. Inverts meaning of prefix\_ans serialisation: '1' means
+       un-ticked -- and vice versa. This can be used to swap the default state.
+
+  1. `escape`. Escape the JSON ANSWER_CODE and
+       SCRATCHPAD_CODE strings by removing the double quotes from the start and end
+       and escaping all internal double quotes with backslash before insertion
+       into the wrapper. Useful when inserting
+       code into a string. NOTE: single quotes ' are NOT escaped.
+
+### Table UI
+
+The table UI plug-in replaces the usual textarea answer element with an HTML table,
+into which the student must enter text data. All cells in the table are
+HTML *textarea* elements. The question author can enable *Add row* and
+*Delete row* buttons that allow the student to add or delete rows. The configuration
+of the table is set by the following template parameters, where the first two
+are required and the rest are optional.
+
+ * `num_rows` (required): sets the (initial) number of table rows, excluding the header.
+ * `num_columns` (required): sets the number of table columns.
+ * `column_headers` (optional): a list of strings used for column headers. By default
+   no column headers are used.
+ * `row_labels` (optional): a list of strings used for row labels. By
+   default no row labels are used.
+ * `lines_per_cell` (optional): the initial number of rows for each of the
+   table text-area cells. Default 2.
+ * `column_width_percents` (optional): a list of numeric percentage widths of the different
+   columns. For example, if there are two columns, and the first one is to
+   occupy one-quarter of the available width, the list should be \[25, 75\].
+   By default all columns have the same width.
+ * `dynamic_rows` (optional): set `true` to enable the addition of *Add row*
+   and *Delete row* buttons through which the student can alter the number of
+   rows. The number of rows can never be less than the initial `num_rows` value.
+ * `locked_cells` (optional): an array of 2-element [row, column] cell specifiers.
+   The specified cells are rendered to HTML with the *disabled* attribute, so
+   cannot be changed by the user. For example
+
+       "locked_cells": [[0, 0], [1, 0]]
+
+   to lock the leftmost column of rows 0 and 1.
+   This is primarily for use in conjunction with
+   an answer preload in which some cells are defined by the question author.
+   The preload answer must be defined before the locked_cells template
+   parameter is defined, or the question author will not be able to define
+   the required values in the first place.
+
+For example, the `python3\_program\_testing` question type uses the following
+UI parameter setting:
+
+    {
+        "num_rows": 3,
+        "num_columns": 2,
+        "column_headers": ["Test", "Result"],
+        "dynamic_rows": true
+    }
+
+ The table serialisation is simply a JSON array of arrays containing all the
+table cells excluding the header row.
+
+As a special case of the serialisation, if all values in the serialisation
+are empty strings, the serialisation is
+itself the empty string.
+
+An example of the use of this UI type can be seen in the
+*python3_program_testing* prototype in the *samples* folder.
+
 
 ## User-defined question types
 
@@ -2880,38 +3217,38 @@ The service is intended for use within Moodle content pages, usually within
 AMD scripts. However, the service can be used from JavaScript directly
 embedded in a page using an HTML editor. For example:
 
-        <h3>A simple demo of the CodeRunner sandbox web service.</h3>
-        <textarea id="code" rows="4" cols="40"></textarea>
-        <br>
-        <button type="button" id="mybutton">Run me!</button>
+    <h3>A simple demo of the CodeRunner sandbox web service.</h3>
+    <textarea id="code" rows="4" cols="40"></textarea>
+    <br>
+    <button type="button" id="mybutton">Run me!</button>
 
-        <script>
-            var button = document.getElementById('mybutton');
-            var text = document.getElementById('code');
-            button.onclick = function() {
-                require(['core/ajax'], function(ajax) {
-                    ajax.call([{
-                        methodname: 'qtype_coderunner_run_in_sandbox',
-                        args: {
-                            contextid: M.cfg.contextid, // Moodle context ID
-                            sourcecode: text.value,
-                            language: "python3"
-                        },
-                        done: function(responseJson) {
-                            var response = JSON.parse(responseJson);
-                            if (response.error !== 0 || response.result !== 15) {
-                                alert("Oops: " + responseJson);
-                            } else {
-                                alert("Output was: '" + response.output + "'");
-                            }
-                        },
-                        fail: function(error) {
-                            alert(error.message);
+    <script>
+        var button = document.getElementById('mybutton');
+        var text = document.getElementById('code');
+        button.onclick = function() {
+            require(['core/ajax'], function(ajax) {
+                ajax.call([{
+                    methodname: 'qtype_coderunner_run_in_sandbox',
+                    args: {
+                        contextid: M.cfg.contextid, // Moodle context ID
+                        sourcecode: text.value,
+                        language: "python3"
+                    },
+                    done: function(responseJson) {
+                        var response = JSON.parse(responseJson);
+                        if (response.error !== 0 || response.result !== 15) {
+                            alert("Oops: " + responseJson);
+                        } else {
+                            alert("Output was: '" + response.output + "'");
                         }
-                    }]);
-                });
-            }
-        </script>
+                    },
+                    fail: function(error) {
+                        alert(error.message);
+                    }
+                }]);
+            });
+        }
+    </script>
 
 This page displays a textarea into which a user can enter Python code, which
 can then be run by clicking the button. The output is displayed in an alert.
@@ -2976,19 +3313,19 @@ a course before attempting to run the scripts.
 
 The three scripts are:
 
- 1. &lt;moodle_home&gt;/question/type/coderunner/bulktestindex.php
+ 1. `&lt;moodle_home&gt;/question/type/coderunner/bulktestindex.php`
     This script displays a list of all question categories accessible to the
     user who is currently logged into Moodle on the machine running the script.
     Each category is displayed as a clickable link that then runs a script that
     tests the sample answers on all questions in that category, reporting
     all successes and failures.
 
- 1. &lt;moodle_home&gt;/question/type/coderunner/prototypeusageindex.php
+ 1. `&lt;moodle_home&gt;/question/type/coderunner/prototypeusageindex.php`
     This scripts displays an index like the one above except that the
     clickable links now run a script that reports on the question prototype
     usage within that category.
 
- 1. &lt;moodle_home&gt;/question/type/coderunner/downloadquizattempts.php
+ 1. `&lt;moodle_home&gt;/question/type/coderunner/downloadquizattempts.php`
     This script
     displays a list of all quizzes available to the logged in user,
     allowing them to download a spreadsheet of all submissions to a selected quiz
@@ -3080,7 +3417,7 @@ The three scripts are:
 To assist the use of screen readers for visually impaired students,
 text area inputs now have two modes:
 
-* When keyboard focus first enters them via Tab or Shift+TAb, they are
+* When keyboard focus first enters them via Tab or Shift+TAB, they are
   in 'non-capturing' mode, and pressing TAB or Shift+TAB moves to the
   next or previous form control.
 
@@ -3120,24 +3457,24 @@ seed, such as the student's ID number.
 
 That initialisation process can be described as follows:
 <pre>
-    <b>procedure</b> create_question_instance(question):
-        question.student = get_current_moodle_user_info()
-        question.prototype = locate_prototype_question(question.prototype_name)
-        question.random_seed = make_new_random_seed()
-        set_twig_environment(question.random_seed, question.student)
-        question.template_params = twig_expand(question.template_params)
-        <b>if</b> question.prototype has template parameters:
-            prototype_params = twig_expand(question.prototype.template_params)
-            question.template_params = merge_json(prototype_params, question.template_params)
-        <b>if</b> question.twigall:
-            # Twig expand question text, sample answer, answer preload,
-            # all test case fields and global extra. The just-computed
-            # template parameters provide (most of) the twig environment.
-            set_twig_environment(question.random_seed,
-                question.student, question.template_params)
-            <b>for each</b> twiggable attribute of question:
-                question.attribute = twig_expand(question.attribute)
-        save question instance
+<b>procedure</b> create_question_instance(question):
+    question.student = get_current_moodle_user_info()
+    question.prototype = locate_prototype_question(question.prototype_name)
+    question.random_seed = make_new_random_seed()
+    set_twig_environment(question.random_seed, question.student)
+    question.template_params = twig_expand(question.template_params)
+    <b>if</b> question.prototype has template parameters:
+        prototype_params = twig_expand(question.prototype.template_params)
+        question.template_params = merge_json(prototype_params, question.template_params)
+    <b>if</b> question.twigall:
+        # Twig expand question text, sample answer, answer preload,
+        # all test case fields and global extra. The just-computed
+        # template parameters provide (most of) the twig environment.
+        set_twig_environment(question.random_seed,
+            question.student, question.template_params)
+        <b>for each</b> twiggable attribute of question:
+            question.attribute = twig_expand(question.attribute)
+    save question instance
 </pre>
 
 ### Grading a submission
@@ -3185,34 +3522,34 @@ provide the same functionality as Jobe e.g., setting of maximum
 memory or maximum runtime.
 
 <pre>
-    <b>function</b> grade_response(question, attachments, is_precheck):
-        # Grade the current submission and return a table of test results
-        if question.answer plus current set of attachments has already been graded:
-            return cached results
-        test_cases = select_subset_of_tests(question.testcases, is_precheck)
-        run_results = None
-        <b>if</b> question.is_combinator and (template grader is being used or
-            question.allow_multiple_stdins or all stdins are empty strings):
-            # Try running the combinator. If something breaks, e.g. a
-            # testcase times out, the result will be None.
-            Set up the Twig environment (templateParams) to consist of all
-                the variables in question.templateParams plus STUDENT_ANSWER,
-                IS_PRECHECK, ANSWER_LANGUAGE, and ATTACHMENTS. Additionally
-                the entire question is made available as the parameter QUESTION.
-            run_results = run_combinator(question, testcases, templateParams)
-        <b>if</b> run_result is not None:
-            run_results = []
-            <b>for</b> each test in test_cases:
-                run_results.append(run_single_testcase(question, test, templateParams)
-        <b>return</b> run_results
+<b>function</b> grade_response(question, attachments, is_precheck):
+    # Grade the current submission and return a table of test results
+    if question.answer plus current set of attachments has already been graded:
+        return cached results
+    test_cases = select_subset_of_tests(question.testcases, is_precheck)
+    run_results = None
+    <b>if</b> question.is_combinator and (template grader is being used or
+        question.allow_multiple_stdins or all stdins are empty strings):
+        # Try running the combinator. If something breaks, e.g. a
+        # testcase times out, the result will be None.
+        Set up the Twig environment (templateParams) to consist of all
+            the variables in question.templateParams plus STUDENT_ANSWER,
+            IS_PRECHECK, ANSWER_LANGUAGE, and ATTACHMENTS. Additionally
+            the entire question is made available as the parameter QUESTION.
+        run_results = run_combinator(question, testcases, templateParams)
+    <b>if</b> run_result is not None:
+        run_results = []
+        <b>for</b> each test in test_cases:
+            run_results.append(run_single_testcase(question, test, templateParams)
+    <b>return</b> run_results
 </pre>
 
 <p>The algorithms used in `run_combinator` and `run_single_testcase` are
 
 <pre>
-    <b>function</b> run_combinator(question, testcases, templateParams)
+<b>function</b> run_combinator(question, testcases, templateParams)
 
-    *** TBS ***
+*** TBS ***
 </pre>
 ### Lots more to come when I get a round TUIT
 

@@ -30,16 +30,12 @@
  */
 
 /**
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2013, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 class qtype_coderunner_regex_grader extends qtype_coderunner_grader {
-
     public function name() {
         return 'RegexGrader';
     }
@@ -50,7 +46,7 @@ class qtype_coderunner_regex_grader extends qtype_coderunner_grader {
      *  etc).
      */
     public function grade_known_good(&$output, &$testcase) {
-        $regex = '/' . str_replace('/', '\/', rtrim($testcase->expected)) . '/ms';
+        $regex = '/' . str_replace('/', '\/', rtrim($testcase->expected ?? '')) . '/ms';
         $iscorrect = preg_match($regex, $output);
         $awardedmark = $iscorrect ? $testcase->mark : 0.0;
         return new qtype_coderunner_test_result($testcase, $iscorrect, $awardedmark, $output);

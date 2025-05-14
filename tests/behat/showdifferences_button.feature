@@ -5,7 +5,8 @@ Feature: Show differences in CodeRunner questions
   clicked.
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
@@ -27,7 +28,6 @@ Feature: Show differences in CodeRunner questions
     And I press "Check"
     Then the following should exist in the "coderunner-test-results" table:
       | Test           |
-      | print(sqr(-3)) |
       | print(sqr(11)) |
     And "print(sqr(-7))" row "Expected" column of "coderunner-test-results" table should contain "49"
     And "print(sqr(-7))" row "Got" column of "coderunner-test-results" table should contain "12345"

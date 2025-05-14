@@ -22,16 +22,12 @@
  */
 
 /**
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2013, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 class qtype_coderunner_template_grader extends qtype_coderunner_grader {
-
     public function name() {
         return "TemplateGrader";
     }
@@ -56,8 +52,11 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
             } else {
                 $errorcode = 'missingorbadfraction';
             }
-            $errormessage = get_string($errorcode, 'qtype_coderunner',
-                    array('output' => $output));
+            $errormessage = get_string(
+                $errorcode,
+                'qtype_coderunner',
+                ['output' => $output]
+            );
             $testresultobj = new qtype_coderunner_test_result($testcase, false, 0.0, $errormessage);
         } else {
             $iscorrect = abs($result->fraction - 1.0) < 0.000001;
@@ -74,4 +73,3 @@ class qtype_coderunner_template_grader extends qtype_coderunner_grader {
         return $testresultobj;
     }
 }
-

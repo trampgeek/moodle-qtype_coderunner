@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 37635  -->
+  <question type="coderunner">
+    <name>
+      <text>print_weighted_mark test table</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>The next question asks the following:</p>
+<p style="padding-left: 40px;">Write a function <code>print_weighted_mark(assessment)</code> that takes a tuple of assessment information in the form <code>(name, mark, weight)</code> and prints a three line message giving the name and mark of the assessment item, its weight and the weighted mark in the format shown in the example table below. All numbers are displayed with two digits after the decimal point.</p>
+<p style="padding-left: 40px;">You can calculate the weighted mark using this formula:</p>
+<p style="padding-left: 40px;">\[ weighted = mark \times weight \]</p>
+<p>In this question you are to complete the test table for the <code>print_weighted_mark</code> function.</p>
+<p><strong>Note</strong>:</p>
+<ol>
+<li>The test in the fourth row of the table must be in exactly the same format as the tests in the first three rows. Only the name, mark and weight of the assessment item can be different.</li>
+<li>The name of the assessment item has had the word <em>mark</em> appended in the output. </li>
+</ol>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>python3_test_table</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>1</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>12</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload><![CDATA[{"cr_tt_linesperrow":["3"],"cr_readonly_cells":["{\"cell-0-0\":1,\"cell-0-1\":1,\"cell-1-0\":1,\"cell-2-0\":1,\"cell-3-1\":1}"],"cr_test_table_hdr":["Test table"],"test_table_col0":["assessment = ('Exam', 60, 0.55)\nprint_weighted_mark(assessment)","assessment = ('Assignment 1', 60, 0.07)\nprint_weighted_mark(assessment)","assessment = ('Learning modules', 87, 0.10)\nprint_weighted_mark(assessment)",""],"test_table_col1":["Exam mark: 60.00\nWeight: 0.55\nWeighted mark: 33.00","","","Test mark: 52.00\nWeight: 0.15\nWeighted mark: 7.80"],"main_answer_code":["    "]}]]></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[{"cr_tt_linesperrow":["3"],"cr_readonly_cells":["{\"cell-0-0\":1,\"cell-0-1\":1,\"cell-1-0\":1,\"cell-1-1\":1,\"cell-2-0\":1,\"cell-2-1\":1,\"cell-3-0\":1,\"cell-3-1\":1}"],"cr_test_table_hdr":["Test table"],"test_table_col0":["assessment = ('Exam', 60, 0.55)\nprint_weighted_mark(assessment)","assessment = ('Assignment 1', 82, 0.07)\nprint_weighted_mark(assessment)","assessment = ('Learning modules', 87, 0.10)\nprint_weighted_mark(assessment)","assessment = ('Test', 52, 0.15)\nprint_weighted_mark(assessment)"],"test_table_col1":["Exam mark: 60.00\nWeight: 0.55\nWeighted mark: 33.00","Assignment 1 mark: 82.00\nWeight: 0.07\nWeighted mark: 5.74","Learning modules mark: 87.00\nWeight: 0.10\nWeighted mark: 8.70","Test mark: 52.00\nWeight: 0.15\nWeighted mark: 7.80"],"main_answer_code":["def print_weighted_mark(assessment):\n    \"\"\"Write the details of an assessment item\"\"\"\n    name, mark, weight = assessment\n    print(f\"{name} mark: {mark:.2f}\")\n    print(f\"Weight: {weight:.2f}\")\n    print(f\"Weighted mark: {weight * mark:.2f}\")"]}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{"testre": "assessment = \\(.+, \\d+, [\\d\\.]+\\)\\nprint_weighted_mark\\(assessment\\)"}]]></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald><![CDATA[{"testre":"assessment = \\(.+, \\d+, [\\d\\.]+\\)\\nprint_weighted_mark\\(assessment\\)"}]]></templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>

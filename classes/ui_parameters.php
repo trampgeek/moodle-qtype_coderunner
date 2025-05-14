@@ -19,8 +19,7 @@
  * question editing; at all other times the UI parameters are simply JSON
  * objects.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2021, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -30,7 +29,23 @@ defined('MOODLE_INTERNAL') || die();
 
 // A class to represent a single parameter with a name, type and value.
 class qtype_coderunner_ui_parameter {
-    public function __construct($name, $type, $value, $required=false) {
+
+    /** @var string The name of the parameter. */
+    public $name;
+
+    /** @var string The type of the parameter, e.g. 'int', 'float', 'string', 'bool', 'list'. */
+    public $type;
+
+    /** @var mixed The value of the parameter. */
+    public $value;
+
+    /** @var bool Whether the parameter is required. */
+    public $required;
+
+    /** @var bool Whether the parameter has been updated since the initial load. */
+    public $updated;
+
+    public function __construct($name, $type, $value, $required = false) {
         $this->name = $name;
         $this->type = $type;
         $this->value = $value;
@@ -45,6 +60,12 @@ class qtype_coderunner_ui_parameter {
  */
 class qtype_coderunner_ui_parameters {
 
+    /** @var string The name of the ui plugin, e.g. ace, graph, etc. */
+    public $uiname;
+
+    /** @var array An associative array of parameter name => qtype_coderunner_ui_parameter */
+    public $params;
+
     /**
      * Construct a ui_parameters object by reading the json file for the
      * specified ui_plugin.
@@ -56,7 +77,7 @@ class qtype_coderunner_ui_parameters {
         global $CFG;
         $filename = $CFG->dirroot . "/question/type/coderunner/amd/src/ui_{$uiname}.json";
         $this->uiname = $uiname;
-        $this->params = array();
+        $this->params = [];
         if (file_exists($filename)) {
             $json = file_get_contents($filename);
             $spec = json_decode($json);
@@ -110,8 +131,8 @@ class qtype_coderunner_ui_parameters {
      * @param boolean $ignorebad If a parameter in the json string does not
      * already have a key, ignore it. Otherwise an exception is raised.
      */
-    public function merge_json($json, $ignorebad=false) {
-        $newvalues = json_decode($json);
+    public function merge_json($json, $ignorebad = false) {
+        $newvalues = json_decode($json ?? '');
         if ($newvalues !== null) {  // If $json is valid.
             foreach ($newvalues as $key => $value) {
                 $matchingkey = $this->find_key($key);
@@ -120,7 +141,8 @@ class qtype_coderunner_ui_parameters {
                         continue;
                     } else {
                         throw new qtype_coderunner_exception(
-                            "Unexpected key value ($key) when merging json for ui {$this->uiname}");
+                            "Unexpected key value ($key) when merging json for ui {$this->uiname}"
+                        );
                     }
                 }
                 $this->params[$matchingkey]->value = $value;
@@ -162,7 +184,7 @@ class qtype_coderunner_ui_parameters {
      * Return a list of all parameter names with star to denote required.
      */
     public function all_names_starred() {
-        $names = array();
+        $names = [];
         foreach ($this->params as $param) {
             $names[] = $param->required ? $param->name . '*' : $param->name;
         }
@@ -175,7 +197,7 @@ class qtype_coderunner_ui_parameters {
      * Used only in testing.
      */
     public function to_json() {
-        $paramsarray = array();
+        $paramsarray = [];
         foreach ($this->params as $param) {
             if ($param->value !== null) {
                 $paramsarray[$param->name] = $param->value;
@@ -189,7 +211,7 @@ class qtype_coderunner_ui_parameters {
      * Return an associative array of all parameters. Currently unused.
      */
     public function params_as_array() {
-        $paramsarray = array();
+        $paramsarray = [];
         foreach ($this->params as $param) {
             $paramsarray[$param->name] = $param->value;
         }
@@ -203,7 +225,7 @@ class qtype_coderunner_ui_parameters {
      * been defined within the prototype or the question itself).
      */
     public function updated_params() {
-        $paramsarray = array();
+        $paramsarray = [];
         foreach ($this->params as $param) {
             if ($param->updated) {
                 $paramsarray[$param->name] = $param->value;
@@ -216,10 +238,10 @@ class qtype_coderunner_ui_parameters {
     // Return a table (array of arrays) of parameters, each row containing
     // the parameter name, description, default value and boolean 'isrequired'.
     public function table() {
-        $table = array();
+        $table = [];
         foreach ($this->params as $param) {
             $descr = get_string("{$this->uiname}ui_{$param->name}_descr", 'qtype_coderunner');
-            $table[] = array($param->name, $descr, $param->value, $param->required);
+            $table[] = [$param->name, $descr, $param->value, $param->required];
         }
         return $table;
     }

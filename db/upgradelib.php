@@ -22,11 +22,16 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
+
+use core\task\manager;
+use core_question\local\bank\question_bank_helper;
+
 
 /**
  * Add/replace standard question types by deleting all questions in the
@@ -34,12 +39,110 @@ require_once($CFG->dirroot . '/lib/questionlib.php');
  * questions-CR_PROTOTYPES.xml. Also loads any other prototype files
  * whose names end in _PROTOTYPES.xml (case sensitive).
  *
+ * This is complicated because of the different category structures in
+ * different versions of Moodle. In Moodle 3.5 and later, the top category
+ * is a real category, but in earlier versions it is a pseudo-category.
+ * In Moodle 4.6 and later, the top category is in a special question bank
+ * instance on the front page. A further complication is that the install
+ * may be running in three different scenarios:
+ * 1. A new install or update on a Moodle version prior to 4.6
+ * 2. A new install or update on a Moodle version 4.6 or later.
+ * 3. An upgrade from a version prior to 4.6 to 4.6 or later.
+ * The last of these is the most complex because the upgrade code must
+ * move the old top category across to the new question bank instance
+ * before loading the new prototypes.
+ *
+ * A further complication is that during an install of both Moodle and
+ * CodeRunner together, the question bank module is installed after the question
+ * type, so we can't load the prototypes during the install.
+ *
  * @return bool true if successful
  */
+
+ /**
+  * Update the question types. In Moode 4.6 or later, this is done in a
+  * scheduled task that runs after the install/update.
+  * @return bool true if successful
+  */
 function update_question_types() {
+    if (qtype_coderunner_util::using_mod_qbank()) {
+        // In Moodle >=4.6, we need to update the question prototypes in a scheduled task
+        // because (a) if this is an install, the qbank module hasn't been installed yet and
+        // (b) we need to call question_bank_helper::get_default_open_instance_system_type
+        // which cannot be used during install/upgrade.
+        $task = new qtype_coderunner\task\qtype_coderunner_setup_question_prototypes();
+        core\task\manager::queue_adhoc_task($task);
+        return true;
+    } else {
+        // In Moodle 4.5 or earlier, we can execute the update immediately.
+        return update_question_types_internal();
+    }
+}
+
+/**
+ * The function that actually does the update. May be called directly during update if using
+ * moodle4.5 or earier, or indirectly from the queued task with later versions.
+ */
+function update_question_types_internal() {
+    mtrace("Setting up CodeRunner question prototypes...");
+    $result = false;
+    try {
+        if (qtype_coderunner_util::using_mod_qbank()) {
+            $result = update_question_types_with_qbank();
+        } else {
+            $result = update_question_types_legacy();
+        }
+        if ($result) {
+            mtrace("CodeRunner question prototypes successfully installed.");
+        } else {
+            mtrace("Error installing CodeRunner question prototypes.");
+        }
+    } catch (Exception $e) {
+        mtrace("Exception while installing CodeRunner question prototypes: " . $e->getMessage());
+        throw $e;  // Re-throw to ensure proper error handling up the chain.
+    }
+    return $result;
+}
+
+/**
+ * The question type update code to be used with Moodle 4.6 or later.
+ * If we can find an existing CR_PROTOTYPES category in the (defunct) system context,
+ * move it to the new top category in the question bank instance on the front page.
+ * Then delete all existing prototypes in the new top category and reload them.
+ * Note that this code is always running in a post-update scheduled task, because
+ * question_bank_helper::get_default_open_instance_system_type, needed by
+ * moodle5_top_category, cannot be used during update/install.
+ *
+ * @return bool true if successful
+ */
+function update_question_types_with_qbank() {
+    global $DB;
+    mtrace("CodeRunner prototypes set up using qbank");
+    $topcategory = moodle5_top_category();
+    $topcategorycontextid = $topcategory->contextid;
+    $oldprototypecategory = get_old_prototype_category();
+    if ($oldprototypecategory) {
+        mtrace("CodeRunner is moving old CR_PROTOTYPES category to new qbank category");
+        $sourcecategoryid = $oldprototypecategory->id;
+        question_move_category_to_context($sourcecategoryid, $sourcecategoryid, $topcategorycontextid);
+        $DB->set_field('question_categories', 'parent', $topcategory->id, ['parent' => $sourcecategoryid]);
+    }
+    mtrace("CodeRunner: replacing existing prototypes with new ones");
+    delete_existing_prototypes($topcategorycontextid);
+    $prototypescategory = find_or_make_prototype_category($topcategorycontextid, $topcategory->id);
+    load_new_prototypes($topcategorycontextid, $prototypescategory);
+    return true;
+}
+
+/**
+ *  The question type update code to be used with Moodle versions prior to 4.6.
+ * @return bool true if successful
+ */
+function update_question_types_legacy() {
+    mtrace("CodeRunner prototypes set up in system context");
     $systemcontext = context_system::instance();
     $systemcontextid = $systemcontext->id;
-
+    mtrace("CodeRunner: replacing existing prototypes with new ones");
     delete_existing_prototypes($systemcontextid);
     if (function_exists('question_get_top_category')) { // Moodle version >= 3.5.
         $parentid = get_top_id($systemcontextid);
@@ -52,9 +155,62 @@ function update_question_types() {
 }
 
 
+/**
+ * Get the pre-Moodle-4.6 CR_PROTOTYPES category if it exists.
+ * @return question_category|null the category or null if it doesn't exist.
+ */
+function get_old_prototype_category() {
+    global $DB;
+    $categories = $DB->get_recordset(
+        'question_categories',
+        ['name' => 'CR_PROTOTYPES']
+    );
+    $matches = [];
+    foreach ($categories as $category) {
+        // If we find such a category and it's in a context that doesn't exist,
+        // take that as the one we're looking for, provided it's unique.
+        if (!context::instance_by_id($category->contextid, IGNORE_MISSING)) {
+            $matches[] = $category;
+        }
+    }
+    if (count($matches) === 1) {
+        return $matches[0];
+    } else if (count($matches) > 1) {
+        throw new coding_exception('Upgrade failed: multiple CR_PROTOTYPES categories found');
+    } else {
+        return null;
+    }
+}
+
+/**
+ * If we're on Moodle 4.6 or later we can't use the
+ * old system of storing prototypes in a category in the system context. Instead
+ * we need to create a new question bank in the front-page course and within that
+ * create a new (pseudo) top category in which to store the prototypes.
+ *
+ * @return the new top category.
+ */
+function moodle5_top_category() {
+    global $CFG;
+    $course = get_site();
+    $bankname = get_string('systembank', 'question');
+    try {
+        $newmod = question_bank_helper::get_default_open_instance_system_type($course);
+        if (!$newmod) {
+            mtrace('CodeRunner: creating new system question bank');
+            $newmod = question_bank_helper::create_default_open_instance($course, $bankname, question_bank_helper::TYPE_SYSTEM);
+        }
+    } catch (Exception $e) {
+        throw new coding_exception("Upgrade failed: error creating system question bank: $e");
+    }
+    $newtopcategory = question_get_top_category($newmod->context->id, true);
+    return $newtopcategory;
+}
+
+
 // Delete all existing prototypes in the given (system) context and in the
 // CR_PROTOTYPES category.
-function delete_existing_prototypes($systemcontextid) {
+function delete_existing_prototypes($contextid) {
     global $DB;
 
     $query = "SELECT q.id
@@ -65,11 +221,11 @@ function delete_existing_prototypes($systemcontextid) {
               JOIN {question} q ON q.id = qv.questionid
               WHERE ctx.id=?
               AND qc.name='CR_PROTOTYPES'
-              AND q.name LIKE '%PROTOTYPE_%'";
-    $prototypes = $DB->get_records_sql($query, array($systemcontextid));
+              AND q.name LIKE 'BUILT%IN_PROTOTYPE_%'";
+    $prototypes = $DB->get_records_sql($query, [$contextid]);
     foreach ($prototypes as $question) {
-        $DB->delete_records('question_coderunner_options', array('questionid' => $question->id));
-        $DB->delete_records('question', array('id' => $question->id));
+        $DB->delete_records('question_coderunner_options', ['questionid' => $question->id]);
+        $DB->delete_records('question', ['id' => $question->id]);
     }
 }
 
@@ -84,10 +240,12 @@ function get_top_id($systemcontextid) {
     global $DB;
     $topid = 0;
     $prototypecategoryid = 0;
-    $tops = $DB->get_records('question_categories',
-            array('contextid' => $systemcontextid, 'parent' => 0));
+    $tops = $DB->get_records(
+        'question_categories',
+        ['contextid' => $systemcontextid, 'parent' => 0]
+    );
 
-    foreach ($tops as $id => $category) {
+    foreach (array_values($tops) as $category) {
         if (strtolower($category->name) === 'top') {
             $topid = $category->id;
         } else if ($category->name === 'CR_PROTOTYPES') {
@@ -116,24 +274,26 @@ function get_top_id($systemcontextid) {
 
 
 // Return CR_PROTOTYPES category, creating it if it doesn't exist.
-function find_or_make_prototype_category($systemcontextid, $parentid) {
+function find_or_make_prototype_category($contextid, $parentid) {
     global $DB;
-    $category = $DB->get_record('question_categories',
-                array('contextid' => $systemcontextid, 'name' => 'CR_PROTOTYPES'));
+    $category = $DB->get_record(
+        'question_categories',
+        ['contextid' => $contextid, 'name' => 'CR_PROTOTYPES']
+    );
     if (!$category) {
-        $category = array(
+        $category = [
             'name'       => 'CR_PROTOTYPES',
-            'contextid'  => $systemcontextid,
+            'contextid'  => $contextid,
             'info'       => 'Category for CodeRunner question built-in prototypes. FOR SYSTEM USE ONLY.',
             'parent'     => $parentid,
             'sortorder'  => 999,
-            'stamp'      => make_unique_id_code()
-        );
+            'stamp'      => make_unique_id_code(),
+        ];
         $prototypecategoryid = $DB->insert_record('question_categories', $category);
         if (!$prototypecategoryid) {
             throw new coding_exception("Upgrade failed: couldn't create CR_PROTOTYPES category");
         }
-        $category = $DB->get_record('question_categories', array('id' => $prototypecategoryid));
+        $category = $DB->get_record('question_categories', ['id' => $prototypecategoryid]);
     }
     return $category;
 }

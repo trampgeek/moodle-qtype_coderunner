@@ -1,10 +1,11 @@
-@qtype @qtype_coderunner
+@qtype @qtype_coderunner @coderunner_backup_and_restore
 Feature: Duplicate a course containing a CodeRunner question
   In order re-use my courses containing CodeRunner questions
   As a teacher
   I need to be able to back them up and restore them
 
   Background:
+    Given the CodeRunner test configuration file is loaded
     And the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
@@ -19,6 +20,8 @@ Feature: Duplicate a course containing a CodeRunner question
       | quiz       | Test quiz | C1     | quiz1    |
     And quiz "Test quiz" contains the following questions:
       | Square function | 1 |
+    And the following config values are set as admin:
+      | enableasyncbackup | 0 |
     And I am on the "Course 1" "course" page logged in as admin
 
   @javascript
@@ -27,8 +30,13 @@ Feature: Duplicate a course containing a CodeRunner question
       | Confirmation | Filename | test_backup.mbz |
     And I restore "test_backup.mbz" backup into a new course using this options:
       | Schema | Course name | Course 2 |
-    And I navigate to "Question bank" in current page administration
+
+    And I am on the "Course 2 copy 1" "core_question > course question bank" page
+    And I should see "Square function"
+
+    # Edit the copy and verify the form field contents.
     And I choose "Edit question" action for "Square function" in the question bank
+
     Then the following fields match these values:
       | Question name                  | Square function                                 |
       | Question text                  | Write a function sqr(n) that returns n squared. |
@@ -39,7 +47,7 @@ Feature: Duplicate a course containing a CodeRunner question
       | id_expected_0                  | 0                                               |
       | id_display_0                   | Show                                            |
       | id_mark_0                      | 1                                               |
-      | id_ordering_0                  | 10                                               |
+      | id_ordering_0                  | 10                                              |
       | id_testcode_1                  | print(sqr(1))                                   |
       | id_expected_1                  | 1                                               |
       | id_display_1                   | Show                                            |

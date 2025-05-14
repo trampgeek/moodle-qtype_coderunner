@@ -24,8 +24,7 @@
  */
 
 /**
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2012, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -34,6 +33,8 @@
 // non-null parameters it has been given (in particular the 'files' param).
 
 defined('MOODLE_INTERNAL') || die();
+
+use qtype_coderunner\constants;
 
 global $CFG;
 
@@ -91,10 +92,10 @@ abstract class qtype_coderunner_sandbox {
 
 
 
-    public function __construct($user=null, $pass=null) {
+    public function __construct($user = null, $password = null) {
         $this->user = $user;
-        $this->pass = $pass;
-        $authenticationerror = false;
+        $this->password = $password;
+        $this->authenticationerror = false;
     }
 
 
@@ -134,12 +135,18 @@ abstract class qtype_coderunner_sandbox {
      * @return an instance of the preferred sandbox for the given language
      * or null if no enabled sandboxes support this language.
      */
-    public static function get_best_sandbox($language, $forcelanguagecheck=false) {
+    public static function get_best_sandbox($language, $forcelanguagecheck = false) {
+
+        $hidec = false;  // Set true when testing if language is skipped in php tests.
+        if ($hidec && $language == 'c') {
+            return null;
+        }
+
         $sandboxes = self::enabled_sandboxes();
         if (count($sandboxes) == 0) {
             throw new qtype_coderunner_exception('No sandboxes available for running code!');
         }
-        foreach ($sandboxes as $extname => $classname) {
+        foreach (array_keys($sandboxes) as $extname) {
             $sb = self::get_instance($extname);
             if ($sb) {
                 if (count($sandboxes) === 1 && !$forcelanguagecheck) {
@@ -156,8 +163,10 @@ abstract class qtype_coderunner_sandbox {
                     $pseudorunobj = new stdClass();
                     $pseudorunobj->error = $langs->error;
                     $errorstring = $sb->error_string($pseudorunobj);
-                    throw new qtype_coderunner_exception('sandboxerror',
-                            array('sandbox' => $extname, 'message' => $errorstring));
+                    throw new qtype_coderunner_exception(
+                        'sandboxerror',
+                        ['sandbox' => $extname, 'message' => $errorstring]
+                    );
                 }
             }
         }
@@ -173,9 +182,9 @@ abstract class qtype_coderunner_sandbox {
      * @return array
      */
     public static function available_sandboxes() {
-        return array('jobesandbox'      => 'qtype_coderunner_jobesandbox',
-                     'ideonesandbox'    => 'qtype_coderunner_ideonesandbox'
-        );
+        return ['jobesandbox'      => 'qtype_coderunner_jobesandbox',
+                     'ideonesandbox'    => 'qtype_coderunner_ideonesandbox',
+        ];
     }
 
 
@@ -189,13 +198,30 @@ abstract class qtype_coderunner_sandbox {
      */
     public static function enabled_sandboxes() {
         $available = self::available_sandboxes();
-        $enabled = array();
+        $enabled = [];
         foreach ($available as $extname => $classname) {
             if (get_config('qtype_coderunner', $extname . '_enabled')) {
                 $enabled[$extname] = $classname;
             }
         }
         return $enabled;
+    }
+
+    /**
+     * Returns true if sandbox is being used for tests.
+     * @return bool
+     */
+    public static function is_using_test_sandbox(): bool {
+        return defined('BEHAT_SITE_RUNNING');
+    }
+
+    /**
+     * Returns true if canterbury jobe server is being used.
+     * @param string jobeserver being used.
+     * @return bool
+     */
+    public static function is_canterbury_server(string $jobeserver): bool {
+        return $jobeserver === constants::JOBE_HOST_DEFAULT;
     }
 
     /**
@@ -216,7 +242,7 @@ abstract class qtype_coderunner_sandbox {
      * @throws coding_exception
      */
     public static function error_string($runresult) {
-        $errorstrings = array(
+        $errorstrings = [
             self::OK              => 'errorstring-ok',
             self::AUTH_ERROR      => 'errorstring-autherror',
             self::PASTE_NOT_FOUND => 'errorstring-pastenotfound',
@@ -227,7 +253,7 @@ abstract class qtype_coderunner_sandbox {
             self::UNKNOWN_SERVER_ERROR  => 'errorstring-unknown',
             self::JOBE_400_ERROR  => 'errorstring-jobe400',
             self::SERVER_OVERLOAD => 'errorstring-overload',
-        );
+        ];
         $errorcode = $runresult->error;
         if (!isset($errorstrings[$errorcode])) {
             throw new coding_exception("Bad call to sandbox.errorString");
@@ -256,7 +282,7 @@ abstract class qtype_coderunner_sandbox {
 
     // Strings corresponding to the RESULT_* defines above.
     public static function result_string($resultcode) {
-        $resultstrings = array(
+        $resultstrings = [
             self::RESULT_NO_RUN               => 'resultstring-norun',
             self::RESULT_COMPILATION_ERROR    => 'resultstring-compilationerror',
             self::RESULT_RUNTIME_ERROR        => 'resultstring-runtimeerror',
@@ -268,7 +294,7 @@ abstract class qtype_coderunner_sandbox {
             self::RESULT_OUTPUT_LIMIT         => 'resultstring-outputlimit',
             self::RESULT_ABNORMAL_TERMINATION => 'resultstring-abnormaltermination',
             self::RESULT_SERVER_OVERLOAD      => 'resultstring-sandboxoverload',
-        );
+        ];
         if (!isset($resultstrings[$resultcode])) {
             throw new coding_exception("Bad call to sandbox.resultString");
         }
@@ -332,7 +358,7 @@ abstract class qtype_coderunner_sandbox {
      *          If error is anything other than OK, the returned object may
      *          optionally include an error message in the stderr field.
      */
-    abstract public function execute($sourcecode, $language, $input, $files=null, $params=null);
+    abstract public function execute($sourcecode, $language, $input, $files = null, $params = null);
 
     /** Function called by the tester as a simple sanity check on the
      *  existence of a particular sandbox subclass.
@@ -342,15 +368,15 @@ abstract class qtype_coderunner_sandbox {
      */
     public function test_function() {
         if ($this->authenticationerror) {
-            return (object) array('error' => self::AUTH_ERROR);
+            return (object) ['error' => self::AUTH_ERROR];
         } else {
-            return (object) array(
+            return (object) [
                 'error' => self::OK,
                 'moreHelp' => 'No more help available',
                 'pi' => 3.14,
                 'answerToLifeAndEverything' => 42,
-                'oOok' => true
-            );
+                'oOok' => true,
+            ];
         }
     }
 
@@ -361,4 +387,3 @@ abstract class qtype_coderunner_sandbox {
     public function close() {
     }
 }
-

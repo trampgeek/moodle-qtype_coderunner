@@ -5,7 +5,8 @@ Feature: Check that a selected UI plugin is saved
   I should be able to select a UI plugin and save the form
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
@@ -20,7 +21,7 @@ Feature: Check that a selected UI plugin is saved
     And the following "questions" exist:
       | questioncategory | qtype      | name            | template |
       | Test questions   | coderunner | Square function | sqr      |
-    And I enable UI plugins
+    And I enable UI plugins in the CodeRunner question type
 
   Scenario: Selecting the Graph UI plugin results in a canvas being displayed
     When I am on the "Square function" "core_question > edit" page logged in as teacher1

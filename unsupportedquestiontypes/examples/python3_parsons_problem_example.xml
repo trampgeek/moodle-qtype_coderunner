@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 30786  -->
+  <question type="coderunner">
+    <name>
+      <text>Parsons Problem: dictionary printer 3 (richard testing)</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p><strong>Optional zero-mark Parsons Problem warm-up question</strong></p>
+<p>Use drag-and-drop to reorder and indent the lines of code below in order to build a function <code>print_products(product_dict)</code>. The function takes as a parameter a dictionary that maps from a product ID code (a string) to a tuple containing a product name and a price. The function prints out the products one per line in alphabetical order of product code as shown in the example.</p>
+<p><strong>Warning</strong>: not all available lines in the "Drag from here" section are needed.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>python3_parsons_problem_tester</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>5</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload><![CDATA[{"CR-parsons-target":[""],"CR-parsons-source":["name, price = product\nfor code, product in sorted(product_dict.items()):\nfor code, product in sorted(items(product_dict))\nproduct = name, price\n\"\"\"Print the products in the given dictionary\"\"\"\ndef print_products(product_dict):\nprint(f\"{code}: {name} (${price:.2f})\")\ncode, product = product_dict.items()\n"]}]]></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[{"CR-parsons-target":["def print_products(product_dict):\n    \"\"\"Print the products in the given dictionary\"\"\"\n    for code, product in sorted(product_dict.items()):\n        name, price = product\n        print(f\"{code}: {name} (${price:.2f})\")\n"],"CR-parsons-source":["for code, product in sorted(items(product_dict))\nproduct = name, price\ncode, product = product_dict.items()\n"]}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>python3</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald><![CDATA[{"code_width":"500px"}]]></templateparamsevald>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[products = {
+    "SKH01": ("Sky hook", 33.95),
+    "KNB14": ("Knurled knob", 2.35),
+    "STP99": ("Striped paint", 11.00),
+    "PPM09": ("Perpetual motion machine", 999.99)
+}
+print_products(products)]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>KNB14: Knurled knob ($2.35)
+PPM09: Perpetual motion machine ($999.99)
+SKH01: Sky Hook ($33.95)
+STP99: Striped paint ($11.00)</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+    <tags>
+      <tag><text>LM6</text>
+</tag>
+      <tag><text>Parsons</text>
+</tag>
+    </tags>
+  </question>
+
+</quiz>

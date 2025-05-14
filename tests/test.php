@@ -30,9 +30,14 @@ global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
+/**
+ * @coversNothing
+ */
 class qtype_coderunner_testcase extends advanced_testcase {
-
     protected $hasfailed = false; // Set to true when a test fails.
+
+    /** @var stdClass Holds question category.*/
+    protected $category;
 
     protected function setUp(): void {
         parent::setUp();
@@ -40,7 +45,7 @@ class qtype_coderunner_testcase extends advanced_testcase {
         $this->resetAfterTest(false);
         $this->setAdminUser();
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $this->category = $generator->create_question_category(array());
+        $this->category = $generator->create_question_category([]);
     }
 
     /**
@@ -66,7 +71,7 @@ class qtype_coderunner_testcase extends advanced_testcase {
     // to conditionally skip later tests. See jobesendbox_test.
     // Name can't be made moodle-standards compliant as it's defined by phpunit.
     // $e is the exception to be thrown.
-    protected function onNotSuccessfulTest(Throwable $e): void {
+    protected function onnotsuccessfultest(Throwable $e): void {
         $this->hasfailed = true;
         throw $e;
     }
@@ -80,7 +85,8 @@ class qtype_coderunner_testcase extends advanced_testcase {
     protected function check_language_available($language): void {
         if (qtype_coderunner_sandbox::get_best_sandbox($language, true) === null) {
             $this->markTestSkipped(
-                    "$language is not installed on your server. Test skipped.");
+                "$language is not installed on your server. Test skipped."
+            );
         }
     }
 

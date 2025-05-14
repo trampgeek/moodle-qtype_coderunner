@@ -24,9 +24,17 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_coderunner;
+
+use context;
+use context_system;
+use html_writer;
+use moodle_url;
+use qtype_coderunner;
+
 define('NO_OUTPUT_BUFFERING', true);
 
-require_once(__DIR__.'/../../../config.php');
+require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
@@ -44,7 +52,7 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('prototypeusage', 'qtype_coderunner'));
 
 // Create the helper class.
-$bulktester = new qtype_coderunner_bulk_tester();
+$bulktester = new bulk_tester();
 
 // Start display.
 echo $OUTPUT->header();
@@ -63,14 +71,14 @@ if (!has_capability('moodle/question:editall', $coursecontext)) {
 
     // Analyse the prototype usage.
 
-    $missing = array();
+    $missing = [];
     foreach ($questions as $id => $question) {
         $type = $question->coderunnertype;
         if (!isset($prototypes[$type])) {
             if (isset($missing[$type])) {
                 $missing[$type][] = $question;
             } else {
-                $missing[$type] = array($question);
+                $missing[$type] = [$question];
             }
         } else {
             if ($question->prototypetype != 0) {
@@ -80,7 +88,7 @@ if (!has_capability('moodle/question:editall', $coursecontext)) {
             if (isset($prototypes[$type]->usages)) {
                 $prototypes[$type]->usages[] = $question;
             } else {
-                $prototypes[$type]->usages = array($question);
+                $prototypes[$type]->usages = [$question];
             }
         }
     }

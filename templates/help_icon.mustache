@@ -1,0 +1,41 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template qtype_coderunner/help_icon
+
+    Help icon. A copy of Core's to allow for langauge string insertion...
+
+    Example context (json):
+    {
+        "title": "Help with something",
+        "url": "http://example.org/help",
+        "linktext": "",
+        "icon":{
+            "attributes": [
+                {"name": "class", "value": "iconhelp"},
+                {"name": "src", "value": "../../../pix/help.svg"},
+                {"name": "alt", "value": "Help icon"}
+            ]
+        }
+    }
+}}
+<a class="btn btn-link p-0" role="button"
+   data-container="body" data-toggle="popover"
+   data-placement="{{#ltr}}right{{/ltr}}{{^ltr}}left{{/ltr}}" data-content="{{^text}}{{#str}}scratchpadui_def_help_text, qtype_coderunner{{/str}}{{/text}}{{text}} {{completedoclink}}"
+   data-html="true" tabindex="0" data-trigger="focus">
+    {{#pix}}help, core, {{{alt}}}{{/pix}}
+</a>

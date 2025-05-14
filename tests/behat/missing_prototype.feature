@@ -5,7 +5,8 @@ Feature: missing_prototype
   I should see an informative error message and be able to fix by editing
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
@@ -60,14 +61,14 @@ Feature: missing_prototype
     And I am on the "Prototype tester" "core_question > preview" page
     And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
-    And I press "Start again with these options"
+    And I press "id_saverestart"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
     And I press "Check"
     Then I should see "Broken question (missing or duplicate prototype 'python3_test_prototype'). Cannot be run."
 
   Scenario: As a teacher, I should be able to re-parent the question and have it work correctly
     And I am on the "Prototype tester" "core_question > edit" page
-    Then I should see "This question was defined to be of type 'python3_test_prototype' but the prototype does not exist, or is non-unique, or is unavailable in this context"
+    Then I should see "This question was defined to be of type 'python3_test_prototype' but the prototype does not exist, or is unavailable in this context"
     And I set the field "id_coderunnertype" to "python3"
     And I set the field "id_customise" to "1"
     And I set the field "id_uiplugin" to "None"
@@ -75,7 +76,7 @@ Feature: missing_prototype
     And I choose "Preview" action for "Prototype tester" in the question bank
     And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
-    And I press "Start again with these options"
+    And I press "id_saverestart"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
     And I press "Check"
     Then I should see "Passed all tests!"

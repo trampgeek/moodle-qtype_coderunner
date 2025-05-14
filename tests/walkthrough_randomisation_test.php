@@ -14,18 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Further walkthrough tests for the CodeRunner plugin, testing the
- * randomisation mechanisem.
- * @group qtype_coderunner
- *
- * @package    qtype
- * @subpackage coderunner
- * @copyright  2018 Richard Lobb, The University of Canterbury
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-
 namespace qtype_coderunner;
 
 defined('MOODLE_INTERNAL') || die();
@@ -35,10 +23,18 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
+/**
+ * Further walkthrough tests for the CodeRunner plugin, testing the
+ * randomisation mechanisem.
+ * @group qtype_coderunner
+ * @coversNothing
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  2018 Richard Lobb, The University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
-
     protected function setUp(): void {
-        global $CFG;
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
@@ -50,12 +46,12 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
     public function test_randomised_sqr() {
 
         $iters = 0;
-        $tests = array(
-            array('searchfor' => 'print(mysqr(111))', 'answer' => "def mysqr(n): return n * n"),
-            array('searchfor' => 'print(mysqr(112))', 'answer' => "def mysqr(n): return n * n"),
-            array('searchfor' => 'print(sqr(111))', 'answer' => "def sqr(n): return n * n"),
-            array('searchfor' => 'print(sqr(112))', 'answer' => "def sqr(n): return n * n"),
-        );
+        $tests = [
+            ['searchfor' => 'print(mysqr(111))', 'answer' => "def mysqr(n): return n * n"],
+            ['searchfor' => 'print(mysqr(112))', 'answer' => "def mysqr(n): return n * n"],
+            ['searchfor' => 'print(sqr(111))', 'answer' => "def sqr(n): return n * n"],
+            ['searchfor' => 'print(sqr(112))', 'answer' => "def sqr(n): return n * n"],
+        ];
 
         foreach ($tests as $test) {
             while ($iters < 50) {
@@ -71,7 +67,7 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
             }
 
             $this->assertTrue($iters < 50);
-            $this->process_submission(array('-submit' => 1, 'answer' => $test['answer']));
+            $this->process_submission(['-submit' => 1, 'answer' => $test['answer']]);
             $this->check_current_mark(1.0);
         }
     }
@@ -83,13 +79,12 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
     // no further randomisation.
     public function test_randomised_sqr_with_seed() {
 
-        $iters = 0;
-        $tests = array(
-            array('searchfor' => 'print(mysqr(111))', 'answer' => "def mysqr(n): return n * n"),
-            array('searchfor' => 'print(mysqr(112))', 'answer' => "def mysqr(n): return n * n"),
-            array('searchfor' => 'print(sqr(111))', 'answer' => "def sqr(n): return n * n"),
-            array('searchfor' => 'print(sqr(112))', 'answer' => "def sqr(n): return n * n"),
-        );
+        $tests = [
+            ['searchfor' => 'print(mysqr(111))', 'answer' => "def mysqr(n): return n * n"],
+            ['searchfor' => 'print(mysqr(112))', 'answer' => "def mysqr(n): return n * n"],
+            ['searchfor' => 'print(sqr(111))', 'answer' => "def sqr(n): return n * n"],
+            ['searchfor' => 'print(sqr(112))', 'answer' => "def sqr(n): return n * n"],
+        ];
 
         foreach ($tests as $test) {
             // First, iterate the seed until the desired situation occurs.
@@ -114,13 +109,13 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
                 $this->add_fields($q, $seed);
                 $this->start_attempt_at_question($q, 'adaptive', 1, 1);
                 $this->render();
-                $this->assertTrue (strpos($this->currentoutput, $test['searchfor']) !== false);
+                $this->assertTrue(strpos($this->currentoutput, $test['searchfor']) !== false);
             }
         }
     }
 
 
-    private function add_fields($q, $seed=false) {
+    private function add_fields($q, $seed = false) {
         if ($seed !== false) {
             $seeding = "{{- set_random_seed($seed) -}}\n";
         } else {
@@ -135,12 +130,13 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
         $q->templateparamsevald = null;
         $q->uiparameters = null;
         $q->hoisttemplateparams = 1;
+        $q->extractcodefromjson = 1;
         $q->twigall = 1;
         $q->questiontext = 'Write a function {{ func }}';
         $q->template = "{{ STUDENT_ANSWER }}\n{{ TEST.testcode }}\n{{ TEST.extra }}\n";
         $q->iscombinatortemplate = false;
-        $q->testcases = array(
-            (object) array('type'     => 0,
+        $q->testcases = [
+            (object) ['type'     => 0,
                           'testcode'  => 'print({{ func }}({{ n }}))',
                           'extra'     => 'print({{ func }}({{ n }}))',
                           'expected'  => "{{ n * n }}\n{{ n * n }}",
@@ -148,8 +144,7 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
                           'useasexample' => 1,
                           'display'   => 'SHOW',
                           'mark'      => 1.0,
-                          'hiderestiffail'  => 0)
-        );
-
+                          'hiderestiffail'  => 0],
+        ];
     }
 }

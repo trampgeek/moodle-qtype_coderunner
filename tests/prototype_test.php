@@ -35,6 +35,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
+/**
+ * @coversNothing
+ */
 class prototype_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();
@@ -54,9 +57,9 @@ class prototype_test extends \qtype_coderunner_testcase {
     public function test_files_inherited() {
         $q = $this->make_parent_and_child();
         $code = "print(open('data.txt').read())";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [, , $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue($testoutcome->all_correct());
     }
@@ -72,8 +75,8 @@ print( {{QUESTION.parameters.xxx}}, {{QUESTION.parameters.yyy}}, {{QUESTION.para
 EOTEMPLATE;
         $q->allornothing = false;
         $q->iscombinatortemplate = false;
-        $q->testcases = array(
-                       (object) array('type' => 0,
+        $q->testcases = [
+                       (object) ['type' => 0,
                          'testcode'       => '',
                          'expected'       => "1 200 2",
                          'stdin'          => '',
@@ -81,15 +84,15 @@ EOTEMPLATE;
                          'useasexample'   => 0,
                          'display'        => 'SHOW',
                          'mark'           => 1.0,
-                         'hiderestiffail' => 0),
-        );
+                         'hiderestiffail' => 0],
+        ];
         $q->allornothing = false;
         $q->iscombinatortemplate = false;
         $code = "";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $q->start_attempt(null);
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertTrue($testoutcome->all_correct());
     }
@@ -134,7 +137,7 @@ EOTEMPLATE;
     <iscombinatortemplate></iscombinatortemplate>
     <allowmultiplestdins></allowmultiplestdins>
     <answer></answer>
-    <validateonsave></validateonsave>
+    <validateonsave>1</validateonsave>
     <testsplitterre></testsplitterre>
     <language></language>
     <acelang></acelang>
@@ -145,6 +148,7 @@ EOTEMPLATE;
     <sandboxparams></sandboxparams>
     <templateparams><![CDATA[{"xxx":1, "zzz":2}]]></templateparams>
     <hoisttemplateparams>0</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
     <templateparamslang>twig</templateparamslang>
     <templateparamsevalpertry>0</templateparamsevalpertry>
     <templateparamsevald></templateparamsevald>
@@ -192,17 +196,23 @@ Line 2</text>
         $fs = get_file_storage();
 
         // Prepare file record object.
-        $fileinfo = array(
+        $fileinfo = [
             'contextid' => 1, // ID of context for prototype.
             'component' => 'qtype_coderunner',
             'filearea' => 'datafile',
             'itemid' => $id,
             'filepath' => '/',
-            'filename' => 'data.txt');
+            'filename' => 'data.txt'];
 
         // Create file (deleting any existing version first).
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-            $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+        $file = $fs->get_file(
+            $fileinfo['contextid'],
+            $fileinfo['component'],
+            $fileinfo['filearea'],
+            $fileinfo['itemid'],
+            $fileinfo['filepath'],
+            $fileinfo['filename']
+        );
         $file->delete();
         $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
 
@@ -211,8 +221,10 @@ Line 2</text>
     }
 
     public function assert_same_xml($expectedxml, $xml) {
-        $this->assertEquals(str_replace("\r\n", "\n", $expectedxml),
-                str_replace("\r\n", "\n", $xml));
+        $this->assertEquals(
+            str_replace("\r\n", "\n", $expectedxml),
+            str_replace("\r\n", "\n", $xml)
+        );
     }
 
     // Support function to make and save a prototype question.
@@ -225,7 +237,7 @@ Line 2</text>
         global $DB;
         $q = $this->make_question('sqr');
         $q->name = 'PROTOTYPE_sqr_user_prototype';
-        $q->testcases = array();  // No testcases in a prototype.
+        $q->testcases = [];  // No testcases in a prototype.
         $q->prototypetype = 2;
         $q->coderunnertype = "sqr_user_prototype";
         $q->cputimelimitsecs = 29; // Arbitrary test value.
@@ -239,8 +251,9 @@ Line 2</text>
         $row = new \qtype_coderunner_question();
         \test_question_maker::initialise_a_question($row);
         $catrow = $DB->get_record_select(  // Find the question category for system context (1).
-                   'question_categories',
-                   "contextid=1 limit 1");
+            'question_categories',
+            "contextid=1 limit 1"
+        );
         $q->category = $catrow->id;
         $row->qtype = 'coderunner';
 
@@ -250,13 +263,13 @@ Line 2</text>
         if ($fileattachmentreqd) {
             // Attach a file.
             $fs = get_file_storage();
-            $fileinfo = array(
+            $fileinfo = [
                 'contextid' => 1,
                 'component' => 'qtype_coderunner',
                 'filearea'  => 'datafile',
                 'itemid'    => $q->id,
                 'filepath'  => '/',
-                'filename'  => 'data.txt');
+                'filename'  => 'data.txt'];
 
             // Create file.
             $fs->create_file_from_string($fileinfo, "This is data\nLine 2");

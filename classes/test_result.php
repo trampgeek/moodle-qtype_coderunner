@@ -20,22 +20,16 @@
  *  original testcase.
  *  It is treated as a simple record rather than a true class object.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2013, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
-defined('MOODLE_INTERNAL') || die();
-
-
+#[AllowDynamicProperties]
 class qtype_coderunner_test_result {
-
     public function __construct($testcase, $iscorrect, $awardedmark, $got) {
         // Flatten testcase into this, tidying up text fields.
         foreach (get_object_vars($testcase) as $key => $value) {
-            if (in_array($key, array('expected', 'testcode', 'stdin', 'extra'))) {
+            if (in_array($key, ['expected', 'testcode', 'stdin', 'extra'])) {
                 $this->$key = qtype_coderunner_util::tidy($value);
             } else {
                 $this->$key = $value;
@@ -44,7 +38,6 @@ class qtype_coderunner_test_result {
         $this->iscorrect = $iscorrect;
         $this->awarded = $awardedmark;
         $this->got = qtype_coderunner_util::tidy($got);
-
     }
 
     // Return the value from this testresult as specified by the given
@@ -55,7 +48,7 @@ class qtype_coderunner_test_result {
     // used to provide a Show Differences button but that functionality is
     // now provided in JavaScript.
     public function gettrimmedvalue($fieldspecifier) {
-        $matches = array();
+        $matches = [];
         if (preg_match('|diff\((\w+), ?(\w+)\)|', $fieldspecifier, $matches)) {
             $fieldspecifier = $matches[1];
         }
@@ -67,5 +60,3 @@ class qtype_coderunner_test_result {
         return $value;
     }
 }
-
-

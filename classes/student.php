@@ -18,20 +18,32 @@
 /**
  * Student class to access user details without exposing all properties of global $USER.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2017 David Bowes <d.h.bowes@herts.ac.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+
 
 class qtype_coderunner_student {
 
+    /** @var int */
+    public $id;
+
+    /** @var string */
     public $username;
+
+    /** @var string */
     public $email;
+
+    /** @var string */
     public $firstname;
+
+    /** @var string */
     public $lastname;
+
+    /** @var bool Whether the user can view hidden test cases. */
+    public $canviewhidden;
 
     public function __construct($user) {
         if (!empty($user->username)) {
@@ -43,6 +55,4 @@ class qtype_coderunner_student {
             $this->canviewhidden = qtype_coderunner_testing_outcome::can_view_hidden();
         }
     }
-
 }
-

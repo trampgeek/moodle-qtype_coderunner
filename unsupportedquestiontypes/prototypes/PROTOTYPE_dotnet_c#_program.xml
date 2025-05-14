@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 40486  -->
+  <question type="coderunner">
+    <name>
+      <text>PROTOTYPE_DOTNET_C#</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>A prototype for a C# question type that tests a C# "write-a-program" question using the dotnet framework. It runs all tests in a single Jobe run with a single compilation using a Combinator Template Grader.</p>
+<p><strong>Template parameters:</strong></p>
+<p><em>total_time_budget:</em> the maximum time allowed (seconds) for the entire testing of the question (the compilation time plus all tests). Should be at least 1 second less than the maximum time limit set by the Jobe server, which is usually 50 secs. Default: 10. </p>
+<p><em>per_test_timeout</em>: the maximum time allowed (seconds) to run any one of the tests. It does not include the compile time, as compilation is done before the various tests are run. Default 3.</p>
+<p><em>warnings_are_errors:</em> true to treat any warning messages as errors. Otherwise, warnings are not displayed to the user unless there are also errors present. Default: true.</p>
+<p>Example template parameter: <code>{"total_time_budget": 20, "per_test_timeout": 5}</code></p>
+<p><strong>WARNINGS</strong>: </p>
+<ol>
+<li>You will need to have installed the dotnet package on your jobe server (sudo apt-get install dotnet-sdk-8.0).
+<ul>
+<li>For improved efficiency, you should also install an empty console project at /home/jobe/dotnettemplate; see the template for the required terminal commands.</li>
+</ul>
+</li>
+<li>This question type has had hardly any testing and has never been used in a production environment.</li>
+<li>Performance is very poor, because it takes around 2 seconds to compile a C# program. Hence, use of this question type in a test or exam is likely to overload the jobe server except with very small classes or when you have a large pool of Jobe servers.</li>
+<li>Dotnet does not play well with the usual Jobe 'ulimit' resource limitations, so the memory limit and disklimit (amount of disk i/o) have both been disabled. It is potentially possible for a rogue task to disable the Jobe server by exceeding these limits, although the watchdog timer should kill the job within around 10 seconds and the server should then recover. This theory has not been tested in practice.</li>
+</ol>
+<p>Caveat emptor!</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>csharpdotnet</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[""" The template for a question type that compiles and runs a student-submitted
+    C#.net program using a combinator template grader that runs all
+    test cases in a single compile-and-execute Jobe run.
+    This assumes a "write a program" type of question, with no test code to
+    be incorporated.
+    C#.net must have been installed with the command:
+    
+    sudo apt-get install dotnet-sdk-8.0
+    
+    Performance is also significantly improved (~ 1 sec less build
+    time) if a template project is built at location /home/jobe/dotnettemplate
+    by commands such as
+    
+    sudo bash
+    mkdir /home/jobe/dotnettemplate
+    cd /home/jobe/dotnettemplate
+    dotnet new console --use-program-main
+    
+"""
+import subprocess, sys, os, shutil, time, json, re
+
+KNOWN_PARAMS = {'total_time_budget', 'per_test_timeout', 'warnings_are_errors', 'profiling'}
+PARAMS = json.loads("""{{ QUESTION.parameters | json_encode | e('py') }}""")
+TIME_BUDGET = PARAMS['total_time_budget']      
+PER_TEST_MAX_TIME = PARAMS['per_test_timeout']
+CSHARP_PROJECT_TEMPLATE = '/home/jobe/dotnettemplate'
+
+# Do all the Twig processing first
+class TestCase:
+    def __init__(self, dict_rep):
+        """Construct a testcase from a dictionary representation obtained via JSON"""
+        self.testcode = dict_rep['testcode']
+        self.stdin = dict_rep['stdin']
+        self.expected = dict_rep['expected']
+        self.extra = dict_rep['extra']
+        self.display = dict_rep['display']
+        try:
+            self.testtype = int(dict_rep['testtype'])
+        except:
+            self.testtype = 0
+        self.hiderestiffail = bool(int(dict_rep['hiderestiffail']))
+        self.useasexample = bool(int(dict_rep['useasexample']))
+        self.mark = float(dict_rep['mark'])
+        
+bad_params = set(PARAMS.keys()) - KNOWN_PARAMS
+if bad_params:
+    print(f"Error in question!\nThe following template parameters are unknown: {bad_params}", file=sys.stderr)
+    sys.exit(1)
+    
+test_cases = [TestCase(test) for test in json.loads("""{{ TESTCASES | json_encode | e('py') }}""")]
+is_precheck = bool(int("{{ IS_PRECHECK }}"))
+warnaserror = ' --warnaserror' if PARAMS['warnings_are_errors'] else ''
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+
+# Now we start the run in earnest.
+t0 = time.perf_counter()
+
+# Set up a suitable environment
+os.makedirs('__home__', exist_ok=True)
+os.makedirs('__dotnetclihome__', exist_ok=True)
+os.environ['HOME'] = '__home__'
+os.environ['DOTNET_CLI_HOME'] = '__dotnetclihome__'
+
+# Copy or construct a minimal command-line C# project
+if os.path.isdir(CSHARP_PROJECT_TEMPLATE):
+    for item in os.listdir(CSHARP_PROJECT_TEMPLATE):
+        src_path = os.path.join(CSHARP_PROJECT_TEMPLATE, item)
+        if os.path.isdir(src_path):
+            shutil.copytree(src_path, os.path.join(os.getcwd(), item))
+        else:
+            shutil.copy2(src_path, os.getcwd())
+else:
+    result = subprocess.run("dotnet new console --use-program-main".split(), capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"dotnet new command failed: {result.stdout + '\n' + result.stderr}", file=sys.stderr)
+        sys.exit(1)
+        
+times = {'New': time.perf_counter()}  # For time profiling of the various steps
+
+# Write the student code to a file prog.cs
+with open("Program.cs", "w") as src:
+    print(student_answer, file=src)
+
+# Build the project
+result = subprocess.run(f"dotnet build{warnaserror} --verbosity quiet --nologo -consoleloggerparameters:NoSummary --no-restore".split(), capture_output=True, text=True)
+times['Build'] = time.perf_counter()
+
+# Prepare to construct the grader response dictionary, putting any compile
+# errors into the dictionary, formatted according to whether or not this
+# is a precheck. Error lines have the trailing identifier of the CS project
+# name stripped.
+compile_ok = result.returncode == 0
+grader_response = {'showdifferences': True}
+if not compile_ok:
+    error_output = result.stderr + result.stdout
+    error_lines = [re.sub(r' *\[/home/jobe/runs.*.csproj\] *', '', line) for line in error_output.splitlines()
+                  if 'error CS' in line or 'warning CS' in line]
+    error_message = f"<pre>\n{'<br>'.join(error_lines)}\n</pre>"
+
+if is_precheck:
+    if compile_ok:
+        grader_response['prologuehtml'] = "<p class='precheckresult'>Passed 🙂</p>"
+        grader_response['fraction'] = 1
+    else:
+        grader_response['prologuehtml'] = f"<p class='precheckresult'>Failed, as follows.</p>{error_message}"
+        grader_response['fraction'] = 0.0
+        
+else:
+    # Not a precheck. Either report any compile errors or run all tests.
+    if not compile_ok:
+        grader_response['prologuehtml'] = f"<div class='coderunner-test-results bad'><h3>Pre-run checks failed</h3>\n{error_message}"
+        grader_response['fraction'] = 0.0
+    else:
+        
+        # If compile succeeded and it's not a precheck run all the tests.
+        result_table = [['iscorrect', 'ishidden', 'Input', 'Expected', 'Got']]
+        hiding_rest = False
+        all_passed = True
+        aborted = False
+        i_test = 0
+        while not aborted and i_test < len(test_cases):
+            test = test_cases[i_test]
+            t_remaining = TIME_BUDGET - (time.perf_counter() - t0)  # Time until the Jobe watchdog timer kills us.
+            timeout = min(t_remaining, PER_TEST_MAX_TIME)  # Ensure we don't get killed by Jobe.
+            try:
+                output = subprocess.check_output(
+                    "dotnet run --no-build --nologo".split(),
+                    input=test.stdin,
+                    timeout=timeout,
+                    text=True
+                ).rstrip()
+                is_correct = output == test.expected
+                if not is_correct:
+                    all_passed = False
+                is_hidden = (
+                    hiding_rest or
+                    test.display == 'HIDE' or
+                    (test.display == 'HIDE_IF_SUCCEED' and is_correct) or
+                    (test.display == 'HIDE_IF_FAIL' and not is_correct)
+                )
+                result_table.append([is_correct, is_hidden, test.stdin, test.expected, output])
+                if test.hiderestiffail and not is_correct:
+                    # Need to hide rest of tests from student (but continue for benefit of teachers).
+                    hiding_rest = True
+                
+            except subprocess.TimeoutExpired:
+                if timeout < PER_TEST_MAX_TIME:
+                    message = 'Time budget exceeded.'
+                else:
+                    message = 'This test took too long to run.'
+                result_table.append([False, False, test.stdin, test.expected, f'*** TIMEOUT ***\n{message}\nFurther testing aborted.'])
+                aborted = True
+                
+            except subprocess.CalledProcessError as e:
+                message = f'Task failed with signal {-e.returncode}'
+                if e.output:
+                    message = e.output + '\n' + message
+                message += '\n*** Further testing has been aborted ***'
+                result_table.append([False, False, test.expected, message])
+                aborted = True
+            times[f'Test {i_test + 1}'] = time.perf_counter()
+            i_test += 1
+    
+        grader_response['testresults'] = result_table
+        grader_response['fraction'] = 1.0 if all_passed and not aborted else 0.0
+
+# Add per-step time profiling if profiling template parameter is true.
+if PARAMS['profiling']:
+    t_last = t0
+    time_message = ''
+    for label, t in times.items():
+        time_message += f'{label}: {t - t_last:.2f} secs<br>'
+        t_last = t
+    grader_response['epiloguehtml'] = f"<h5>Step execution times</h5><p>{time_message}</p>"
+    
+print(json.dumps(grader_response))
+]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>1</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang>cs</acelang>
+    <sandbox></sandbox>
+    <grader>TemplateGrader</grader>
+    <cputimelimitsecs>8</cputimelimitsecs>
+    <memlimitmb>0</memlimitmb>
+    <sandboxparams><![CDATA[{"numprocs":1000,"disklimit":2000000000}]]></sandboxparams>
+    <templateparams><![CDATA[{
+    "total_time_budget": 10,
+    "per_test_timeout": 3,
+    "warnings_are_errors": true,
+    "profiling": false
+}]]></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>twig</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald><![CDATA[{
+    "total_time_budget": 10,
+    "per_test_timeout": 3,
+    "warnings_are_errors": true,
+    "profiling": false
+}]]></templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>0</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>

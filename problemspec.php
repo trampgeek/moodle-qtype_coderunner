@@ -23,8 +23,7 @@
  * question looking for the first match of the requested filename (if given
  * and not empty) or the first filename ending in .pdf (otherwise).
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2019 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -45,7 +44,10 @@ $reqdfilename = optional_param('filename', '', PARAM_TEXT);
 
 $qids = $USER->coderunnerquestionids;
 // Security check: is the current questions being requested, and is it a pdf?
-if (!in_array($currentqid, $qids) || ($reqdfilename !== '' && strpos($reqdfilename, '.pdf', -4) === false)) {
+if (
+    !in_array($currentqid, $qids) ||
+    ($reqdfilename !== '' && strpos($reqdfilename, '.pdf', -4) === false)
+) {
     echo('{"Error": "Unauthorised"}');
     die(); // This is not for the current question.
 }
@@ -59,13 +61,36 @@ foreach ($files as $filename => $contents) {
         $tempfilename = tempnam($tempdir, 'zip');
         if ($tempfilename) {
             file_put_contents($tempfilename, $contents);
-            $handle = zip_open($tempfilename);
+            $zippy = new ZipArchive();
+            $zippy->open($tempfilename, ZipArchive::RDONLY);
+            for ($i = 0; $i < $zippy->numFiles; $i++) {
+                $filename = $zippy->getNameIndex($i);
+                $base = pathinfo($filename, PATHINFO_BASENAME);
+                $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                if ($base === $reqdfilename || ($reqdfilename === "" && $extension === 'pdf')) {
+                    $filecontents = $zippy->getFromIndex($i);
+                    $json = json_encode(['filecontentsb64' => base64_encode($filecontents)]);
+                    if ($json != null) {
+                        echo $json;
+                        $zippy->close();
+                        unlink($tempfilename); // Note: $tempdir is auto-deleted.
+                        die();
+                    }
+                }
+            }
+            $zippy->close();
+            unlink($tempfilename); // Note: $tempdir is auto-deleted.
+
+            // phpcs:disable      
+            /*
+            This is the old code so phpcs is diasbled so it doesn't complain about
+            source code being included in comment, for now...
             while ($file = zip_read($handle)) {
                 $name = zip_entry_name($file);
                 $base = basename($name);
                 if ($base === $reqdfilename || ($reqdfilename === "" && strpos($base, '.pdf', -4) !== false)) {
                     $filecontents = zip_entry_read($file, zip_entry_filesize($file));
-                    $json = json_encode(array('filecontentsb64' => base64_encode($filecontents)));
+                    $json = json_encode(['filecontentsb64' => base64_encode($filecontents)]);
                     if ($json != null) {
                         echo $json;
                         unlink($tempfilename);
@@ -76,6 +101,8 @@ foreach ($files as $filename => $contents) {
             }
             zip_close($handle);
             unlink($tempfilename); // Note: $tempdir is auto-deleted.
+            */
+            // phpcs:enable   
         }
     }
 }

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 /*
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2016 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -23,6 +22,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+
+use qtype_coderunner\constants;
 
 // The qtype_coderunner_jobrunner class contains all code concerned with running a question
 // in the sandbox and grading the result.
@@ -34,27 +35,76 @@ class qtype_coderunner_jobrunner {
     private $question = null;        // The question that we're running code for.
     private $testcases = null;       // The testcases (a subset of those in the question).
     private $allruns = null;         // Array of the source code for all runs.
-    private $precheck = null;        // True if this is a precheck run.
 
-    // Check the correctness of a student's code and possible extra attachments
-    // as an answer to the given
-    // question and and a given set of test cases (which may be empty or a
-    // subset of the question's set of testcases. $isprecheck is true if
-    // this is a run triggered by the student clicking the Precheck button.
-    // $answerlanguage will be the empty string except for multilanguage questions,
-    // when it is the language selected in the language drop-down menu.
-    // Returns a TestingOutcome object.
-    public function run_tests($question, $code, $attachments, $testcases, $isprecheck, $answerlanguage) {
-        global $CFG;
+
+    /** @var ?array Array of sandbox params. */
+    private $sandboxparams = null;
+
+    /** @var ?string Language used to run the code. */
+    private $language = null;
+
+    /** @var ?array An associative array of template params.*/
+    private $templateparams = null;
+
+    /** @var bool True if this grading is occurring because the student clicked the precheck button. */
+    private $isprecheck = false;
+
+
+
+    /**
+     * Check the correctness of a student's code and possible extra attachments
+     * as an answer to the given question and and a given set of test cases (which may be empty or a
+     * subset of the question's set of testcases.
+     * @param qtype_coderunner_question $question object relevant to this step of the attempt
+     * @param string $code is the JSON repr of the code
+     * @param array $attachments is the array of attachments given by student, if any
+     * @param
+     * @param boolean $isprecheck is true if
+     * this is a run triggered by the student clicking the Precheck button.
+     * @param string $answerlanguage will be the empty string except for multilanguage questions,
+     *      when it is the language selected in the language drop-down menu.
+     * @return qtype_coderunner_combinator_grader_outcome $testoutcome that contains the outcome
+     *      of the grading.
+     */
+    public function run_tests(
+        $question,
+        $code,
+        $attachments,
+        $testcases,
+        $isprecheck,
+        $answerlanguage
+    ) {
 
         if (empty($question->prototype)) {
             // Missing prototype. We can't run this question.
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
-            $message = get_string('missingprototypewhenrunning', 'qtype_coderunner',
-                    array('crtype' => $question->coderunnertype));
-            $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE, $message);
+            if ($question->prototypetype != 0) {
+                $message = get_string('cannotrunprototype', 'qtype_coderunner');
+            } else {
+                $message = get_string(
+                    'missingprototypewhenrunning',
+                    'qtype_coderunner',
+                    ['crtype' => $question->coderunnertype]
+                );
+            }
+            $status = qtype_coderunner_testing_outcome::STATUS_MISSING_PROTOTYPE;
+            $outcome->set_status($status, $message);
             return $outcome;
         }
+
+        // Extract the code from JSON if this is a Scratchpad UI or similar.
+        // Note that this breaks the old python3_scratchpad question type
+        // where the template expects the full JSON string to be presented as
+        // the value of STUDENT_ANSWER. The fix is simply to change the template
+        // to use the value of STUDENT_ANSWER as given, rather than trying
+        // to extract the student answer itself.
+        if ($question->extractcodefromjson) {
+            $json = json_decode($code, true);
+            if ($json !== null && isset($json[constants::ANSWER_CODE_KEY])) {
+                $code = $json[constants::ANSWER_CODE_KEY][0];
+            }
+        }
+
         $this->question = $question;
         $this->code = $code;
         $this->testcases = array_values($testcases);
@@ -66,19 +116,21 @@ class qtype_coderunner_jobrunner {
         $this->sandboxparams = $question->get_sandbox_params();
         $this->language = $question->get_language();
 
-        $this->allruns = array();
-        $this->templateparams = array(
+        $this->allruns = [];
+        $this->templateparams = [
             'STUDENT_ANSWER' => $code,
             'ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::python(null, $code, null), // LEGACY SUPPORT.
             'MATLAB_ESCAPED_STUDENT_ANSWER' => qtype_coderunner_escapers::matlab(null, $code, null), // LEGACY SUPPORT.
             'IS_PRECHECK' => $isprecheck ? "1" : "0",
             'ANSWER_LANGUAGE' => $answerlanguage,
-            'ATTACHMENTS' => $attachedfilenames
-         );
+            'ATTACHMENTS' => $attachedfilenames,
+         ];
 
-        if ($question->get_is_combinator() &&
+        if (
+            $question->get_is_combinator() &&
                 ($this->has_no_stdins() || $question->allow_multiple_stdins() ||
-                $this->grader->name() === 'TemplateGrader')) {
+                $this->grader->name() === 'TemplateGrader')
+        ) {
             $outcome = $this->run_combinator($isprecheck);
         } else {
             $outcome = null;
@@ -98,9 +150,10 @@ class qtype_coderunner_jobrunner {
         if ($question->get_show_source()) {
             $outcome->sourcecodelist = $this->allruns;
         }
+
+
         return $outcome;
     }
-
 
     // If the template is a combinator, try running all the tests in a single
     // go.
@@ -110,6 +163,13 @@ class qtype_coderunner_jobrunner {
     // a list of all the test cases and QUESTION, the original question object.
     // Return the testing outcome object if successful else null.
     private function run_combinator($isprecheck) {
+        // Remove id and questionid keys+values from testcases so they don't
+        // affect caching. For example the questionid will change each time
+        // the question is saved thanks to question versioning - urgh!
+        foreach ($this->testcases as $tc) {
+            unset($tc->id);
+            unset($tc->questionid);
+        }
         $numtests = count($this->testcases);
         $this->templateparams['TESTCASES'] = $this->testcases;
         $maxmark = $this->maximum_possible_mark();
@@ -119,14 +179,20 @@ class qtype_coderunner_jobrunner {
             $testprog = $question->twig_expand($question->template, $this->templateparams);
         } catch (Exception $e) {
             $outcome->set_status(
-                    qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
-                    get_string('templateerror', 'qtype_coderunner') . ': ' . $e->getMessage());
+                qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
+                get_string('templateerror', 'qtype_coderunner') . ': ' . $e->getMessage()
+            );
             return $outcome;
         }
 
         $this->allruns[] = $testprog;
-        $run = $this->sandbox->execute($testprog, $this->language,
-                null, $this->files, $this->sandboxparams);
+        $run = $this->sandbox->execute(
+            $testprog,
+            $this->language,
+            null,
+            $this->files,
+            $this->sandboxparams
+        );
 
         // If it's a template grader, we pass the result to the
         // do_combinator_grading method. Otherwise we deal with syntax errors or
@@ -136,14 +202,16 @@ class qtype_coderunner_jobrunner {
 
         if ($run->error !== qtype_coderunner_sandbox::OK) {
             $outcome->set_status(
-                    qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
-                    qtype_coderunner_sandbox::error_string($run));
+                qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
+                qtype_coderunner_sandbox::error_string($run)
+            );
         } else if ($this->grader->name() === 'TemplateGrader') {
             $outcome = $this->do_combinator_grading($run, $isprecheck);
         } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
             $outcome->set_status(
-                    qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
-                    $run->cmpinfo);
+                qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
+                $run->cmpinfo
+            );
         } else if ($run->result === qtype_coderunner_sandbox::RESULT_SUCCESS) {
             $outputs = preg_split($this->question->get_test_splitter_re(), $run->output);
             if (count($outputs) === $numtests) {
@@ -153,8 +221,11 @@ class qtype_coderunner_jobrunner {
                     $i++;
                 }
             } else {  // Error: wrong number of tests after splitting.
-                $error = get_string('brokencombinator', 'qtype_coderunner',
-                        array('numtests' => $numtests, 'numresults' => count($outputs)));
+                $error = get_string(
+                    'brokencombinator',
+                    'qtype_coderunner',
+                    ['numtests' => $numtests, 'numresults' => count($outputs)]
+                );
                 $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $error);
             }
         } else {
@@ -173,12 +244,19 @@ class qtype_coderunner_jobrunner {
         if ($maxmark == 0) {
             $maxmark = 1; // Something silly is happening. Probably running a prototype with no tests.
         }
+        // Remove id and questionid keys+values from testcases so they don't
+        // affect caching. For example the questionid will change each time
+        // the question is saved thanks to question versioning - urgh!
+        foreach ($this->testcases as $tc) {
+            unset($tc->id);
+            unset($tc->questionid);
+        }
         $numtests = count($this->testcases);
         $outcome = new qtype_coderunner_testing_outcome($maxmark, $numtests, $isprecheck);
         $question = $this->question;
         foreach ($this->testcases as $testcase) {
             if ($this->question->iscombinatortemplate) {
-                $this->templateparams['TESTCASES'] = array($testcase);
+                $this->templateparams['TESTCASES'] = [$testcase];
             } else {
                 $this->templateparams['TEST'] = $testcase;
             }
@@ -186,27 +264,35 @@ class qtype_coderunner_jobrunner {
                 $testprog = $question->twig_expand($question->template, $this->templateparams);
             } catch (Exception $e) {
                 $outcome->set_status(
-                        qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
-                        'TEMPLATE ERROR: ' . $e->getMessage());
+                    qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
+                    'TEMPLATE ERROR: ' . $e->getMessage()
+                );
                 break;
             }
 
             $input = isset($testcase->stdin) ? $testcase->stdin : '';
             $this->allruns[] = $testprog;
-            $run = $this->sandbox->execute($testprog, $this->language,
-                    $input, $this->files, $this->sandboxparams);
+            $run = $this->sandbox->execute(
+                $testprog,
+                $this->language,
+                $input,
+                $this->files,
+                $this->sandboxparams
+            );
             if (isset($run->sandboxinfo)) {
                 $outcome->add_sandbox_info($run->sandboxinfo);
             }
             if ($run->error !== qtype_coderunner_sandbox::OK) {
                 $outcome->set_status(
                     qtype_coderunner_testing_outcome::STATUS_SANDBOX_ERROR,
-                    qtype_coderunner_sandbox::error_string($run));
+                    qtype_coderunner_sandbox::error_string($run)
+                );
                 break;
             } else if ($run->result === qtype_coderunner_sandbox::RESULT_COMPILATION_ERROR) {
                 $outcome->set_status(
-                        qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
-                        $run->cmpinfo);
+                    qtype_coderunner_testing_outcome::STATUS_SYNTAX_ERROR,
+                    $run->cmpinfo
+                );
                 break;
             } else if ($run->result != qtype_coderunner_sandbox::RESULT_SUCCESS) {
                 $errormessage = $this->make_error_message($run);
@@ -255,49 +341,57 @@ class qtype_coderunner_jobrunner {
         try {
             if ($run->result !== qtype_coderunner_sandbox::RESULT_SUCCESS) {
                 $resulterror = qtype_coderunner_sandbox::result_string($run->result);
-                $error = get_string('brokentemplategrader', 'qtype_coderunner',
-                        array('output' => "\nRun result: $resulterror" . "\nOutput: " .
-                            $run->cmpinfo . "\n" . $run->output . "\n" . $run->stderr));
+                $error = get_string(
+                    'brokentemplategrader',
+                    'qtype_coderunner',
+                    ['output' => "\nRun result: $resulterror" . "\nOutput: " .
+                    $run->cmpinfo . "\n" . $run->output . "\n" . $run->stderr]
+                );
                 throw new Exception($error);
             }
 
             $result = json_decode($run->output);
             if ($result === null) {
-                $error = get_string('badjson', 'qtype_coderunner',
-                    array('output' => $run->output));
+                $error = get_string(
+                    'badjson',
+                    'qtype_coderunner',
+                    ['output' => $run->output]
+                );
                 throw new Exception($error);
             }
 
             if (isset($result->showoutputonly) && $result->showoutputonly) {
                 $outcome->set_output_only();
             } else if ($this->missing_or_bad_fraction($result)) {
-                $error = get_string('missingorbadfraction', 'qtype_coderunner',
-                    array('output' => $run->output));
+                $error = get_string(
+                    'missingorbadfraction',
+                    'qtype_coderunner',
+                    ['output' => $run->output]
+                );
                 throw new Exception($error);
             }
 
             // A successful combinator run (so far).
             $fract = $outcome->is_output_only() ? 1.0 : $result->fraction;
-            $feedback = array();
-            if (isset($result->feedback_html)) {  // Legacy combinator grader?
-                $result->feedbackhtml = $result->feedback_html; // Change to modern version.
-                unset($result->feedback_html);
+            $feedback = [];
+            foreach (['feedback_html', 'feedbackhtml'] as $legacykey) {
+                if (isset($result->$legacykey)) {  // Legacy combinator grader?
+                    $result->epiloguehtml = $result->$legacykey; // Use it as epiloguehtml.
+                    unset($result->$legacykey);
+                }
             }
             foreach ($result as $key => $value) {
                 if (!in_array($key, $outcome->allowedfields)) {
-                    $error = get_string('unknowncombinatorgraderfield', 'qtype_coderunner',
-                        array('fieldname' => $key));
+                    $error = get_string(
+                        'unknowncombinatorgraderfield',
+                        'qtype_coderunner',
+                        ['fieldname' => $key]
+                    );
                     throw new Exception($error);
                 }
-                if ($key === 'feedbackhtml' || $key === 'feedback_html') {
-                    // For compatibility with older combinator graders.
-                    $feedback['epiloguehtml'] = $result->$key;
-                } else {
-                    $feedback[$key] = $value;
-                }
+                $feedback[$key] = $value;
             }
             $outcome->set_mark_and_feedback($fract, $feedback);  // Further valididty checks done in here.
-
         } catch (Exception $except) {
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_BAD_COMBINATOR, $except->getMessage());
         }
@@ -322,7 +416,7 @@ class qtype_coderunner_jobrunner {
     private function merge($sep, $strings) {
         $s = '';
         foreach ($strings as $el) {
-            if (trim($el)) {
+            if (trim($el ?? '')) {
                 if ($s !== '') {
                     $s .= $sep;
                 }
@@ -354,7 +448,7 @@ class qtype_coderunner_jobrunner {
                 $err .= " (signal $sig)";
             }
         }
-        return $this->merge("\n", array($run->cmpinfo, $run->output, $err, $run->stderr));
+        return $this->merge("\n", [$run->cmpinfo, $run->output, $err, $run->stderr]);
     }
 
 
@@ -366,18 +460,5 @@ class qtype_coderunner_jobrunner {
             }
         }
         return true;
-    }
-
-    // Count the number of errors in the given array of test results.
-    // TODO -- figure out how to eliminate either this one or the identical
-    // version in renderer.php.
-    private function count_errors($testresults) {
-        $errors = 0;
-        foreach ($testresults as $tr) {
-            if (!$tr->iscorrect) {
-                $errors++;
-            }
-        }
-        return $errors;
     }
 }

@@ -36,13 +36,11 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 /**
  * Unit tests for the coderunner question type.
  *
+ * @coversNothing
  * @copyright  2011, 2020 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
 class walkthrough_combinator_grader_test extends \qbehaviour_walkthrough_test_base {
-
     protected function setUp(): void {
         global $CFG;
         parent::setUp();
@@ -78,17 +76,17 @@ EOTEMPLATE;
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "hi di hi and HO DI HO"));
+        $this->process_submission(['-submit' => 1,
+            'answer' => "hi di hi and HO DI HO"]);
         $this->check_current_mark(1.0);
-        $this->check_current_output( new \question_pattern_expectation('|<h2>Well done</h2>|') );
+        $this->check_current_output(new \question_pattern_expectation('|<h2>Well done</h2>|'));
 
         // Submit a partially right  answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "hi di nothi and HO DI NOTHO"));
+        $this->process_submission(['-submit' => 1,
+            'answer' => "hi di nothi and HO DI NOTHO"]);
         $this->check_current_mark(0.5);
-        $this->check_current_output( new \question_pattern_expectation('|<h2>Wrong numbers of hi and/or ho</h2>|') );
+        $this->check_current_output(new \question_pattern_expectation('|<h2>Wrong numbers of hi and/or ho</h2>|'));
     }
 
 
@@ -120,8 +118,8 @@ EOTEMPLATE;
 
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "def sqr(n): return n * n"));
+        $this->process_submission(['-submit' => 1,
+            'answer' => "def sqr(n): return n * n"]);
         $this->check_current_mark(1.0);
         $this->check_output_contains('Prologue');
         $this->check_output_contains('Expected');
@@ -132,8 +130,8 @@ EOTEMPLATE;
 
         // Submit a partially right  answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => "def sqr(n): return n * n if n != -5 else 'Bin' + 'Go!'"));
+        $this->process_submission(['-submit' => 1,
+            'answer' => "def sqr(n): return n * n if n != -5 else 'Bin' + 'Go!'"]);
         $this->check_output_contains('Prologue');
         $this->check_output_contains('Expected');
         $this->check_output_contains('Got');
@@ -159,14 +157,14 @@ EOTEMPLATE;
         $q->grader = 'EqualityGrader';
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_current_mark(0.0);
         $this->check_output_contains('Perhaps excessive output or error in question?');
     }
 
     // Test that if the combinator grader outputs bad JSON, we get an
-    // appropriate error message
+    // appropriate error message.
     public function test_bad_json() {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
@@ -179,10 +177,10 @@ EOTEMPLATE;
         $q->grader = 'TemplateGrader';
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_current_mark(0.0);
-        $this->check_output_contains('Bad JSON output from combinator grader output. Output was: twaddle');
+        $this->check_output_contains('Bad JSON output from combinator grader. Output was: twaddle');
     }
 
     // Test that if the combinator grader output has a missing fraction attribute
@@ -201,8 +199,8 @@ EOTEMPLATE;
         $q->grader = 'TemplateGrader';
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_current_mark(0.0);
         $this->check_output_contains('Bad or missing fraction in output from template grader');
     }
@@ -224,8 +222,8 @@ EOTEMPLATE;
         $q->grader = 'TemplateGrader';
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_current_mark(0.0);
         $this->check_output_contains('Bad or missing fraction in output from template grader');
     }
@@ -248,8 +246,8 @@ EOTEMPLATE;
         $q->grader = 'TemplateGrader';
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_current_mark(1.0);
         $this->check_output_contains("Prologue");
         $this->check_output_contains("Wasn't that FUN!");
@@ -283,8 +281,8 @@ EOTEMPLATE;
         $q->grader = 'TemplateGrader';
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_current_mark(0.0);
         $this->check_output_contains('Wrong number of test results column formats. Expected 6, got 7');
     }
@@ -317,8 +315,8 @@ EOTEMPLATE;
         $q->grader = 'TemplateGrader';
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_current_mark(0.0);
         $this->check_output_contains('Unknown field name (columnformatt) in combinator grader output');
     }
@@ -351,8 +349,8 @@ EOTEMPLATE;
         $q->grader = 'TemplateGrader';
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_current_mark(0.0);
         $this->check_output_contains('Illegal format (%x) in columnformats');
     }
@@ -380,13 +378,13 @@ EOTEMPLATE;
         $q->grader = 'TemplateGrader';
         // Submit a right answer.
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_output_contains("Prologue");
         $this->check_output_contains("graderstate: Empty");
         $this->check_output_does_not_contain('Passed all tests');
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n # resubmit'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n # resubmit']);
         $this->check_output_contains("graderstate: boomerang");
     }
 }

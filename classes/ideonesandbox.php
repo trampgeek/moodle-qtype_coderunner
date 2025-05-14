@@ -19,18 +19,12 @@
  * which can be up to a minute. It was developed as a proof of concept of
  * the idea of a remote sandbox and is not recommended for general purpose use.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2012, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-
 class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
-
-    private $client = null;       // The soap client referencing ideone.com.
     private $langserror = null;   // The error attribute from the last call to getLanguages.
     private $langmap = null;      // Languages supported by this sandbox: map from name to id.
     //
@@ -42,7 +36,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
     const STATUS_RUNNING     = 3;
 
 
-    public function __construct($user=null, $pass=null) {
+    public function __construct($user = null, $pass = null) {
         if ($user == null) {
             $user = get_config('qtype_coderunner', 'ideone_user');
         }
@@ -56,13 +50,13 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         // A map from Ideone language names (regular expressions) to their
         // local short name, where appropriate.
 
-        $aliases = array('C99 .*'                   => 'c',
+        $aliases = ['C99 .*'                   => 'c',
                      '.*python *2\.[789]\.[0-9].*'  => 'python2',
                      'Python *3 *\(python.*'        => 'python3',
-                     'Java.*sun-jdk.*'              => 'java');
+                     'Java.*sun-jdk.*'              => 'java'];
 
-        $this->client = $client = new SoapClient("http://ideone.com/api/1/service.wsdl");
-        $this->langmap = array();  // Construct a map from language name to id.
+        $this->client = new SoapClient("http://ideone.com/api/1/service.wsdl");
+        $this->langmap = [];  // Construct a map from language name to id.
 
         // Build a table mapping from language name to Ideone language ID.
         // Names are the Ideone names up to but not including the ' (',
@@ -75,7 +69,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         if ($this->langserror == self::OK) {
             foreach ($response['languages'] as $id => $lang) {
                 $endofname = strpos($lang, ' (');
-                $shortlangname = strtolower(trim(substr($lang, 0, $endofname)));
+                $shortlangname = strtolower(trim(substr($lang ?? '', 0, $endofname)));
                 if (empty($this->langmap[$shortlangname])) {
                     $this->langmap[$shortlangname] = $id;
                 }
@@ -86,15 +80,15 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
                 }
             }
         } else {
-            $this->langmap = array();
+            $this->langmap = [];
         }
     }
 
 
     public function get_languages() {
-        return (object) array(
+        return (object) [
             'error'     => $this->langserror,
-            'languages' => array_keys($this->langmap));
+            'languages' => array_keys($this->langmap)];
     }
 
 
@@ -125,7 +119,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
      */
-    public function execute($sourcecode, $language, $input, $files=null, $params=null) {
+    public function execute($sourcecode, $language, $input, $files = null, $params = null) {
         $language = strtolower($language);
         if (!in_array($language, $this->get_languages()->languages)) {
             throw new qtype_coderunner_exception('Executing an unsupported language in sandbox');
@@ -133,8 +127,15 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary.
         }
-        $result = $this->create_submission($sourcecode, $language, $input,
-                true, true, $files, $params);
+        $result = $this->create_submission(
+            $sourcecode,
+            $language,
+            $input,
+            true,
+            true,
+            $files,
+            $params
+        );
         $error = $result->error;
         if ($error === self::OK) {
             $state = $this->get_submission_status($result->link);
@@ -142,12 +143,14 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         }
 
         if ($error != self::OK) {
-            return (object) array('error' => $error);
+            return (object) ['error' => $error];
         } else {
             $count = 0;
-            while ($state->error === self::OK &&
+            while (
+                $state->error === self::OK &&
                    $state->status !== self::STATUS_DONE &&
-                   $count < self::MAX_NUM_POLLS) {
+                   $count < self::MAX_NUM_POLLS
+            ) {
                 $count += 1;
                 sleep(self::POLL_INTERVAL);
                 $state = $this->get_submission_status($result->link);
@@ -157,20 +160,22 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
                 throw new qtype_coderunner_exception("Timed out waiting for sandbox");
             }
 
-            if ($state->error !== self::OK ||
-                    $state->status !== self::STATUS_DONE) {
+            if (
+                $state->error !== self::OK ||
+                    $state->status !== self::STATUS_DONE
+            ) {
                 throw new coding_exception("Error response or bad status from sandbox");
             }
 
             $details = $this->get_submission_details($result->link);
 
-            return (object) array(
+            return (object) [
                 'error'   => self::OK,
                 'result'  => $details->result,
                 'output'  => $details->output,
                 'stderr'  => $details->stderr,
                 'signal'  => $details->signal,
-                'cmpinfo' => $details->cmpinfo);
+                'cmpinfo' => $details->cmpinfo];
         }
     }
 
@@ -180,8 +185,15 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
     // the handle for the submission, for use in the following two calls.
     // TODO: come up with a better way of handling non-null $files and
     // $params.
-    public function create_submission($sourcecode, $language, $input,
-            $run=true, $private=true, $files=null, $params=null) {
+    public function create_submission(
+        $sourcecode,
+        $language,
+        $input,
+        $run = true,
+        $private = true,
+        $files = null,
+        $params = null
+    ) {
         // Check language is valid.
         assert(in_array($language, $this->get_languages()->languages));
         if ($files !== null && count($files) !== 0) {
@@ -196,13 +208,20 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         // the fact that parameters like cpu_time, memory_limit etc are being ignored.
 
         $langid = $this->langmap[$language];
-        $response = $this->client->createSubmission($this->user, $this->pass,
-                $sourcecode, $langid, $input, $run, $private);
+        $response = $this->client->createSubmission(
+            $this->user,
+            $this->pass,
+            $sourcecode,
+            $langid,
+            $input,
+            $run,
+            $private
+        );
         $error = $response['error'];
         if ($error !== 'OK') {
             throw new moodle_exception("IdeoneSandbox::get_submission_status: error ($error)");
         } else {
-            return (object) array('error' => self::OK, 'link' => $response['link']);
+            return (object) ['error' => self::OK, 'link' => $response['link']];
         }
     }
 
@@ -212,39 +231,50 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
         if ($error !== "OK") {
                 throw new coding_exception("IdeoneSandbox::get_submission_status: error ($error)");
         } else {
-            return (object) array(
+            return (object) [
                 'error'  => self::OK,
                 'status' => $response['status'],
-                'result' => $response['result']
-            );
+                'result' => $response['result'],
+            ];
         }
     }
 
 
     // Should only be called if the status is STATUS_DONE. Returns an object
     // with fields error, result, time, memory, signal, cmpinfo, stderr, output.
-    public function get_submission_details($link, $withsource=false,
-            $withinput=false, $withoutput=true, $withstderr=true,
-            $withcmpinfo=true) {
+    public function get_submission_details(
+        $link,
+        $withsource = false,
+        $withinput = false,
+        $withoutput = true,
+        $withstderr = true,
+        $withcmpinfo = true
+    ) {
 
-        $response = $this->client->getSubmissionDetails($this->user, $this->pass,
-                $link, $withsource, $withinput, $withoutput,
-                $withstderr, $withcmpinfo);
+        $response = $this->client->getSubmissionDetails(
+            $this->user,
+            $this->pass,
+            $link,
+            $withsource,
+            $withinput,
+            $withoutput,
+            $withstderr,
+            $withcmpinfo
+        );
 
         $error = $response['error'];
         if ($error !== 'OK') {
             throw new coding_exception("IdeoneSandbox::getSubmissionStatus: error ($error)");
         } else {
-            return (object) array(
+            return (object) [
                 'error'   => self::OK,
                 'result'  => $response['result'],
                 'signal'  => $response['signal'],
                 'cmpinfo' => $response['cmpinfo'],
                 'output'  => $response['output'],
-                'stderr'  => $response['stderr']
+                'stderr'  => $response['stderr'],
 
-            );
+            ];
         }
     }
 }
-

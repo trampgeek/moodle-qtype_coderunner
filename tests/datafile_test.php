@@ -31,9 +31,11 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
-
+/**
+ * Unit tests for attaching datafiles to questions.
+ * @coversNothing
+ */
 class datafile_test extends \qtype_coderunner_testcase {
-
     // Test loading of files in the jobe sandbox.
     public function test_datafile_jobesandbox() {
         $code = $this->python_solution();
@@ -49,27 +51,33 @@ class datafile_test extends \qtype_coderunner_testcase {
         $fs = get_file_storage();
 
         // Prepare file record object.
-        $fileinfo = array(
+        $fileinfo = [
             'contextid' => $q->contextid,
             'component' => 'qtype_coderunner',
             'filearea'  => 'datafile',
             'itemid'    => $q->id,
             'filepath'  => '/',
-            'filename'  => 'data.txt');
+            'filename'  => 'data.txt'];
 
         // Create file.
         $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
 
         // Now test it.
 
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [, $grade, ] = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
 
         // Clean up by deleting the file again.
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-            $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+        $file = $fs->get_file(
+            $fileinfo['contextid'],
+            $fileinfo['component'],
+            $fileinfo['filearea'],
+            $fileinfo['itemid'],
+            $fileinfo['filepath'],
+            $fileinfo['filename']
+        );
         $file->delete();
     }
 
@@ -113,5 +121,4 @@ int main() {
 EOCODE;
         return $code;
     }
-
 }

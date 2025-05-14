@@ -33,8 +33,10 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
+/**
+ * @coversNothing
+ */
 class ideonesandbox_test extends \qtype_coderunner_testcase {
-
     public function test_testfunction() {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new \qtype_coderunner_ideonesandbox();  // Lots happens here!
@@ -138,5 +140,3 @@ class ideonesandbox_test extends \qtype_coderunner_testcase {
         $sandbox->close();
     }
 }
-
-

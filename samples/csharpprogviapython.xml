@@ -146,7 +146,9 @@ What I tell you three times is true."]]></text>
     mono C# program using a combinator template that tries to run all
     test cases in a single compile-and-execute Jobe run.
     This assumes a "write a program" type of question, with no test code to
-    be incorporated.
+    be incorporated. It uses the mono C# compiler rather than
+    dotnet. An experimental question type using dotnet instead is included in
+    the unsupported question types folder.
 """
 
 import subprocess, sys

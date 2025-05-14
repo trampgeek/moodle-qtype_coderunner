@@ -5,7 +5,8 @@ Feature: twigprefix
   I must be able to use the Twig prefix data in a question.
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
     And the following "courses" exist:
@@ -19,7 +20,7 @@ Feature: twigprefix
       | Course       | C1        | Top              | Behat Testing |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
     And I set CodeRunner behat testing flag
-    And I disable UI plugins
+    And I disable UI plugins in the CodeRunner question type
     And I press "Create a new question ..."
     And I click on "input#item_qtype_coderunner" "css_element"
     And I press "submitbutton"
@@ -51,7 +52,7 @@ Feature: twigprefix
     When I choose "Preview" action for "Prototype tester" in the question bank
     And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
-    And I press "Start again with these options"
+    And I press "id_saverestart"
     And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('BingleyBeep')"
     And I press "Check"
     Then I should see "Passed all tests!"

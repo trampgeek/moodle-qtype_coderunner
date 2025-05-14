@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 25784  -->
+  <question type="coderunner">
+    <name>
+      <text>DEMO_PROTOTYPE_C_using_python</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<h4>Running a new language using Python</h4><p>This question type shows how a Python script can be used to run code in a different language. In this example, the different language is C, but it can be any language installed on the Jobe server.&nbsp;</p><p>Running other languages via Python scripts gives lots of extra flexibility, such as the ability to check the student code before running it or to change compilation or linking flags.</p><p>In this example a template parameter <i>cflags</i>&nbsp;can be used to supply a gcc command line substring of compiler flags, defaulting to</p><pre>-std=c99 -Wall -Werror</pre><p>This question type is equivalent to the <i>c_program </i>question type: the student is required to submit an entire C program, which is compiled and run for each test case, with the standard input supplied in that test case. Compiling for each test is perfectly acceptable for C, where the compile time is generally negligible compared to the total question submission turn-around time, but for languages with a very high compile cost a combinator template, with <i>Allow multiple stdins</i>&nbsp;set, could be used, albeit with a greatly increased complexity.</p><p><br></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <coderunnertype>c_via_python</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[""" The template for a question type that compiles and runs a student-submitted
+    C program.
+"""
+
+import subprocess, sys
+
+# Write the student code to a file prog.c
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+with open("prog.c", "w") as src:
+    print(student_answer, file=src)
+
+# Compile
+{% if QUESTION.parameters.cflags is defined %}
+cflags = """{{ QUESTION.parameters.cflags | e('py') }}"""
+{% else %}
+cflags = "-std=c99 -Wall -Werror"
+{% endif %}
+return_code = subprocess.call("gcc {0} -o prog prog.c".format(cflags).split())
+if return_code != 0:
+    print("** Compilation failed. Testing aborted **", file=sys.stderr)
+
+# If compile succeeded, run the code. Since this is a per-test template,
+# stdin is already set up for the stdin text specified in the test case,
+# so we can run the compiled program directly.
+if return_code == 0:
+    try:
+        output = subprocess.check_output(["./prog"], universal_newlines=True)
+        print(output)
+    except subprocess.CalledProcessError as e:
+        if e.returncode > 0:
+            # Ignore non-zero positive return codes
+            if e.output:
+                print(e.output)
+        else:
+            # But negative return codes are signals - abort
+            if e.output:
+                print(e.output, file=sys.stderr)
+            if e.returncode < 0:
+                print("Task failed with signal", -e.returncode, file=sys.stderr)
+            print("** Further testing aborted **", file=sys.stderr)
+
+]]></template>
+    <iscombinatortemplate>0</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>0</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language>python3</language>
+    <acelang>C</acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <testcases>
+    </testcases>
+  </question>
+
+</quiz>

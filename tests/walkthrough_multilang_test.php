@@ -14,17 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * A walkthrough of a simple multilanguage question that asks for a program
- * that echos stdin to stdout. Tests all languages supported by the current
- * multilanguage question type: C, C++, Java, Python3
- * @group qtype_coderunner
- *
- * @package    qtype
- * @subpackage coderunner
- * @copyright  2018 Richard Lobb, The University of Canterbury
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 
 
 namespace qtype_coderunner;
@@ -36,17 +25,27 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
-class walkthrough_multilang_test extends \qbehaviour_walkthrough_test_base {
 
+/**
+ * A walkthrough of a simple multilanguage question that asks for a program
+ * that echos stdin to stdout. Tests all languages supported by the current
+ * multilanguage question type: C, C++, Java, Python3
+ * @group qtype_coderunner
+ * @coversNothing
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  2018 Richard Lobb, The University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class walkthrough_multilang_test extends \qbehaviour_walkthrough_test_base {
     protected function setUp(): void {
-        global $CFG;
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
     public function test_echostdin() {
 
-        $answers = array(
+        $answers = [
             'python3' => "try:\n    while 1:\n        print(input())\n\nexcept:\n    pass\n",
             'c' => "#include <stdio.h>\nint main() { int c; while ((c = getchar()) != EOF) { putchar(c); }}",
             'cpp' => "#include <iostream>\nint main () { std::cout << std::cin.rdbuf();}",
@@ -62,22 +61,21 @@ public class InOut {
             System.out.write(buffer, 0, bytesRead);
         }
     }
-}"
-        );
+}",
+        ];
         $q = \test_question_maker::make_question('coderunner', 'multilang_echo_stdin');
 
         // Submit a right answer in all languages.
         foreach ($answers as $lang => $answer) {
             $this->start_attempt_at_question($q, 'adaptive', 1, 1);
             $this->process_submission(
-                    array(
+                [
                         '-submit'  => 1,
                         'answer'   => $answer,
-                        'language' => $lang
-                    )
+                        'language' => $lang,
+                    ]
             );
             $this->check_current_mark(1.0);
         }
     }
 }
-

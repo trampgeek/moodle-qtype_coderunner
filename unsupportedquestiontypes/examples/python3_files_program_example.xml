@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 6711  -->
+  <question type="coderunner">
+    <name>
+      <text>Max Num in File - simple (files question type)</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Write a function <code>max_num_in_file(filename)</code> that returns the largest integer found in the file (as an integer). The file contains only numbers and has one number per line. The file will contain at least one line.</p>
+<p></p>We've shown you one test file in the example box below. We also encourage you to make your own test files and test your function with these too.<p></p>]]></text>
+<file name="max_num_in_file_test_01.txt" path="/" encoding="base64">MQoyCjMKNAo1Cg==</file>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>python3_files_function</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>1</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>10</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[{"answer_code":["def max_num_in_file(filename):\n    \"\"\"Returns the largest integer found in the file\"\"\"\n    infile = open(filename)\n    numbers = infile.read().splitlines()\n    infile.close()\n    max_value = int(numbers[0])\n    for number in numbers:\n        if max_value < int(number):\n            max_value = int(number)\n    return max_value"],"test_code":[""],"show_hide":[""],"prefix_ans":["1"]}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams><![CDATA[{
+    "showfeedbackwhenright": true
+}]]></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>twig</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald><![CDATA[{"showfeedbackwhenright":true}]]></templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters><![CDATA[{
+"disable_scratchpad": true
+}]]></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>0</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>answer = max_num_in_file('max_num_in_file_test_01.txt')
+print(answer)</text>
+      </testcode>
+      <stdin>
+                <text>max_num_in_file_test_01.txt</text>
+      </stdin>
+      <expected>
+                <text>5</text>
+      </expected>
+      <extra>
+                <text>1
+2
+3
+4
+5</text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>answer = max_num_in_file('max_num_in_file_test_02.txt')
+print(answer)
+print(type(answer))</text>
+      </testcode>
+      <stdin>
+                <text>max_num_in_file_test_02.txt</text>
+      </stdin>
+      <expected>
+                <text><![CDATA[100
+<class 'int'>]]></text>
+      </expected>
+      <extra>
+                <text>100</text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>answer = max_num_in_file('max_num_in_file_test_03.txt')
+print(answer)</text>
+      </testcode>
+      <stdin>
+                <text>max_num_in_file_test_03.txt</text>
+      </stdin>
+      <expected>
+                <text>3000</text>
+      </expected>
+      <extra>
+                <text>100
+10
+1
+200
+3000
+22
+76</text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>answer = max_num_in_file('max_num_in_file_test_04.txt')
+print(answer)</text>
+      </testcode>
+      <stdin>
+                <text>max_num_in_file_test_04.txt</text>
+      </stdin>
+      <expected>
+                <text>-2</text>
+      </expected>
+      <extra>
+                <text>-100
+-20
+-4
+-2</text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>answer = max_num_in_file('max_num_in_file_test_05.txt')
+print(answer)</text>
+      </testcode>
+      <stdin>
+                <text>max_num_in_file_test_05.txt</text>
+      </stdin>
+      <expected>
+                <text>-1</text>
+      </expected>
+      <extra>
+                <text>-100
+-20
+-4
+-2
+-1</text>
+      </extra>
+      <display>
+                <text>HIDE</text>
+      </display>
+    </testcase>
+    </testcases>
+    <tags>
+      <tag><text>CR</text>
+</tag>
+    </tags>
+  </question>
+
+</quiz>

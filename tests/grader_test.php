@@ -18,7 +18,7 @@
 // is extensively tested by the other tests.
 
 /**
- * Unit tests for the coderunner question definition class.
+ * Unit tests for various CodeRunner graders.
  * @group qtype_coderunner
  *
  * @package    qtype
@@ -36,23 +36,23 @@ global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
- * Unit tests for the RegexGrader class.
+ * Unit tests for various CodeRunner graders.
+ * @coversNothing
  */
 class grader_test extends \qtype_coderunner_testcase {
-
     public function test_regex_grader() {
         // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $q->grader = 'RegexGrader';
-        $q->testcases = array(
-            (object) array('testcode' => 'copy_stdin()',
+        $q->testcases = [
+            (object) ['testcode' => 'copy_stdin()',
                           'stdin'       => "Line1\n  Line2  \n /123Line 3456/ \n",
                           'extra'       => '',
                           'expected'    => "^ *Line1 *\n +Line2 +. /[1-3]{3}Line *3[4-6]{3}/ *\n$",
                           'useasexample' => 0,
                           'display' => 'SHOW',
                           'mark' => 1.0,
-                          'hiderestiffail' => 0));
+                          'hiderestiffail' => 0]];
         $code = <<<EOCODE
 def copy_stdin():
   try:
@@ -62,29 +62,32 @@ def copy_stdin():
   except EOFError:
     pass
 EOCODE;
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        $response = ['answer' => $code];
+        // Note: Moodle's test helper question always uses an id of zero!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
-
     }
 
     public function test_nearequality_grader_right_answer() {
         // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $q->grader = 'NearEqualityGrader';
-        $q->testcases = array(
-            (object) array('testcode' => 'copy_stdin()',
+        $q->testcases = [
+            (object) ['testcode' => 'copy_stdin()',
                           'stdin'       => "line 1 \nline  2  \nline   3   \n\n\n",
                           'extra'       => '',
                           'expected'    => "Line 1\nLine 2\nLine 3\n",
                           'useasexample' => 0,
                           'display' => 'SHOW',
                           'mark' => 1.0,
-                          'hiderestiffail' => 0));
+                          'hiderestiffail' => 0]];
         $code = <<<EOCODE
 def copy_stdin():
   try:
@@ -94,9 +97,13 @@ def copy_stdin():
   except EOFError:
     pass
 EOCODE;
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        $response = ['answer' => $code];
+        // Note: Moodle's test helper question always uses an id of zero!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
@@ -107,15 +114,15 @@ EOCODE;
         // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $q->grader = 'NearEqualityGrader';
-        $q->testcases = array(
-            (object) array('testcode' => 'copy_stdin()',
+        $q->testcases = [
+            (object) ['testcode' => 'copy_stdin()',
                           'stdin'       => " line 1 \n line  2  \n line   3   \n\n\n",
                           'extra'       => '',
                           'expected'    => "Line 1\nLine 2\nLine 3\n",
                           'useasexample' => 0,
                           'display' => 'SHOW',
                           'mark' => 1.0,
-                          'hiderestiffail' => 0));
+                          'hiderestiffail' => 0]];
         $code = <<<EOCODE
 def copy_stdin():
   try:
@@ -125,9 +132,13 @@ def copy_stdin():
   except EOFError:
     pass
 EOCODE;
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        $response = ['answer' => $code];
+        // Note: Moodle's test helper question always uses an id of zero!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $testoutcome = unserialize($cache['_testoutcome']); // For debugging test.
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);

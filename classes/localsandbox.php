@@ -28,8 +28,7 @@
  */
 
 /**
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2012, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -45,7 +44,6 @@ global $CFG;
  ******************************************************************/
 
 abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
-
     const SOURCE_FILE_NAME = 'sourcefile';
 
     protected $source = null;       // Source code for the current task.
@@ -63,7 +61,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
 
     protected $workdir = null;      // The current temporary working directory.
 
-    public function __construct($user=null, $pass=null) {
+    public function __construct($user = null, $pass = null) {
         qtype_coderunner_sandbox::__construct($user, $pass);
     }
 
@@ -94,11 +92,11 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
      */
-    public function execute($sourcecode, $language, $input, $files=null, $params=null) {
+    public function execute($sourcecode, $language, $input, $files = null, $params = null) {
         $savedcurrentdir = getcwd();
         $language = strtolower($language);
         if (!in_array($language, $this->get_languages()->languages)) {
-            return (object) array('error' => self::WRONG_LANG_ID);  // Should be impossible.
+            return (object) ['error' => self::WRONG_LANG_ID];  // Should be impossible.
         }
         if ($input !== '' && substr($input, -1) != "\n") {
             $input .= "\n";  // Force newline on the end if necessary.
@@ -135,15 +133,15 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
 
         chdir($savedcurrentdir);
         if ($error === self::OK) {
-            return (object) array(
+            return (object) [
                 'error'     => self::OK,
                 'cmpinfo'   => $this->cmpinfo,
                 'result'    => $this->result,
                 'stderr'    => $this->stderr,
                 'output'    => $this->output,
-                'signal'    => $this->signal);
+                'signal'    => $this->signal];
         } else {
-            return (object) array('error' => $error);
+            return (object) ['error' => $error];
         }
     }
 
@@ -195,7 +193,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
 
     // Delete a given directory tree.
     private static function del_tree($dir) {
-        $files = array_diff(scandir($dir), array('.', '..'));
+        $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
             (is_dir("$dir/$file")) ? self::del_tree("$dir/$file") : unlink("$dir/$file");
         }
@@ -207,7 +205,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
     // default, or gcc misbehaves. Thanks to Binoj D for this bug fix,
     // needed on his CentOS system.
     private static function set_path() {
-        $envvars = array();
+        $envvars = [];
         exec('printenv', $envvars);
         $haspath = false;
         foreach ($envvars as $var) {
@@ -232,7 +230,7 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
      * of nothing going terribly wrong or qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
      * otherwise.
      */
-    protected abstract function compile();
+    abstract protected function compile();
 
 
     /** Run the task defined by the source, language, input and params attributes
@@ -245,7 +243,5 @@ abstract class qtype_coderunner_localsandbox extends qtype_coderunner_sandbox {
      * of nothing going terribly wrong or qtype_coderunner_sandbox::UNKNOWN_SERVER_ERROR
      * otherwise.
      */
-    protected abstract function run_in_sandbox();
-
+    abstract protected function run_in_sandbox();
 }
-

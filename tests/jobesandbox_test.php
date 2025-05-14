@@ -38,9 +38,10 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
-
+/**
+ * @coversNothing
+ */
 class jobesandbox_test extends \qtype_coderunner_testcase {
-
     public function test_fail_with_bad_key() {
         $this->check_sandbox_enabled('jobesandbox');
         if (!get_config('qtype_coderunner', 'jobe_apikey_enabled')) {
@@ -104,9 +105,13 @@ class jobesandbox_test extends \qtype_coderunner_testcase {
 print(open('second.bb').read())
 ";
         $sandbox = new \qtype_coderunner_jobesandbox();
-        $result = $sandbox->execute($source, 'python3', '',
-                array('first.a' => "Line1\nLine2",
-                      'second.bb' => 'Otherfile'));
+        $result = $sandbox->execute(
+            $source,
+            'python3',
+            '',
+            ['first.a' => "Line1\nLine2",
+            'second.bb' => 'Otherfile']
+        );
         $this->assertEquals(\qtype_coderunner_sandbox::OK, $result->error);
         $this->assertEquals(\qtype_coderunner_sandbox::RESULT_SUCCESS, $result->result);
         $this->assertEquals('', $result->stderr);
@@ -195,7 +200,7 @@ EOCODE;
             $sandbox = new \qtype_coderunner_jobesandbox();
             $source = 'print("Hello sandbox!")';
             for ($i = 0; $i < $maxnumtries; $i++) {
-                $result = $sandbox->execute($source, 'python3', '', null, array('debug' => 1));
+                $result = $sandbox->execute($source, 'python3', '', null, ['debug' => 1]);
                 if ($result->error === $sandbox::SUBMISSION_LIMIT_EXCEEDED) {
                     return;
                 } else {

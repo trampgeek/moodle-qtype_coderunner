@@ -14,17 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Use a walkthrough test to validate the new (2019) display-feedback options.
- * @group qtype_coderunner
- *
- * @package    qtype
- * @subpackage coderunner
- * @copyright  2019 Richard Lobb, The University of Canterbury
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-
 namespace qtype_coderunner;
 
 defined('MOODLE_INTERNAL') || die();
@@ -34,10 +23,18 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
-class walkthrough_display_feedback_test extends \qbehaviour_walkthrough_test_base {
 
+/**
+ * Use a walkthrough test to validate the new (2019) display-feedback options.
+ * @group qtype_coderunner
+ * @coversNothing
+ * @package    qtype
+ * @subpackage coderunner
+ * @copyright  2019 Richard Lobb, The University of Canterbury
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class walkthrough_display_feedback_test extends \qbehaviour_walkthrough_test_base {
     protected function setUp(): void {
-        global $CFG;
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
@@ -51,18 +48,18 @@ class walkthrough_display_feedback_test extends \qbehaviour_walkthrough_test_bas
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->assertEquals($q->displayfeedback, 1);
         $this->start_attempt_at_question($q, 'adaptive', 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_output_contains('Passed all tests');
         $q->displayfeedback = 0; // Should be the same outcome (quiz default).
         $this->start_attempt_at_question($q, 'adaptive', 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_output_contains('Passed all tests');
         $q->displayfeedback = 2; // But with a setting of 2, should be no result table.
         $this->start_attempt_at_question($q, 'adaptive', 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_output_does_not_contain('Passed all tests');
     }
 
@@ -78,18 +75,18 @@ class walkthrough_display_feedback_test extends \qbehaviour_walkthrough_test_bas
         $q->displayfeedback = 0;  // Uses quiz feedback setting.
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
         $this->displayoptions->feedback = 0; // Seems we have to set this explicitly.
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_output_does_not_contain('Passed all tests');
         $q->displayfeedback = 1;
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_output_contains('Passed all tests');
         $q->displayfeedback = 2;
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
-        $this->process_submission(array('-submit' => 1,
-            'answer' => 'def sqr(n): return n * n'));
+        $this->process_submission(['-submit' => 1,
+            'answer' => 'def sqr(n): return n * n']);
         $this->check_output_does_not_contain('Passed all tests');
     }
 }

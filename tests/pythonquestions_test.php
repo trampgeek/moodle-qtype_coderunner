@@ -35,23 +35,31 @@ require_once($CFG->dirroot . '/lib/accesslib.php');
 
 /**
  * Unit tests for the coderunner question definition class.
+ * @coversNothing
  */
 class pythonquestions_test extends \qtype_coderunner_testcase {
+    /** @var string  */
+    private $goodcode;
+
     protected function setUp(): void {
         parent::setUp();
+
+        // Each test will be skipped if python3 not available on jobe server.
+        $this->check_language_available('python3');
+
         $this->goodcode = "def sqr(n): return n * n";
     }
 
     public function test_summarise_response() {
         $s = $this->goodcode;
         $q = $this->make_question('sqr');
-        $this->assertEquals($s, $q->summarise_response(array('answer' => $s)));
+        $this->assertEquals($s, $q->summarise_response(['answer' => $s]));
     }
 
     public function test_grade_response_right() {
         $q = $this->make_question('sqr');
-        $response = array('answer' => $this->goodcode);
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        $response = ['answer' => $this->goodcode];
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -65,8 +73,8 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
     public function test_grade_response_wrong_ans() {
         $q = $this->make_question('sqr');
         $code = "def sqr(x): return x * x * x / abs(x)";
-        $response = array('answer' => $code);
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        $response = ['answer' => $code];
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -75,8 +83,8 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
     public function test_grade_syntax_error() {
         $q = $this->make_question('sqr');
         $code = "def sqr(x): return x  x";
-        $response = array('answer' => $code);
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        $response = ['answer' => $code];
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -88,9 +96,9 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
     public function test_grade_runtime_error() {
         $q = $this->make_question('sqr');
         $code = "def sqr(x): return x * y";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -102,9 +110,9 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
     public function test_student_answer_variable() {
         $q = $this->make_question('studentanswervar');
         $code = "\"\"\"Line1\n\"Line2\"\n'Line3'\nLine4\n\"\"\"";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, ] = $result;
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
@@ -112,9 +120,9 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
     public function test_illegal_open_error() {
         $q = $this->make_question('sqr');
         $code = "def sqr(x):\n    f = open('/twaddle/blah/xxx');\n    return x * x";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -126,9 +134,9 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
     public function test_grade_delayed_runtime_error() {
         $q = $this->make_question('sqr');
         $code = "def sqr(x):\n  if x != 11:\n    return x * x\n  else:\n    return y";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -146,9 +154,9 @@ def sqr(x):
        that squares its parameter"""
     return x * x
 EOCODE;
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -163,9 +171,9 @@ EOCODE;
         // Check a question type with a function that prints output.
         $q = $this->make_question('hello_func');
         $code = "def sayHello(name):\n  print('Hello ' + name)";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -185,9 +193,9 @@ def copy_stdin(n):
     line = input()
     print(line)
 EOCODE;
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -205,9 +213,13 @@ EOCODE;
          // Check a question that loops forever. Should cause sandbox timeout.
         $q = $this->make_question('timeout');
         $code = "def timeout():\n  while (1):\n    pass";
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        $response = ['answer' => $code];
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -221,47 +233,65 @@ EOCODE;
          // Check a function that conditionally throws exceptions.
         $q = $this->make_question('exceptions');
         $code = "def checkOdd(n):\n  if n & 1:\n    raise ValueError()";
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        $response = ['answer' => $code];
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
         $testoutcome = unserialize($cache['_testoutcome']);
         $this->assertEquals(2, count($testoutcome->testresults));
         $this->assertEquals("Exception\n", $testoutcome->testresults[0]->got);
-        $this->assertEquals("Yes\nYes\nNo\nNo\nYes\nNo\n",
-                $testoutcome->testresults[1]->got);
+        $this->assertEquals(
+            "Yes\nYes\nNo\nNo\nYes\nNo\n",
+            $testoutcome->testresults[1]->got
+        );
     }
 
     public function test_partial_mark_question() {
         // Test a question that isn't of the usual allornothing variety.
         $q = $this->make_question('sqr_part_marks');
         $code = "def sqr(n):\n  return -17.995";
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertEquals(0, $mark);
 
         $code = "def sqr(n):\n  return 0";  // Passes first test only.
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        $response = ['answer' => $code];
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 0.5 / 7.5) < 0.00001);
 
         $code = "def sqr(n):\n  return n * n if n <= 0 else -17.995";  // Passes first test and last two only.
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        $response = ['answer' => $code];
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 5.0 / 7.5) < 0.00001);
 
         $code = "def sqr(n):\n    return n * n if n <= 0 else 1 / 0";  // Passes first test then aborts.
-        $response = array('answer' => $code);
-        $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        $response = ['answer' => $code];
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedpartial, $grade);
         $this->assertTrue(abs($mark - 0.5 / 7.5) < 0.00001);
     }
@@ -273,12 +303,22 @@ from time import sleep
 sleep(10)  # Wait 10 seconds
 print("Hello Python")
 EOT;
-        $response = array('answer' => $slowsquare);  // Should time out.
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        $response = ['answer' => $slowsquare];  // Should time out.
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $q->cputimelimitsecs = 20;  // This should fix it.
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        // NOTE: qid of zero is reused with different question!
+        $result = $q->grade_response(
+            $response,
+            false, // Not a precheck.
+        );
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
     }

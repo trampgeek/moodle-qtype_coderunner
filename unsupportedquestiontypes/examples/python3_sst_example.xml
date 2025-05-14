@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 40284  -->
+  <question type="coderunner">
+    <name>
+      <text>SST while loop (upgraded question type)</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>Fill in the SST for the following code, which writes out the start of the times table for 7.</p>
+<pre class="ace-interactive-code language-python"><code>i = 1
+number = 7
+while i &lt; 3:
+    print(f"{i} x {number} = {i * number}")
+    i += 1
+print(f"i = {i}")
+</code></pre>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>python3_sst</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>10</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload><![CDATA[{"num_vars":["2"],"num_rows":["10"],"var_widths":["[70,70]"],"output_width":["100"],"return_width":["0"],"var_classes":[""],"variable_name":["",""],"line_number":["","","","","","","","","",""],"variable_value":["","","","","","","","","","","","","","","","","","","",""],"output":["","","","","","","","","",""]}]]></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[{"num_vars":["2"],"num_rows":["10"],"var_widths":["70"],"output_width":["100"],"return_width":["0"],"var_classes":["{\"cr-sst-var-1-1\":\"cr-explicit\",\"cr-sst-var-2-1\":\"cr-filled-down\",\"cr-sst-var-3-1\":\"cr-filled-down\",\"cr-sst-var-4-1\":\"cr-filled-down\",\"cr-sst-var-5-1\":\"cr-explicit\",\"cr-sst-var-6-1\":\"cr-filled-down\",\"cr-sst-var-7-1\":\"cr-filled-down\",\"cr-sst-var-8-1\":\"cr-explicit\",\"cr-sst-var-9-1\":\"cr-filled-down\",\"cr-sst-var-10-1\":\"cr-filled-down\",\"cr-sst-var-2-2\":\"cr-explicit\",\"cr-sst-var-3-2\":\"cr-filled-down\",\"cr-sst-var-4-2\":\"cr-filled-down\",\"cr-sst-var-5-2\":\"cr-filled-down\",\"cr-sst-var-6-2\":\"cr-filled-down\",\"cr-sst-var-7-2\":\"cr-filled-down\",\"cr-sst-var-8-2\":\"cr-filled-down\",\"cr-sst-var-9-2\":\"cr-filled-down\",\"cr-sst-var-10-2\":\"cr-filled-down\"}"],"variable_name":["i","number"],"line_number":["1","2","3","4","5","3","4","5","3","6"],"variable_value":["1","","1","7","1","7","1","7","2","7","2","7","2","7","3","7","3","7","3","7"],"output":["","","","1 x 7 = 7","","","2 x 7 = 14","","","i = 3"]}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>twig</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>OK</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>

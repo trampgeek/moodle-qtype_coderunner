@@ -5,7 +5,8 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
   I should be able to write a function that prints my username it should be marked right
 
   Background:
-    Given the following "users" exist:
+    Given the CodeRunner test configuration file is loaded
+    And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
       | student1 | Student   | 1        | student@asd.com  |
@@ -23,7 +24,7 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
       | activity   | name      | course | idnumber |
       | quiz       | Test quiz | C1     | quiz1    |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
-    And I disable UI plugins
+    And I disable UI plugins in the CodeRunner question type
     And I add a "CodeRunner" question filling the form with:
       | id_coderunnertype       | python3                                    |
       | id_customise            | 1                                          |
@@ -32,7 +33,7 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
       | id_answerboxlines       | 5                                          |
       | id_validateonsave       | 0                                          |
       | id_template             | {{ STUDENT_ANSWER }}                       |
-      | id_answer               | print("{{STUDENT.username}}"               |
+      | id_answer               | print("{{STUDENT.username}})"              |
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # This isn't used                          |
       | id_expected_0           | {{ STUDENT.username }}                     |

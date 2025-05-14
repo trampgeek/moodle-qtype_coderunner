@@ -17,8 +17,7 @@
 /** Defines a ui_plugins class which contains a list of available ui_plugins
  * and their attributes.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  Richard Lobb, 2021, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,8 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 class qtype_coderunner_ui_plugins {
-
     private static $instance = null;
+    /** @var array ui_plugins object. */
+    public $plugins;
 
     /**
      * Construct a ui_plugins object by reading amd/src directory to identify
@@ -39,7 +39,7 @@ class qtype_coderunner_ui_plugins {
         global $CFG;
 
         $files = scandir($CFG->dirroot . '/question/type/coderunner/amd/src');
-        $this->plugins = array();
+        $this->plugins = [];
         foreach ($files as $file) {
             if (substr($file, 0, 3) === 'ui_' && substr($file, -3) === '.js') {
                 $uiname = substr($file, 3, -3);
@@ -73,7 +73,7 @@ class qtype_coderunner_ui_plugins {
     // parameters. Used to suppress the ui parameter panel in the question
     // editing form.
     public function all_with_no_params() {
-        $result = array();
+        $result = [];
         foreach ($this->plugins as $plugin) {
             if ($plugin->parameters()->length() == 0) {
                 $result[] = $plugin->uiname;
@@ -103,8 +103,8 @@ class qtype_coderunner_ui_plugins {
     // and including a None => None entry, suitable for use in the plugin
     // dropdown selector.
     public function dropdownlist() {
-        $uiplugins = array();
-        foreach ($this->plugins as $name => $plugin) {
+        $uiplugins = [];
+        foreach (array_values($this->plugins) as $plugin) {
             $uiplugins[$plugin->uiname] = ucfirst($plugin->uiname);
         }
         return $uiplugins;
@@ -115,6 +115,12 @@ class qtype_coderunner_ui_plugins {
 // A class to represent a single plugin. The uiname is the lower case
 // plugin name, e.g. 'ace', 'graph'.
 class qtype_coderunner_ui_plugin {
+
+    /** @var string  */
+    public $uiname;
+
+    /** @var qtype_coderunner_ui_parameters */
+    public $params;
 
     /**
      *

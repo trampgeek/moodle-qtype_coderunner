@@ -29,7 +29,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
  * Provides the information to backup coderunner questions.
  */
 class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
-
     // Legacy code, for supporting a subclassing of coderunner.
     protected function qtype() {
         return 'coderunner';
@@ -49,37 +48,39 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $options = new backup_nested_element('coderunner_options');
         $optionfields = $dummycoderunnerq->extra_question_fields(); // It's not static :-(.
         array_shift($optionfields);
-        $option = new backup_nested_element('coderunner_option', array('id'),
-                $optionfields);
+        $option = new backup_nested_element(
+            'coderunner_option',
+            ['id'],
+            $optionfields
+        );
 
         // Build the tree.
         $element->add_child($options);
         $options->add_child($option);
 
         // Set the source.
-        $option->set_source_table('question_coderunner_options', array('questionid' => backup::VAR_PARENTID));
+        $option->set_source_table('question_coderunner_options', ['questionid' => backup::VAR_PARENTID]);
     }
 
 
     // Add the testcases table to the coderunner question structure.
     private function add_quest_coderunner_testcases($element) {
         // Check $element is one nested_backup_element.
-        global $DB;
         if (! $element instanceof backup_nested_element) {
             throw new backup_step_exception("quest_testcases_bad_parent_element", $element);
         }
 
         // Define the elements.
         $testcases = new backup_nested_element('coderunner_testcases');
-        $testcase = new backup_nested_element('coderunner_testcase', array('id'), array(
-            'testcode', 'testtype', 'expected', 'useasexample', 'display', 'hiderestiffail', 'mark', 'stdin', 'extra'));
+        $testcase = new backup_nested_element('coderunner_testcase', ['id'], [
+            'testcode', 'testtype', 'expected', 'useasexample', 'display', 'hiderestiffail', 'mark', 'stdin', 'extra']);
 
         // Build the tree.
         $element->add_child($testcases);
         $testcases->add_child($testcase);
 
         // Set the source.
-        $testcase->set_source_table("question_coderunner_tests", array('questionid' => backup::VAR_PARENTID), 'id ASC');
+        $testcase->set_source_table("question_coderunner_tests", ['questionid' => backup::VAR_PARENTID], 'id ASC');
     }
 
 
@@ -116,7 +117,7 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
      * files to be processed both in backup and restore.
      */
     public static function get_qtype_fileareas() {
-        return array('datafile' => 'question_created',
-                     'samplefile' => 'question_created');
+        return ['datafile' => 'question_created',
+                'samplefile' => 'question_created'];
     }
 }

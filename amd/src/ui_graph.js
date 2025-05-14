@@ -881,6 +881,15 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.save();
     };
 
+    /**
+     * Allow fullscreen mode for the Graph UI.
+     *
+     * @return {Boolean} True if fullscreen mode is allowed, false otherwise.
+     */
+        Graph.prototype.allowFullScreen = function() {
+            return true;
+        };
+
     return {
         Constructor: Graph
     };

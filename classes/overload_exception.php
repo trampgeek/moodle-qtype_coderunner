@@ -18,9 +18,6 @@
  * Library routines for qtype_coderunner
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /* The class for exceptions thrown in the coderunner plugin if a Jobe overload
  * exception occurs while trying to initialise a quiz question.
  */
@@ -29,7 +26,7 @@ class qtype_coderunner_overload_exception extends moodle_exception {
      * @param string $errorcode exception description identifier
      * @param mixed $debuginfo debugging data to display
      */
-    public function __construct($errorcode, $a=null, $debuginfo=null) {
+    public function __construct($errorcode, $a = null, $debuginfo = null) {
         parent::__construct($errorcode, 'qtype_coderunner', '', $a, $debuginfo);
     }
 }

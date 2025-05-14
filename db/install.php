@@ -18,10 +18,7 @@
  * Extra install code for the CodeRunner question type.
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 function xmldb_qtype_coderunner_install() {
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 }
-

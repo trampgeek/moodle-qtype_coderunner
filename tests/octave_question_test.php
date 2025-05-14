@@ -36,14 +36,21 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 /**
  * Unit tests for coderunner octave questions.
+ * @coversNothing
  */
 class octave_question_test extends \qtype_coderunner_testcase {
+    protected function setUp(): void {
+        parent::setUp();
+
+        // Each test will be skipped if octave not available on jobe server.
+        $this->check_language_available('octave');
+    }
+
 
     public function test_good_sqr_function() {
-        $this->check_language_available('octave');
         $q = $this->make_question('sqroctave');
-        $response = array('answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n");
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        $response = ['answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n"];
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -54,10 +61,9 @@ class octave_question_test extends \qtype_coderunner_testcase {
 
 
     public function test_bad_sqr_function() {
-        $this->check_language_available('octave');
         $q = $this->make_question('sqroctave');
-        $response = array('answer' => "function sq = sqr(n)\n  sq = n;\nend\n");
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        $response = ['answer' => "function sq = sqr(n)\n  sq = n;\nend\n"];
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -68,10 +74,9 @@ class octave_question_test extends \qtype_coderunner_testcase {
 
 
     public function test_bad_syntax() {
-        $this->check_language_available('octave');
         $q = $this->make_question('sqroctave');
-        $response = array('answer' => "function sq = sqr(n)\n  sq = n:\nend\n");
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        $response = ['answer' => "function sq = sqr(n)\n  sq = n:\nend\n"];
+        [$mark, $grade, $cache] = $q->grade_response($response);
         $this->assertEquals(0, $mark);
         $this->assertEquals(\question_state::$gradedwrong, $grade);
         $this->assertTrue(isset($cache['_testoutcome']));
@@ -82,9 +87,8 @@ class octave_question_test extends \qtype_coderunner_testcase {
     }
 
     public function test_student_answer_macro() {
-        $this->check_language_available('octave');
         $q = $this->make_question('teststudentanswermacrooctave');
-        $response = array('answer' => <<<EOT
+        $response = ['answer' => <<<EOT
 function mytest()
     s1 = '"Hi!" he said'; % a comment
     s2 = '''Hi!'' he said';
@@ -92,9 +96,10 @@ function mytest()
     disp(s2);
 end
 EOT
-            );
+,
+            ];
 
-        list($mark, $grade, $cache) = $q->grade_response($response);
+        [$mark, $grade, ] = $q->grade_response($response);
         $this->assertEquals(1, $mark);
         $this->assertEquals(\question_state::$gradedright, $grade);
     }

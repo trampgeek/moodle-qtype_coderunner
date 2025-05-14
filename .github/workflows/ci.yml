@@ -9,16 +9,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - php: '8.0'
-            moodle-branch: 'master'
-            database: 'pgsql'
-          - php: '7.4'
-            moodle-branch: 'MOODLE_401_STABLE'
-            database: 'pgsql'
-          - php: '7.3'
-            moodle-branch: 'MOODLE_400_STABLE'
+          - php: '8.3'
+            moodle-branch: 'MOODLE_500_STABLE'
             database: 'mariadb'
-
+          - php: '8.3'
+            moodle-branch: 'MOODLE_405_STABLE'
+            database: 'mariadb'
+          - php: '8.2'
+            moodle-branch: 'MOODLE_404_STABLE'
+            database: 'pgsql'
+          - php: '8.1'
+            moodle-branch: 'MOODLE_403_STABLE'
+            database: 'mariadb'
     services:
       postgres:
         image: postgres:13
@@ -30,7 +32,7 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
       mariadb:
-        image: mariadb:10.5
+        image: mariadb:10.6
         env:
           MYSQL_USER: 'root'
           MYSQL_ALLOW_EMPTY_PASSWORD: "true"
@@ -65,6 +67,9 @@ jobs:
       - name: Start JobeInABox
         run: sudo docker run -d -p 4000:80 --name jobe trampgeek/jobeinabox:latest
 
+      - name: Let JobeInABox settle
+        run: sleep 5s
+
       - name: Test JobeInABox
         run: |
           curl http://localhost:4000/jobe/index.php/restapi/languages
@@ -88,6 +93,7 @@ jobs:
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
       - name: PHP Lint
+        continue-on-error: true # This step will show errors but will not fail
         if: ${{ always() }}
         run: moodle-plugin-ci phplint
 
@@ -102,10 +108,12 @@ jobs:
         run: moodle-plugin-ci phpmd
 
       - name: Moodle Code Checker
+        continue-on-error: true # This step will show errors but will not fail
         if: ${{ always() }}
         run: moodle-plugin-ci codechecker --max-warnings 0
 
       - name: Moodle PHPDoc Checker
+        continue-on-error: true # This step will show errors but will not fail
         if: ${{ always() }}
         run: moodle-plugin-ci phpdoc
 

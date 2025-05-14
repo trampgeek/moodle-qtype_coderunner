@@ -150,7 +150,7 @@ define(['jquery'], function($) {
             i,
             fields,
             leftOvers,
-            outerDivId = 'qtype-coderunner-outer-div-' + this.textareaId.toString(),
+            outerDivId = 'qtype-coderunner-outer-div-' + this.textareaId,
             outerDiv = "<div style='height:fit-content' class='qtype-coderunner-html-outer-div' id='" + outerDivId + "'>";
 
         this.htmlDiv = $(outerDiv + this.html + "</div>");
@@ -177,7 +177,7 @@ define(['jquery'], function($) {
                 }
 
                 if (!$.isEmptyObject(leftOvers)) {
-                    this.htmlDiv.data('leftovers', leftOvers);
+                    this.htmlDiv.attr('data-leftovers', JSON.stringify(leftOvers));
                 }
 
             } catch(e) {

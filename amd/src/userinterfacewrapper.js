@@ -90,7 +90,16 @@
  *    calls to the sync() method. 0 for no sync calls. The userinterfacewrapper
  *    provides all instances with a generic (base-class) version that returns
  *    the value of a UI parameter sync_interval_secs if given else uses the
- *    UI interface wrapper default (currently 10).
+ *    UI interface wrapper default (currently 5).
+ *
+ * 10. An allowFullScreen() method that returns True if the UI supports
+ *    use of the full-screen button in the bottom right of the UI wrapper.
+ *    Defaults to False if not implemented.
+ *
+ * 11. A setAllowFullScreen(allow) method that takes a boolean parameter that
+ *    allows or disallows the use of full screening. This overrides the setting
+ *    from the allowFullScreen() method and is provided to allow parent UIs
+ *    such as Scratchpad to override the default settings of a child UI.
  *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
@@ -115,7 +124,7 @@
  */
 
 
-define(['jquery'], function($) {
+define(['core/templates', 'core/notification'], function(Templates, Notification) {
     /**
      * Constructor for a new user interface.
      * @param {string} uiname The name of the interface element (e.g. ace, graph, etc)
@@ -129,66 +138,75 @@ define(['jquery'], function($) {
      * such as whether graph edges are bidirectional or not in the case of
      * the graph UI. Additionally the Ace editor requires a 'lang' field
      * to specify what language the editor is editing.
-     * When the wrapper has been set up on a text area, the text area's
-     * data attribute contains an entry for 'current-ui-wrapper' that is
-     * a reference to the wrapper ('this').
+     * When the wrapper has been set up on a text area, the text area
+     * element has a reference, current_ui_wrapper, to the UI wrapper.
      */
     function InterfaceWrapper(uiname, textareaId) {
         let t = this; // For use by embedded functions.
 
-        this.GUTTER = 14;  // Size of gutter at base of wrapper Node (pixels)
+        this.GUTTER = 16;  // Size of gutter at base of wrapper Node (pixels)
         this.DEFAULT_SYNC_INTERVAL_SECS = 5;
 
+        this.uniqueId = Math.random();
         const PIXELS_PER_ROW = 19;  // For estimating height of textareas.
         const MAX_GROWN_ROWS = 50;  // Upper limit to artifically grown textarea rows.
         const MIN_WRAPPER_HEIGHT = 50;
-
+        this.isFullScreenEnable = null;
         this.taId = textareaId;
         this.loadFailId = textareaId + '_loadfailerr';
-        const ta = document.getElementById(textareaId);
-        this.textArea = $(ta);
-        const params = this.textArea.attr('data-params');
+        this.textArea = document.getElementById(textareaId);
+        if (this.textArea.current_ui_wrapper) {
+            alert(`JavaScript error: multiple UIs on ${textareaId}!`);
+        }
+        const params = this.textArea.getAttribute('data-params');
         if (params) {
             this.uiParams = JSON.parse(params);
         } else {
             this.uiParams = {};
         }
-        this.uiParams.lang = this.textArea.attr('data-lang');
-        this.readOnly = this.textArea.prop('readonly');
+        this.uiParams.lang = this.textArea.getAttribute('data-lang');
+        this.readOnly = this.textArea.readOnly;
         this.isLoading = false;   // True if we're busy loading a UI element.
         this.loadFailed = false;  // True if UI failed to initialise properly.
         this.retries = 0;         // Number of failed attempts to load a UI component.
 
-        let h = parseInt(this.textArea.css("height"));
-        let content_lines = this.textArea.val().split('\n').length;
-        let rows = ta.rows;
+        let h = this.textArea.clientHeight; // Just a first guess. Will be fine tuned in resize.
+
+        // Grow height if textarea contents warrant.
+        let content_lines = this.textArea.value.split('\n').length;
+        let rows = this.textArea.rows;
         if (content_lines > rows) {
             // Allow reloaded text areas with lots of text to grow bigger, within limits.
             rows = Math.min(content_lines, MAX_GROWN_ROWS);
         }
         h = Math.max(h, rows * PIXELS_PER_ROW, MIN_WRAPPER_HEIGHT);
-
+        this.textArea.style.height = h + 'px';
         /**
-         * Construct an empty hidden wrapper div, inserted directly after the
+         * Construct a hidden empty wrapper div, inserted directly after the
          * textArea, ready to contain the actual UI.
          */
-        this.wrapperNode = $("<div id='" + this.taId + "_wrapper' class='ui_wrapper'></div>");
-        this.textArea.after(this.wrapperNode);
-        this.wrapperNode.hide();
-        this.wrapperNode.css({
-            resize: 'vertical',
-            overflow: 'hidden',
-            minHeight: h,
-            width: "100%",
-            border: "1px solid darkgrey"
-        });
+        this.wrapperNode = document.createElement('div');
+        this.wrapperNode.id = `${this.taId}_wrapper`;
+        this.wrapperNode.classList.add('ui_wrapper', 'position-relative');
+        this.wrapperNode.uniqueId = this.uniqueId;
+        this.wrapperNode.style.display = 'none';
+        this.wrapperNode.style.resize = 'vertical';
+        this.wrapperNode.style.overflow = 'hidden';
+        this.wrapperNode.style.minHeight = h + "px";
+        this.wrapperNode.style.width = '100%';
+        this.wrapperNode.style.border = '1px solid darkgrey';
+        this.textArea.insertAdjacentElement('afterend', this.wrapperNode);
+
+        this.wLast = 0;  // Record last known width and height. See checkForResize().
+        this.hLast = 0;
+
 
         /**
-         * Record a reference to this wrapper in the text area's data attribute
+         * Record a reference to this wrapper in the text area
          * for use by external javascript that needs to interact with the
          * wrapper, e.g. the multilanguage.js module.
          */
-        this.textArea.data('current-ui-wrapper', this);
+        this.textArea.current_ui_wrapper = this;
 
         /**
          * Load the UI into the wrapper (aysnchronous).
@@ -199,21 +217,37 @@ define(['jquery'], function($) {
         /**
          * Add event handlers
          */
-        $(document).mousemove(function() {
+        const resizeObserver = new ResizeObserver(function () {
             t.checkForResize();
         });
-        $(window).resize(function() {
+        resizeObserver.observe(this.wrapperNode);
+
+
+        window.addEventListener('resize', function() {
             t.checkForResize();
         });
-        this.textArea.closest('form').submit(function() {
-            if (t.uiInstance !== null) {
-                t.uiInstance.sync();
-            }
-        });
-        $(document.body).on('keydown', function(e) {
-            const KEY_M = 77;
-            if (e.keyCode === KEY_M && e.ctrlKey && e.altKey) {
-                if (t.uiInstance !== null || t.loadFailed) {
+
+        const form = this.textArea.closest('form');
+        if (form) {  // There may not be a form, e.g. when reviewing a submission.
+            form.addEventListener('submit', function() {
+                if (t.uiInstance !== null) {
+                    t.uiInstance.sync();
+                }
+            });
+        }
+
+        document.body.addEventListener('keydown', function keyDown(e) {
+            if (e.key === 'm' && e.ctrlKey && e.altKey) {
+                // Before trying to handle ctrl-alt-m keypresses, make sure the
+                // current instance of the wrapper in the DOM is the same as
+                // when this event handler was created. This might not be
+                // the case when userinterface wrappers are nested.
+                const wrapper = document.getElementById(`${t.taId}_wrapper`);
+                if (!wrapper || wrapper.uniqueId !== t.uniqueId) {
+                    // This wrapper has apparently been killed. Stop listening.
+                    // Should now be garbage collectable, too.
+                    document.removeEventListener('keydown', keyDown);
+                } else if (t.uiInstance !== null || t.loadFailed) {
                     t.stop();
                 } else {
                     t.restart();        // Reactivate
@@ -221,6 +255,17 @@ define(['jquery'], function($) {
             }
         });
     }
+
+    /**
+     * Set the value of the allowFullScreen property.
+     * If the value is true, the fullscreen mode will be shown.
+     * If the value is false, the fullscreen will be hidden.
+     *
+     * @param {Boolean} enableFullScreen The value to set.
+     */
+    InterfaceWrapper.prototype.setAllowFullScreen = function(enableFullScreen) {
+        this.isFullScreenEnable = enableFullScreen;
+    };
 
     /**
      * Load the specified UI element (which in the case of Ace will need
@@ -234,12 +279,13 @@ define(['jquery'], function($) {
      * to the actual UI object.
      */
     InterfaceWrapper.prototype.loadUi = function(uiname, params) {
-        const t = this,
-            errPart1 = 'Failed to load ',
-            errPart2 = ' UI component. If this error persists, please report it to the forum on coderunner.org.nz';
+        const MAX_RETRIES = 20; // Maximum number of attempts to load the UI.
+        const t = this;
+        const errPart1 = 'Failed to load ';
+        const errPart2 = ' UI component. If this error persists, please report it to the forum on coderunner.org.nz';
 
         /**
-         * Get the given language string and plug it into the given jQuery
+         * Get the given language string and plug it into the given
          * div element as its html, plus a 'fallback' message on a separate line.
          * @param {string} langString The language string specifier for the error message,
          * to be loaded by AJAX.
@@ -251,11 +297,12 @@ define(['jquery'], function($) {
                 /**
                  * Get langString text via AJAX
                  */
-                const
-                    s = str.get_string(langString, 'qtype_coderunner'),
-                    fallback = str.get_string('ui_fallback', 'qtype_coderunner');
-                $.when(s, fallback).done(function(s, fallback) {
-                    errorDiv.html(s + '<br>' + fallback);
+                const s = str.get_string(langString, 'qtype_coderunner');
+                const fallback = str.get_string('ui_fallback', 'qtype_coderunner');
+                Promise.all([s, fallback]).then(function(results) {
+                    const s = results[0];
+                    const fallback = results[1];
+                    errorDiv.innerHTML = s + '<br>' + fallback;
                 });
             });
         }
@@ -275,7 +322,7 @@ define(['jquery'], function($) {
 
         if (this.isLoading) {  // Oops, we're loading a UI element already
             this.retries += 1;
-            if (this.retries > 20) {
+            if (this.retries > MAX_RETRIES) {
                 alert(errPart1 + uiname + errPart2);
                 this.retries = 0;
                 this.loading = 0;
@@ -298,8 +345,8 @@ define(['jquery'], function($) {
             this.isLoading = true;
             require(['qtype_coderunner/ui_' + this.uiname],
                 function(ui) {
-                    const h = t.wrapperNode.innerHeight() - t.GUTTER;
-                    const w = t.wrapperNode.innerWidth();
+                    const h = t.textArea.clientHeight - t.GUTTER;
+                    const w = t.textArea.clientWidth;
                     const uiInstance = new ui.Constructor(t.taId, w, h, params);
                     if (uiInstance.failed()) {
                         /*
@@ -307,20 +354,48 @@ define(['jquery'], function($) {
                          * Set uiloadfailed class on text area.
                          */
                         t.loadFailed = true;
-                        t.wrapperNode.hide();
+                        t.wrapperNode.style.display = 'none';
+                        t.textArea.style.display = '';
                         uiInstance.destroy();
                         t.uiInstance = null;
-                        t.textArea.addClass('uiloadfailed');
-                        const loadFailDiv = '<div id="' + t.loadFailId + '"class="uiloadfailed"></div>';
-                        let jqLoadFailDiv = $(loadFailDiv);
-                        jqLoadFailDiv.insertBefore(t.textArea);
-                        setLoadFailMessage(uiInstance.failMessage(), jqLoadFailDiv);  // Insert error by AJAX
+                        t.textArea.classList.add('uiloadfailed');
+                        const loadFailDiv = document.createElement('div');
+                        loadFailDiv.id = t.loadFailId;
+                        loadFailDiv.className = 'uiloadfailed';
+                        t.textArea.parentNode.insertBefore(loadFailDiv, t.textArea);
+                        setLoadFailMessage(uiInstance.failMessage(), loadFailDiv);  // Insert error by AJAX
                     } else {
-                        t.hLast = 0;  // Force resize (and hence redraw)
-                        t.wLast = 0;  // ... on first call to checkForResize
-                        t.textArea.hide();
-                        t.wrapperNode.show();
-                        t.wrapperNode.append(uiInstance.getElement());
+                        t.textArea.style.display = 'none';
+                        t.wrapperNode.style.display = '';
+                        let elementToAdd = uiInstance.getElement();
+                        if (elementToAdd && elementToAdd.jquery) { // Check if the UI instance returned a jQuery object.
+                            elementToAdd = elementToAdd[0];
+                        }
+
+                        if (elementToAdd) {
+                            // Some naughty (?) UIs, such as scratchpad UI, return null, and then
+                            // plug themselves into the wrapper asynchronously. [Necessary when using mustache templates].
+                            // So fingers crossed they know what they're doing.
+
+                            t.wrapperNode.appendChild(elementToAdd);
+
+                            // With jQuery, any embedded <script> elements will have been executed.
+                            // But not with pure JavaScript. We have to pull them out and append them to
+                            // the head to trigger their execution.
+                            const scriptNodes = elementToAdd.querySelectorAll('script'); // Find all script tags in the node
+                            scriptNodes.forEach(oldScript => {
+                                const newScript = document.createElement('script');
+                                if (oldScript.src) {
+                                    // External script
+                                    newScript.src = oldScript.src;
+                                } else {
+                                    // Inline script
+                                    newScript.textContent = oldScript.textContent;
+                                }
+                                document.head.appendChild(newScript); // Append to the head (triggers execution)
+                                document.head.removeChild(newScript); // Remove the script again.
+                            });
+                        }
                         t.uiInstance = uiInstance;
                         t.loadFailed = false;
                         t.checkForResize();
@@ -331,12 +406,116 @@ define(['jquery'], function($) {
                         let uiInstancePrototype = Object.getPrototypeOf(uiInstance);
                         uiInstancePrototype.syncIntervalSecs = uiInstancePrototype.syncIntervalSecs || syncIntervalSecsBase;
                         t.startSyncTimer(uiInstance);
+                        let canDoFullScreen = t.isFullScreenEnable !== null ?
+                            t.isFullScreenEnable : uiInstance.allowFullScreen?.();
+                        if (canDoFullScreen) {
+                            t.initFullScreenToggle(t.taId);
+                        } else {
+                            t.removeFullScreenButton(t.taId);
+                        }
                     }
                     t.isLoading = false;
                 });
         }
     };
 
+
+    /**
+     * Remove the fullscreen button from the wrapper editor.
+     *
+     * @param {String} fieldId The id of answer field.
+     */
+    InterfaceWrapper.prototype.removeFullScreenButton = function(fieldId) {
+        const wrapperEditor = document.getElementById(`${fieldId}_wrapper`);
+        const screenModeButton = wrapperEditor.parentNode.querySelector('.screen-mode-button');
+        if (screenModeButton) {
+            screenModeButton.remove();
+        }
+    };
+
+    /**
+     * Initialize elements and event listeners for the fullscreen mode.
+     *
+     * @param {String} fieldId The id of answer field.
+     */
+    InterfaceWrapper.prototype.initFullScreenToggle = function(fieldId) {
+        const wrapperEditor = document.getElementById(`${fieldId}_wrapper`);
+        const screenModeButton = wrapperEditor.parentNode.querySelector('.screen-mode-button');
+        if (screenModeButton) {
+            return;
+        }
+
+        Templates.renderForPromise('qtype_coderunner/screenmode_button', {}).then(({html}) => {
+            const screenModeButton = Templates.appendNodeContents(wrapperEditor, html, '')[0];
+            const fullscreenButton = screenModeButton.querySelector('.button-fullscreen');
+            const exitFullscreenButton = screenModeButton.querySelector('.button-exit-fullscreen');
+
+            // When load successfully, show the fullscreen button.
+            fullscreenButton.classList.remove('d-none');
+
+            // Add event listeners to the fullscreen/exit-fullscreen button.
+            fullscreenButton.addEventListener('click', enterFullscreen.bind(this,
+                fullscreenButton, exitFullscreenButton));
+            exitFullscreenButton.addEventListener('click', exitFullscreen.bind(this));
+        });
+
+        /**
+         * Make the editor fullscreen.
+         *
+         * @param {HTMLElement} fullscreenButton The fullscreen button.
+         * @param {HTMLElement} exitFullscreenButton The exit fullscreen button.
+         * @param {Event} e The click event.
+         */
+        function enterFullscreen(fullscreenButton, exitFullscreenButton, e) {
+            let t = this;
+            e.preventDefault();
+            // The editor can stretch out.
+            // So we need to save the original height and width of the editor before going fullscreen.
+            t.wrapperHeight = t.wrapperNode.clientHeight;
+            t.heightEditNode = t.hLast;
+            t.widthEditNode = t.wLast;
+
+            fullscreenButton.classList.add('d-none');
+            // Append exit fullscreen button to the wrapper editor.
+            // So that when in the fullscreen mode, the exit fullscreen button will be in the wrapper editor.
+            wrapperEditor.append(exitFullscreenButton);
+
+            // Handle fullscreen event.
+            wrapperEditor.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement === null) {
+                    // When exit fullscreen using ESC key or press exit fullscreen button.
+                    // We need to reset the editor to the original size.
+                    t.uiInstance.resize(t.widthEditNode, t.heightEditNode);
+
+                    // We need to reset the wrapper height to the original height.
+                    // In fullscreen mode, the wrapper height can change by stretching it out.
+                    wrapperEditor.style.height = t.wrapperHeight + 'px';
+
+                    // Add and remove the d-none class to show and hide the buttons.
+                    exitFullscreenButton.classList.add('d-none');
+                    fullscreenButton.classList.remove('d-none');
+                } else {
+                    exitFullscreenButton.classList.remove('d-none');
+                }
+            });
+            wrapperEditor.requestFullscreen().catch(Notification.exception);
+        }
+
+        /**
+         * Exit the fullscreen mode.
+         *
+         * @param {Event} e the click event.
+         */
+        function exitFullscreen(e) {
+            let t = this;
+            e.preventDefault();
+            document.exitFullscreen();
+
+            // Reset the editor to the original size before going fullscreen.
+            wrapperEditor.style.height = t.wrapperHeight + 'px';
+            t.uiInstance.resize(t.widthEditNode, t.heightEditNode);
+        }
+    };
 
     /**
      * Start a sync timer on the given uiInstance, unless its time interval is 0.
@@ -374,22 +553,25 @@ define(['jquery'], function($) {
          */
         if (this.uiInstance !== null) {
             this.stopSyncTimer(this.uiInstance);
-            this.textArea.show();
+            this.textArea.style.display = '';
             if (this.uiInstance.hasFocus()) {
                 this.textArea.focus();
-                this.textArea[0].selectionStart = this.textArea[0].value.length;
+                this.textArea.selectionStart = this.textArea.value.length;
             }
             this.uiInstance.destroy();
             this.uiInstance = null;
-            this.wrapperNode.hide();
+            this.wrapperNode.style.display = 'none';
         }
         this.loadFailed = false;
-        this.textArea.removeClass('uiloadfailed'); // Just in case it failed before
-        $(document.getElementById(this.loadFailId)).remove();
+        this.textArea.classList.remove('uiloadfailed'); // Just in case it failed before
+        const elementToRemove = document.getElementById(this.loadFailId);
+        if (elementToRemove) {
+            elementToRemove.parentNode.removeChild(elementToRemove);
+        }
     };
 
     /*
-     * Re-enable the ui element (e.g. after alt-cntrl-M). This is
+     * Re-enable the ui element (e.g. after alt-ctrl-M). This is
      * a full re-initialisation of the ui element.
      */
     InterfaceWrapper.prototype.restart = function() {
@@ -406,19 +588,16 @@ define(['jquery'], function($) {
      * Check for wrapper resize - propagate to ui element.
      */
     InterfaceWrapper.prototype.checkForResize = function() {
-        const SIZE_HACK = 25;  // Horrible but best I can do. TODO: FIXME
-
         if (this.uiInstance) {
-            const h = this.wrapperNode.innerHeight();
-            const w = this.wrapperNode.innerWidth();
-            if (h != this.hLast || w != this.wLast) {
-                const xLeft = this.wrapperNode.offset().left;
-                const maxWidth = $(window).innerWidth() - xLeft - SIZE_HACK;
-                const hAdjusted = h - this.GUTTER;
-                const wAdjusted = Math.min(maxWidth, w);
+            const h = this.wrapperNode.clientHeight;
+            const w = this.wrapperNode.clientWidth;
+            const maxWidth = this.wrapperNode.clientWidth;
+            const hAdjusted = h - this.GUTTER;
+            const wAdjusted = Math.min(maxWidth, w);
+            if (hAdjusted != this.hLast || wAdjusted != this.wLast) {
                 this.uiInstance.resize(wAdjusted,  hAdjusted);
-                this.hLast = this.wrapperNode.innerHeight();
-                this.wLast = this.wrapperNode.innerWidth();
+                this.hLast = hAdjusted;
+                this.wLast = wAdjusted;
             }
         }
     };

@@ -27,15 +27,14 @@
  * Assumed to be run after python questions have been tested, so focuses
  * only on C-specific aspects.
  *
- * @package    qtype
- * @subpackage coderunner
+ * @package    qtype_coderunner
  * @copyright  2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define('AJAX_SCRIPT', true);
-
 require_once(__DIR__ . '/../../../config.php');
+
 require_once($CFG->dirroot . '/question/engine/lib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
@@ -51,10 +50,26 @@ header('Content-type: application/json; charset=utf-8');
 $coursecontext = context_course::instance($courseid);
 if ($qtype) {
     $questiontype = qtype_coderunner::get_prototype($qtype, $coursecontext);
-    if ($questiontype === null) {
+    if ($questiontype === null || is_array($questiontype)) {
+        $questionprototype = $questiontype;
         $questiontype = new stdClass();
         $questiontype->success = false;
-        $questiontype->error = "Error fetching prototype '$qtype'.";
+        if ($questiontype === null) {
+            $questiontype->error = json_encode(["error" => "missingprototype",
+                "alert" => "prototype_missing_alert", "extras" => ""]);
+        } else {
+            $extras = "";
+            foreach ($questionprototype as $component) {
+                $extras .= get_string(
+                    'listprototypeduplicates',
+                    'qtype_coderunner',
+                    ['id' => $component->id, 'name' => $component->name,
+                    'category' => $component->category]
+                );
+            }
+            $questiontype->error = json_encode(["error" => "duplicateprototype",
+                "alert" => "prototype_duplicate_alert", "extras" => $extras]);
+        }
     } else {
         $questiontype->success = true;
         $questiontype->error = '';
@@ -63,29 +78,32 @@ if ($qtype) {
 } else if ($uiplugin) {
     $uiplugins = qtype_coderunner_ui_plugins::get_instance();
     $allnames = $uiplugins->all_names();
-    $uiparamstable = array();
-    $columnheaders = array();
+    $uiparamstable = [];
+    $columnheaders = [];
     if (!in_array($uiplugin, $allnames)) {
-        $uiheader = get_string('unknownuiplugin', 'qtype_coderunner', array('pluginname' => $uiplugin));
+        $uiheader = get_string('unknownuiplugin', 'qtype_coderunner', ['pluginname' => $uiplugin]);
     } else {
         $uiparams = $uiplugins->parameters($uiplugin);
         if ($uiparams->length() === 0) {
-            $uiheader = get_string('nouiparameters', 'qtype_coderunner', array('uiname' => $uiplugin));
+            $uiheader = get_string('nouiparameters', 'qtype_coderunner', ['uiname' => $uiplugin]);
         } else {
             $csv = implode(', ', $uiparams->all_names_starred());
-            $uiheader = get_string('uiparametertablehead', 'qtype_coderunner',
-                    array('uiname' => $uiplugin)) . $csv . '.';
+            $uiheader = get_string(
+                'uiparametertablehead',
+                'qtype_coderunner',
+                ['uiname' => $uiplugin]
+            ) . $csv . '.';
             $uiparamstable = $uiparams->table();
             $namehdr = get_string('uiparamname', 'qtype_coderunner');
             $descrhdr = get_string('uiparamdesc', 'qtype_coderunner');
             $defaulthdr = get_string('uiparamdefault', 'qtype_coderunner');
-            $columnheaders = array($namehdr, $descrhdr, $defaulthdr);
+            $columnheaders = [$namehdr, $descrhdr, $defaulthdr];
         }
     }
-    echo json_encode(array('header' => $uiheader,
+    echo json_encode(['header' => $uiheader,
         'uiparamstable' => $uiparamstable,
         'columnheaders' => $columnheaders,
         'showdetails' => get_string('showdetails', 'qtype_coderunner'),
-        'hidedetails' => get_string('hidedetails', 'qtype_coderunner')));
+        'hidedetails' => get_string('hidedetails', 'qtype_coderunner')]);
 }
 die();

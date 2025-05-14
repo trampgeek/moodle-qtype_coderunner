@@ -17,17 +17,18 @@
 /** Defines a simple class used to wrap an HTML string as a way of flagging
  * to code that tries to use it that further conversion to HTML must not be done.
  *
- * @package    qtype
- * @subpackage coderunner
- * @copyright  Richard Lobb, 2016, The University of Canterbury
+ * @package    qtype_coderunner
+ * @copyright  Richard Lobb, 2016 -2024, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-defined('MOODLE_INTERNAL') || die();
-
-
 class qtype_coderunner_html_wrapper {
+
+
+    /** @var string $html The wrapped html. */
+    // Public because PHP's serialise uses null bytes when serialising non-public attributes,
+    // and these don't get recorded by pgsql.
+    public $html;
 
     public function __construct($html) {
         $this->html = $html;
@@ -38,5 +39,3 @@ class qtype_coderunner_html_wrapper {
         return $this->html;
     }
 }
-
-

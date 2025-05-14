@@ -33,8 +33,15 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for the coderunner question definition class.
+ * @coversNothing
  */
 class pythonpylint_test extends \qtype_coderunner_testcase {
+    protected function setUp(): void {
+        parent::setUp();
+
+        // Each test will be skipped if python3 not available on jobe server.
+        $this->check_language_available('python3');
+    }
 
     public function test_pylint_func_good() {
         // Test that a python3_pylint question with a good pylint-compatible.
@@ -51,9 +58,9 @@ def sqr(n):
         return 0
 
 EOCODE;
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [, $grade, ] = $result;
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
 
@@ -67,9 +74,9 @@ def sqr(n):
   return n * n
 
 EOCODE;
-        $response = array('answer' => $code);
+        $response = ['answer' => $code];
         $result = $q->grade_response($response);
-        list($mark, $grade, $cache) = $result;
+        [$mark, $grade, $cache] = $result;
         $this->assertEquals(\question_state::$gradedwrong, $grade);
     }
 }

@@ -22,13 +22,58 @@
  * autotagger script.
  *
  * @package   qtype_coderunner
- * @copyright 2016, 2018 Richard Lobb, The University of Canterbury
+ * @copyright 2016, 2018, 2024 Richard Lobb and Paul McKeown, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace qtype_coderunner;
 
-class qtype_coderunner_bulk_tester {
+use moodle_url;
+use html_writer;
+use question_bank;
+use core_php_time_limit;
+use question_state;
+use qtype_coderunner_util;
+
+class bulk_tester {
+    /** @var context Context to run bulktester for. */
+    public $context;
+
+    /** @var int The optional category ID to run bulktester for. */
+    public $categoryid;
+
+    /** @var int The optional seed to set before running tests (default 0 means seed not set). */
+    public $randomseed;
+
+    /** @var bool Whether questions with random in name are the only ones to be repeated */
+    public $repeatrandomonly;
+
+    /** @var int How many runs to do for each question. */
+    public $nruns;
+
+    /** @var int Whether or not to clear the grading cache for this context first Default: 0 . */
+    public $clearcachefirst;
+
+    /** @var int The number of questions that passed tests. */
+    public $numpasses;
+
+    /** @var int The number of questions that failed tests. */
+    public $numfails;
+
+    /** @var coursename The name of the course for the given context */
+    public $coursename;
+
+    /** @var list IDs for questions that failed in last run. */
+    public $failedquestionids;
+
+    /** @var list A list of strings containing lines to be output for each failed question. */
+    public $failedtestdetails;
+
+    /** @var list A list of strings containing lines to be output for each question without an answer. */
+    public $missinganswerdetails;
+
+    /** @var url Base URL for question testers php module. */
+    public $questiontestsurl;
 
     const PASS = 0;
     const MISSINGANSWER = 1;
@@ -36,12 +81,51 @@ class qtype_coderunner_bulk_tester {
     const EXCEPTION = 3;
 
     /**
+     * @param context $context the context to run the tests for.
+     * @param int $categoryid test only questions in this category. Default to all.
+     * @param int $randomseed used to set random seed before runs for each question. Default = -1   ---  meaning seed is not set.
+     *             Use this to have more chance of the series of questions being generated for testing is the same for a new run
+     *             of the tests. This works well with grader caching as you won't keep getting new random variations.
+     *             Also allows you to mix up the space that is being tested.
+     * @param int $repeatrandomonly when true(or 1), only repeats tests for questions with random in the name.
+     *              Default = true (or really 1).
+     * @param int $nruns the number times to test each question. Default to 1.
+     * @param int $clearcachefirst If 1 then clears the grading cache (ignoring ttl) for the given context before running the tests. Default is 0.
+     */
+    public function __construct(
+        $context = null,
+        $categoryid = null,
+        $randomseed = -1,
+        $repeatrandomonly = 1,
+        $nruns = 1,
+        $clearcachefirst = 0
+    ) {
+        if ($context === null) {
+            $site = get_site(); // Get front page course.
+             $context = \context_course::instance($site->id);
+        }
+        $this->context = $context;
+        $this->categoryid = $categoryid;
+        $this->randomseed = $randomseed;
+        $this->repeatrandomonly = $repeatrandomonly;
+        $this->nruns = $nruns;
+        $this->clearcachefirst = $clearcachefirst;
+        $this->numpasses = 0;
+        $this->numfails = 0;
+        $this->failedquestionids = [];
+        $this->failedtestdetails = [];
+        $this->missinganswerdetails = [];
+        $this->coursename = $this->context->get_context_name(true, true);
+    }
+
+
+    /**
      * Get all the courses and their contexts from the database
      *
      * @return array of course objects with id, contextid and name (short),
      * indexed by id
      */
-    public function get_all_courses() {
+    public static function get_all_courses() {
         global $DB;
 
         return $DB->get_records_sql("
@@ -56,11 +140,11 @@ class qtype_coderunner_bulk_tester {
     /**
      * Get all the contexts that contain at least one CodeRunner question, with a
      * count of the number of those questions. Only the latest version of each
-     * question is counted.
+     * question is counted and prototypes are ignored.
      *
      * @return array context id => number of CodeRunner questions.
      */
-    public function get_num_coderunner_questions_by_context() {
+    public static function get_num_coderunner_questions_by_context() {
         global $DB;
 
         return $DB->get_records_sql_menu("
@@ -70,7 +154,9 @@ class qtype_coderunner_bulk_tester {
             JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
             JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
             JOIN {question} q ON qv.questionid = q.id
+            JOIN {question_coderunner_options} opts ON opts.questionid = q.id
             WHERE q.qtype = 'coderunner'
+            AND opts.prototypetype = 0
             AND (qv.version = (SELECT MAX(v.version)
                                 FROM {question_versions} v
                                 JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
@@ -84,27 +170,60 @@ class qtype_coderunner_bulk_tester {
 
     /**
      * Find all coderunner questions in a given category, returning only
-     * the latest version of each question.
+     * the latest version of each question and ignoring prototypes.
      * @param type $categoryid the id of a question category of interest
      * @return all coderunner question ids in any state and any version in the given
      * category. Each row in the returned list of rows has an id, name and version number.
      */
-    public function coderunner_questions_in_category($categoryid) {
+    public static function coderunner_questions_in_category($categoryid, $questionids = []) {
         global $DB;
-        $rec = $DB->get_records_sql("
+        $query = "
             SELECT q.id, q.name, qv.version
             FROM {question} q
             JOIN {question_versions} qv ON qv.questionid = q.id
             JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+            JOIN {question_coderunner_options} opts ON opts.questionid = q.id
             WHERE q.qtype = 'coderunner'
+            AND opts.prototypetype = 0
             AND (qv.version = (SELECT MAX(v.version)
                                 FROM {question_versions} v
                                 JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
                                 WHERE be.id = qbe.id)
                               )
-            AND qbe.questioncategoryid=:categoryid",
-                array('categoryid' => $categoryid));
+            AND qbe.questioncategoryid=:categoryid";
+        $params = ['categoryid' => $categoryid];
+        if (count($questionids) > 0) {
+            // Only include listed question IDs.
+            [$idincondition, $idparams] = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
+            $params += $idparams;
+            $query = $query . " AND q.id $idincondition";
+        }
+        $rec = $DB->get_records_sql(
+            $query,
+            $params
+        );
         return $rec;
+    }
+
+
+    /**
+     * Find all coderunner questions in a given category, returning only
+     * the latest version of each question.
+     * @param questionids A list of question IDs.
+     * @return questions A list of question records with id, name and version.
+     */
+    public static function get_coderunner_questions_from_ids($questionids) {
+        global $DB;
+        [$idincondition, $idparams] = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
+        $recs = $DB->get_records_sql(
+            "
+            SELECT q.id, q.name, qv.version
+            FROM {question} q
+            JOIN {question_versions} qv ON qv.questionid = q.id
+            WHERE q.id $idincondition",
+            $idparams
+        );
+        return $recs;
     }
 
 
@@ -117,20 +236,28 @@ class qtype_coderunner_bulk_tester {
      * The 'count' field is the number of coderunner questions in the given
      * category.
      */
-    public function get_categories_for_context($contextid) {
+    public static function get_categories_for_context($contextid) {
         global $DB;
 
-        return $DB->get_records_sql("
-                SELECT qc.id, qc.parent, qc.name as name,
-                       (SELECT count(1)
-                        FROM {question} q
-                        JOIN {question_versions} qv ON qv.questionid = q.id
-                        JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                        WHERE qc.id = qbe.questioncategoryid and q.qtype='coderunner') AS count
-                FROM {question_categories} qc
-                WHERE qc.contextid = :contextid
-                ORDER BY qc.name",
-            array('contextid' => $contextid));
+        return $DB->get_records_sql(
+            "SELECT qc.id, qc.parent, qc.name AS name, COUNT(DISTINCT q.id) AS count
+            FROM  {question_categories} qc
+            JOIN {question_bank_entries} qbe  ON qc.id = qbe.questioncategoryid
+            JOIN {question_versions} qv ON qbe.id = qv.questionbankentryid
+            JOIN {question} q  ON q.id = qv.questionid
+            JOIN {question_coderunner_options} opts ON opts.questionid = q.id
+            WHERE q.qtype = 'coderunner'
+            AND opts.prototypetype = 0
+            AND qc.contextid = :contextid
+            AND qv.version = (
+                SELECT MAX(v.version)
+                FROM {question_versions} v
+                WHERE v.questionbankentryid = qbe.id
+            )
+            GROUP BY qc.id, qc.parent, qc.name
+            ORDER BY qc.name;",
+            ['contextid' => $contextid]
+        );
     }
 
 
@@ -141,7 +268,7 @@ class qtype_coderunner_bulk_tester {
      * @param includeprototypes true to include prototypes in the returned list.
      * @return array qid => question
      */
-    public function get_all_coderunner_questions_in_context($contextid, $includeprototypes=0) {
+    public static function get_all_coderunner_questions_in_context($contextid, $includeprototypes = 0) {
         global $DB;
 
         if ($includeprototypes) {
@@ -165,7 +292,7 @@ class qtype_coderunner_bulk_tester {
                               )
               $exclprototypes
               AND ctx.id = :contextid
-              ORDER BY name", array('contextid' => $contextid));
+              ORDER BY name", ['contextid' => $contextid]);
     }
 
     /**
@@ -175,74 +302,131 @@ class qtype_coderunner_bulk_tester {
      *
      * Do output as we go along.
      *
-     * @param context $context the context to run the tests for.
-     * @param int $categoryid test only questions in this category. Default to all.
      * @return array with three elements:
      *              int a count of how many tests passed
      *              array of messages relating to the questions with failures
      *              array of messages relating to the questions without sample answers
      */
-    public function run_all_tests_for_context(context $context, $categoryid=null) {
-        global $DB, $OUTPUT;
+    public function run_all_tests_for_context($questionidstoinclude = []) {
+        global $OUTPUT;
+        global $PAGE;
+        $PAGE->set_context($this->context);
+        $this->failedquestionids = [];
+        $this->failedtestdetails = [];
+        $this->missinganswerdetails = [];
+
+        $passstr = get_string('pass', 'qtype_coderunner');
+        $failstr = get_string('fail', 'qtype_coderunner');
 
         // Load the necessary data.
-        $categories = $this->get_categories_for_context($context->id);
-        $questiontestsurl = new moodle_url('/question/type/coderunner/questiontestrun.php');
-        if ($context->contextlevel == CONTEXT_COURSE) {
-            $questiontestsurl->param('courseid', $context->instanceid);
-        } else if ($context->contextlevel == CONTEXT_MODULE) {
-            $questiontestsurl->param('cmid', $context->instanceid);
-        } else {
-            $questiontestsurl->param('courseid', SITEID);
-        }
-        $numpasses = 0;
-        $failingtests = array();
-        $missinganswers = array();
+        $categories = $this->get_categories_for_context($this->context->id);
 
+        if ($this->context->contextlevel == CONTEXT_COURSE) {
+            $qparams['courseid'] = $this->context->instanceid;
+        } else if ($this->context->contextlevel == CONTEXT_MODULE) {
+            $qparams['cmid'] = $this->context->instanceid;
+        } else {
+            $qparams['courseid'] = SITEID;
+        }
+         $questiontestsurl = new moodle_url('/question/type/coderunner/questiontestrun.php');
+        $questiontestsurl->params($qparams);
+
+        // Clear grading cache if requested. usettl is set to false here.
+        if ($this->clearcachefirst) {
+            $purger = new cache_purger($this->context->id, false);
+            $purger->purge_cache_for_context();
+        }
+        $jobehost = get_config('qtype_coderunner', 'jobe_host');
+        echo html_writer::tag('p', '<b>jobe_host:</b> ' . $jobehost);
+        $this->numpasses = 0;
         foreach ($categories as $currentcategoryid => $nameandcount) {
-            if ($categoryid !== null && $currentcategoryid != $categoryid) {
+            $categoryname = $nameandcount->name;
+            $categorycount = $nameandcount->count;
+            if ($this->categoryid !== null && $currentcategoryid != $this->categoryid) {
                 continue;
             }
-            $questions = $this->coderunner_questions_in_category($currentcategoryid);
+            $questions = $this->coderunner_questions_in_category(
+                $currentcategoryid,
+                $questionidstoinclude
+            );
             if (!$questions) {
                 continue;
             }
-
-            echo $OUTPUT->heading("{$nameandcount->name} ($nameandcount->count)", 4);
+            echo $OUTPUT->heading("{$categoryname} ($categorycount)", 5);
             echo "<ul>\n";
             foreach ($questions as $question) {
                 // Output question name before testing, so if something goes wrong, it is clear which question was the problem.
-                $questionname = format_string($question->name);
-                $previewurl = new moodle_url($questiontestsurl,
-                        array('questionid' => $question->id));
+                $previewurl = new moodle_url(
+                    $questiontestsurl,
+                    ['questionid' => $question->id]
+                );
                 $enhancedname = "{$question->name} (V{$question->version})";
-                $questionnamelink = html_writer::link($previewurl, $enhancedname, array('target' => '_blank'));
-                echo "<li>$questionnamelink:";
+                $questionnamelink = html_writer::link($previewurl, $enhancedname, ['target' => '_blank']);
+                echo "<li><small>$questionnamelink: </small>";
                 flush(); // Force output to prevent timeouts and show progress.
-
-                // Now run the test.
-                try {
-                    list($outcome, $message) = $this->load_and_test_question($question->id);
-                } catch (Exception $e) {
-                    $message = print_r($e, true);
-                    $outcome = self::FAIL;
-                }
-
-                // Report the result, and record failures for the summary.
-                echo " $message</li>";
-                flush(); // Force output to prevent timeouts and show progress.
-                if ($outcome === self::PASS) {
-                    $numpasses += 1;
-                } else if ($outcome === self::MISSINGANSWER) {
-                    $missinganswers[] = $questionnamelink;
+                $npassesforq = 0;
+                $nfailsforq = 0;
+                if ($this->repeatrandomonly && !preg_match('/random/', $question->name)) {
+                    $nrunsthistime = 1;
                 } else {
-                    $failingtests[] = "$questionnamelink: $message";
+                    $nrunsthistime = $this->nruns;
+                }
+                if ($this->randomseed >= 0) {
+                    mt_srand($this->randomseed);
+                }
+                // Now run the test for the required number of times.
+                for ($i = 0; $i < $nrunsthistime; $i++) {
+                    // Only records last outcome and message.
+                    try {
+                         [$outcome, $message] = $this->load_and_test_question($question->id);
+                    } catch (Exception $e) {
+                        $message = $e->getMessage();
+                        $outcome = self::FAIL;
+                        echo "<i style='color:red'>x</i>";
+                    }
+                    if ($outcome == self::MISSINGANSWER) {
+                        echo " $message ";
+                        break;  // No point trying again as there is no answer to check.
+                    } else {
+                        if ($outcome == self::PASS) {
+                            $npassesforq += 1;
+                            echo "<i style='color:green;'>.</i>";
+                        } else {
+                            $nfailsforq += 1;
+                            echo "<i style='color:red;'>.</i>";
+                        }
+                    }
+                    flush();
+                }
+                // Report the result, and record failures for the summary.
+                if ($outcome != self::MISSINGANSWER) {
+                    echo "&nbsp;&nbsp;&nbsp;<i style='color:green;'>" . $passstr . "=" . $npassesforq . "</i>";
+                    if ($nfailsforq > 0) {
+                        echo ", <b style='color:red;'>" . $failstr . '=' . $nfailsforq . "</b>";
+                    }
+                }
+                echo "</li>";
+                gc_collect_cycles(); // Because PHP's default memory management is rubbish.
+                flush(); // Force output to prevent timeouts and show progress.
+                $qparams['category'] = $currentcategoryid . ',' . $this->context->id;
+                $qparams['lastchanged'] = $question->id;
+                $qparams['qperpage'] = 1000;
+                $questionbankurl = new moodle_url('/question/edit.php', $qparams);
+                $questionbanklink = html_writer::link($questionbankurl, $nameandcount->name, ['target' => '_blank']);
+
+                if ($outcome === self::MISSINGANSWER) {
+                    $this->missinganswerdetails[] = "$this->coursename / $questionbanklink / $questionnamelink";
+                } else if ($nfailsforq == 0) {
+                        $this->numpasses += 1;
+                } else {  // Had at least one fail.
+                    $this->failedquestionids[] = $question->id;
+                    $failmessage = " <b style='color:red'>" . get_string('fail', 'qtype_coderunner') . '=' . $nfailsforq . "</b>";
+                    $this->failedtestdetails[] = "$this->coursename / $questionbanklink / $questionnamelink: $failmessage";
                 }
             }
             echo "</ul>\n";
         }
-
-        return array($numpasses, $failingtests, $missinganswers);
+        return [$this->numpasses, $this->failedtestdetails, $this->missinganswerdetails];
     }
 
 
@@ -256,7 +440,7 @@ class qtype_coderunner_bulk_tester {
     private function load_and_test_question($questionid) {
         try {
             $question = question_bank::load_question($questionid);
-            if (empty(trim($question->answer))) {
+            if (empty(trim($question->answer ?? ''))) {
                 $message = get_string('nosampleanswer', 'qtype_coderunner');
                 $status = self::MISSINGANSWER;
             } else {
@@ -269,7 +453,7 @@ class qtype_coderunner_bulk_tester {
                     $status = self::FAIL;
                 }
             }
-        } catch (qtype_coderunner_exception $e) {
+        } catch (exception $e) {
             if (isset($question)) {
                 $questionname = ' ' . format_string($question->name);
             } else {
@@ -279,38 +463,37 @@ class qtype_coderunner_bulk_tester {
                     $questionname . '. ' . $e->getMessage() . ' ****';
             $status = self::EXCEPTION;
         }
-        return array($status, $message);
+        return [$status, $message];
     }
 
     /**
      * Run the sample answer for the given question (if there is one).
      *
-     * @param qtype_coderunner_question $question the question to test.
+     * @param qtype_coderunner_question $question the questipon to test.
      * @return bool true if the sample answer passed, else false.
      */
     private function test_question($question) {
         core_php_time_limit::raise(60); // Prevent PHP timeouts.
-        gc_collect_cycles(); // Because PHP's default memory management is rubbish.
+
         $question->start_attempt(null);
-        $answer = $question->answer;
-        $response = array('answer' => $answer);
+        $response = $question->get_correct_response();
         // Check if it's a multilanguage question; if so need to determine
         // what language (either specified by answer_language template param, or
         // the AceLang default or the first).
-        $params = empty($question->templateparams) ? array() : json_decode($question->templateparams, true);
+        $params = empty($question->templateparams) ? [] : json_decode($question->templateparams, true);
         if (!empty($params['answer_language'])) {
             $response['language'] = $params['answer_language'];
         } else if (!empty($question->acelang) && strpos($question->acelang, ',') !== false) {
-            list($languages, $defaultlang) = qtype_coderunner_util::extract_languages($question->acelang);
+            [$languages, $defaultlang] = qtype_coderunner_util::extract_languages($question->acelang);
             if ($defaultlang === '') {
                 $defaultlang = $languages[0];
             }
             $response['language'] = $defaultlang;
         }
         try {
-            list($fraction, $state) = $question->grade_response($response, false);
+            [$fraction, $state] = $question->grade_response($response, false);
             $ok = $state == question_state::$gradedright;
-        } catch (qtype_coderunner_exception $e) {
+        } catch (exception $e) {
             $ok = false; // If user clicks link to see why, they'll get the same exception.
         }
         return $ok;
@@ -318,38 +501,85 @@ class qtype_coderunner_bulk_tester {
 
     /**
      * Print an overall summary, with a link back to the bulk test index.
-     *
-     * @param int $numpasses count of tests passed.
-     * @param array $failingtests list of the ones that failed.
-     * @param array $missinganswers list of all the ones without sample answers.
      */
-    public function print_overall_result($numpasses, $failingtests, $missinganswers) {
+    public function print_overall_result() {
         global $OUTPUT;
-        echo $OUTPUT->heading(get_string('overallresult', 'qtype_coderunner'), 2);
-        echo html_writer::tag('p', $numpasses . ' ' . get_string('passes', 'qtype_coderunner'));
-        echo html_writer::tag('p', count($failingtests) . ' ' . get_string('fails', 'qtype_coderunner'));
-        echo html_writer::tag('p', count($missinganswers) . ' ' . get_string('missinganswers', 'qtype_coderunner'));
+        echo $OUTPUT->heading(get_string('bulktestoverallresults', 'qtype_coderunner'), 5);
+        $spacer = '&nbsp;&nbsp;|&nbsp;&nbsp;';
+        $passstr = $this->numpasses . ' ' . get_string('passes', 'qtype_coderunner') . $spacer;
+        $failstr = count($this->failedtestdetails) . ' ' . get_string('fails', 'qtype_coderunner') . $spacer;
+        $missingstr = count($this->missinganswerdetails) . ' ' . get_string('missinganswers', 'qtype_coderunner');
+        echo html_writer::tag('p', $passstr . $failstr . $missingstr);
 
-        if (count($failingtests) > 0) {
-            echo $OUTPUT->heading(get_string('coderunner_install_testsuite_failures', 'qtype_coderunner'), 3);
+        if (count($this->missinganswerdetails) > 0) {
+            echo $OUTPUT->heading(get_string('coderunner_install_testsuite_noanswer', 'qtype_coderunner'), 5);
             echo html_writer::start_tag('ul');
-            foreach ($failingtests as $message) {
+            foreach ($this->missinganswerdetails as $message) {
                 echo html_writer::tag('li', $message);
             }
             echo html_writer::end_tag('ul');
         }
-
-        if (count($missinganswers) > 0) {
-            echo $OUTPUT->heading(get_string('coderunner_install_testsuite_noanswer', 'qtype_coderunner'), 3);
+        if (count($this->failedtestdetails) > 0) {
+            echo $OUTPUT->heading(get_string('coderunner_install_testsuite_failures', 'qtype_coderunner'), 5);
             echo html_writer::start_tag('ul');
-            foreach ($missinganswers as $message) {
+            foreach ($this->failedtestdetails as $message) {
+                echo html_writer::tag('li', $message);
+            }
+            echo html_writer::end_tag('ul');
+
+            // Give a link for retesting if anything failed.
+            $buttonstyle = 'font-size: large; border:2px solid rgb(230, 211, 195);';
+            $buttonstyle .= 'background-color:rgb(240, 240, 233);padding: 2px 2px 0px 2px;';
+            $retestallurl = new moodle_url(
+                '/question/type/coderunner/bulktest.php',
+                ['contextid' => $this->context->id,
+                'randomseed' => $this->randomseed,
+                'repeatrandomonly' => $this->repeatrandomonly,
+                'nruns' => $this->nruns,
+                'questionids' => implode(',', $this->failedquestionids)]
+            );
+            $retestalllink = html_writer::link(
+                $retestallurl,
+                get_string('retestfailedquestions', 'qtype_coderunner'),
+                ['title' => get_string('retestfailedquestions', 'qtype_coderunner'),
+                'style' => $buttonstyle]
+            );
+
+            echo html_writer::tag('p', '&nbsp;&nbsp;-------> ' . $retestalllink);
+        }
+        $url = new moodle_url('/question/type/coderunner/bulktestindex.php');
+        $link = html_writer::link($url, get_string('backtobulktestindex', 'qtype_coderunner'));
+        echo html_writer::tag('p', $link);
+    }
+
+    /**
+     * Print an overall summary of the failed tests.
+     */
+    public static function print_summary_after_bulktestall($numpasses, $allfailingtests, $allmissinganswers) {
+        global $OUTPUT;
+        echo $OUTPUT->heading(get_string('bulktestoverallresults', 'qtype_coderunner'), 5);
+        $spacer = '&nbsp;&nbsp;|&nbsp;&nbsp;';
+        $passstr = $numpasses . ' ' . get_string('passes', 'qtype_coderunner') . $spacer;
+        $failstr = count($allfailingtests) . ' ' . get_string('fails', 'qtype_coderunner') . $spacer;
+        $missingstr = count($allmissinganswers) . ' ' . get_string('missinganswers', 'qtype_coderunner');
+        echo html_writer::tag('p', $passstr . $failstr . $missingstr);
+
+        if (count($allmissinganswers) > 0) {
+            echo $OUTPUT->heading(get_string('coderunner_install_testsuite_noanswer', 'qtype_coderunner'), 5);
+            echo html_writer::start_tag('ul');
+            foreach ($allmissinganswers as $message) {
                 echo html_writer::tag('li', $message);
             }
             echo html_writer::end_tag('ul');
         }
-
-        echo html_writer::tag('p', html_writer::link(new moodle_url('/question/type/coderunner/bulktestindex.php'),
-                get_string('back')));
+        if (count($allfailingtests) > 0) {
+            echo $OUTPUT->heading(get_string('coderunner_install_testsuite_failures', 'qtype_coderunner'), 5);
+            echo html_writer::start_tag('ul');
+            foreach ($allfailingtests as $message) {
+                echo html_writer::tag('li', $message);
+            }
+            echo html_writer::end_tag('ul');
+        }
     }
 
 
@@ -367,7 +597,7 @@ class qtype_coderunner_bulk_tester {
         foreach ($prototypes as $prototypename => $prototype) {
             if (isset($prototype->usages)) {
                 $name = isset($prototype->name) ? " ({$prototype->category}/{$prototype->name})" : ' (global)';
-                echo $OUTPUT->heading($prototypename, 4);
+                echo $OUTPUT->heading($prototypename, 5);
                 echo $OUTPUT->heading($name, 6);
                 echo html_writer::start_tag('ul');
                 foreach ($prototype->usages as $question) {
@@ -378,10 +608,10 @@ class qtype_coderunner_bulk_tester {
         }
 
         if ($missingprototypes) {
-            echo $OUTPUT->heading(get_string('missingprototypes', 'qtype_coderunner'), 3);
+            echo $OUTPUT->heading(get_string('missingprototypes', 'qtype_coderunner'), 5);
             echo html_writer::start_tag('ul');
             foreach ($missingprototypes as $name => $questions) {
-                $links = array();
+                $links = [];
                 foreach ($questions as $question) {
                     $links[] = self::make_question_link($courseid, $question);
                 }
@@ -400,12 +630,12 @@ class qtype_coderunner_bulk_tester {
      * @return html link to the question in the question bank
      */
     private static function make_question_link($courseid, $question) {
-        $qbankparams = array('qperpage' => 1000); // Can't easily get the true value.
+        $qbankparams = ['qperpage' => 1000]; // Can't easily get the true vrequire_once($CFG->libdir . '/questionlib.php');alue.
         $qbankparams['category'] = $question->category . ',' . $question->contextid;
         $qbankparams['lastchanged'] = $question->questionid;
         $qbankparams['courseid'] = $courseid;
         $qbankparams['showhidden'] = 1;
         $questionbanklink = new moodle_url('/question/edit.php', $qbankparams);
-        return html_writer::link($questionbanklink, $question->name, array('target' => '_blank'));
+        return html_writer::link($questionbanklink, $question->name, ['target' => '_blank']);
     }
 }
