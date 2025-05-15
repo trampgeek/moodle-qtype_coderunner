@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.6.1 January 25, 2025. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
+Version: 5.7.1 May 15, 2025. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
@@ -206,8 +206,8 @@ OR
 1. Get the code using git by running the following commands in the
 top level folder of your Moodle install:
 
-        git clone https://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
-        git clone https://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner.git question/behaviour/adaptive_adapted_for_coderunner
+       git clone https://github.com/trampgeek/moodle-qtype_coderunner.git question/type/coderunner
+       git clone https://github.com/trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner.git question/behaviour/adaptive_adapted_for_coderunner
 
 Either way you may also need to change the ownership
 and access rights to ensure the directory and
@@ -405,17 +405,17 @@ then edit it to set whatever configuration of sandboxes you wish to test,
 and to set the jobe host, if appropriate. You should then initialise
 the phpunit environment with the commands
 
-        cd <moodlehome>
-        sudo php admin/tool/phpunit/cli/init.php
+    cd <moodlehome>
+    sudo php admin/tool/phpunit/cli/init.php
 
 You can then run the full CodeRunner test suite with one of the following two commands,
 depending on which version of phpunit you're using:
 
-        sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
+    sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner test suite"
 
 or
 
-        sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner_testsuite"
+    sudo -u www-data vendor/bin/phpunit --verbose --testsuite="qtype_coderunner_testsuite"
 
 If you're on a Red Hat or similar system in which the web server runs as
 *apache*, you should replace *www-data* with *apache.
@@ -455,7 +455,7 @@ You should then find the Uninstall link showing for CodeRunner in the Manage plu
 If not, you must still have some CodeRunner questions hidden away somewhere. If you
 have admin rights, you should be able to find them with the SQL command:
 
-        select id, category, name from mdl_question where qtype='coderunner';
+    select id, category, name from mdl_question where qtype='coderunner';
 
 If you have a lot of coderunner questions you *may* be able to just delete all the coderunner
 questions SQL but I'd be very reluctant to do that myself as it will break
@@ -642,7 +642,7 @@ Built-in question types include the following:
 example, except that it uses a combinator template. The student supplies
  just a function (plus possible support functions) and each test is (typically) of the form
 
-        printf(format_string, func(arg1, arg2, ..))
+    printf(format_string, func(arg1, arg2, ..))
 
  The template for this question type generates some standard includes, followed
  by the student code followed by a main function that executes the tests one by
@@ -661,7 +661,7 @@ example, except that it uses a combinator template. The student supplies
 The student supplies just a function (plus possible support functions)
 and each test is (typically) of the form
 
-        cout << func(arg1, arg2, ..)
+    cout << func(arg1, arg2, ..)
 
  The template for this question type generates some standard includes, followed
  by the line
@@ -843,39 +843,39 @@ TWIG_VARIABLE (e.g. STUDENT\_ANSWER). As an example,
 the question type *c\_function*, which asks students to write a C function,
 might have the following template (if it used a per-test template):
 
-        #include <stdio.h>
-        #include <stdlib.h>
-        #include <ctype.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <ctype.h>
 
-        {{ STUDENT_ANSWER }}
+    {{ STUDENT_ANSWER }}
 
-        int main() {
-            {{ TEST.testcode }};
-            return 0;
-        }
+    int main() {
+        {{ TEST.testcode }};
+        return 0;
+    }
 
 A typical test (i.e. `TEST.testcode`) for a question asking students to write a
 function that
 returns the square of its parameter might be:
 
-        printf("%d\n", sqr(-9))
+    printf("%d\n", sqr(-9))
 
 with the expected output of 81. The result of substituting both the student
 code and the test code into the template might then be the following program
 (depending on the student's answer, of course):
 
-        #include <stdio.h>
-        #include <stdlib.h>
-        #include <ctype.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <ctype.h>
 
-        int sqr(int n) {
-            return n * n;
-        }
+    int sqr(int n) {
+        return n * n;
+    }
 
-        int main() {
-            printf("%d\n", sqr(-9));
-            return 0;
-        }
+    int main() {
+        printf("%d\n", sqr(-9));
+        return 0;
+    }
 
 When authoring a question you can inspect the template for your chosen
 question type by temporarily checking the 'Customise' checkbox. Additionally,
@@ -998,18 +998,18 @@ just, say, `sqr(-11)` rather than `printf("%d, sqr(-11));`
 
 You could set such a question using a template like:
 
-        #include <stdio.h>
-        #include <stdlib.h>
-        #include <ctype.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <ctype.h>
 
-        int sqr(int n) {
-           {{ STUDENT_ANSWER }}
-        }
+    int sqr(int n) {
+       {{ STUDENT_ANSWER }}
+    }
 
-        int main() {
-            printf("%d\n", {{ TEST.testcode }});
-            return 0;
-        }
+    int main() {
+        printf("%d\n", {{ TEST.testcode }});
+        return 0;
+    }
 
 The authoring interface
 allows the author to set the size of the student's answer box, and in a
@@ -1449,8 +1449,6 @@ Not recommended!
 The template variable `TEST`, which is defined in the Twig context only when
 Twig is rendering a per-test template, contains the following attributes:
 
- * `TEST.rownum` The sequence number of this test (0, 1, 2 ...).
- * `TEST.questionid` The ID of the question being run. Not generally useful.
  * `TEST.testtype` The type of test, relevant only when Precheck is enabled
 for the question and is set to *Selected* so that the author has control over
 which tests get run. 0 denotes "run this test only when *Check* is clicked, 1 denotes "run this
@@ -1469,8 +1467,6 @@ this test.
 for this test.
  * `TEST.mark` How many marks to allocate to this test. Meaningful only if
 not using "All or nothing" grading.
- * `TEST.ordering` The number entered by the question author into the *Ordering*
-field of the test.
 
 ### The Twig TESTCASES variable
 
@@ -1836,36 +1832,36 @@ to true on newly created questions.
     1. Create a single random `index` variable and use that to index into
        separate animal and sound lists. For example:
 
-            {
-                {% set index = random(2) %}
-                "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
-                "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
+           {
+               {% set index = random(2) %}
+               "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
+               "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
 
     1. Select an animal at random from a list of Twig 'hash' objects, then plug
        each of the animal attributes into the JSON record. For example:
 
-            {
-                {% set obj = random([
-                    {'name': 'Dog', 'sound': 'Woof'},
-                    {'name': 'Cat', 'sound': 'Miaow'},
-                    {'name': 'Cow', 'sound': 'Moo'}
-                ]) %}
-                "animal": "{{ obj.name }}",
-                "sound":  "{{ obj.sound }}"
-             }
+           {
+               {% set obj = random([
+                   {'name': 'Dog', 'sound': 'Woof'},
+                   {'name': 'Cat', 'sound': 'Miaow'},
+                   {'name': 'Cow', 'sound': 'Moo'}
+               ]) %}
+               "animal": "{{ obj.name }}",
+               "sound":  "{{ obj.sound }}"
+           }
 
     1. Select an animal at random from a list of Twig 'hash' objects as above,
        but then json_encode the entire object as a single template parameter.
        For example
 
-            {
-                {% set animal = random([
-                    {'name': 'Dog', 'sound': 'Woof'},
-                    {'name': 'Cat', 'sound': 'Miaow'},
-                    {'name': 'Cow', 'sound': 'Moo'}
-                ]) %}
-                "animal": {{ animal | json_encode }}
-             }
+           {
+               {% set animal = random([
+                   {'name': 'Dog', 'sound': 'Woof'},
+                   {'name': 'Cat', 'sound': 'Miaow'},
+                   {'name': 'Cow', 'sound': 'Moo'}
+               ]) %}
+               "animal": {{ animal | json_encode }}
+           }
 
     In the last case, the template parameters will need to be referred to as
     {{ animal.name }} and {{ animal.sound }} instead of {{ animal }} and {{ sound }}.
@@ -1877,30 +1873,30 @@ to true on newly created questions.
    generate a JSON structure that defines a value `expression`, which
    is a random fully-parenthesised infix expression.
 
-        {% macro randomexpr(depth) %}
-        {% from _self import randomexpr as expr %}
-        {% if depth >= 5 %}{# Leaf nodes are random operands #}
-            {{- random(["a", "b", "c", "d"]) -}}
-        {% else %}{# Internal nodes are of the form ( expr op expr ) #}
-            {{- '(' -}}
-            {{- expr(depth + 1 + random(3)) -}}
-            {{- random(['*', '/', '+', '-']) -}}
-            {{- expr(depth + 1 + random(3)) -}}
-            {{- ')' -}}
-        {% endif %}
-        {% endmacro %}
+       {% macro randomexpr(depth) %}
+       {% from _self import randomexpr as expr %}
+       {% if depth >= 5 %}{# Leaf nodes are random operands #}
+           {{- random(["a", "b", "c", "d"]) -}}
+       {% else %}{# Internal nodes are of the form ( expr op expr ) #}
+           {{- '(' -}}
+           {{- expr(depth + 1 + random(3)) -}}
+           {{- random(['*', '/', '+', '-']) -}}
+           {{- expr(depth + 1 + random(3)) -}}
+           {{- ')' -}}
+       {% endif %}
+       {% endmacro %}
 
-        {% import _self as exp %}
-        { "expression": "{{ exp.randomexpr(0) }}"}
+       {% import _self as exp %}
+       { "expression": "{{ exp.randomexpr(0) }}"}
 
 
  This generates expressions like
 
-        (((c+b)+d)-(a*((c-a)-d)))
+    (((c+b)+d)-(a*((c-a)-d)))
 
  and
 
-        (((a/(a-d))-(c/b))+(d+(((d/c)/d)*(c+a))))
+    (((a/(a-d))-(c/b))+(d+(((d/c)/d)*(c+a))))
 
 1. The [TwigFiddle web site](http://twigfiddle.com) is useful for debugging Twig code
    in your template parameters.
@@ -1908,7 +1904,7 @@ to true on newly created questions.
    JSON. Alternatively, you can set up a trivial question that simply prints
    the values of the QUESTION.parameters Twig variable. For example (in Python)
 
-        print("""{{QUESTION.parameters | json_encode}}""")
+       print("""{{QUESTION.parameters | json_encode}}""")
 
 ## Grading with templates
 
@@ -2100,25 +2096,25 @@ should show how each line has been marked (right or wrong).
 
 A template grader for this situation might be the following
 
-        import json
+    import json
 
-        got = """{{ STUDENT_ANSWER | e('py') }}"""
-        expected = """{{ TEST.expected | e('py') }}"""
-        got_lines = got.split('\n')
-        expected_lines = expected.split('\n')
-        mark = 0
-        if len(got_lines) != 5:
-            comment = "Expected 5 lines, got {}".format(len(got_lines))
-        else:
-            comment = ''
-            for i in range(5):
-                if got_lines[i] == expected_lines[i]:
-                    mark += 1
-                    comment += "Line {} right\n".format(i)
-                else:
-                    comment += "Line {} wrong\n".format(i)
+    got = """{{ STUDENT_ANSWER | e('py') }}"""
+    expected = """{{ TEST.expected | e('py') }}"""
+    got_lines = got.split('\n')
+    expected_lines = expected.split('\n')
+    mark = 0
+    if len(got_lines) != 5:
+        comment = "Expected 5 lines, got {}".format(len(got_lines))
+    else:
+        comment = ''
+        for i in range(5):
+            if got_lines[i] == expected_lines[i]:
+                mark += 1
+                comment += "Line {} right\n".format(i)
+            else:
+                comment += "Line {} wrong\n".format(i)
 
-        print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5}))
+    print(json.dumps({'got': got, 'comment': comment, 'fraction': mark / 5}))
 
 Note that in the above program the Python *dictionary*
 
@@ -2134,7 +2130,7 @@ In order to display the *comment* column in the output JSON,
 the 'Result columns' field of the question (in the 'customisation' part of
 the question authoring form) should include that field and its column header, e.g.
 
-        [["Expected", "expected"], ["Got", "got"], ["Comment", "comment"], ["Mark", "awarded"]]
+    [["Expected", "expected"], ["Got", "got"], ["Comment", "comment"], ["Mark", "awarded"]]
 
 Note that the 'awarded' value, which is what is displayed in the 'Mark' column,
 is by default computed as the product of the
@@ -2166,12 +2162,12 @@ in order to focus on the grading aspect.
 The simplest way to deal with this issue is to write a series of testcases
 of the form
 
-        approx = my_sqrt(2)
-        right_answer = math.sqrt(2)
-        if math.abs(approx - right_answer) < 0.00001:
-            print("OK")
-        else:
-            print("Fail (got {}, expected {})".format(approx, right_answer))
+    approx = my_sqrt(2)
+    right_answer = math.sqrt(2)
+    if math.abs(approx - right_answer) < 0.00001:
+        print("OK")
+    else:
+        print("Fail (got {}, expected {})".format(approx, right_answer))
 
 where the expected output is "OK". However, if one wishes to test the student's
 code with a large number of values - say 100 or more - this approach becomes
@@ -2188,44 +2184,44 @@ A per-test template grader for the student square root question, which tests
 the student's *my_sqrt* function with 1000 random numbers in the range
 0 to 1000, might be as follows:
 
-        import subprocess, json, sys
-        student_func = """{{ STUDENT_ANSWER | e('py') }}"""
+    import subprocess, json, sys
+    student_func = """{{ STUDENT_ANSWER | e('py') }}"""
 
-        if 'import' in student_func:
-            output = 'The word "import" was found in your code!'
-            result = {'got': output, 'fraction': 0}
-            print(json.dumps(result))
-            sys.exit(0)
-
-        test_program = """import math
-        from random import uniform
-        TOLERANCE = 0.000001
-        NUM_TESTS = 1000
-        {{ STUDENT_ANSWER | e('py') }}
-        ok = True
-        for i in range(NUM_TESTS):
-            x = uniform(0, 1000)
-            stud_answer = my_sqrt(n)
-            right = math.sqrt(x)
-            if abs(right - stud_answer) > TOLERANCE:
-                print("Wrong sqrt for {}. Expected {}, got {}".format(x, right, stud_answer))
-                ok = False
-                break
-
-        if ok:
-            print("All good!")
-        """
-        try:
-            with open('code.py', 'w') as fout:
-                fout.write(test_program)
-            output = subprocess.check_output(['python3', 'code.py'],
-                stderr=subprocess.STDOUT, universal_newlines=True)
-        except subprocess.CalledProcessError as e:
-            output = e.output
-
-        mark = 1 if output.strip() == 'All good!' else 0
-        result = {'got': output, 'fraction': mark}
+    if 'import' in student_func:
+        output = 'The word "import" was found in your code!'
+        result = {'got': output, 'fraction': 0}
         print(json.dumps(result))
+        sys.exit(0)
+
+    test_program = """import math
+    from random import uniform
+    TOLERANCE = 0.000001
+    NUM_TESTS = 1000
+    {{ STUDENT_ANSWER | e('py') }}
+    ok = True
+    for i in range(NUM_TESTS):
+        x = uniform(0, 1000)
+        stud_answer = my_sqrt(n)
+        right = math.sqrt(x)
+        if abs(right - stud_answer) > TOLERANCE:
+            print("Wrong sqrt for {}. Expected {}, got {}".format(x, right, stud_answer))
+            ok = False
+            break
+
+    if ok:
+        print("All good!")
+    """
+    try:
+        with open('code.py', 'w') as fout:
+            fout.write(test_program)
+        output = subprocess.check_output(['python3', 'code.py'],
+            stderr=subprocess.STDOUT, universal_newlines=True)
+    except subprocess.CalledProcessError as e:
+        output = e.output
+
+    mark = 1 if output.strip() == 'All good!' else 0
+    result = {'got': output, 'fraction': mark}
+    print(json.dumps(result))
 
 The following figures show this question in action.
 
@@ -2308,7 +2304,7 @@ It was stated above that the values to be formatted by the format string (if
 given) were fields from the TestResult object. This is a slight simplification.
 The syntax actually allows for expressions of the form:
 
-        filter(testResultField [,testResultField]... )
+    filter(testResultField [,testResultField]... )
 
 where `filter` is the name of a built-in filter function that filters the
 given testResult field(s) in some way. Currently the only such built-in
@@ -2418,7 +2414,7 @@ from the code in the first test case (see the ui_source UI parameter below).
 The text will normally be most of a program but with one or more bits replaced by a
 gap specifier of the form
 
-        {[20-40]}
+    {[20-40]}
 
 where the two numbers are the default field width and maximum field width
 respectively. It the second number (and the preceding '-') is omitted,
@@ -2601,7 +2597,7 @@ nodes can still be added and deleted. See locknodeset. Default false.
 
 For example, for a non-directed non-fsm graph set the UI parameters field to
 
-        {"isdirected": false, "isfsm": false}
+    {"isdirected": false, "isfsm": false}
 
 Many thanks to Emily Price for the original implementation of the Graph UI.
 
@@ -2916,7 +2912,7 @@ are required and the rest are optional.
    The specified cells are rendered to HTML with the *disabled* attribute, so
    cannot be changed by the user. For example
 
-        "locked_cells": [[0, 0], [1, 0]]
+       "locked_cells": [[0, 0], [1, 0]]
 
    to lock the leftmost column of rows 0 and 1.
    This is primarily for use in conjunction with
@@ -3221,38 +3217,38 @@ The service is intended for use within Moodle content pages, usually within
 AMD scripts. However, the service can be used from JavaScript directly
 embedded in a page using an HTML editor. For example:
 
-        <h3>A simple demo of the CodeRunner sandbox web service.</h3>
-        <textarea id="code" rows="4" cols="40"></textarea>
-        <br>
-        <button type="button" id="mybutton">Run me!</button>
+    <h3>A simple demo of the CodeRunner sandbox web service.</h3>
+    <textarea id="code" rows="4" cols="40"></textarea>
+    <br>
+    <button type="button" id="mybutton">Run me!</button>
 
-        <script>
-            var button = document.getElementById('mybutton');
-            var text = document.getElementById('code');
-            button.onclick = function() {
-                require(['core/ajax'], function(ajax) {
-                    ajax.call([{
-                        methodname: 'qtype_coderunner_run_in_sandbox',
-                        args: {
-                            contextid: M.cfg.contextid, // Moodle context ID
-                            sourcecode: text.value,
-                            language: "python3"
-                        },
-                        done: function(responseJson) {
-                            var response = JSON.parse(responseJson);
-                            if (response.error !== 0 || response.result !== 15) {
-                                alert("Oops: " + responseJson);
-                            } else {
-                                alert("Output was: '" + response.output + "'");
-                            }
-                        },
-                        fail: function(error) {
-                            alert(error.message);
+    <script>
+        var button = document.getElementById('mybutton');
+        var text = document.getElementById('code');
+        button.onclick = function() {
+            require(['core/ajax'], function(ajax) {
+                ajax.call([{
+                    methodname: 'qtype_coderunner_run_in_sandbox',
+                    args: {
+                        contextid: M.cfg.contextid, // Moodle context ID
+                        sourcecode: text.value,
+                        language: "python3"
+                    },
+                    done: function(responseJson) {
+                        var response = JSON.parse(responseJson);
+                        if (response.error !== 0 || response.result !== 15) {
+                            alert("Oops: " + responseJson);
+                        } else {
+                            alert("Output was: '" + response.output + "'");
                         }
-                    }]);
-                });
-            }
-        </script>
+                    },
+                    fail: function(error) {
+                        alert(error.message);
+                    }
+                }]);
+            });
+        }
+    </script>
 
 This page displays a textarea into which a user can enter Python code, which
 can then be run by clicking the button. The output is displayed in an alert.
@@ -3461,24 +3457,24 @@ seed, such as the student's ID number.
 
 That initialisation process can be described as follows:
 <pre>
-    <b>procedure</b> create_question_instance(question):
-        question.student = get_current_moodle_user_info()
-        question.prototype = locate_prototype_question(question.prototype_name)
-        question.random_seed = make_new_random_seed()
-        set_twig_environment(question.random_seed, question.student)
-        question.template_params = twig_expand(question.template_params)
-        <b>if</b> question.prototype has template parameters:
-            prototype_params = twig_expand(question.prototype.template_params)
-            question.template_params = merge_json(prototype_params, question.template_params)
-        <b>if</b> question.twigall:
-            # Twig expand question text, sample answer, answer preload,
-            # all test case fields and global extra. The just-computed
-            # template parameters provide (most of) the twig environment.
-            set_twig_environment(question.random_seed,
-                question.student, question.template_params)
-            <b>for each</b> twiggable attribute of question:
-                question.attribute = twig_expand(question.attribute)
-        save question instance
+<b>procedure</b> create_question_instance(question):
+    question.student = get_current_moodle_user_info()
+    question.prototype = locate_prototype_question(question.prototype_name)
+    question.random_seed = make_new_random_seed()
+    set_twig_environment(question.random_seed, question.student)
+    question.template_params = twig_expand(question.template_params)
+    <b>if</b> question.prototype has template parameters:
+        prototype_params = twig_expand(question.prototype.template_params)
+        question.template_params = merge_json(prototype_params, question.template_params)
+    <b>if</b> question.twigall:
+        # Twig expand question text, sample answer, answer preload,
+        # all test case fields and global extra. The just-computed
+        # template parameters provide (most of) the twig environment.
+        set_twig_environment(question.random_seed,
+            question.student, question.template_params)
+        <b>for each</b> twiggable attribute of question:
+            question.attribute = twig_expand(question.attribute)
+    save question instance
 </pre>
 
 ### Grading a submission
@@ -3526,34 +3522,34 @@ provide the same functionality as Jobe e.g., setting of maximum
 memory or maximum runtime.
 
 <pre>
-    <b>function</b> grade_response(question, attachments, is_precheck):
-        # Grade the current submission and return a table of test results
-        if question.answer plus current set of attachments has already been graded:
-            return cached results
-        test_cases = select_subset_of_tests(question.testcases, is_precheck)
-        run_results = None
-        <b>if</b> question.is_combinator and (template grader is being used or
-            question.allow_multiple_stdins or all stdins are empty strings):
-            # Try running the combinator. If something breaks, e.g. a
-            # testcase times out, the result will be None.
-            Set up the Twig environment (templateParams) to consist of all
-                the variables in question.templateParams plus STUDENT_ANSWER,
-                IS_PRECHECK, ANSWER_LANGUAGE, and ATTACHMENTS. Additionally
-                the entire question is made available as the parameter QUESTION.
-            run_results = run_combinator(question, testcases, templateParams)
-        <b>if</b> run_result is not None:
-            run_results = []
-            <b>for</b> each test in test_cases:
-                run_results.append(run_single_testcase(question, test, templateParams)
-        <b>return</b> run_results
+<b>function</b> grade_response(question, attachments, is_precheck):
+    # Grade the current submission and return a table of test results
+    if question.answer plus current set of attachments has already been graded:
+        return cached results
+    test_cases = select_subset_of_tests(question.testcases, is_precheck)
+    run_results = None
+    <b>if</b> question.is_combinator and (template grader is being used or
+        question.allow_multiple_stdins or all stdins are empty strings):
+        # Try running the combinator. If something breaks, e.g. a
+        # testcase times out, the result will be None.
+        Set up the Twig environment (templateParams) to consist of all
+            the variables in question.templateParams plus STUDENT_ANSWER,
+            IS_PRECHECK, ANSWER_LANGUAGE, and ATTACHMENTS. Additionally
+            the entire question is made available as the parameter QUESTION.
+        run_results = run_combinator(question, testcases, templateParams)
+    <b>if</b> run_result is not None:
+        run_results = []
+        <b>for</b> each test in test_cases:
+            run_results.append(run_single_testcase(question, test, templateParams)
+    <b>return</b> run_results
 </pre>
 
 <p>The algorithms used in `run_combinator` and `run_single_testcase` are
 
 <pre>
-    <b>function</b> run_combinator(question, testcases, templateParams)
+<b>function</b> run_combinator(question, testcases, templateParams)
 
-    *** TBS ***
+*** TBS ***
 </pre>
 ### Lots more to come when I get a round TUIT
 

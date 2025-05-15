@@ -1,10 +1,12 @@
 # CHANGE HISTORY
 
 
-### 14 May 2025, 5.7.1
+### 15 May 2025, 5.7.1
 
   * Bug fix: with Moodle 5.0, questions using prototypes that were not in the Front Page question
     bank were working for teachers but not students.
+
+  * Bug fix: test suite was reporting errors in the signature of the onnotsuccessfultest function.
 
 ### 04 April 2025, 5.7.0
 
