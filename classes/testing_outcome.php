@@ -229,6 +229,9 @@ class qtype_coderunner_testing_outcome {
             $expected = s($expected);
             $got = s($got);
         }
+        if ($code instanceof qtype_coderunner_html_wrapper) {
+            $code = $code->value();
+        }
         $testcode = html_writer::link(
             '#id_testcode_' . $rownum,
             get_string('testcase', 'qtype_coderunner', $rownum + 1)
