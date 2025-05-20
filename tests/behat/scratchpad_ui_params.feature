@@ -368,8 +368,7 @@ Feature: Test the Scratchpad UI, UI Params
 
     When I choose "Preview" action for "Print answer" in the question bank
     And I click on "Scratchpad" "button"
-    And I set the field "prefix_ans" to ""
-    And I press the tab key
+    And I click on "a.btn.btn-link[role='button']" "css_element" in the "[id$='_answer_help']" "css_element"
     Then I should see "superusefulhelptext"
 
   Scenario: Set output_display_mode to text, 'print' a hidden div to output area
