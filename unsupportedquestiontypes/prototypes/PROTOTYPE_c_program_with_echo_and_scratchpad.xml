@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 55017  -->
+  <question type="coderunner">
+    <name>
+      <text>PROTOTYPE_C_program_with_echo_and_scratchpad</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>This is a Write-a-program question type for C with the following differences from the built-in version:</p>
+<ol>
+<li>It includes a customised <em>scanf</em> function that echoes characters to <em>stdout</em> as it consumes them, in order to mimic keyboard input.</li>
+<li>It uses the Scratchpad UI rather than Ace.</li>
+<li>The Scratchpad includes the capability of running questions that read from stdin using the trick explained <a href="https://coderunner.org.nz/mod/quiz/attempt.php?attempt=8589&amp;page=2&amp;cmid=548" target="_blank" rel="noopener">here</a>. 
+<ul>
+<li>It also uses the custom scanf that echoes stdin to stdout.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Caveats:</strong></p>
+<ul>
+<li>Only <em>scanf</em> input is supported, not <em>getc</em>, <em>fgetc</em>, <em>gets</em>, <em>fgets</em>, or <em>fscanf n</em>or any other form of C input from stdin you can come up with.</li>
+<li>The scratchpad mimicing of KB input is a trick that won't work if the code is not deterministic, e.g. if it uses randomisation or the current time to compute its results.</li>
+</ul>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>C_program_w_echo_and_scratchpad</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>12</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[""" The template for a question type that compiles and runs a student-submitted
+    C program. It is based the "C_via_python" question type explained in the
+    CodeRunner documentation file, enhanced by the addition of a "myscanf_w_echo"
+    module that replaces the standard C scanf with one that echoes characters
+    to stdout as they are consumed. This mimics the effect of typing stdin
+    on a keyboard, where characters are echoed as typed.
+"""
+
+import subprocess, sys
+
+# First compile the support file myscanf_w_echo to produce an override
+# of scanf that echoes input to stdout.
+result = subprocess.run("gcc -shared -fPIC myscanf_w_echo.c -o libmyscanfwecho.so -ldl",
+                    shell=True, capture_output=True, text=True)
+if result.returncode != 0:
+    print(f"** Compile of myscanf__w_echo.c failed **\n{result.stderr}")
+    sys.exit(1);
+    
+# Write the student code to a file prog.c
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+with open("prog.c", "w") as src:
+    print(student_answer, file=src)
+
+# Now compile the student code.
+{% if QUESTION.parameters.cflags is defined %}
+cflags = """{{ QUESTION.parameters.cflags | e('py') }}"""
+{% else %}
+cflags = "-std=c99 -Wall -Werror"
+{% endif %}
+result = subprocess.run(f"gcc {cflags} -o prog prog.c", shell=True, capture_output=True, text=True)
+if result.returncode != 0:
+    print(f"** Compilation failed. Testing aborted **\n{result.stderr}", file=sys.stderr)
+    sys.exit(1)
+
+# If compile succeeded, run the code, but with the custom scanf linked in instead
+# of the built-in version.
+# Since this is a per-test template,
+# stdin is already set up for the stdin text specified in the test case,
+# so we can run the compiled program directly.
+
+result = subprocess.run("LD_PRELOAD=./libmyscanfwecho.so ./prog", shell=True, capture_output=True, text=True)
+if result.stdout:
+    print(result.stdout)
+if result.stderr:
+    print(result.stderr, file=sys.stderr)
+    
+if result.returncode < 0: # Ignore non-negative return codes
+    # But negative return codes are signals - abort
+    print("Task failed with signal", -result.returncode, file=sys.stderr)
+    print("** Further testing aborted **", file=sys.stderr)]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>python3</language>
+    <acelang>C</acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs>3</cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin>scratchpad</uiplugin>
+    <uiparameters><![CDATA[{
+  "wrapper_src": "prototypeextra",
+   "run_lang": "python3",
+  "output_display_mode": "json",
+  "escape": true
+}]]></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra><![CDATA["""The scratchpad wrapper function for the C-program question with a scratchpad
+   that supports reading from stdin with scanf. Input read from stdin with
+   scanf is echoed to stdout to mimic the behaviour of input from the 
+   keyboard.
+   Warning: reading from stdin with getc, fgetc, fscanc, gets or fgets is not
+   supported.
+"""
+
+import os, subprocess, json, time, threading, signal
+
+MAX_OUTPUT_BYTES = 5000  # Output in excess of this is truncated.
+
+def make_myscanf():
+    """Creates a file myscanf.c containing the replacement scanf,
+       which is called in lieu of the system library scanf. It
+       terminates execution with a return code of 42 if there's an
+       EOF on standard input. It also echoes characters consumed
+       to stdout, to give the appearance of being read from the KB.
+    """  
+    file_contents = r'''// myscanf.c - Updated version
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+
+#define MAX_LINE_SIZE 1024
+
+
+// Our replacement scanf function
+int scanf(const char *format, ...) {
+    // Get stdin chars until newline or EOF or buffer full.
+    int c = 0;
+    char buffer[MAX_LINE_SIZE];
+    char* p = buffer;
+    while (p < buffer + MAX_LINE_SIZE - 2 && (c = fgetc(stdin)) != EOF && c != '\n') {
+        *p++ = c;
+    }
+    
+    if (p == buffer && c == EOF) {
+        // There was no stdin. Tell the scratchpad by terminating with a returncode of
+        // 42. It will prompt the user for more stdin and rerun us.
+        exit(42);
+    }
+    
+    // Otherwise we got some stdin. Add a newline and terminate with a null. 
+    *p++ = '\n';
+    *p++ = '\0';
+
+    fprintf(stdout, "%s", buffer);  // Echo the line to stdout
+    
+    // Set up variable arguments
+    va_list args;
+    va_start(args, format);
+    
+    // Call vsscanf with our original arguments to read the line.
+    int result = vsscanf(buffer, format, args);
+    va_end(args); // Clean up.
+    return result;
+}
+
+'''
+    with open('myscanf.c', 'w') as outfile:
+        outfile.write(file_contents)
+    result = subprocess.run("gcc -shared -fPIC myscanf.c -o libmyscanf.so -ldl",
+                    shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        return f"Compile of myscanf.c failed\n{result.stderr}"
+    else:
+        return ''
+    
+def limit_length(s):
+    """Return s, truncated if necessary to a maximum length of MAX_OUTPUT_BYTES"""
+    if len(s) > MAX_OUTPUT_BYTES:
+        return s[:MAX_OUTPUT_BYTES] + "\n... EXCESSIVE OUTPUT: TRUNCATED."
+    else:
+        return s
+
+def make_executable():
+    """Write the student's scratchpad contents (preceded by
+       the answer if Prefix with answer was checked) to prog.c.
+       Compile and link with myscanf.c
+    """
+    student_code = """
+{| ANSWER_CODE |}
+{| SCRATCHPAD_CODE |}
+"""
+    with open('prog.c', 'w') as outfile:
+        outfile.write(student_code)
+    # Try compiling student code
+    result = subprocess.run("gcc -o prog prog.c", shell=True, text=True, capture_output=True)
+    if result.returncode != 0:
+        return f"*** Compile error ***\n{result.stderr}"
+    else:
+        return ""
+    
+def read_stream(stream, max_bytes, result_container, key):
+    """Read up to max_bytes from the stream and store in result_container[key].
+       Use of threads to read the stdin and stderr streams was necessary to prevent
+       memory errors from crashing Python when the student program was stuck in an 
+       endless print loop.
+    """
+    output = []
+    total = 0
+    try:
+        while total < max_bytes:
+            chunk = stream.read(1024)
+            if not chunk:
+                break
+            output.append(chunk)
+            total += len(chunk)
+        if total >= max_bytes:
+            output.append("\n... truncated.")
+    except Exception as e:
+        output.append(f"\n[Error reading stream: {e}]")
+    result_container[key] = ''.join(output)
+
+def run():
+    """Run the student's code with output and time limits."""
+    try:
+        proc = subprocess.Popen(
+            ["./prog"], 
+            env={"LD_PRELOAD": "./libmyscanf.so", **os.environ},
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        result = {'stdout': '', 'stderr': ''}
+
+        # Start threads to read stdout and stderr. See 'read_stream' for why we're doing this.
+        stdout_thread = threading.Thread(target=read_stream, args=(proc.stdout, MAX_OUTPUT_BYTES, result, 'stdout'))
+        stderr_thread = threading.Thread(target=read_stream, args=(proc.stderr, MAX_OUTPUT_BYTES, result, 'stderr'))
+
+        start_time = time.time()
+        stdout_thread.start()
+        stderr_thread.start()
+
+        try:
+            proc.wait(timeout=2.0)
+        except subprocess.TimeoutExpired:
+            if proc.poll() is None:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=0.5)
+                except:
+                    proc.kill()
+                    proc.wait()
+
+        # Wait for threads to finish (with safety timeout)
+        stdout_thread.join(timeout=0.5)
+        stderr_thread.join(timeout=0.5)
+
+        duration = time.time() - start_time
+        timed_out = duration >= 2.0
+
+        # Prepend timeout message if needed
+        if timed_out:
+            result['stdout'] = "*** Timeout Error ***\n" + result['stdout']
+
+        if not timed_out and proc.returncode < 0:
+            signal_number = -proc.returncode
+            if signal_number == 11:
+                result['stderr'] += "\n*** RUNTIME ERROR: Segmentation Fault ***"
+            else:
+                signal_name = signal.Signals(signal_number).name
+                result['stderr'] += f"\n*** RUNTIME ERROR: {signal_name} ***"
+
+        return (proc.returncode if not timed_out else -1, result['stdout'], result['stderr'])
+
+    except Exception as e:
+        import traceback
+        return (-1, "", f"Error running program: {type(e).__name__}: {e}\n{traceback.format_exc()}")
+        
+# Main code starts here
+return_code = 0
+stdout = ''
+stderr = ''
+stderr = make_myscanf()
+if not stderr:
+    stderr = make_executable()
+if not stderr:
+    return_code, stdout, stderr = run()
+    
+output = {
+    'returncode': return_code,
+    'stdout': stdout,
+    'stderr': stderr,
+    'files': []
+}
+print(json.dumps(output))
+]]></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="1" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Angela
+19</text>
+      </stdin>
+      <expected>
+                <text>What's your name? Angela
+Hi Angela.
+How old are you? 19
+Next year you will be 20.</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>Mika
+27</text>
+      </stdin>
+      <expected>
+                <text>What's your name? Mika
+Hi Mika.
+How old are you? 27
+Next year you will be 28.
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+<file name="myscanf_w_echo.c" path="/" encoding="base64">LyogQW4gb3ZlcnJpZGUgb2YgdGhlIGJ1aWx0aW4gc2NhbmYgZnVuY3Rpb24gdGhhdCBlY2hvZXMKICAgY2hhcmFjdGVycyB0byBzdGRvdXQgYXMgdGhleSBhcmUgY29uc3VtZWQuCiovCiNpbmNsdWRlIDxzdGRpby5oPgojaW5jbHVkZSA8c3RkbGliLmg+CiNpbmNsdWRlIDxzdGRhcmcuaD4KCiNkZWZpbmUgTUFYX0xJTkVfU0laRSAxMDI0CgppbnQgc2NhbmYoY29uc3QgY2hhciAqZm9ybWF0LCAuLi4pIHsKICAgIC8vIEdldCBzdGRpbiBjaGFycyB1bnRpbCBuZXdsaW5lIG9yIEVPRiBvciBidWZmZXIgZnVsbC4KICAgIGludCBjID0gMDsKICAgIGNoYXIgYnVmZmVyW01BWF9MSU5FX1NJWkVdOwogICAgY2hhciogcCA9IGJ1ZmZlcjsKICAgIHdoaWxlIChwIDwgYnVmZmVyICsgTUFYX0xJTkVfU0laRSAtIDIgJiYgKGMgPSBmZ2V0YyhzdGRpbikpICE9IEVPRiAmJiBjICE9ICdcbicpIHsKICAgICAgICAqcCsrID0gYzsKICAgIH0KICAgICpwKysgPSAnXG4nOwogICAgKnArKyA9ICdcMCc7CgogICAgZnByaW50ZihzdGRvdXQsICIlcyIsIGJ1ZmZlcik7ICAvLyBFY2hvIHRoZSBsaW5lIHRvIHN0ZG91dAogICAgCiAgICAvLyBTZXQgdXAgdmFyaWFibGUgYXJndW1lbnRzCiAgICB2YV9saXN0IGFyZ3M7CiAgICB2YV9zdGFydChhcmdzLCBmb3JtYXQpOwogICAgCiAgICAvLyBDYWxsIHZzc2NhbmYgd2l0aCBvdXIgb3JpZ2luYWwgYXJndW1lbnRzIHRvIHJlYWQgdGhlIGxpbmUuCiAgICBpbnQgcmVzdWx0ID0gdnNzY2FuZihidWZmZXIsIGZvcm1hdCwgYXJncyk7CiAgICB2YV9lbmQoYXJncyk7IC8vIENsZWFuIHVwLgogICAgcmV0dXJuIHJlc3VsdDsKfQo=</file>
+    </testcases>
+  </question>
+
+</quiz>
