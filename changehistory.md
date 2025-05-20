@@ -1,5 +1,10 @@
 # CHANGE HISTORY
 
+### 21 May 2025, 5.7.1+
+
+  * Add new unsupported question type: C program with scanf echoing of stdin plus scratchpad.
+  * Bug fix: layout of Scratchpad expand/collapse button for Scratchpad UI was broken in Moodle 5.0.
+  * Bug fix: help icon for Scratchpad UI was not working in Moodle 5.0.
 
 ### 15 May 2025, 5.7.1
 
