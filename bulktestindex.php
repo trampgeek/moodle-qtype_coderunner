@@ -232,17 +232,11 @@ if (count($availablequestionsbycontext) == 0) {
     } else {
         // Deal with funky question bank madness in Moodle 5.0.
         echo html_writer::tag('p', "Moodle >= 5.0 detected. Listing by course then qbank.");
-        $allcaps = array_merge(question_edit_contexts::$caps['editq'], question_edit_contexts::$caps['categories']);
         $allcourses = bulk_tester::get_all_courses();
-        $coursebanks = [];
         foreach ($allcourses as $courseid => $course) {
             $coursecontext = context_course::instance($courseid);
             display_course_header_and_link($coursecontext->id, $course->name);
-            // Shared banks will be activites of type qbank.
-            $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$course->id], [], $allcaps);
-            // Private banks are actually just other modules that can contain questions, eg, quizzes.
-            $privatebanks = question_bank_helper::get_activity_instances_with_private_questions([$course->id], [], $allcaps);
-            $allbanks = array_merge($sharedbanks, $privatebanks);
+            $allbanks = bulk_tester::get_all_qbanks_for_course($courseid);
             if (count($allbanks) > 0) {
                 foreach ($allbanks as $bank) {
                     $contextid = $bank->contextid;

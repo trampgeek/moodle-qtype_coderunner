@@ -97,6 +97,7 @@ $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
 $string['bulktesttitle'] = 'Testing questions in {$a}';
+$string['bulktestalltitle'] = 'Testing ALL questions in site.';
 
 $string['cannotrunprototype'] = 'This is a prototype and cannot be run. If you wish to use this prototype, create a new question and set this question type.';
 $string['coderunnercategories'] = 'Categories with CodeRunner questions';
@@ -1370,7 +1371,7 @@ $string['retestfailedquestions'] = 'Re-test failed questions';
 $string['cachepurgecheckingkeyxoftotalnum'] = 'Procesing key {$a->x} of {$a->totalnumkeys} keys in total (for all courses)';
 $string['gradingcachedefinitionnotfound'] = 'Strange... the Coderunner grading cache definition cannot be found!?';
 $string['gradingcachefilestorenotfound'] = 'Strange... the Coderunner grading cache file store cannot be found!?';
-$string['purgingallkeysmessage'] = 'Purging all keys for course, regardless of Time to Live (TTL).';
+$string['purgingallkeysmessage'] = 'Purging all keys for context, regardless of Time to Live (TTL).';
 $string['purgingoldkeysmessage'] = 'Purging only old keys for course, based on Time to Live. TTL={$a->seconds} seconds (={$a->days} days)';
 
 $string['purgeoldcachekeysbutton'] = 'Purge only OLD keys';
@@ -1379,7 +1380,7 @@ $string['cachepurgeindextitle'] = 'Coderunner Cache Purge Index';
 $string['cachepurgepagetitle'] = 'Purging cache for {$a}';
 $string['cachepurgeindexinfo'] = 'Purging OLD keys will only delete cache entries for grading runs that are older than the Coderunner cache Time To Live (TTL) as set in the admin settings. Purging ALL will delete all cache entries for the given course.';
 $string['currentttlinfo'] = 'Coderunner grading cache Time to Live is currently set to TTL = {$a->seconds} seconds (={$a->days} days)';
-$string['unauthorisedcachepurging'] = 'You do not have suitable access to any CodeRunner questions!';
+$string['noquestionstopurge'] = 'None of the contexts you have access to have any cached results.';
 $string['contextidnotacourseincachepurgerequest'] = 'Grade cache not purged as context_id {$a} is not a course.';
 $string['bulktestnumrunslabel'] = 'Number of runs per question: ';
 $string['bulktestnumrunsexplanation'] = 'How many times each included question will be tested. Repeatitions will depend on <emph>Repeat random only</emph> setting.';

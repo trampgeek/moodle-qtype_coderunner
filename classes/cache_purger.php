@@ -58,26 +58,13 @@ class cache_purger {
     /** @var int Baically now less the TTL, ie, if a file is before this time then it is too old */
     public $maxtime;
 
-    /** @var int Roughly one percent of the total number of keys - so we can update the progress every one percent only */
-    public $onepercent;
-
-    /** @var int The number of keys that were deleted when purging */
-    private $numdeleted;
-
-    /** @var int The number of keys that were too young to die */
-    private $tooyoungtodie;
-
-
-    /** The number of keys that have been processed during a purge */
-    private $numprocessed;
-
 
     public function __construct(bool $usettl) {
         global $CFG;
         $this->usettl = $usettl;
-        $this->ttl = abs(get_config('qtype_coderunner', 'gradecachettl'));  // Correct for any crazy negative TTL's.
+        #$this->ttl = abs(get_config('qtype_coderunner', 'gradecachettl'));  // Correct for any crazy negative TTL's.
         $this->definition = self::get_coderunner_cache_definition();
-
+        $this->ttl = abs($this->definition->get_ttl()); // Correct for any crazy negative TTL's.
     }
 
     /**
@@ -171,7 +158,7 @@ class cache_purger {
 
     /**
      * Get count of keys for all cache categories.
-     * -----------> Currently only does this for file stores <-----------
+     * -----------> This works for file stores and maybe for Redis stores??? to be tested <-----------
      * Has to scan all cache keys!
      * @return array mapping cachecategories to counts of keys.
      */
@@ -237,10 +224,9 @@ class cache_purger {
      * corresponds to a course - used when clearing cache for all contexts
      * in a course
      *
-     * @param array $contextkeycounts An array containing contextid, count pairs.
      * @return array mapping contextids to coursecontextids.
      */
-    public static function get_context_to_course_context_map($contextkeycounts) {
+    public static function get_qbank_context_to_course_context_map() {
         $contextidtocoursecontextid = [];
         $allcaps = array_merge(question_edit_contexts::$caps['editq'], question_edit_contexts::$caps['categories']);
         $allcourses = bulk_tester::get_all_courses();
@@ -275,8 +261,9 @@ class cache_purger {
         foreach ($array as $key => $value) {
             if (!isset($result[$value])) {
                 $result[$value] = [$key];
+            } else {
+                $result[$value][] = $key;
             }
-            $result[$value][] = $key;
         }
         return $result;
     }
@@ -381,15 +368,22 @@ class cache_purger {
     }
 
 
-    // Delete all keys for context if usettl is false otherwise only old ones.
-    public function purge_cache_for_context(int $contextid) {
+    /**
+     * Delete all keys for context if this->usettl is false otherwise only old ones.
+     * NOTE: If the cache isn't a file store then purging will only work if this->usettl is false.
+     * @param int $contextid int must be a valid context id.
+     * @param bool $quiet If quiet then no messages are echoed.  This is helpful for the bulktester.
+     */
+    public function purge_cache_for_context(int $contextid, $quiet = false) {
         global $OUTPUT;
         global $CFG;
         $definition = self::get_coderunner_cache_definition();
         $stores = self::get_all_stores($definition);
         $context = context::instance_by_id($contextid);
         $contextname = $context->get_context_name(true, true);
-        $this->display_ttl_info();
+        if (!$quiet) {
+            $this->display_ttl_info();
+        }
 
         // Connect to cache as a whole so that deletes.
         // get done to all stores at once.
@@ -402,9 +396,7 @@ class cache_purger {
         $keysforcontext = 0;
         $numprocessed = 0;
 
-        // if ($originalcount > 0) {
-        //     $progressbar = new \progress_bar('cache_purge_progress_bar', width:800, autostart:true);
-        // }
+
 
         $pattern = '/___contextid_' . $contextid . '___/';
 
@@ -421,13 +413,17 @@ class cache_purger {
             $onepercent = round($originalcount / 100, 0);
             if (!$isfilestore && $this->usettl) {
                 echo "<p>Sorry. Will not do TTL purging for non file stores.</p>";
+                echo "<p>If you're using a Redis store use the Redis scheduled task for cleanup. Or don't use TTL setting.</p>";
             } else {
+                if ($originalcount > 0 && !$quiet) {
+                    $progressbar = new \progress_bar('cache_purge_progress_bar', width:800, autostart:true);
+                }
                 foreach ($fullcachekeys as $fullcachekey) {
                     // Find_all doesn't give real keys, it includes Moodles extra hash after a - at the end
                     // so just keep the real key.
                     $bits = explode("-", $fullcachekey);
                     $key = $bits[0];  // The actual key.
-                    $this->numprocessed += 1;
+                    $numprocessed += 1;
                     if (preg_match($pattern, $key)) {   // NOTE: used to use $file????
                         $keysforcontext += 1;
                         if (!$this->usettl) {
@@ -456,33 +452,37 @@ class cache_purger {
                             }
                         }
                     }
-                    // if (
-                    //     $originalcount > 0 && ($originalcount < 100  ||
-                    //     $numprocessed % $onepercent == 0)
-                    // ) {
-                    //     $progressstring = get_string(
-                    //         'cachepurgecheckingkeyxoftotalnum',
-                    //         'qtype_coderunner',
-                    //         ['x' => $numprocessed, 'totalnumkeys' => $originalcount]
-                    //     );
-                    //     $progressbar->update($numprocessed, $originalcount, $progressstring);
-                    // }
+                    if (
+                          !$quiet &&
+                        ($originalcount > 0 && ($originalcount < 100  ||
+                        $numprocessed % $onepercent == 0))
+                    ) {
+                        $progressstring = get_string(
+                            'cachepurgecheckingkeyxoftotalnum',
+                            'qtype_coderunner',
+                            ['x' => $numprocessed, 'totalnumkeys' => $originalcount]
+                        );
+                        $progressbar->update($numprocessed, $originalcount, $progressstring);
+                    }
                 }
             }
         }
-        // // Make sure progress bar gets to 100%.
-        // if ($this->originalcount > 0) {
-        //     $progressstring = get_string(
-        //         'cachepurgecheckingkeyxoftotalnum',
-        //         'qtype_coderunner',
-        //         ['x' => $tnumprocessed, 'totalnumkeys' => $originalcount]
-        //     );
-        //     $progressbar->update($numprocessed, $originalcount, $progressstring);
-        // }
-        echo "$originalcount keys scanned, in total. <br>";
-        echo "$keysforcontext keys found for context id $contextid.<br>";
-        echo "<b>$numdeleted</b> keys purged for course.<br>";
-        echo "$tooyoungtodie keys were too young to die.<br>";
+
+        if (!$quiet) {
+             // Make sure progress bar gets to 100%.
+            if ($originalcount > 0) {
+                $progressstring = get_string(
+                    'cachepurgecheckingkeyxoftotalnum',
+                    'qtype_coderunner',
+                    ['x' => $numprocessed, 'totalnumkeys' => $originalcount]
+                );
+                $progressbar->update($numprocessed, $originalcount, $progressstring);
+            }
+            echo "$originalcount keys scanned, in total. <br>";
+            echo "$keysforcontext keys found for context id $contextid.<br>";
+            echo "<b>$numdeleted</b> keys purged for course.<br>";
+            echo "$tooyoungtodie keys were too young to die.<br>";
+        }
     }
 
 

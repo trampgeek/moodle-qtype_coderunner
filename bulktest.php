@@ -89,7 +89,7 @@ $bulktester = new bulk_tester(
 
 // Display.
 echo $OUTPUT->header();
-echo $OUTPUT->heading($title, 4);
+echo $OUTPUT->heading($title, 2);
 
 $jobehost = get_config('qtype_coderunner', 'jobe_host');
 $usecachelabel = get_string('bulktestusecachelabel', 'qtype_coderunner');
@@ -103,12 +103,9 @@ echo html_writer::tag('p', "<b>$usecachelabel</b> $usecachevalue");
 
 ini_set('memory_limit', '1024M');  // For big question banks - TODO: make this a setting?
 
-// Run the tests.
-if (count($questionids) == 0) {
-    $bulktester->run_all_tests_for_context();
-} else {
-    $bulktester->run_all_tests_for_context($questionids);
-}
+
+$bulktester->run_tests($questionids);
+
 
 // Prints the summary of failed/missing tests
 $bulktester->print_overall_result();
