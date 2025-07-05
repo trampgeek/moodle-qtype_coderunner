@@ -60,7 +60,7 @@ $availablequestionsbycontext = bulk_tester::get_num_available_coderunner_questio
 
 // List all course contexts available to the user.
 if (count($availablequestionsbycontext) == 0) {
-    echo html_writer::tag('p', 'Unauthorised');
+    echo html_writer::tag('p', 'unauthorisedbulktest');
 } else {
     $oldskool = !(\qtype_coderunner_util::using_mod_qbank()); // No qbanks in Moodle < 5.0.
     if (!$oldskool) {
@@ -72,7 +72,7 @@ if (count($availablequestionsbycontext) == 0) {
     foreach ($availablequestionsbycontext as $contextid => $countdata) {
         $numcoderunnerquestions = $countdata['numquestions'];
         $name = $countdata['name'];
-        if (strpos($name, 'Course:') === 0 || !$oldskool) { // Remove the || !$oldskook when updating to deal with Moodle 5.0
+        if (strpos($name, 'Course:') === 0 || !$oldskool) { // Remove the || !$oldskook when updating to deal with Moodle 5.0.
             $class = 'findduplicates coderunner context quiz';
             $findduplicatesurl = new moodle_url('/question/type/coderunner/findduplicates.php', ['contextid' => $contextid]);
             $findduplicateslink = html_writer::link(

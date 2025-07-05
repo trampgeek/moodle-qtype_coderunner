@@ -121,7 +121,7 @@ if (count($keycountsbycontextid) == 0) {
         $allcourses = bulk_tester::get_all_courses();
         echo "Displaying all courses you have access to, that have cache entries.<br>"; // <----------------------------------- NEEDS LANGUAGE STRING
         echo "Courses are displayed as <em>[context_id] Course Name (course_id)</em><br>"; // <----------------------------------- NEEDS LANGUAGE STRING
-        echo "Qbanks and other question containing contexts are displayed as <em>[context_id] Context prefix:Context name </em>"; // <----------------------------------- NEEDS LANGUAGE STRING
+        echo "Qbanks and other question containing contexts are displayed as <em>[context_id] Context prefix:Context name </em>"; // <------------ NEEDS LANGUAGE STRING.
         foreach ($allcourses as $courseid => $course) {
             $coursecontext = \context_course::instance($courseid);
             // Only list for courses that are visible to user.

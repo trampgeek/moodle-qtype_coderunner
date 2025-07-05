@@ -58,7 +58,7 @@ $PAGE->requires->jquery_plugin('ui-css');
 $courses = bulk_tester::get_all_courses();
 
 
-$dbtype = $CFG->dbtype; // One of pgsql, mariadb, mysqli, auroramysql or sqlsrv.
+$dbtype = $CFG->dbtype; // One of pgsql, mariadb, mysqli, auroramysql or sqlsrv according to Moodle config-dist.
 
 // Start display.
 echo $OUTPUT->header();
