@@ -61,8 +61,8 @@ class cache_purger {
 
     public function __construct(bool $usettl) {
         global $CFG;
-        $this->usettl = $usettl;l
-        #$this->ttl = abs(get_config('qtype_coderunner', 'gradecachettl'));  // Correct for any crazy negative TTL's.
+        $this->usettl = $usettl;
+        // OLD method $this->ttl = abs(get_config('qtype_coderunner', 'gradecachettl'));  // Correct for any crazy negative TTL's.
         $this->definition = self::get_coderunner_cache_definition();
         $this->ttl = abs($this->definition->get_ttl()); // Correct for any crazy negative TTL's.
     }
