@@ -181,6 +181,40 @@ class bulk_tester {
     }
 
 
+    /**
+     * Returns an array mapping editable context ids to an array containing:
+     *   - the context name, including prefix
+     *   - the count of the number of questions in the context
+     *   - the contextid, for legacy useage.
+     *
+     * By available we mean that the questions are in contexts the user can edit questions in.
+     * Only the latest version of each question is counted and prototypes are ignored.
+     *
+     * @return array context id => [context_name, number of CodeRunner questions, contextid].
+     */
+    public static function get_num_available_coderunner_questions_by_context() {
+        // Find in which contexts the user can edit questions.
+        $questionsbycontext = self::get_num_coderunner_questions_by_context();
+        $availablequestionsbycontext = [];
+        foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
+            $context = \context::instance_by_id($contextid);
+            if (has_capability('moodle/question:editall', $context)) {
+                $contextname = $context->get_context_name(true, true); // With context prefix, short version.
+                $name = $contextname;
+                $availablequestionsbycontext[$contextid] = [
+                    'name' => $name,
+                    'numquestions' => $numcoderunnerquestions,
+                    'contextid' => $contextid, // For legacy usage.
+                ];
+            }
+        }
+        ksort($availablequestionsbycontext);
+        return $availablequestionsbycontext;
+    }
+
+
+
+
 
     /**
      * Find all coderunner questions in a given category, returning only
@@ -486,7 +520,9 @@ class bulk_tester {
             echo $OUTPUT->heading("{$categoryname} ($categorycount)", 5);
             echo "<ul>\n";
             foreach ($questions as $question) {
-                $this->process_question($question, $categoryid, $categoryname, $categorycount);
+                if (count($questionidstoinclude) == 0 || in_array($question->id, $questionidstoinclude)) {
+                    $this->process_question($question, $categoryid, $categoryname, $categorycount);
+                }
             }
             echo "</ul>\n";
         }
@@ -574,13 +610,13 @@ class bulk_tester {
         $oldskool = !(qtype_coderunner_util::using_mod_qbank()); // no qbanks in Moodle < 5.0.
         if ($this->context->contextlevel == CONTEXT_COURSE) {
             if ($oldskool) {
-                $this->run_tests_for_simple_context($this->context, $questionidstoinclude = []);
+                $this->run_tests_for_simple_context($this->context, questionidstoinclude:$questionidstoinclude);
             } else {
                 // Run tests for all qbanks in course.
-                $this->run_tests_for_all_qbanks_in_course($this->context, $questionidstoinclude = []);
+                $this->run_tests_for_all_qbanks_in_course($this->context, questionidstoinclude:$questionidstoinclude);
             }
         } else {
-            $this->run_tests_for_simple_context($this->context, $questionidstoinclude = []);
+            $this->run_tests_for_simple_context($this->context, questionidstoinclude:$questionidstoinclude);
         }
         return [$this->numpasses, $this->failedtestdetails, $this->missinganswerdetails];
     }

@@ -1378,7 +1378,7 @@ $string['purgeoldcachekeysbutton'] = 'Purge only OLD keys';
 $string['purgeallcachekeysbutton'] = 'Purge ALL keys';
 $string['cachepurgeindextitle'] = 'Coderunner Cache Purge Index';
 $string['cachepurgepagetitle'] = 'Purging cache for {$a}';
-$string['cachepurgeindexinfo'] = 'Purging OLD keys will only delete cache entries for grading runs that are older than the Coderunner cache Time To Live (TTL) as set in the admin settings. Purging ALL will delete all cache entries for the given course.';
+$string['cachepurgeindexinfo'] = 'Purging OLD keys will only delete cache entries for grading runs that are older than the Coderunner cache Time To Live (TTL) as set in the .../coderunner/db/caches.php file.<br>Purging ALL will delete all cache entries for the given context.';
 $string['currentttlinfo'] = 'Coderunner grading cache Time to Live is currently set to TTL = {$a->seconds} seconds (={$a->days} days)';
 $string['noquestionstopurge'] = 'None of the contexts you have access to have any cached results.';
 $string['contextidnotacourseincachepurgerequest'] = 'Grade cache not purged as context_id {$a} is not a course.';

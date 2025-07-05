@@ -47,27 +47,33 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading('Courses containing CodeRunner questions');
 
 // Find in which contexts the user can edit questions.
-$questionsbycontext = bulk_tester::get_num_coderunner_questions_by_context();
-$availablequestionsbycontext = [];
-foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
-    $context = context::instance_by_id($contextid);
-    if (has_capability('moodle/question:editall', $context)) {
-        $availablequestionsbycontext[$contextid] = $numcoderunnerquestions;
-    }
-}
+// $questionsbycontext = bulk_tester::get_num_coderunner_questions_by_context();
+// $availablequestionsbycontext = [];
+// foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
+//     $context = context::instance_by_id($contextid);
+//     if (has_capability('moodle/question:editall', $context)) {
+//         $availablequestionsbycontext[$contextid] = $numcoderunnerquestions;
+//     }
+// }
+
+$availablequestionsbycontext = bulk_tester::get_num_available_coderunner_questions_by_context();
 
 // List all course contexts available to the user.
 if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', 'Unauthorised');
 } else {
+    $oldskool = !(\qtype_coderunner_util::using_mod_qbank()); // No qbanks in Moodle < 5.0.
+    if (!$oldskool) {
+        echo "Sorry :( This needs re-written to deal with Moodle 5.0 properly."; // TODO = Fix this <-----------------------.
+        echo "<br>That is, to list by course rather than context.";
+    }
     echo html_writer::start_tag('ul');
-    $buttonstyle = 'border: 1px solid gray; padding: 2px 2px 0px 2px;';
-    $buttonstyle = 'border: 1px solid #F0F0F0; background-color: #FFFFC0; padding: 2px 2px 0px 2px;border: 4px solid white';
-    foreach ($availablequestionsbycontext as $contextid => $numcoderunnerquestions) {
-        $context = context::instance_by_id($contextid);
-        $name = $context->get_context_name(true, true);
-        if (strpos($name, 'Course:') === 0) {
-            $class = 'bulktest coderunner context quiz';
+    $buttonstyle = 'border: 1px solid #F0F0F0; background-color: #FFFFC0; padding: 2px 2px 0px 2px;';
+    foreach ($availablequestionsbycontext as $contextid => $countdata) {
+        $numcoderunnerquestions = $countdata['numquestions'];
+        $name = $countdata['name'];
+        if (strpos($name, 'Course:') === 0 || !$oldskool) { // Remove the || !$oldskook when updating to deal with Moodle 5.0
+            $class = 'findduplicates coderunner context quiz';
             $findduplicatesurl = new moodle_url('/question/type/coderunner/findduplicates.php', ['contextid' => $contextid]);
             $findduplicateslink = html_writer::link(
                 $findduplicatesurl,
@@ -78,6 +84,7 @@ if (count($availablequestionsbycontext) == 0) {
             $litext = $name . ' (' . $numcoderunnerquestions . ') ' . $findduplicateslink;
             echo html_writer::start_tag('li', ['class' => $class]);
             echo $litext;
+            echo html_writer::end_tag('li');
         }
     }
     echo html_writer::end_tag('ul');

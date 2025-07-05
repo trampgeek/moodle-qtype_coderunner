@@ -79,7 +79,6 @@ function display_questions_for_context($contextid, $name, $numcoderunnerquestion
 
     $categories = bulk_tester::get_categories_for_context($contextid);
     echo html_writer::start_tag('ul', ['class' => 'expandable']);
-
     $titledetails = ['title' => get_string('testallincategory', 'qtype_coderunner')];
     foreach ($categories as $cat) {
         if ($cat->count > 0) {
@@ -95,8 +94,8 @@ function display_questions_for_context($contextid, $name, $numcoderunnerquestion
             echo html_writer::tag('li', $span, $titledetails);
         }
     }
-    echo html_writer::end_tag('ul');
-    echo html_writer::end_tag('li');
+    echo html_writer::end_tag('ul');  // End category list.
+    echo html_writer::end_tag('li');  // End context list item.
 }
 
 
@@ -107,11 +106,13 @@ function display_questions_for_context($contextid, $name, $numcoderunnerquestion
  *    from contextid to [name, numquestions] associative arrays.
  */
 function display_questions_for_all_contexts($availablequestionsbycontext) {
+    echo html_writer::start_tag('ul');
     foreach ($availablequestionsbycontext as $contextid => $info) {
         $name = $info['name'];
         $numcoderunnerquestions = $info['numquestions'];
         display_questions_for_context($contextid, $name, $numcoderunnerquestions);
     }
+     echo html_writer::end_tag('ul');
 }
 
 
@@ -144,11 +145,6 @@ if (abs($nrunsfromsettings) > 1) {
     $nruns = abs($nrunsfromsettings);
 }
 
-// Display.
-echo $OUTPUT->header();
-
-// Add the configuration form.
-
 $numrunslabel = get_string('bulktestnumrunslabel', 'qtype_coderunner');
 $numrunsexplanation = get_string('bulktestnumrunsexplanation', 'qtype_coderunner');
 
@@ -164,6 +160,10 @@ $clearcachefirstexplanation = get_string('bulktestclearcachefirstexplanation', '
 $usecachelabel = get_string('bulktestusecachelabel', 'qtype_coderunner');
 $usecacheexplanation = get_string('bulktestusecacheexplanation', 'qtype_coderunner');
 
+// Display.
+echo $OUTPUT->header();
+
+// Add the configuration form.
 
 echo <<<HTML
 <div class="bulk-test-config" style="margin-bottom: 20px; padding: 10px; background-color: #f5f5f5; border: 1px solid #ddd;">
@@ -181,7 +181,7 @@ echo <<<HTML
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
         <label for="repeatrandomonly">$repeatrandomonlylabel</label>
         <div>
-            <input type="checkbox" id="repeatrandomonly" checked>
+            <input type="checkbox" id="repeatrandomonly" checkcourseided>
         </div>
         <span>$repeatrandomonlyexplanation</span>
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
@@ -202,22 +202,8 @@ echo <<<HTML
 HTML;
 
 
-// Find in which contexts the user can edit questions.
-$questionsbycontext = bulk_tester::get_num_coderunner_questions_by_context();
-$availablequestionsbycontext = [];
-foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
-    $context = context::instance_by_id($contextid);
-    if (has_capability('moodle/question:editall', $context)) {
-        $contextname = $context->get_context_name(true, true); // With context prefix, short version.
-        $name = $contextname;
-        $availablequestionsbycontext[$contextid] = [
-            'name' => $name,
-            'numquestions' => $numcoderunnerquestions,
-            'contextid' => $contextid, // For legacy usage.
-        ];
-    }
-}
-ksort($availablequestionsbycontext);
+// Find questions from contexts which the user can edit questions in.
+$availablequestionsbycontext = bulk_tester::get_num_available_coderunner_questions_by_context();
 
 $jobehost = get_config('qtype_coderunner', 'jobe_host');
 if (count($availablequestionsbycontext) == 0) {
@@ -238,6 +224,7 @@ if (count($availablequestionsbycontext) == 0) {
             display_course_header_and_link($coursecontext->id, $course->name);
             $allbanks = bulk_tester::get_all_qbanks_for_course($courseid);
             if (count($allbanks) > 0) {
+                echo html_writer::start_tag('ul');
                 foreach ($allbanks as $bank) {
                     $contextid = $bank->contextid;
                     if (array_key_exists($contextid, $availablequestionsbycontext)) {
@@ -248,6 +235,7 @@ if (count($availablequestionsbycontext) == 0) {
                         display_questions_for_context($contextid, $name, $numquestions);
                     }
                 }
+                echo html_writer::end_tag('ul');
             }
         }
     }

@@ -86,6 +86,9 @@ $anonymise = optional_param('anonymise', 0, PARAM_INT);
 // Login and check permissions.
 require_login();
 
+$dbtype = $CFG->dbtype; // One of pgsql, mariadb, mysqli, auroramysql or sqlsrv according to Moodle config-dist.
+
+
 if (class_exists('mod_quiz\access_manager')) {
     $quiz = mod_quiz\access_manager::load_quiz_and_settings($quizid);
 } else { // Older versions of Moodle.
@@ -99,6 +102,23 @@ $coursecontext = context_course::instance($course->id);
 $PAGE->set_url('/question/type/coderunner/getallattempts.php');
 $PAGE->set_context($coursecontext);
 $PAGE->set_title('Get all quiz attempts');  // TODO: use get_string.
+
+
+// Allow for the different ways DB's convert Linux timestamps.
+switch ($dbtype) {
+    case "postgres":
+        $datatimequeryline = "TIMESTAMP '1970-01-01 00:00:00' + qattsteps.timecreated * INTERVAL '1 second'  as datetime";
+        break;
+    case "mysqli":
+    case "mariadb":
+        // The above two should be good with the following.
+        $datatimequeryline = "FROM_UNIXTIME(qattsteps.timecreated) AS datetime";
+        break;
+    default:
+        // Not sure about MSSQL or Oracle so just give the raw timestamp.
+        $datatimequeryline = "qattsteps.timecreated AS datetime";
+}
+
 
 if (!has_capability('moodle/grade:viewall', $coursecontext)) {
     echo '<p>' . get_string('unauthoriseddbaccess', 'qtype_coderunner') . '</p>';
@@ -125,7 +145,7 @@ if (!has_capability('moodle/grade:viewall', $coursecontext)) {
         quest.name as qname,
         slot.maxmark as mark,
         qattsteps.timecreated as timestamp,
-        FROM_UNIXTIME(qattsteps.timecreated,'%Y/%m/%d %H:%i:%s') as datetime,
+        {$datatimequeryline},
         qattsteps.fraction,
         qattsteps.state,
         qasd.attemptstepid,
