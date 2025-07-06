@@ -154,8 +154,18 @@ if (count($keycountsbycontextid) == 0) {
         echo html_writer::end_tag('ul');
     }
 
-    // Maybe do a purge all later or simply link to the admin cache purging page
-    // and say to purge the coderunner grading cache ...
+
+    echo html_writer::tag('p', "Use link below to open Moodle cache admin page so you can purge the whole coderunner_grading_cache.");
+    if (has_capability('moodle/site:config', context_system::instance())) {
+        $link = html_writer::link(
+            new moodle_url('/cache/admin.php'),
+            "Open admin-cache page - for purging whole grading cache.", // get_string('openadmincachelinktext', 'qtype_coderunner'),
+            ['class' => 'link-to-cache-admin',
+            'data-contextid' => 0,
+            'style' => ORANGY . ";cursor:pointer;"]
+        );
+        echo html_writer::tag('p', $link);
+    }
 }
 
 echo $OUTPUT->footer();

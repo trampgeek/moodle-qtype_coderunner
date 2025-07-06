@@ -40,9 +40,6 @@ use core_question\local\bank\question_bank_helper;
 use core_question\local\bank\question_edit_contexts;
 
 
-defined('MOODLE_INTERNAL') || die();
-
-
 class cache_purger {
 
     /** @var bool Whether or not to purge based on Time To Live (TTL) */
