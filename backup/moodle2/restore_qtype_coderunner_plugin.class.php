@@ -145,7 +145,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
     }
 
     // Add the extra methods required by MDL-83541.
-    #[Override]
+    // #[Override]  // This breaks the restore at run time if used with older versions of moodle so commented out.
     public static function convert_backup_to_questiondata(array $backupdata): stdClass {
         $questiondata = parent::convert_backup_to_questiondata($backupdata);
         $qtype = $questiondata->qtype;
@@ -175,7 +175,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         return $questiondata;
     }
 
-    #[Override]
+    // #[Override]  // This breaks the restore at run time if used with older versions of moodle so commented out.
     protected function define_excluded_identity_hash_fields(): array {
         return [
             '/answers',
@@ -188,7 +188,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
         ];
     }
 
-    #[Override]
+    // #[Override]  // This breaks the restore at run time if used with older versions of moodle so commented out.
     public static function remove_excluded_question_data(stdClass $questiondata, array $excludefields = []): stdClass {
         if (isset($questiondata->options->customise)) {
             unset($questiondata->options->customise);
