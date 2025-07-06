@@ -66,7 +66,7 @@ foreach ($allcourses as $course) {
             new moodle_url(
                 '/question/type/coderunner/prototypeusage.php',
                 ['courseid' => $course->id,
-                      'contextid' => $contextid,
+                'contextid' => $contextid,
                 'coursename' => $course->name]
             ),
             $course->name

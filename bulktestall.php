@@ -40,6 +40,10 @@ require_once($CFG->libdir . '/questionlib.php');
 // in the middle. Useful if it crashes.
 $startfromcontextid = optional_param('startfromcontextid', 0, PARAM_INT);
 $usecache = optional_param('usecache', 1, PARAM_INT);
+$randomseed = optional_param('randomseed', -1, PARAM_INT);
+$repeatrandomonly = optional_param('repeatrandomonly', 1, PARAM_INT);
+$nruns = optional_param('nruns', 1, PARAM_INT);
+$clearcachefirst = optional_param('clearcachefirst', 0, PARAM_INT);
 
 // Login.
 $context = context_system::instance();
@@ -50,7 +54,7 @@ $PAGE->set_url(
     ['startfromcontextid' => $startfromcontextid]
 );
 $PAGE->set_context($context);
-$title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
+$title = get_string('bulktestalltitle', 'qtype_coderunner');
 $PAGE->set_title($title);
 
 
@@ -86,7 +90,14 @@ foreach ($contextdata as $contextid => $numcoderunnerquestions) {
         if ($context->contextlevel == CONTEXT_COURSE) {
             $PAGE->set_context($testcontext);  // Helps grading cache pickup right course id.
         }  // Otherwise don't change context as it could be higher level, eg, course category
-        $bulktester = new bulk_tester($testcontext);
+        $bulktester = new bulk_tester(
+            context: $testcontext,
+            randomseed: $randomseed,
+            repeatrandomonly: $repeatrandomonly,
+            nruns: $nruns,
+            clearcachefirst: $clearcachefirst,
+            usecache: $usecache
+        );
         echo $OUTPUT->heading(get_string('bulktesttitle', 'qtype_coderunner', $testcontext->get_context_name()));
         echo html_writer::tag('p', html_writer::link(
             new moodle_url(
@@ -95,8 +106,7 @@ foreach ($contextdata as $contextid => $numcoderunnerquestions) {
             ),
             get_string('bulktestcontinuefromhere', 'qtype_coderunner')
         ));
-
-        [$passes, $failingtests, $missinganswers] = $bulktester->run_all_tests_for_context();
+        [$passes, $failingtests, $missinganswers] = $bulktester->run_tests();
         $numpasses += $passes;
         $allfailingtests = array_merge($allfailingtests, $failingtests);
         $allmissinganswers = array_merge($allmissinganswers, $missinganswers);

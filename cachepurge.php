@@ -34,7 +34,6 @@ require_once(__DIR__ . '/../../../config.php');
 // require_once($CFG->libdir . '/questionlib.php');
 
 
-
 // Get the parameters from the URL.
 $contextid = required_param('contextid', PARAM_INT);
 $usettl = required_param('usettl', PARAM_INT);
@@ -49,11 +48,19 @@ $PAGE->set_context($context);
 $title = get_string('cachepurgepagetitle', 'qtype_coderunner', $context->get_context_name()); // 'Purging cache for $a' . $context->get_context_name(); //
 $PAGE->set_title($title);
 
+if ($context->contextlevel == CONTEXT_MODULE) {
+    // Calling $PAGE->set_context should be enough, but it seems that it is not.
+    // Therefore, we get the right $cm and $course, and set things up ourselves.
+    $cm = get_coursemodule_from_id(false, $context->instanceid, 0, false, MUST_EXIST);
+    $PAGE->set_cm($cm, $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST));
+}
+
+
 // Release the session, so the user can do other things while this runs.
 \core\session\manager::write_close();
 
-$purger = new cache_purger($context->id, $usettl);
+$purger = new cache_purger($usettl);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($title, 4);
-$purger->purge_cache_for_context();
+$purger->purge_cache_for_context($context->id);
 echo $OUTPUT->footer();

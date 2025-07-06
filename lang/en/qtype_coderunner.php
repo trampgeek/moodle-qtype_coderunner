@@ -97,6 +97,7 @@ $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
 $string['bulktestindextitle'] = 'CodeRunner bulk testing';
 $string['bulktestrun'] = 'Run all the question tests for all the questions in the system (slow, admin only)';
 $string['bulktesttitle'] = 'Testing questions in {$a}';
+$string['bulktestalltitle'] = 'Testing ALL questions in site.';
 
 $string['cannotrunprototype'] = 'This is a prototype and cannot be run. If you wish to use this prototype, create a new question and set this question type.';
 $string['coderunnercategories'] = 'Categories with CodeRunner questions';
@@ -1360,24 +1361,26 @@ $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
 $string['enablegradecache'] = 'Enable reading/writing of job,result pairs from/to the Coderunner grading cache.';
 $string['coderunner_grading_cache'] = 'Caches grading results so we can avoid going to Jobe so often.';
 $string['cachedef_coderunner_grading_cache'] = 'Caches grading results so we can avoid going to Jobe so often.';
-$string['enablegradecache_desc'] = 'Experimental. The cache is a local Moodle cache (currently file cache) to store results of grading questions. Mainly to speed up regrading by using cached results for jobe runs where the same jobe submission has already been graded. Currently WS jobs (eg, try-it boxes and scratchpad runs) will never be cached. NOTE: If you turn off grade caching then it is usually good to empty the Coderunner grade cache before you turn it on again so you have a known state for the cache. You should also clear the cache if you change the Jobe back-end (eg, installing a new version of Python there) as results may now differ from what is in the cache.';
+$string['enablegradecache_desc'] = 'Experimental. Currently only recommended with a file store backend! The cache is a local Moodle cache to store results of grading questions. Mainly to speed up regrading by using cached results for jobe runs where the same jobe submission has already been graded. Currently WS jobs (eg, try-it boxes and scratchpad runs) will never be cached. NOTES: If you turn off grade caching then it is usually good to empty the Coderunner grade cache before you turn it on again so you have a known state for the cache. You should also clear the cache if you change the Jobe back-end (eg, installing a new version of Python there) as results may now differ from what is in the cache.';
 $string['settingsgradecachettl'] = 'Grade cache Time to Live (TTL)';
-$string['settingsgradecachettl_desc'] = 'Number of seconds for grade cache entries to live. Default is 1209600 seconds (two weeks). Used by scheduled task and helpful cachepurgeindex/cachepurge scripts. Admins can set schedule for running TTL enforcer in Admin->Server->Scheduled tasks - look for the Coderunner entry.';
+$string['settingsgradecachettl_desc'] = 'Number of seconds for grade cache entries to live. Default is 1209600 seconds (two weeks). Used by scheduled task and helpful cachepurgeindex/cachepurge scripts. Admins can set schedule for running TTL enforcer in Admin->Server->Scheduled tasks - look for the Coderunner entry. NOTE: You should make sure
+this is the same as the tll in the db/caches.php definition which is there just in case you
+use a non-recommended cache store, eg, Redis.';
 $string['backtobulktestindex'] = 'Go back to the bulk test index page.';
 $string['retestfailedquestions'] = 'Re-test failed questions';
-$string['cachepurgecheckingkeyxoftotalnum'] = 'Procesing key {$a->x} of {$a->totalnumkeys} contextidkeys in total (for all courses)';
+$string['cachepurgecheckingkeyxoftotalnum'] = 'Procesing key {$a->x} of {$a->totalnumkeys} keys in total (for all courses)';
 $string['gradingcachedefinitionnotfound'] = 'Strange... the Coderunner grading cache definition cannot be found!?';
 $string['gradingcachefilestorenotfound'] = 'Strange... the Coderunner grading cache file store cannot be found!?';
-$string['purgingallkeysmessage'] = 'Purging all keys for course, regardless of Time to Live (TTL).';
+$string['purgingallkeysmessage'] = 'Purging all keys for context, regardless of Time to Live (TTL).';
 $string['purgingoldkeysmessage'] = 'Purging only old keys for course, based on Time to Live. TTL={$a->seconds} seconds (={$a->days} days)';
 
 $string['purgeoldcachekeysbutton'] = 'Purge only OLD keys';
 $string['purgeallcachekeysbutton'] = 'Purge ALL keys';
 $string['cachepurgeindextitle'] = 'Coderunner Cache Purge Index';
 $string['cachepurgepagetitle'] = 'Purging cache for {$a}';
-$string['cachepurgeindexinfo'] = 'Purging OLD keys will only delete cache entries for grading runs that are older than the Coderunner cache Time To Live (TTL) as set in the admin settings. Purging ALL will delete all cache entries for the given course.';
+$string['cachepurgeindexinfo'] = 'Purging OLD keys will only delete cache entries for grading runs that are older than the Coderunner cache Time To Live (TTL) as set in the .../coderunner/db/caches.php file.<br>Purging ALL will delete all cache entries for the given context.';
 $string['currentttlinfo'] = 'Coderunner grading cache Time to Live is currently set to TTL = {$a->seconds} seconds (={$a->days} days)';
-$string['unauthorisedcachepurging'] = 'You do not have suitable access to any CodeRunner questions!';
+$string['noquestionstopurge'] = 'None of the contexts you have access to have any cached results.';
 $string['contextidnotacourseincachepurgerequest'] = 'Grade cache not purged as context_id {$a} is not a course.';
 $string['bulktestnumrunslabel'] = 'Number of runs per question: ';
 $string['bulktestnumrunsexplanation'] = 'How many times each included question will be tested. Repeatitions will depend on <emph>Repeat random only</emph> setting.';
