@@ -1,5 +1,18 @@
 # CHANGE HISTORY
 
+### 21 May 2025, 5.7.1+
+
+  * Add new unsupported question type: C program with scanf echoing of stdin plus scratchpad.
+  * Bug fix: layout of Scratchpad expand/collapse button for Scratchpad UI was broken in Moodle 5.0.
+  * Bug fix: help icon for Scratchpad UI was not working in Moodle 5.0.
+
+### 15 May 2025, 5.7.1
+
+  * Bug fix: with Moodle 5.0, questions using prototypes that were not in the Front Page question
+    bank were working for teachers but not students.
+
+  * Bug fix: test suite was reporting errors in the signature of the onnotsuccessfultest function.
+
 ### 04 April 2025, 5.7.0
 
  * Change version number to 5.7.0 after merging from development as there is significant extra functionality.

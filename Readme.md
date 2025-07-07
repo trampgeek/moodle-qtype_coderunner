@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.6.4 April 13, 2025. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
+Version: 5.7.1 May 15, 2025. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
@@ -642,7 +642,7 @@ Built-in question types include the following:
 example, except that it uses a combinator template. The student supplies
  just a function (plus possible support functions) and each test is (typically) of the form
 
-        printf(format_string, func(arg1, arg2, ..))
+    printf(format_string, func(arg1, arg2, ..))
 
  The template for this question type generates some standard includes, followed
  by the student code followed by a main function that executes the tests one by
@@ -661,7 +661,7 @@ example, except that it uses a combinator template. The student supplies
 The student supplies just a function (plus possible support functions)
 and each test is (typically) of the form
 
-        cout << func(arg1, arg2, ..)
+    cout << func(arg1, arg2, ..)
 
  The template for this question type generates some standard includes, followed
  by the line
