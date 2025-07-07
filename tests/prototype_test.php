@@ -34,6 +34,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
+require_once($CFG->dirroot . '/lib/questionlib.php');
+
+use core_question\local\bank\question_bank_helper;
 
 /**
  * @coversNothing
@@ -190,32 +193,7 @@ Line 2</text>
 
     // Support function to make a parent and its child.
     private function make_parent_and_child() {
-        $id = $this->make_sqr_user_type_prototype(true);
-
-        $this->setAdminUser();
-        $fs = get_file_storage();
-
-        // Prepare file record object.
-        $fileinfo = [
-            'contextid' => 1, // ID of context for prototype.
-            'component' => 'qtype_coderunner',
-            'filearea' => 'datafile',
-            'itemid' => $id,
-            'filepath' => '/',
-            'filename' => 'data.txt'];
-
-        // Create file (deleting any existing version first).
-        $file = $fs->get_file(
-            $fileinfo['contextid'],
-            $fileinfo['component'],
-            $fileinfo['filearea'],
-            $fileinfo['itemid'],
-            $fileinfo['filepath'],
-            $fileinfo['filename']
-        );
-        $file->delete();
-        $fs->create_file_from_string($fileinfo, "This is data\nLine 2");
-
+        $id = $this->make_sqr_user_type_prototype(true);  // Makes prototype with a support file.
         $q = $this->make_question('sqr_user_prototype_child');  // Make a derived question.
         return $q;
     }
@@ -227,10 +205,32 @@ Line 2</text>
         );
     }
 
+    // Support function to return the system-wide prototype
+    // Category. Different for Moodle 5.0 from predecessors.
+    private function get_prototype_category() {
+        global $DB;
+        if (\qtype_coderunner_util::using_mod_qbank()) {
+            // Moodle 5+.
+            $course = get_site(); // Front page course.
+            $mod = question_bank_helper::get_default_open_instance_system_type($course);
+            $topcategory = question_get_top_category($mod->context->id);
+        } else {
+            // Pre Moodle 5.
+            $topcategory = $DB->get_record_select(  // Find the question category for system context (1).
+                'question_categories',
+                "contextid=1 limit 1"
+            );
+        }
+        return $topcategory;
+    }
+
     // Support function to make and save a prototype question.
     // The prototype question includes template parameters xxx and yyy for
     // testing inheritance of template parameters.
-    // Optionally, prototype has a file attached for testing file inheritance.
+    // Optionally, prototype has a file attached for testing file inheritance:
+    // The file is in the datafile file area, is called "data.txt" and
+    // has the contents "This is data\nLine 2". [It's actually a support
+    // file rather than an attachment.]
     // Returns prototype question id.
 
     private function make_sqr_user_type_prototype($fileattachmentreqd = false) {
@@ -244,27 +244,24 @@ Line 2</text>
         $q->template = '{{ STUDENT_ANSWER }}';
         $q->iscombinatortemplate = true;
         $q->templateparams = '{"xxx": 100, "yyy": 200}';
+        $category = $this->get_prototype_category();
+        $q->category = $category->id;
+        $q->contextid = $category->contextid;
 
         // Save the prototype to the DB so it has an accessible context for
         // retrieving associated files.
         \question_bank::load_question_definition_classes('coderunner');
         $row = new \qtype_coderunner_question();
         \test_question_maker::initialise_a_question($row);
-        $catrow = $DB->get_record_select(  // Find the question category for system context (1).
-            'question_categories',
-            "contextid=1 limit 1"
-        );
-        $q->category = $catrow->id;
         $row->qtype = 'coderunner';
-
         $qtype = new \qtype_coderunner();
         $qtype->save_question($row, $q);
 
         if ($fileattachmentreqd) {
-            // Attach a file.
+            // Attach a file to this new prototype question.
             $fs = get_file_storage();
             $fileinfo = [
-                'contextid' => 1,
+                'contextid' => $q->contextid,
                 'component' => 'qtype_coderunner',
                 'filearea'  => 'datafile',
                 'itemid'    => $q->id,

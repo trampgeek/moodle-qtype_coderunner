@@ -1245,6 +1245,7 @@ ignored.';
 $string['testtype_normal'] = 'Check only';
 $string['testtype_precheck'] = 'Precheck only';
 $string['testtype_both'] = 'Both';
+$string['toobigfiles'] = 'Oversized file(s): {$a}';
 $string['tooshort'] = 'Answer is too short to be meaningful and has been ignored without penalty';
 $string['twigall'] = 'Twig all';
 $string['twigcontrols'] = 'Template param controls';
