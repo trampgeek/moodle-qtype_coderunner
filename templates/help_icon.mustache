@@ -34,8 +34,14 @@
     }
 }}
 <a class="btn btn-link p-0" role="button"
-   data-container="body" data-toggle="popover"
-   data-placement="{{#ltr}}right{{/ltr}}{{^ltr}}left{{/ltr}}" data-content="{{^text}}{{#str}}scratchpadui_def_help_text, qtype_coderunner{{/str}}{{/text}}{{text}} {{completedoclink}}"
-   data-html="true" tabindex="0" data-trigger="focus">
+   data-container="body" data-toggle="popover" 
+   data-bs-container="body" data-bs-toggle="popover"
+   data-placement="{{#ltr}}right{{/ltr}}{{^ltr}}left{{/ltr}}" 
+   data-bs-placement="{{#ltr}}right{{/ltr}}{{^ltr}}left{{/ltr}}" 
+   data-content="{{^text}}{{#str}}scratchpadui_def_help_text, qtype_coderunner{{/str}}{{/text}}{{text}} {{completedoclink}}"
+   data-bs-content="{{^text}}{{#str}}scratchpadui_def_help_text, qtype_coderunner{{/str}}{{/text}}{{text}} {{completedoclink}}"
+   data-html="true" data-bs-html="true" 
+   tabindex="0" 
+   data-trigger="focus" data-bs-trigger="focus">
     {{#pix}}help, core, {{{alt}}}{{/pix}}
 </a>

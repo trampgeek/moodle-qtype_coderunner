@@ -596,7 +596,7 @@ class qtype_coderunner extends question_type {
             $course = $context->get_course_context(false);
             $courseid = $course->instanceid;
             if ($course) {
-                $allcaps = array_merge(question_edit_contexts::$caps['editq'], question_edit_contexts::$caps['categories']);
+                $allcaps = [];  // We don't want to restrict access to prototypes by students.
                 $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$courseid], [], $allcaps);
                 $privatebanks = question_bank_helper::get_activity_instances_with_private_questions([$courseid], [], $allcaps);
                 foreach (array_merge($sharedbanks, $privatebanks) as $bank) {
