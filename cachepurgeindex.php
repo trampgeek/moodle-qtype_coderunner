@@ -97,17 +97,9 @@ function echo_line_for_context(int $contextid, string $contextname, int $keycoun
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
 
-// Find in which contexts the user can edit questions.
-
-// Reads key counts for all category suffixes in cache.
-$categorycounts = cache_purger::key_counts_for_all_cachecategories();
-
+// Gets key counts for contexts the user has suitable rights to.
 // NOTE: Should probably echo out the 'Uncategorized' and 'Unknown' category totals.
-$keycountsbycontextid = cache_purger::key_counts_for_available_contextids($categorycounts);
-
-//$allvisiblecoursecontexts = cache_purger::get_all_visible_course_and_coursecat_contextids();
-//krsort($allvisiblecoursecontexts);  // Effectively newest first.
-//$keycounts = cache_purger::key_count_by_context($allvisiblecoursecontexts);
+$keycountsbycontextid = cache_purger::key_counts_for_available_contextids();
 
 // List all contexts available to the user.
 if (count($keycountsbycontextid) == 0) {
@@ -117,11 +109,14 @@ if (count($keycountsbycontextid) == 0) {
     $oldskool = !(\qtype_coderunner_util::using_mod_qbank()); // No qbanks in Moodle < 5.0.
     if (!$oldskool) {
         // Go back to old skool styles, ie, pre-Moodle 5.0.
-        echo html_writer::tag('p', "Moodle >= 5.0 detected. Listing by course then qbank contexts."); // <------------------- LANGUAGE STRING NEEDED
+        echo html_writer::start_tag('ul');
+        echo html_writer::tag('li', "Moodle >= 5.0 detected. Listing by course then qbank contexts."); // <------------------- LANGUAGE STRING NEEDED
         $allcourses = bulk_tester::get_all_courses();
-        echo "Displaying all courses you have access to, that have cache entries.<br>"; // <----------------------------------- NEEDS LANGUAGE STRING
-        echo "Courses are displayed as <em>[context_id] Course Name (course_id)</em><br>"; // <----------------------------------- NEEDS LANGUAGE STRING
-        echo "Qbanks and other question containing contexts are displayed as <em>[context_id] Context prefix:Context name </em>"; // <------------ NEEDS LANGUAGE STRING.
+        echo html_writer::tag('li', "Displaying all courses you have access to."); // <----------------------------------- NEEDS LANGUAGE STRING
+        echo html_writer::tag('li', "Courses are displayed as <em>[context_id] Course Name (course_id)</em>"); // <----------------------------------- NEEDS LANGUAGE STRING
+        echo html_writer::tag('li', "Qbanks and other question containing contexts are displayed as <em>[context_id] Context prefix:Context name </em>"); // <------------ NEEDS LANGUAGE STRING.
+        echo '<hr>';
+        echo html_writer::end_tag('ul');
         foreach ($allcourses as $courseid => $course) {
             $coursecontext = \context_course::instance($courseid);
             // Only list for courses that are visible to user.
@@ -130,13 +125,18 @@ if (count($keycountsbycontextid) == 0) {
                 $allbanks = bulk_tester::get_all_qbanks_for_course($courseid);
                 if (count($allbanks) > 0) {
                     echo html_writer::start_tag('ul');
+                    $totalkeysforcourse = 0;
                     foreach ($allbanks as $qbank) {
                         $contextid = $qbank->contextid;
                         $context = \context::instance_by_id($contextid);
                         $name = $context->get_context_name(true, true);
                         $keycount = $keycountsbycontextid[$contextid] ?? 0;
+                        $totalkeysforcourse += $keycount;
                         echo_line_for_context($contextid, $name, $keycount);
                     } // For each qbank
+                    if ($totalkeysforcourse == 0) {
+                        echo html_writer::tag('li', '<em>No grading cache entries for course.</em>');
+                    }
                     echo html_writer::end_tag('ul');
                 }
             }
@@ -153,8 +153,6 @@ if (count($keycountsbycontextid) == 0) {
         }
         echo html_writer::end_tag('ul');
     }
-
-
     echo html_writer::tag('p', "Use link below to open Moodle cache admin page so you can purge the whole coderunner_grading_cache.");
     if (has_capability('moodle/site:config', context_system::instance())) {
         $link = html_writer::link(
@@ -167,5 +165,4 @@ if (count($keycountsbycontextid) == 0) {
         echo html_writer::tag('p', $link);
     }
 }
-
 echo $OUTPUT->footer();

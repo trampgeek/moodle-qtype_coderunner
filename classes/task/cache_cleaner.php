@@ -25,7 +25,7 @@
  * Admins can change the schedule in Site Adminstration -> Server -> Scheduled Tasks -> Purge Old Coderunner Cache Entries
  *
  * @package    qtype_coderunner
- * @copyright  2024 Paul McKeown, University of Canterbury
+ * @copyright  2024-5 Paul McKeown, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -54,7 +54,7 @@ class cache_cleaner extends \core\task\scheduled_task {
      * @return string
      */
     public function get_name() {
-        return ('Purge Old Coderunner Cache Entries - task'); // A get_string('purgeoldcacheentries', 'qtype_coderunner');.
+        return get_string('purgeoldcacheentriestaskname', 'qtype_coderunner');
     }
 
     /**
@@ -86,10 +86,6 @@ class cache_cleaner extends \core\task\scheduled_task {
 
                 $keys = $store->find_all();
                 $originalcount = count($keys);
-
-                // In theory doing a get on every key should delete old keys.
-                // The file cache get method should delete keys that are older than ttl but it doesn't...
-
                 $maxtime = cache::now() - $ttl;
                 foreach ($keys as $key) {
                     // Call the private method.
@@ -99,7 +95,7 @@ class cache_cleaner extends \core\task\scheduled_task {
                         $store->delete($key);
                     }
                 }
-                // $value = $store->get($key);  // Would delete old key if fixed in file store.
+                // Using $value = $store->get($key);  // Would delete old key if fixed in file store.
                 $remainingkeys = $store->find_all();
                 $newcount = count($remainingkeys);
                 $purgedcount = $originalcount - $newcount;

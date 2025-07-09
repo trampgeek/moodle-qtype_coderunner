@@ -155,6 +155,8 @@ class cache_purger {
 
     /**
      * Get count of keys for all cache categories.
+     * Usually categories are set to indicate the context id for the question result being cached.
+     * The categories aren't question bank categories.
      * -----------> This works for file stores and maybe for Redis stores??? to be tested <-----------
      * Has to scan all cache keys!
      * @return array mapping cachecategories to counts of keys.
@@ -192,9 +194,10 @@ class cache_purger {
      *
      * @param array $categorycounts An array containing category, count pairs.
      * where the category is the string that is used in the cache key suffix.
-     * @return array mapping contextids to counts of keys.
+     * @return array mapping contextids to counts of keys. Sorted in reverse order by contextid.
      */
-    public static function key_counts_for_available_contextids($categorycounts) {
+    public static function key_counts_for_available_contextids() {
+        $categorycounts = self::key_counts_for_all_cachecategories();
         $keycounts = [];
         foreach ($categorycounts as $category => $count) {
             if (preg_match('/contextid_(\d+)/', $category, $match)) {

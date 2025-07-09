@@ -1362,11 +1362,7 @@ $string['xmlcoderunnerformaterror'] = 'XML format error in coderunner question';
 $string['enablegradecache'] = 'Enable reading/writing of job,result pairs from/to the Coderunner grading cache.';
 $string['coderunner_grading_cache'] = 'Caches grading results so we can avoid going to Jobe so often.';
 $string['cachedef_coderunner_grading_cache'] = 'Caches grading results so we can avoid going to Jobe so often.';
-$string['enablegradecache_desc'] = 'Experimental. Currently only recommended with a file store backend! The cache is a local Moodle cache to store results of grading questions. Mainly to speed up regrading by using cached results for jobe runs where the same jobe submission has already been graded. Currently WS jobs (eg, try-it boxes and scratchpad runs) will never be cached. NOTES: If you turn off grade caching then it is usually good to empty the Coderunner grade cache before you turn it on again so you have a known state for the cache. You should also clear the cache if you change the Jobe back-end (eg, installing a new version of Python there) as results may now differ from what is in the cache.';
-$string['settingsgradecachettl'] = 'Grade cache Time to Live (TTL)';
-$string['settingsgradecachettl_desc'] = 'Number of seconds for grade cache entries to live. Default is 1209600 seconds (two weeks). Used by scheduled task and helpful cachepurgeindex/cachepurge scripts. Admins can set schedule for running TTL enforcer in Admin->Server->Scheduled tasks - look for the Coderunner entry. NOTE: You should make sure
-this is the same as the tll in the db/caches.php definition which is there just in case you
-use a non-recommended cache store, eg, Redis.';
+$string['enablegradecache_desc'] = 'Experimental. Currently only recommended with a file store backend but should work with Redis (just check that Redis is using persistence so that it doesn\'t blow up your memeory)!<br>The cache is a local Moodle cache to store results of grading questions. Mainly to speed up regrading by using cached results for jobe runs where the same jobe submission has already been graded. Currently WS jobs (eg, try-it boxes and scratchpad runs) will never be cached.<br>NOTES: If you turn off grade caching then it is usually good to empty the Coderunner grade cache before you turn it on again so you have a known state for the cache. You should also clear the cache if you change the Jobe back-end (eg, installing a new version of Python there) as results may now differ from what is in the cache.';
 $string['backtobulktestindex'] = 'Go back to the bulk test index page.';
 $string['retestfailedquestions'] = 'Re-test failed questions';
 $string['cachepurgecheckingkeyxoftotalnum'] = 'Procesing key {$a->x} of {$a->totalnumkeys} keys in total (for all courses)';
@@ -1383,6 +1379,7 @@ $string['cachepurgeindexinfo'] = 'Purging OLD keys will only delete cache entrie
 $string['currentttlinfo'] = 'Coderunner grading cache Time to Live is currently set to TTL = {$a->seconds} seconds (={$a->days} days)';
 $string['noquestionstopurge'] = 'None of the contexts you have access to have any cached results.';
 $string['contextidnotacourseincachepurgerequest'] = 'Grade cache not purged as context_id {$a} is not a course.';
+$string['purgeoldcacheentriestaskname'] = 'Purge Old Coderunner File Store Cache Entries - task';
 $string['bulktestnumrunslabel'] = 'Number of runs per question: ';
 $string['bulktestnumrunsexplanation'] = 'How many times each included question will be tested. Repeatitions will depend on <emph>Repeat random only</emph> setting.';
 $string['bulktestrandomseedlabel'] = 'Random seed: ';
