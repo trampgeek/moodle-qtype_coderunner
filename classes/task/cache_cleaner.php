@@ -47,14 +47,14 @@ global $CFG;
  * Task for purging old Coderunner cache entries.
  */
 class cache_cleaner extends \core\task\scheduled_task {
-
     /**
      * Return the task's name as shown in admin screens.
      *
      * @return string
      */
     public function get_name() {
-        return get_string('purgeoldcacheentriestaskname', 'qtype_coderunner');
+        $taskname = get_string('purgeoldcacheentriestaskname', 'qtype_coderunner');
+        return $taskname;
     }
 
     /**

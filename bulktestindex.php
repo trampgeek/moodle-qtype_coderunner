@@ -12,7 +12,17 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Stack.  If not, see <http://www.gnu.org/licenses/>.
+// along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * This script provides bulktests for Coderunner questions.
+ *
+ * @package   qtype_coderunner
+ * @copyright 2016-2025 Richard Lobb and Paul McKeown, The University of Canterbury.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+
 namespace qtype_coderunner;
 use context_system;
 use context;
@@ -39,7 +49,7 @@ const BUTTONSTYLE = 'background-color: #FFFFD0; padding: 2px 2px 0px 2px;border:
 
 
 function display_course_header_and_link($coursecontextid, $coursename) {
-    $testalltitledetails = ['title' => get_string('testalltitle', 'qtype_coderunner')];  //,'style' => BUTTONSTYLE
+    $testalltitledetails = ['title' => get_string('testalltitle', 'qtype_coderunner')];
     $linktext = $coursename;
     $testallspan = html_writer::tag(
         'span',
@@ -181,7 +191,7 @@ echo <<<HTML
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>
         <label for="repeatrandomonly">$repeatrandomonlylabel</label>
         <div>
-            <input type="checkbox" id="repeatrandomonly" checkcourseided>
+            <input type="checkbox" id="repeatrandomonly" checked>
         </div>
         <span>$repeatrandomonlyexplanation</span>
         <div style="grid-column: span 3; border-bottom: 1px solid rgb(10, 16, 74);"> </div>

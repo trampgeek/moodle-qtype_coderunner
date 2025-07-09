@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * This script provides a class with support methods for purging grading cache entries.
  *
@@ -21,7 +20,7 @@
  * autotagger script.
  *
  * @package   qtype_coderunner
- * @copyright 2024 Paul McKeown, The University of Canterbury
+ * @copyright 2024-5 Paul McKeown, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -395,8 +394,6 @@ class cache_purger {
         $tooyoungtodie = 0;
         $keysforcontext = 0;
         $numprocessed = 0;
-
-
 
         $pattern = '/___contextid_' . $contextid . '___/';
 

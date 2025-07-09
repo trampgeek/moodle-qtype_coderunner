@@ -96,6 +96,7 @@ function echo_line_for_context(int $contextid, string $contextname, int $keycoun
 // Display.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
+echo '<hr>';
 
 // Gets key counts for contexts the user has suitable rights to.
 // NOTE: Should probably echo out the 'Uncategorized' and 'Unknown' category totals.
@@ -106,15 +107,14 @@ if (count($keycountsbycontextid) == 0) {
     echo html_writer::tag('p', get_string('noquestionstopurge', 'qtype_coderunner'));
 } else {
     echo_cache_purge_header();
-    $oldskool = !(\qtype_coderunner_util::using_mod_qbank()); // No qbanks in Moodle < 5.0.
+    $oldskool = !(\qtype_coderunner_util::using_mod_qbank()); // No qbanks in Moodle versions less than 5.0.
     if (!$oldskool) {
-        // Go back to old skool styles, ie, pre-Moodle 5.0.
         echo html_writer::start_tag('ul');
-        echo html_writer::tag('li', "Moodle >= 5.0 detected. Listing by course then qbank contexts."); // <------------------- LANGUAGE STRING NEEDED
+        echo html_writer::tag('li', "Moodle >= 5.0 detected. Listing by course then qbank contexts.");
         $allcourses = bulk_tester::get_all_courses();
-        echo html_writer::tag('li', "Displaying all courses you have access to."); // <----------------------------------- NEEDS LANGUAGE STRING
-        echo html_writer::tag('li', "Courses are displayed as <em>[context_id] Course Name (course_id)</em>"); // <----------------------------------- NEEDS LANGUAGE STRING
-        echo html_writer::tag('li', "Qbanks and other question containing contexts are displayed as <em>[context_id] Context prefix:Context name </em>"); // <------------ NEEDS LANGUAGE STRING.
+        echo html_writer::tag('li', "Displaying all courses you have access to.");
+        echo html_writer::tag('li', "Courses are displayed as: <em>[context_id] Course Name (course_id)</em>");
+        echo html_writer::tag('li', "Qbanks and other question containing contexts are displayed as: <em>[context_id] Context prefix:Context name </em>");
         echo '<hr>';
         echo html_writer::end_tag('ul');
         foreach ($allcourses as $courseid => $course) {
@@ -141,23 +141,24 @@ if (count($keycountsbycontextid) == 0) {
                 }
             }
         }
-    } else {  // We're going oldskool.
+    } else {  // We're going old skool.
         // Old skool method does this for all contexts with questions.
         // These contexts will typically be courses or course contexts.
+        echo html_writer::tag('p', 'NOTE: Legacy mode (Moodle ver < 5.0) so only courses with grade cache entries will be listed.');
         echo html_writer::start_tag('ul');
         foreach ($keycountsbycontextid as $contextid => $keycount) {
             $context = context::instance_by_id($contextid);
             $name = $context->get_context_name(true, true);
-            // $courseid = $context->instanceid;
             echo_line_for_context($contextid, $name, $keycount);
         }
         echo html_writer::end_tag('ul');
     }
+    // Display link to admin->cache settings in case someone wants to fully purge grading cache.
     echo html_writer::tag('p', "Use link below to open Moodle cache admin page so you can purge the whole coderunner_grading_cache.");
     if (has_capability('moodle/site:config', context_system::instance())) {
         $link = html_writer::link(
             new moodle_url('/cache/admin.php'),
-            "Open admin-cache page - for purging whole grading cache.", // get_string('openadmincachelinktext', 'qtype_coderunner'),
+            "Open admin-cache page - for purging whole grading cache.",
             ['class' => 'link-to-cache-admin',
             'data-contextid' => 0,
             'style' => ORANGY . ";cursor:pointer;"]

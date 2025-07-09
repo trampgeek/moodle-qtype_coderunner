@@ -1,5 +1,5 @@
 <?php
-// This file is part of CodeRunner - http://coderunner.bham.ac.uk/
+// This file is part of CodeRunner - http://coderunner.org.nz
 //
 // CodeRunner is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  * testing, before you release a new version of CodeRunner to your site.
  *
  * @package   qtype_coderunner
- * @copyright 2016 Richard Lobb, The University of Canterbury
+ * @copyright 2016-2025 Richard Lobb and Paul McKeown, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace qtype_coderunner;
@@ -53,11 +53,13 @@ $PAGE->set_url(
     '/question/type/coderunner/bulktestall.php',
     ['startfromcontextid' => $startfromcontextid]
 );
+
+
 $PAGE->set_context($context);
 $title = get_string('bulktestalltitle', 'qtype_coderunner');
 $PAGE->set_title($title);
 
-
+const ORANGY = 'border: 1px solid #F0F0F0; background-color:rgb(249, 242, 213); padding: 2px 2px 0px 2px;';
 $numpasses = 0;
 $allfailingtests = [];
 $allmissinganswers = [];
@@ -76,6 +78,17 @@ $usecachevalue = $usecache ? "true" : "false";
 echo html_writer::tag('p', '<b>jobe_host:</b> ' . $jobehost);
 echo html_writer::tag('p', "<b>$usecachelabel</b> $usecachevalue");
 echo html_writer::tag('p', get_string('bulktestallcachenotclearedmessage', 'qtype_coderunner'));
+echo html_writer::tag('p', "Use link below to open Moodle cache admin page so you can purge the whole coderunner_grading_cache.");
+if (has_capability('moodle/site:config', context_system::instance())) {
+    $link = html_writer::link(
+        new moodle_url('/cache/admin.php'),
+        "Open admin-cache page - for purging whole grading cache.",
+        ['class' => 'link-to-cache-admin',
+        'data-contextid' => 0,
+        'style' => ORANGY . ";cursor:pointer;"]
+    );
+    echo html_writer::tag('p', $link);
+}
 
 // Run the tests.
 ini_set('memory_limit', '2048M');  // For big question banks - TODO: make this a setting?
@@ -87,9 +100,6 @@ foreach ($contextdata as $contextid => $numcoderunnerquestions) {
     $skipping = false;
     $testcontext = context::instance_by_id($contextid);
     if (has_capability('moodle/question:editall', $context)) {
-        if ($context->contextlevel == CONTEXT_COURSE) {
-            $PAGE->set_context($testcontext);  // Helps grading cache pickup right course id.
-        }  // Otherwise don't change context as it could be higher level, eg, course category
         $bulktester = new bulk_tester(
             context: $testcontext,
             randomseed: $randomseed,
