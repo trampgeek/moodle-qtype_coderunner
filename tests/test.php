@@ -72,9 +72,9 @@ class qtype_coderunner_testcase extends advanced_testcase {
     // to conditionally skip later tests. See jobesendbox_test.
     // Name can't be made moodle-standards compliant as it's defined by phpunit.
     // $e is the exception to be thrown.
-    protected function onnotsuccessfultest(Throwable $e): never {
+    protected function onNotSuccessfulTest(Throwable $t): never {
         $this->hasfailed = true;
-        throw $e;
+        throw $t;
     }
 
     public function test_dummy(): void {

@@ -91,23 +91,16 @@ $settings->add(new admin_setting_configcheckbox(
 ));
 
 
-$cachettlsetting = new admin_setting_configtext(
-    "qtype_coderunner/gradecachettl",
-    get_string('settingsgradecachettl', 'qtype_coderunner'),
-    get_string('settingsgradecachettl_desc', 'qtype_coderunner'),
-    constants::GRADING_CACHE_DEFAULT_TTL,
-    PARAM_INT,
-    10
-);
-// The following may have been causing issues with tests
-// and is now redundant as just use coderunner setting
-// directly..
-// $cachettlsetting->set_updatedcallback(function () {
-//    cache_helper::update_definitions();
-//});
-$settings->add($cachettlsetting);
-
-
+// Deprecated setting in v2025070800. Now using db/caches.php for ttl.
+// $cachettlsetting = new admin_setting_configtext(
+//     "qtype_coderunner/gradecachettl",
+//     get_string('settingsgradecachettl', 'qtype_coderunner'),
+//     get_string('settingsgradecachettl_desc', 'qtype_coderunner'),
+//     constants::GRADING_CACHE_DEFAULT_TTL,
+//     PARAM_INT,
+//     10
+// );
+//$settings->add($cachettlsetting);
 
 
 $settings->add(new admin_setting_configtext(
