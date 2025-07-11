@@ -435,7 +435,7 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
 
     if ($oldversion < 2025071100) {
         unset_config('settingsgradecachettl', 'qtype_coderunner');
-        upgrade_plugin_savepoint(true, 2025070800, 'qtype', 'coderunner');
+        upgrade_plugin_savepoint(true, 2025071100, 'qtype', 'coderunner');
     }
 
 
