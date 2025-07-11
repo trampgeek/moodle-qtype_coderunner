@@ -51,10 +51,6 @@ class cache_purger {
     private $definition;
 
 
-    /** @var int Baically now less the TTL, ie, if a file is before this time then it is too old */
-    public $maxtime;
-
-
     public function __construct(bool $usettl) {
         global $CFG;
         $this->usettl = $usettl;
@@ -440,7 +436,7 @@ class cache_purger {
                                 $path = $filepathmethod->invoke($store, $fullcachekey);
                                 $file = basename($path);
                                 $filetime = filemtime($path);
-                                if ($this->ttl && $filetime < $this->maxtime) {
+                                if ($filetime < $maxtime) {
                                         $cache->delete($key);
                                         $numdeleted += 1;
                                 } else {
