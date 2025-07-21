@@ -117,6 +117,7 @@ define(['jquery'], function($) {
             this.setLanguage(lang);
 
             this.setEventHandlers(textarea);
+            this.set_ace_aria_label(this.editor.container);
             this.captureTab();
 
             // Try to tell Moodle about parts of the editor with z-index.
@@ -148,6 +149,19 @@ define(['jquery'], function($) {
             this.fail = true;
         }
     }
+
+    AceWrapper.prototype.set_ace_aria_label = function(editor_container) {
+        // Set the aria-label for the given Ace editor container to the
+        // language string ace_aria_label.
+        require(['core/str'], function(str) {
+            /**
+             * Get langString text via AJAX
+             */
+            str.get_string('ace_aria_label', 'qtype_coderunner').then(function(label) {
+                editor_container.setAttribute('aria-label', label);
+            });
+        });
+    };
 
     AceWrapper.prototype.extract_from_json_maybe = function(code) {
         // If the given code looks like JSON from the Scratchpad UI,
