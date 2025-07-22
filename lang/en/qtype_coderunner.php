@@ -1028,7 +1028,7 @@ will instead by submitted to the server "myspecialjobe.com".
 ';
 $string['enable_sandbox_ws'] = "Enable sandbox web service";
 $string['enable_sandbox_ws_desc'] = 'Enable the web service allowing direct
-access to the sandbox server (usually Jobe). EXPERIMENTAL FEATURE.';
+access to the sandbox server (usually Jobe).';
 $string['sandboxerror'] = 'Error from the sandbox [{$a->sandbox}]: {$a->message}';
 $string['sandboxparams'] = 'Parameters';
 $string['seethisquestioninthequestionbank'] = 'See this question in the question bank';
