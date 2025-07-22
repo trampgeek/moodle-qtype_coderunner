@@ -38,7 +38,9 @@ use html_table;
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 
-define('NO_OUTPUT_BUFFERING', true);
+if (!defined('NO_OUTPUT_BUFFERING')) {
+    define('NO_OUTPUT_BUFFERING', true);
+}
 if (!defined('ANONYMISE')) {
     define('ANONYMISE', 0);
 }
@@ -56,9 +58,13 @@ $PAGE->requires->jquery_plugin('ui-css');
 
 $courses = bulk_tester::get_all_courses();
 
+
+$dbtype = $CFG->dbtype; // One of pgsql, mariadb, mysqli, auroramysql or sqlsrv according to Moodle config-dist.
+
 // Start display.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('downloadquizattempts', 'qtype_coderunner'));
+echo html_writer::tag('p', "dbtype={$dbtype}");
 echo html_writer::tag('p', get_string('downloadquizattemptshelp', 'qtype_coderunner'));
 
 $coursequizzes = [];
@@ -134,7 +140,7 @@ foreach ($courses as $course) {
             ];
         }
 
-        $table = new html_table();
+        $table = new \html_table();
         $table->data = $rows;
         $table->attributes['class'] = 'table-bordered';
         echo html_writer::table($table);

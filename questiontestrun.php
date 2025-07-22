@@ -115,7 +115,7 @@ echo $OUTPUT->header();
 $renderer = $PAGE->get_renderer('qtype_coderunner');
 
 // Display the question.
-echo $OUTPUT->heading(get_string('questionpreview', 'qtype_coderunner'), 3);
+echo $OUTPUT->heading(get_string('questionpreview', 'qtype_coderunner') . ': ' . $question->name, 4);
 
 echo html_writer::tag('p', html_writer::link(
     $questionbanklink,

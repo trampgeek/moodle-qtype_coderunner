@@ -27,6 +27,8 @@
 
 namespace qtype_coderunner;
 
+use html_writer;
+
 define('NO_OUTPUT_BUFFERING', true);
 
 require_once(__DIR__ . '/../../../config.php');
@@ -40,6 +42,7 @@ $repeatrandomonly = optional_param('repeatrandomonly', 1, PARAM_INT);
 $nruns = optional_param('nruns', 1, PARAM_INT);
 $questionids = optional_param('questionids', '', PARAM_RAW);  // A list of specific questions to check, eg, for rechecking failed tests.
 $clearcachefirst = optional_param('clearcachefirst', 0, PARAM_INT);
+$usecache = optional_param('usecache', 1, PARAM_INT);
 
 
 // Login and check permissions.
@@ -75,7 +78,8 @@ $bulktester = new bulk_tester(
     $randomseed,
     $repeatrandomonly,
     $nruns,
-    $clearcachefirst
+    $clearcachefirst,
+    $usecache
 );
 
 // Was: Release the session, so the user can do other things while this runs.
@@ -85,7 +89,13 @@ $bulktester = new bulk_tester(
 
 // Display.
 echo $OUTPUT->header();
-echo $OUTPUT->heading($title, 4);
+echo $OUTPUT->heading($title, 2);
+
+$jobehost = get_config('qtype_coderunner', 'jobe_host');
+$usecachelabel = get_string('bulktestusecachelabel', 'qtype_coderunner');
+$usecachevalue = $usecache ? "true" : "false";
+echo html_writer::tag('p', '<b>jobe_host:</b> ' . $jobehost);
+echo html_writer::tag('p', "<b>$usecachelabel</b> $usecachevalue");
 
 // Release the session, so the user can do other things while this runs.
 \core\session\manager::write_close();
@@ -93,12 +103,9 @@ echo $OUTPUT->heading($title, 4);
 
 ini_set('memory_limit', '1024M');  // For big question banks - TODO: make this a setting?
 
-// Run the tests.
-if (count($questionids) == 0) {
-    $bulktester->run_all_tests_for_context();
-} else {
-    $bulktester->run_all_tests_for_context($questionids);
-}
+
+$bulktester->run_tests($questionids);
+
 
 // Prints the summary of failed/missing tests
 $bulktester->print_overall_result();

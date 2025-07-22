@@ -61,6 +61,8 @@ class qtype_coderunner_jobrunner {
      * @param
      * @param boolean $isprecheck is true if
      * this is a run triggered by the student clicking the Precheck button.
+     * @param bool $usecache Whether or not to use grading cache (Coderunner grading
+     * cache needs to be enabled for usecache to work). Default is true.
      * @param string $answerlanguage will be the empty string except for multilanguage questions,
      *      when it is the language selected in the language drop-down menu.
      * @return qtype_coderunner_combinator_grader_outcome $testoutcome that contains the outcome
@@ -72,7 +74,8 @@ class qtype_coderunner_jobrunner {
         $attachments,
         $testcases,
         $isprecheck,
-        $answerlanguage
+        $answerlanguage,
+        $usecache = true
     ) {
 
         if (empty($question->prototype)) {
@@ -131,7 +134,7 @@ class qtype_coderunner_jobrunner {
                 ($this->has_no_stdins() || $question->allow_multiple_stdins() ||
                 $this->grader->name() === 'TemplateGrader')
         ) {
-            $outcome = $this->run_combinator($isprecheck);
+            $outcome = $this->run_combinator($isprecheck, $usecache);
         } else {
             $outcome = null;
         }
@@ -143,7 +146,7 @@ class qtype_coderunner_jobrunner {
         // a test result for each test case.
 
         if ($outcome == null) {
-            $outcome = $this->run_tests_singly($isprecheck);
+            $outcome = $this->run_tests_singly($isprecheck, $usecache);
         }
 
         $this->sandbox->close();
@@ -157,12 +160,14 @@ class qtype_coderunner_jobrunner {
 
     // If the template is a combinator, try running all the tests in a single
     // go.
+    // @param bool $usecache Whether or not to use grading cache (Coderunner grading
+    // cache needs to be enabled for usecache to work). Default is true.
     //
     // Special template parameters are STUDENT_ANSWER, the raw submitted code,
     // IS_PRECHECK, which is true if this is a precheck run, TESTCASES,
     // a list of all the test cases and QUESTION, the original question object.
     // Return the testing outcome object if successful else null.
-    private function run_combinator($isprecheck) {
+    private function run_combinator($isprecheck, $usecache = true) {
         // Remove id and questionid keys+values from testcases so they don't
         // affect caching. For example the questionid will change each time
         // the question is saved thanks to question versioning - urgh!
@@ -185,13 +190,16 @@ class qtype_coderunner_jobrunner {
             return $outcome;
         }
 
+        $cachecategory = "contextid_{$question->contextid}";
         $this->allruns[] = $testprog;
         $run = $this->sandbox->execute(
             $testprog,
             $this->language,
             null,
             $this->files,
-            $this->sandboxparams
+            $this->sandboxparams,
+            $usecache,
+            $cachecategory,
         );
 
         // If it's a template grader, we pass the result to the
@@ -239,7 +247,7 @@ class qtype_coderunner_jobrunner {
 
 
     // Run all tests one-by-one on the sandbox.
-    private function run_tests_singly($isprecheck) {
+    private function run_tests_singly($isprecheck, $usecache = true) {
         $maxmark = $this->maximum_possible_mark($this->testcases);
         if ($maxmark == 0) {
             $maxmark = 1; // Something silly is happening. Probably running a prototype with no tests.
@@ -272,12 +280,15 @@ class qtype_coderunner_jobrunner {
 
             $input = isset($testcase->stdin) ? $testcase->stdin : '';
             $this->allruns[] = $testprog;
+            $cachecategory = "contextid_{$question->contextid}";
             $run = $this->sandbox->execute(
                 $testprog,
                 $this->language,
                 $input,
                 $this->files,
-                $this->sandboxparams
+                $this->sandboxparams,
+                $usecache,
+                $cachecategory
             );
             if (isset($run->sandboxinfo)) {
                 $outcome->add_sandbox_info($run->sandboxinfo);

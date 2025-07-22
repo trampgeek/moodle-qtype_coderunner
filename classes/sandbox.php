@@ -358,7 +358,7 @@ abstract class qtype_coderunner_sandbox {
      *          If error is anything other than OK, the returned object may
      *          optionally include an error message in the stderr field.
      */
-    abstract public function execute($sourcecode, $language, $input, $files = null, $params = null);
+    abstract public function execute($sourcecode, $language, $input, $files = null, $params = null, $usecache = true, $cachecategory = 'Uncategorized');
 
     /** Function called by the tester as a simple sanity check on the
      *  existence of a particular sandbox subclass.

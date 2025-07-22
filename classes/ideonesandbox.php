@@ -106,6 +106,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
      *         files (an associative array mapping filenames to string
      *         filecontents.
      *         If the $params array is NULL, sandbox defaults are used.
+     * @param bool $usecache Not currently used. There to make calls to execute same as for jobe.
      * @return an object with at least an attribute 'error'. This is one of the
      *         values 0 through 8 (OK to UNKNOWN_SERVER_ERROR) as defined above. If
      *         error is 0 (OK), the returned object has additional attributes
@@ -119,7 +120,7 @@ class qtype_coderunner_ideonesandbox extends qtype_coderunner_sandbox {
      *             cmpinfo: the output from the compilation run (usually empty
      *                     unless the result code is for a compilation error).
      */
-    public function execute($sourcecode, $language, $input, $files = null, $params = null) {
+    public function execute($sourcecode, $language, $input, $files = null, $params = null, $usecache = false) {
         $language = strtolower($language);
         if (!in_array($language, $this->get_languages()->languages)) {
             throw new qtype_coderunner_exception('Executing an unsupported language in sandbox');
