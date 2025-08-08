@@ -1,10 +1,11 @@
 # CodeRunner
 
-Version: 5.7.1 May 15, 2025. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
+Version: 5.7.2 August 8, 2025. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
 Authors: Richard Lobb, University of Canterbury, New Zealand.
+         Paul McKeown, University of Canterbury, New Zealand.
          Tim Hunt, The Open University, UK.
 
 NOTE: A few sample quizzes containing example CodeRunner questions
@@ -3314,9 +3315,9 @@ a course before attempting to run the scripts.
 The three scripts are:
 
  1. `&lt;moodle_home&gt;/question/type/coderunner/bulktestindex.php`
-    This script displays a list of all question categories accessible to the
+    This script displays a list of all question bank and categories accessible to the
     user who is currently logged into Moodle on the machine running the script.
-    Each category is displayed as a clickable link that then runs a script that
+    Each course/bank/category is displayed as a clickable link that then runs a script that
     tests the sample answers on all questions in that category, reporting
     all successes and failures.
 
@@ -3324,6 +3325,10 @@ The three scripts are:
     This scripts displays an index like the one above except that the
     clickable links now run a script that reports on the question prototype
     usage within that category.
+
+ 1. `&lt;moodle_home&gt;/question/type/coderunner/cachepurgeindex.php`
+    This script displays a list of contexts in which the grade cache has
+    entries, allowing manual purging of all entries in that context.
 
  1. `&lt;moodle_home&gt;/question/type/coderunner/downloadquizattempts.php`
     This script

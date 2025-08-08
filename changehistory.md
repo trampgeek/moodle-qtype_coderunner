@@ -1,5 +1,24 @@
 # CHANGE HISTORY
 
+### 8 August 2025, 5.7.2
+
+ * Updates to grade caching.
+   - Scheduled task purges old cache entries automatically (only if using FileStore)
+   - Manual grade-cache cleaner available (script cachepurgeindex.php)
+   - Fix for issue #261 Unsupported modification of PAGE->context
+
+ * Extended bulk-tester capabilites
+    - Works with question banks in Moodle 5
+    - Can run multiple tests for each question (helps with randomised questions)
+    - Can optionally disable grade cache
+    - Improved output including timings
+
+ * Fix for issues #246/#258 Cache cleaner task failed because of use of redis
+
+ * Fix for issue #260 When you navigate to the ace editor with keyboard using tab,
+   the screen reader does not state that you are on the editor clearly.
+
+
 ### 21 May 2025, 5.7.1+
 
   * Add new unsupported question type: C program with scanf echoing of stdin plus scratchpad.
