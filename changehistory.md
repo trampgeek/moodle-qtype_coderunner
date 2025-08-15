@@ -1,5 +1,9 @@
 # CHANGE HISTORY
 
+### 15 August 2025, 5.7.2+
+
+ * Bug fix #254 The presence of a CodeRunner question in the course's question bank causes the duplication of quizzes to fail.
+
 ### 8 August 2025, 5.7.2
 
  * Updates to grade caching.

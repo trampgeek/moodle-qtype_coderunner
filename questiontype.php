@@ -423,15 +423,13 @@ class qtype_coderunner extends question_type {
         if ($options->prototypetype != 0) { // Question prototype?
             // Yes. It's 100% customised with nothing to inherit.
             $options->customise = true;
-        } else {
+        } else if (!($question->export_process ?? false)) {
+            // Don't inherit fields when exporting during quiz duplication or backup restore.
             $qtype = $options->coderunnertype;
             $context = $this->question_context($question);
             $prototype = $this->get_prototype($qtype, $context);
-            if (!($question->export_process ?? false)) {
-                // Don't inherit fields when exporting during quiz duplication or backup restore.
-                $this->set_inherited_fields($options, $prototype);
-                $question->prototype = $prototype;
-            }
+            $this->set_inherited_fields($options, $prototype);
+            $question->prototype = $prototype;
         }
 
         // Add in any testcases.
