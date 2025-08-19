@@ -5,6 +5,7 @@ Feature: Test sandbox web service
 
   Background:
     Given the CodeRunner test configuration file is loaded
+    And the Jobe server supports "python3"
     And the following "users" exist:
       | username | firstname | lastname | email           |
       | teacher  | Teacher   | 1        | teacher@asd.com |
