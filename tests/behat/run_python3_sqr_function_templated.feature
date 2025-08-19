@@ -6,6 +6,7 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
 
   Background:
     Given the CodeRunner test configuration file is loaded
+    And the Jobe server supports "python3"
     And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |
