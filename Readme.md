@@ -2002,7 +2002,7 @@ and may contain zero or more of the following attributes:
 
  1. prologuehtml: this is html that is displayed before the (optional) result table.
  1. epiloguehtml: this is html that is displayed after the (optional) result table.
- 1. introductorhtml: this is like epiloguehtml except that it is visible only to
+ 1. instructorhtml: this is like epiloguehtml except that it is visible only to
     instructors.
  1. testresults: is a list of lists used to display a result table similar to
 that displayed by the built-in question types. The first row is the column-header
