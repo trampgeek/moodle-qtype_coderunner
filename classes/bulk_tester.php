@@ -329,7 +329,7 @@ class bulk_tester {
         }
 
         return $DB->get_records_sql("
-            SELECT q.id, q.name as name, ctx.id as contextid, qc.id as category, qc.name as categoryname, qv.version
+            SELECT q.id, ctx.id as contextid, qc.id as category, qc.name as categoryname, qv.version, opts.*, q.*
               FROM {context} ctx
               JOIN {question_categories} qc ON qc.contextid = ctx.id
               JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
