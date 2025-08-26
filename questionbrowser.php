@@ -127,6 +127,7 @@ class questions_json_generator {
             'answer' => $question->answer ?? '',
             'coderunnertype' => $question->coderunnertype,
             'category' => bulk_tester::get_category_path($question->category),
+            'categoryid' => (string)$question->category, // Keep the original category ID for URLs
             'version' => (int)$question->version,
             'courseid' => (string)$courseid
         ];
@@ -552,7 +553,7 @@ class questions_json_generator {
         <div class="grid">
           <div class="row">
             <label style="min-width:70px">Search</label>
-            <input type="text" id="kw" placeholder="substring, case-insensitive" />
+            <input type="text" id="kw" placeholder="substring or regex" />
           </div>
           <div class="row">
             <label style="min-width:70px">Mode</label>
@@ -564,6 +565,15 @@ class questions_json_generator {
             <select id="kwField">
               <option>Any</option>
             </select>
+          </div>
+          <div class="row">
+            <label style="min-width:70px">Type</label>
+            <select id="kwType">
+              <option>Text</option>
+              <option>Regex</option>
+            </select>
+            <label style="min-width:70px"></label>
+            <label style="font-size:11px; color: var(--muted);">Regex uses JavaScript syntax</label>
           </div>
         </div>
 
@@ -630,6 +640,7 @@ class questions_json_generator {
   const kw = document.getElementById('kw');
   const kwMode = document.getElementById('kwMode');
   const kwField = document.getElementById('kwField');
+  const kwType = document.getElementById('kwType');
   const numericFilters = document.getElementById('numericFilters');
   const categoricalFilters = document.getElementById('categoricalFilters');
   const applyBtn = document.getElementById('apply');
@@ -716,11 +727,11 @@ class questions_json_generator {
     const questionBtn = document.createElement('button');questionBtn.className = 'ghost'; questionBtn.textContent = 'Question';
     const answerBtn = document.createElement('button');  answerBtn.className = 'ghost'; answerBtn.textContent = 'Answer';
     const previewBtn = document.createElement('button'); previewBtn.className = 'ghost'; previewBtn.textContent = 'Preview';
-    const editBtn = document.createElement('button');    editBtn.className = 'ghost';   editBtn.textContent = 'Edit';
+    const bankBtn = document.createElement('button');    bankBtn.className = 'ghost';   bankBtn.textContent = 'View in Bank';
 
     const controls = document.createElement('div');
     controls.className = 'controls';
-    controls.append(questionBtn, answerBtn, previewBtn, editBtn, expBtn);
+    controls.append(questionBtn, answerBtn, previewBtn, bankBtn, expBtn);
 
     // details wrapper: children become grid items (so .detail can span 1 / -1)
     const expWrap = document.createElement('div');
@@ -768,12 +779,20 @@ class questions_json_generator {
     }
   });
 
-  editBtn.addEventListener('click', () => {
-    if (q.id && q.courseid) {
-      const editUrl = `${moodleBaseUrl}/question/bank/editquestion/question.php?id=${q.id}&courseid=${q.courseid}`;
-      window.open(editUrl, '_blank');
+  bankBtn.addEventListener('click', () => {
+    if (q.id && q.courseid && q.categoryid) {
+      // Create question bank URL like bulk tester does
+      const params = new URLSearchParams({
+        'qperpage': '1000',
+        'category': q.categoryid + ',' + <?php echo $contextid; ?>,
+        'lastchanged': q.id,
+        'courseid': q.courseid,
+        'showhidden': '1'
+      });
+      const bankUrl = `${moodleBaseUrl}/question/edit.php?${params.toString()}`;
+      window.open(bankUrl, '_blank');
     } else {
-      alert('No question ID or course ID available for editing');
+      alert('Missing question data for question bank link');
     }
   });
 
@@ -986,10 +1005,22 @@ class questions_json_generator {
     });
 
     // Keyword
-    const needle = kw.value.trim().toLowerCase();
+    const needle = kw.value.trim();
     if (needle) {
       const mode = kwMode.value;          // Include/Exclude
       const fieldChoice = kwField.value;  // Any or specific key
+      const searchType = kwType.value;    // Text or Regex
+      
+      let regex = null;
+      if (searchType === 'Regex') {
+        try {
+          regex = new RegExp(needle, 'i'); // case-insensitive regex
+        } catch (e) {
+          alert('Invalid regex pattern: ' + e.message);
+          return; // Don't apply filter if regex is invalid
+        }
+      }
+      
       const matches = (obj) => {
         if (fieldChoice === 'Any') {
           return Object.values(obj).some(v => {
@@ -997,7 +1028,12 @@ class questions_json_generator {
             if (Array.isArray(v)) s = v.join(' ');
             else if (v && typeof v === 'object') s = JSON.stringify(v);
             else s = String(v ?? '');
-            return s.toLowerCase().includes(needle);
+            
+            if (searchType === 'Regex') {
+              return regex.test(s);
+            } else {
+              return s.toLowerCase().includes(needle.toLowerCase());
+            }
           });
         } else {
           const v = obj[fieldChoice];
@@ -1005,7 +1041,12 @@ class questions_json_generator {
           if (Array.isArray(v)) s = v.join(' ');
           else if (v && typeof v === 'object') s = JSON.stringify(v);
           else s = String(v ?? '');
-          return s.toLowerCase().includes(needle);
+          
+          if (searchType === 'Regex') {
+            return regex.test(s);
+          } else {
+            return s.toLowerCase().includes(needle.toLowerCase());
+          }
         }
       };
       out = out.filter(o => (mode === 'Include') ? matches(o) : !matches(o));
@@ -1021,6 +1062,7 @@ class questions_json_generator {
     kw.value = '';
     kwMode.value = 'Include';
     kwField.value = 'Any';
+    kwType.value = 'Text';
   }
 
   // Initialize on page load
