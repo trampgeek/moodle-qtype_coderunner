@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
+// along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.1
 
 /**
  * @package   qtype_coderunner
@@ -22,7 +22,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2025071100;
+$plugin->version  = 2025082600;
 $plugin->requires = 2023100900; // Moodle 4.3.0 or later.
 $plugin->cron = 0;
 $plugin->component = 'qtype_coderunner';
@@ -31,4 +31,4 @@ $plugin->release = '5.7.1+';
 
 $plugin->dependencies = [
     'qbehaviour_adaptive_adapted_for_coderunner' => 2024041800,
-];
+];1

@@ -329,7 +329,7 @@ class bulk_tester {
         }
 
         return $DB->get_records_sql("
-            SELECT q.id, ctx.id as contextid, qc.id as category, qc.name as categoryname, q.*, opts.*
+            SELECT q.id, q.name as name, ctx.id as contextid, qc.id as category, qc.name as categoryname, qv.version
               FROM {context} ctx
               JOIN {question_categories} qc ON qc.contextid = ctx.id
               JOIN {question_bank_entries} qbe ON qbe.questioncategoryid = qc.id
@@ -833,5 +833,43 @@ class bulk_tester {
         $qbankparams['showhidden'] = 1;
         $questionbanklink = new moodle_url('/question/edit.php', $qbankparams);
         return html_writer::link($questionbanklink, $question->name, ['target' => '_blank']);
+    }
+
+    /**
+     * Get the full category path for a given category ID.
+     * @param int $categoryid The category ID
+     * @return string The full category path (e.g., "Default/Subcategory")
+     */
+    public static function get_category_path($categoryid) {
+        global $DB;
+        
+        static $categorypath_cache = [];
+        
+        if (isset($categorypath_cache[$categoryid])) {
+            return $categorypath_cache[$categoryid];
+        }
+        
+        $path = [];
+        $currentid = $categoryid;
+        
+        // Build path by traversing up the category hierarchy
+        while ($currentid != 0) {
+            $category = $DB->get_record('question_categories', ['id' => $currentid], 'id,name,parent');
+            if (!$category) {
+                break;
+            }
+            
+            // Skip the top level category (usually just contains contextid)
+            if ($category->parent != 0) {
+                array_unshift($path, $category->name);
+            }
+            
+            $currentid = $category->parent;
+        }
+        
+        $fullpath = empty($path) ? 'Default' : implode('/', $path);
+        $categorypath_cache[$categoryid] = $fullpath;
+        
+        return $fullpath;
     }
 }

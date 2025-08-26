@@ -92,6 +92,7 @@ $string['badtemplateparams'] = 'Template parameters must evaluate to blank or a 
 $string['baduiparams'] = 'UI parameters must be blank or a valid JSON record.';
 $string['brokencombinator'] = 'Expected {$a->numtests} test results, got {$a->numresults}. Perhaps excessive output or error in question?';
 $string['brokentemplategrader'] = 'Bad output from grader: {$a->output}. Your program execution may have aborted (e.g. a timeout or memory limit exceeded).';
+$string['browsequestions'] = 'Browse questions';
 $string['bulkquestiontester'] = 'The <a href="{$a->link}">bulk tester script</a> tests that the sample answers for all questions in the current context are marked right. Useful only once some questions with sample answers have been added; the initial install has none.';
 $string['bulktestallincontext'] = 'Test all';
 $string['bulktestcontinuefromhere'] = 'Run again or resume, starting from here';
