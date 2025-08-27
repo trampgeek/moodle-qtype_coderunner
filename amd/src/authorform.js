@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function($, ui, str) {
+define(['qtype_coderunner/userinterfacewrapper', 'core/str'], function(ui, str) {
 
     // We need this to keep track of the current question type.
     let currentQtype = "";
@@ -31,7 +31,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
     // Define a mapping from the fields of the JSON object returned by an AJAX
     // 'get question type' request to the form elements. Only fields that
     // belong to the question type should appear here. Keys are JSON field
-    // names, values are a 3- or 4-element array of: a jQuery form element selector;
+    // names, values are a 3- or 4-element array of: a form element selector;
     // the element property to be set; a default value if the JSON field is
     // empty and an optional filter function to apply to the field value before
     // setting the property with it.
@@ -67,33 +67,34 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
      * data-lang attributes.
      */
     function initEditForm() {
-        var typeCombo = $('#id_coderunnertype'),
-            prototypeDisplay = $('#id_isprototype'),
-            template = $('#id_template'),
-            evaluatePerStudent = $('#id_templateparamsevalpertry'),
-            globalextra = $('#id_globalextra'),
-            prototypeextra = $('#id_prototypeextra'),
-            useace = $('#id_useace'),
-            language = $('#id_language'),
-            acelang = $('#id_acelang'),
-            customise = $('#id_customise'),
-            isCombinator = $('#id_iscombinatortemplate'),
-            testSplitterRe = $('#id_testsplitterre'),
-            allowMultipleStdins = $('#id_allowmultiplestdins'),
-            customisationFieldSet = $('#id_customisationheader'),
-            advancedCustomisation = $('#id_advancedcustomisationheader'),
-            isCustomised = customise.prop('checked'),
-            prototypeType = $('#id_prototypetype'),
-            preloadHdr = $('#id_answerpreloadhdr'),
-            courseId = $('input[name="courseid"]').prop('value'),
-            questiontypeHelpDiv = $('#qtype-help'),
-            precheck = $('select#id_precheck'),
-            testtypedivs = $('div.testtype'),
-            testsection = $('#id_testcasehdr'),
-            brokenQuestion = $('#id_broken_question'),
-            badQuestionLoad = $('#id_bad_question_load'),
-            uiplugin = $('#id_uiplugin'),
-            uiparameters = $('#id_uiparameters');
+        var typeCombo = document.getElementById('id_coderunnertype'),
+            prototypeDisplay = document.getElementById('id_isprototype'),
+            template = document.getElementById('id_template'),
+            evaluatePerStudent = document.getElementById('id_templateparamsevalpertry'),
+            globalextra = document.getElementById('id_globalextra'),
+            prototypeextra = document.getElementById('id_prototypeextra'),
+            useace = document.getElementById('id_useace'),
+            language = document.getElementById('id_language'),
+            acelang = document.getElementById('id_acelang'),
+            customise = document.getElementById('id_customise'),
+            isCombinator = document.getElementById('id_iscombinatortemplate'),
+            testSplitterRe = document.getElementById('id_testsplitterre'),
+            allowMultipleStdins = document.getElementById('id_allowmultiplestdins'),
+            customisationFieldSet = document.getElementById('id_customisationheader'),
+            advancedCustomisation = document.getElementById('id_advancedcustomisationheader'),
+            isCustomised = customise.checked,
+            prototypeType = document.getElementById('id_prototypetype'),
+            preloadHdr = document.getElementById('id_answerpreloadhdr'),
+            courseIdInput = document.querySelector('input[name="courseid"]'),
+            courseId = courseIdInput ? courseIdInput.value : '',
+            questiontypeHelpDiv = document.getElementById('qtype-help'),
+            precheck = document.querySelector('select#id_precheck'),
+            testtypedivs = document.querySelectorAll('div.testtype'),
+            testsection = document.getElementById('id_testcasehdr'),
+            brokenQuestion = document.getElementById('id_broken_question'),
+            badQuestionLoad = document.getElementById('id_bad_question_load'),
+            uiplugin = document.getElementById('id_uiplugin'),
+            uiparameters = document.getElementById('id_uiparameters');
 
         /**
          * Set up the UI controller for a given textarea (one of template,
@@ -105,19 +106,20 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * @param {string} uiname The name of the UI controller (may be empty or none).
          */
         function setUi(taId, uiname) {
-            var ta = $(document.getElementById(taId)),  // The jquery text area element(s).
+            var ta = document.getElementById(taId),
                 lang,
-                paramsJson = ta.attr('data-params'),    // Ui params set by PHP.
+                paramsJson = ta.getAttribute('data-params'),    // Ui params set by PHP.
                 params = {},
-                uiWrapper;
+                uiWrapper,
+                testcode0 = document.getElementById('id_testcode_0');
 
             // Set data attributes in the text area for UI components that need
             // global extra or testcase data (e.g. gapfiller UI).
-            ta.attr('data-prototypeextra', prototypeextra.val());
-            ta.attr('data-globalextra', globalextra.val());
-            ta.attr('data-test0', $('#id_testcode_0').val());
+            ta.setAttribute('data-prototypeextra', prototypeextra.value);
+            ta.setAttribute('data-globalextra', globalextra.value);
+            ta.setAttribute('data-test0', testcode0 ? testcode0.value : '');
             try {
-                params = JSON.parse(paramsJson);
+                params = paramsJson ? JSON.parse(paramsJson) : {};
             } catch(err) {}
             uiname = uiname.toLowerCase();
             if (uiname === 'none') {
@@ -127,15 +129,15 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             if (taId == 'id_templateparams' || taId == 'id_uiparameters') {
                 lang = ''; // These fields may be twigged, so can't be parsed by Ace.
             } else {
-                lang = language.prop('value');
-                if (taId !== "id_template" && acelang.prop('value')) {
-                    lang = preferredAceLang(acelang.prop('value'));
+                lang = language.value;
+                if (taId !== "id_template" && acelang.value) {
+                    lang = preferredAceLang(acelang.value);
                 }
             }
 
-            uiWrapper = ta[0].current_ui_wrapper; // Currently-active UI wrapper on this ta.
+            uiWrapper = ta.current_ui_wrapper; // Currently-active UI wrapper on this ta.
 
-            ta.attr('data-lang', lang);
+            ta.setAttribute('data-lang', lang);
 
             if (!uiWrapper) {
                 uiWrapper = new ui.InterfaceWrapper(uiname, taId);
@@ -159,12 +161,12 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          *
          */
         function setUis() {
-            let uiname = uiplugin.val();
-            let answer = $('#id_answer');
+            let uiname = uiplugin.value;
+            let answer = document.getElementById('id_answer');
             let enableUi = true;
-            if (uiname === 'html' && answer.attr('data-params') !== '') {
+            if (uiname === 'html' && answer.getAttribute('data-params') !== '') {
                 try {
-                    let answerparams = JSON.parse(answer.attr('data-params'));
+                    let answerparams = JSON.parse(answer.getAttribute('data-params'));
                     if (answerparams.enable_in_editor === false) {
                         enableUi = false;
                     }
@@ -184,9 +186,9 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          */
         function setCustomisationVisibility(isVisible) {
             var display = isVisible ? 'block' : 'none';
-            customisationFieldSet.css('display', display);
-            advancedCustomisation.css('display', display);
-            if (isVisible && useace.prop('checked')) {
+            customisationFieldSet.style.display = display;
+            advancedCustomisation.style.display = display;
+            if (isVisible && useace.checked) {
                 setUi('id_template', 'ace');
             }
         }
@@ -201,10 +203,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         function enableAceInCustomisedFields(stateOn) {
             var taIds = ['id_template', 'id_uiparameters'];
             var uiWrapper, ta;
-            if (useace.prop('checked')) {
+            if (useace.checked) {
                 for(var i = 0; i < taIds.length; i++) {
-                    ta = $(document.getElementById(taIds[i]));
-                    uiWrapper = ta.get(0).current_ui_wrapper;
+                    ta = document.getElementById(taIds[i]);
+                    uiWrapper = ta.current_ui_wrapper;
                     if (uiWrapper && stateOn) {
                         uiWrapper.restart();
                     } else if (uiWrapper && !stateOn) {
@@ -223,10 +225,10 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * handlers do not handle the freshly downloaded state.
          */
         function enableTemplateSupportFields() {
-            var isCombinatorEnabled = isCombinator.prop('checked');
+            var isCombinatorEnabled = isCombinator.checked;
 
-            testSplitterRe.prop('disabled', !isCombinatorEnabled);
-            allowMultipleStdins.prop('disabled', !isCombinatorEnabled);
+            testSplitterRe.disabled = !isCombinatorEnabled;
+            allowMultipleStdins.disabled = !isCombinatorEnabled;
         }
 
         /**
@@ -245,12 +247,19 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                     filter = formspecifier[3];
                     attrval = filter(attrval);
                 }
-                $(formspecifier[0]).prop(formspecifier[1], attrval);
+                const element = document.querySelector(formspecifier[0]);
+                if (element) {
+                    if (formspecifier[1] === 'checked') {
+                        element.checked = attrval;
+                    } else {
+                        element[formspecifier[1]] = attrval;
+                    }
+                }
             }
 
-            customise.prop('checked', false);
+            customise.checked = false;
             str.get_string('coderunner_question_type', 'qtype_coderunner').then(function (s) {
-                questiontypeHelpDiv.html(detailsHtml(newType, s, response.questiontext));
+                questiontypeHelpDiv.innerHTML = detailsHtml(newType, s, response.questiontext);
             });
 
             setCustomisationVisibility(false);
@@ -276,7 +285,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                     let errorMessage = s + "\n";
                     errorMessage += str + '\n';
                     errorMessage += "CourseId: " + courseId + ", qtype: " + questionType;
-                    template.prop('value', errorMessage);
+                    template.value = errorMessage;
                 });
             });
             return errorObject;
@@ -298,7 +307,6 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             resultHtml += coderunner_descr;
             resultHtml += title + '</p>\n' + html;
             return resultHtml;
-
         }
 
         /**
@@ -336,7 +344,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                 langs = acelang.split(',');
                 for (i = 0; i < langs.length; i++) {
                     if (langs[i].endsWith('*')) {
-                        return langs[i].substr(0, langs[i].length - 1);
+                        return langs[i].substring(0, langs[i].length - 1);
                     }
                 }
                 return langs.length > 0 ? langs[0] : '';
@@ -349,29 +357,38 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * Looks at the preexisting type of the selected field.
          */
         function loadCustomisationFields() {
-            let newType = typeCombo.children('option:selected').text();
+            let newType = typeCombo.options[typeCombo.selectedIndex].text;
 
             if (newType !== '' && newType !== 'Undefined') {
                 // Prevent 'Undefined' ever being reselected.
-                typeCombo.children('option:first-child').prop('disabled', 'disabled');
+                if (typeCombo.options[0]) {
+                    typeCombo.options[0].disabled = true;
+                }
 
-                // Load question type with ajax.
-                $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/ajax.php',
-                    {
-                        qtype: newType,
-                        courseid: courseId,
-                        sesskey: M.cfg.sesskey
-                    },
-                    function (outcome) {
+                // Load question type with fetch.
+                const url = new URL(M.cfg.wwwroot + '/question/type/coderunner/ajax.php');
+                url.searchParams.set('qtype', newType);
+                url.searchParams.set('courseid', courseId);
+                url.searchParams.set('sesskey', M.cfg.sesskey);
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(outcome => {
                         // Clean all warnings regardless.
-                        $('#id_qtype_coderunner_warning_div').empty();
+                        const warningDiv = document.getElementById('id_qtype_coderunner_warning_div');
+                        if (warningDiv) {
+                            warningDiv.innerHTML = '';
+                        }
                         if (outcome.success) {
                             copyFieldsFromQuestionType(newType, outcome);
                             setUis();
                             loadUiParametersDescription();
                             // Success, so remove the errors and change the current Qtype.
                             currentQtype = newType;
-                            $('#id_qtype_coderunner_error_div').empty();
+                            const errorDiv = document.getElementById('id_qtype_coderunner_error_div');
+                            if (errorDiv) {
+                                errorDiv.innerHTML = '';
+                            }
                         }
                         else {
                             const errorObject = reportError(newType, outcome.error);
@@ -379,18 +396,18 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                             // If so, put up a load error and keep type unchanged.
                             if (currentQtype !== newType && errorObject.error === 'duplicateprototype') {
                                 showLoadTypeError(currentQtype, errorObject, newType);
-                                $("#id_coderunnertype").val(currentQtype);
+                                typeCombo.value = currentQtype;
                             }
                         }
-                    }
-                ).fail(function () {
-                    // AJAX failed. We're dead, Fred. The attempt to get the
-                    // language translation for the error message will likely
-                    // fail too, so use English for a start.
-                    langStringAlert('error_loading_prototype');
-                    template.prop('value', '*** AJAX ERROR. DON\'T SAVE THIS! ***');
-                    str.get_string('ajax_error', 'qtype_coderunner').then(function(s) {
-                        template.prop('value', s);  // Translates into current language (if it works).
+                    })
+                    .catch(() => {
+                        // AJAX failed. We're dead, Fred. The attempt to get the
+                        // language translation for the error message will likely
+                        // fail too, so use English for a start.
+                        langStringAlert('error_loading_prototype');
+                        template.value = '*** AJAX ERROR. DON\'T SAVE THIS! ***';
+                        str.get_string('ajax_error', 'qtype_coderunner').then(function(s) {
+                            template.value = s;  // Translates into current language (if it works).
                     });
                 });
             }
@@ -403,14 +420,14 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * @return {string} An HTML table describing each UI parameter.
          */
         function UiParameterDescriptionTable(uiParamInfo) {
-            var html = '<div class="uiparamtablediv"><table class="uiparamtable">\n',
+            var html = '<table class="uiparamtable">\n',
                 hdrs = uiParamInfo.columnheaders, param, i;
             html += "<tr><th>" + hdrs[0] + "</th><th>" + hdrs[1] + "</th><th>" + hdrs[2] + "</th></tr>\n";
             for (i = 0; i < uiParamInfo.uiparamstable.length; i++) {
                 param = uiParamInfo.uiparamstable[i];
                 html += "<tr><td>" + param[0] + "</td><td>" + param[1] + "</td><td>" + param[2] + "</td></tr>\n";
             }
-            html += "</table></div>\n";
+            html += "</table>\n";
             return html;
         }
 
@@ -422,35 +439,39 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * @returns {undefined}
          */
         function updateUiParamsDescription(uiInfo) {
-            let currentuiparameters = uiparameters.val();
-            let paramDescriptionDiv = $('.ui_parameters_descr');
-            let hideUiParamsDescription = function() {
-                uiparameters.val(''); // Remove stray white space.
-                $('#fgroup_id_uiparametergroup').hide();
-            };
-            paramDescriptionDiv.empty();
+            let currentuiparameters = uiparameters.value;
+            let paramDescriptionDiv = document.querySelector('.ui_parameters_descr');
+            let uiParamGroup = document.getElementById('fgroup_id_uiparametergroup');
+            uiParamGroup.style.display = '';
+            paramDescriptionDiv.innerHTML = '';
+
             if (uiInfo === null || (uiInfo.uiparamstable.length == 0 && currentuiparameters.trim() === '')) {
-                hideUiParamsDescription();
+                // If a UI has no parameters, hide the entire UI parameter block. Probably no longer reqd.
+                uiParamGroup.style.display = 'none';
             } else {
                 paramDescriptionDiv.append(uiInfo.header);
-                let showhidebutton = $('<button type="button" class="toggleuidetails">' + uiInfo.showdetails + '</button>');
+                let showhidebutton = document.createElement('button');
+                showhidebutton.type = 'button';
+                showhidebutton.className = 'toggleuidetails';
+                showhidebutton.textContent = uiInfo.showdetails;
                 if (uiInfo.uiparamstable.length != 0) {
                     paramDescriptionDiv.append(showhidebutton);
-                    let table = $(UiParameterDescriptionTable(uiInfo));
-                    paramDescriptionDiv.append(table);
-                    table.hide();
-                    showhidebutton.click(function () {
-                        if (showhidebutton.html() == uiInfo.showdetails) {
-                            table.show();
-                            showhidebutton.html(uiInfo.hidedetails);
+                    let tableDiv = document.createElement('div');
+                    tableDiv.className = 'uiparamtablediv';
+                    tableDiv.innerHTML = UiParameterDescriptionTable(uiInfo);
+                    paramDescriptionDiv.append(tableDiv);
+                    tableDiv.style.display = 'none';
+                    showhidebutton.addEventListener('click', function () {
+                        if (showhidebutton.textContent == uiInfo.showdetails) {
+                            tableDiv.style.display = 'block';
+                            showhidebutton.textContent = uiInfo.hidedetails;
                         } else {
-                            table.hide();
-                            showhidebutton.html(uiInfo.showdetails);
+                            tableDiv.style.display = 'none';
+                            showhidebutton.textContent = uiInfo.showdetails;
                         }
                     });
                 }
-                $('#fgroup_id_uiparametergroup').show();
-                if (useace.prop('checked')) {
+                if (useace.checked) {
                     setUi('id_uiparameters', 'ace');
                 }
             }
@@ -461,21 +482,22 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * when the UI plugin is changed.
          */
         function loadUiParametersDescription() {
-            let newUi = uiplugin.children('option:selected').text();
+            let newUi = uiplugin.options[uiplugin.selectedIndex].text;
             if (newUi === '' || newUi === 'none') {
                 updateUiParamsDescription(null);
             } else {
-                $.getJSON(M.cfg.wwwroot + '/question/type/coderunner/ajax.php',
-                    {
-                        uiplugin: newUi,
-                        courseid: courseId,
-                        sesskey: M.cfg.sesskey
-                    },
-                    updateUiParamsDescription
-                ).fail(function () {
-                    // AJAX failed.
-                    langStringAlert('error_loading_ui_descr', `UI: ${newUi}`);
-                });
+                const url = new URL(M.cfg.wwwroot + '/question/type/coderunner/ajax.php');
+                url.searchParams.set('uiplugin', newUi);
+                url.searchParams.set('courseid', courseId);
+                url.searchParams.set('sesskey', M.cfg.sesskey);
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(updateUiParamsDescription)
+                    .catch(() => {
+                        // AJAX failed.
+                        langStringAlert('error_loading_ui_descr', `UI: ${newUi}`);
+                    });
             }
         }
 
@@ -484,10 +506,14 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * 'Precheck' selector.
          */
         function set_testtype_visibilities() {
-            if (precheck.val() === '3') { // Show only for case of 'Selected'.
-                testtypedivs.show();
+            if (precheck.value === '3') { // Show only for case of 'Selected'.
+                testtypedivs.forEach(div => {
+                    div.style.display = 'block';
+                });
             } else {
-                testtypedivs.hide();
+                testtypedivs.forEach(div => {
+                    div.style.display = 'none';
+                });
             }
         }
 
@@ -496,7 +522,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * answer preload fields.
          */
         function check_ace_lang() {
-            if (uiplugin.val() === 'ace'){
+            if (uiplugin.value === 'ace'){
                 setUis();
             }
         }
@@ -506,7 +532,7 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * if template_uses_ace is checked.
          */
         function check_template_lang() {
-            if (useace.prop('checked')) {
+            if (useace.checked) {
                 setUi('id_template', 'ace');
             }
         }
@@ -517,11 +543,12 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          * itself to go back to the last valid value.
          */
         function checkForBrokenQuestion() {
-            let brokenQuestionMessage = brokenQuestion.prop('value'),
+            let brokenQuestionMessage = brokenQuestion.value,
                 messagePara = null;
             if (brokenQuestionMessage !== '') {
-                messagePara = $('<p>' + brokenQuestion.prop('value') + '</p>');
-                $('#id_qtype_coderunner_error_div').append(messagePara);
+                messagePara = document.createElement('p');
+                messagePara.textContent = brokenQuestion.value;
+                document.getElementById('id_qtype_coderunner_error_div').appendChild(messagePara);
             }
         }
 
@@ -536,7 +563,9 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             str.get_string('loadprototypeerror', 'qtype_coderunner',
                 { oldtype : currentType, crtype : newType, outputstring : errorObject.extras })
                       .then(function(str) {
-                $('#id_qtype_coderunner_warning_div').append($('<p>' + str + '</p>'));
+                let warningPara = document.createElement('p');
+                warningPara.textContent = str;
+                document.getElementById('id_qtype_coderunner_warning_div').appendChild(warningPara);
             });
         }
 
@@ -546,24 +575,24 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
          *
          *************************************************************/
 
-        if (prototypeType.prop('value') != 0) {
+        if (prototypeType.value != 0) {
             // Display the prototype warning if it's a prototype and hide testboxes.
-            testsection.css('display', 'none');
-            prototypeDisplay.removeAttr('hidden');
-            if (prototypeType.prop('value') == 1) {
+            testsection.style.display = 'none';
+            prototypeDisplay.removeAttribute('hidden');
+            if (prototypeType.value == 1) {
                 // Editing a built-in question type: Dangerous!
                 str.get_string('proceed_at_own_risk', 'qtype_coderunner').then(function(s) {
                     alert(s);
                 });
-                prototypeType.prop('disabled', true);
-                customise.prop('disabled', true);
+                prototypeType.disabled = true;
+                customise.disabled = true;
             }
         }
 
         checkForBrokenQuestion();
-        badQuestionLoad.prop('hidden'); // Until we check it once.
+        badQuestionLoad.hidden = true; // Until we check it once.
         // Keep track of the current prototype loaded.
-        currentQtype = typeCombo.children('option:selected').text();
+        currentQtype = typeCombo.options[typeCombo.selectedIndex].text;
 
         setCustomisationVisibility(isCustomised);
         if (!isCustomised) {
@@ -572,13 +601,13 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         } else {
             setUis();  // Set up UI controllers on answer and answerpreload.
             str.get_string('info_unavailable', 'qtype_coderunner').then(function(s) {
-                questiontypeHelpDiv.html("<p>" + s + "</p>");
+                questiontypeHelpDiv.innerHTML = "<p>" + s + "</p>";
             });
         }
 
         set_testtype_visibilities();
 
-        if (useace.prop('checked')) {
+        if (useace.checked) {
             setUi('id_templateparams', 'ace');
             setUi('id_uiparameters', 'ace');
         }
@@ -587,8 +616,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
 
         // Set up event Handlers.
 
-        customise.on('change', function() {
-            let isCustomised = customise.prop('checked');
+        customise.addEventListener('change', function() {
+            let isCustomised = customise.checked;
             if (isCustomised) {
                 // Customisation is being turned on.
                 setCustomisationVisibility(true);
@@ -597,20 +626,20 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
                     if (window.confirm(s)) {
                         setCustomisationVisibility(false);
                     } else {
-                        customise.prop('checked', true);
+                        customise.checked = true;
                     }
                 });
             }
         });
 
-        acelang.on('change', check_ace_lang);
-        language.on('change', function() {
+        acelang.addEventListener('change', check_ace_lang);
+        language.addEventListener('change', function() {
             check_template_lang();
             check_ace_lang();
         });
 
-        typeCombo.on('change', function() {
-            if (customise.prop('checked')) {
+        typeCombo.addEventListener('change', function() {
+            if (customise.checked) {
                 // Author has customised the question. Ask if they want to reload inherited stuff.
                 str.get_string('question_type_changed', 'qtype_coderunner').then(function (s) {
                     if (window.confirm(s)) {
@@ -622,8 +651,8 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         });
 
-        useace.on('change', function() {
-            var isTurningOn = useace.prop('checked');
+        useace.addEventListener('change', function() {
+            var isTurningOn = useace.checked;
             if (isTurningOn) {
                 setUi('id_template', 'ace');
                 setUi('id_templateparams', 'ace');
@@ -635,28 +664,28 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
             }
         });
 
-        evaluatePerStudent.on('change', function() {
-            if (evaluatePerStudent.is(':checked')) {
+        evaluatePerStudent.addEventListener('change', function() {
+            if (evaluatePerStudent.checked) {
                 langStringAlert('templateparamsusingsandbox');
             }
         });
 
-        uiplugin.on('change', function () {
+        uiplugin.addEventListener('change', function () {
             setUis();
             loadUiParametersDescription();
         });
 
-        precheck.on('change', set_testtype_visibilities);
+        precheck.addEventListener('change', set_testtype_visibilities);
 
         // Displays and hides the reason for the question type to be disabled.
         // Also hides/shows the test cases section if prototype/not prototype.
-        prototypeType.on('change', function () {
-            if (prototypeType.prop('value') == '0') {
-                testsection.css('display', 'block');
-                prototypeDisplay.attr('hidden', '1');
+        prototypeType.addEventListener('change', function () {
+            if (prototypeType.value == '0') {
+                testsection.style.display = 'block';
+                prototypeDisplay.setAttribute('hidden', '1');
             } else {
-                testsection.css('display', 'none');
-                prototypeDisplay.removeAttr('hidden');
+                testsection.style.display = 'none';
+                prototypeDisplay.removeAttribute('hidden');
             }
         });
 
@@ -666,22 +695,43 @@ define(['jquery', 'qtype_coderunner/userinterfacewrapper', 'core/str'], function
         var observer = new MutationObserver( function () {
             setUis();
         });
-        observer.observe(preloadHdr.get(0), {'attributes': true, 'attributeFilter':['class']});
+        if (preloadHdr) {
+            observer.observe(preloadHdr, {'attributes': true, 'attributeFilter':['class']});
+        }
 
         // Setup click handler for the buttons that allow users to replace the
         // expected output  with the output got from testing the answer program.
-        $('button.replaceexpectedwithgot').click(function() {
-            var gotPre = $(this).prev('pre[id^="id_got_"]');
-            var testCaseId = gotPre.attr('id').replace('id_got_', '');
-            $('#id_expected_' + testCaseId).val(gotPre.text());
-            $('#id_fail_expected_' + testCaseId).html(gotPre.text());
-            $('.failrow_' + testCaseId).addClass('fixed');  // Fixed row.
-            $(this).prop('disabled', true);
+        document.addEventListener('click', function(event) {
+            if (event.target.matches('button.replaceexpectedwithgot')) {
+                var gotPre = event.target.previousElementSibling;
+                while (gotPre && (!gotPre.matches('pre') || !gotPre.id.startsWith('id_got_'))) {
+                    gotPre = gotPre.previousElementSibling;
+                }
+                if (gotPre) {
+                    var testCaseId = gotPre.id.replace('id_got_', '');
+                    var expectedField = document.getElementById('id_expected_' + testCaseId);
+                    var expectedFailField = document.getElementById('id_fail_expected_' + testCaseId);
+                    var failRow = document.querySelector('.failrow_' + testCaseId);
+
+                    if (expectedField) {
+                        expectedField.value = gotPre.textContent;
+                    }
+                    if (expectedFailField) {
+                        expectedFailField.innerHTML = gotPre.textContent;
+                    }
+                    if (failRow) {
+                        failRow.classList.add('fixed');
+                    }
+                    event.target.disabled = true;
+                }
+            }
         });
 
         // On reloading the page, enable the typeCombo so that its value is POSTed.
-        $('.btn-primary').click(function() {
-            typeCombo.prop('disabled', false);
+        document.addEventListener('click', function(event) {
+            if (event.target.matches('.btn-primary')) {
+                typeCombo.disabled = false;
+            }
         });
     }
 
