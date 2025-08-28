@@ -280,7 +280,35 @@ class questions_json_generator {
             if (preg_match('/\b(numpy|np|matplotlib|plt)\b/', $line)) {
                 $constructs[] = 'numpy/matplotlib';
             }
-            if (preg_match('/\{.*:.*\}/', $line)) {
+            // Detect dictionary usage patterns.
+            $isdictline = false;
+
+            // Dictionary literal with key:value pairs, avoiding f-strings and format strings.
+            if (preg_match('/\{[^}]*:[^}]*\}/', $line) &&
+                !preg_match('/f["\']/', $line) &&
+                !preg_match('/\.format\s*\(/', $line)
+            ) {
+                $isdictline = true;
+            }
+
+            // Empty dictionary initialization.
+            if (preg_match('/=\s*\{\s*\}/', $line)) {
+                $isdictline = true;
+            }
+
+            // Dictionary indexing/assignment.
+            if (preg_match('/\w+\[.+\]\s*=/', $line) || preg_match('/=.*\w+\[.+\]/', $line)) {
+                $isdictline = true;
+            }
+
+            // Dictionary constructor or methods.
+            if (preg_match('/\bdict\s*\(/', $line) ||
+                preg_match('/\.(keys|values|items|get|update)\s*\(/', $line)
+            ) {
+                $isdictline = true;
+            }
+
+            if ($isdictline) {
                 $constructs[] = 'dict';
             }
             if (preg_match('/\[.*for\s+\w+\s+in\s+.*\]/', $line)) {
