@@ -354,300 +354,162 @@ class questions_json_generator {
     }
 }
 
+// Set up page using Moodle's layout system
+$PAGE->set_title('Question Browser - ' . $coursename);
+$PAGE->set_heading('Question Browser - ' . $coursename);
+
+echo $OUTPUT->header();
+
 ?>
 
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Moodle CodeRunner Question Browser</title>
 <style>
-  :root {
-    --bg: #0b1020;
-    --panel: #121a33;
-    --muted: #7081b9;
-    --text: #e8ecff;
-    --accent: #7aa2ff;
-    --accent-2: #65d6ad;
-    --danger: #ff7a7a;
-    --border: #223058;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
-    background: radial-gradient(1200px 800px at 70% -10%, #1e2a5a 0%, var(--bg) 45%, #070b18 100%);
-    color: var(--text);
-  }
-  header {
-    padding: 16px 20px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.0));
-    position: sticky; top: 0; z-index: 10;
-  }
-  header h1 { font-size: 18px; margin: 0; letter-spacing: 0.3px; font-weight: 650; }
-  .pill {
-    padding: 6px 10px; border: 1px solid var(--border); border-radius: 10px; color: var(--muted);
-    background: #0e1630; display: inline-flex; gap: 8px; align-items: center;
-  }
-  main {
-    display: grid; grid-template-columns: 340px 1fr; gap: 16px; padding: 16px;
-  }
-  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+/* Minimal custom styles to work with Moodle theme */
+.qbrowser-filters .form-group {
+    margin-bottom: 1rem;
+}
 
-  .card {
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.0));
-    border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  }
-  .card h2 { font-size: 14px; font-weight: 650; margin: 0 0 8px 0; color: var(--muted); letter-spacing: 0.3px; }
-  .panel { padding: 14px; }
-  .grid { display: grid; gap: 10px; }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  label { font-size: 12px; color: var(--muted); }
-  input[type="text"], input[type="number"], select {
-    width: 100%; padding: 8px 9px; border-radius: 10px; border: 1px solid var(--border);
-    background: #0f1732; color: var(--text); outline: none;
-  }
-  input[type="file"] { color: var(--muted); }
-  button {
-    padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border);
-    background: #11204a; color: var(--text); cursor: pointer; letter-spacing: 0.2px;
-  }
-  button.primary { background: linear-gradient(180deg, #3758ff, #2b48d8); border-color: #3f59d4; }
-  button.ghost { background: #0f1732; }
-  button.success { background: linear-gradient(180deg, #31c590, #27a77a); border-color: #279a72; }
-  button:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .drop {
-    padding: 14px; border: 1px dashed var(--border); border-radius: 12px; text-align: center; color: var(--muted);
-    background: rgba(255,255,255,0.02);
-  }
-  .drop.dragover { border-color: var(--accent); color: var(--accent); }
-
-  .resultsHeader { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
-  .count { color: var(--muted); font-size: 12px; }
-  .list {
-    max-height: calc(100vh - 230px); overflow: auto; border-top-left-radius: 0; border-top-right-radius: 0;
-  }
-
-  /* Parent grid defines all columns for every row */
-  .list {
-    max-height: calc(100vh - 230px);
-    overflow: auto;
+.qbrowser-grid2 {
     display: grid;
-    grid-template-columns: 1fr max-content max-content max-content; /* Name flexes, Category/Stage/Buttons hug */
-    column-gap: 10px;
-    align-items: center;
-    }
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
 
-    /* Each "row" is only a grouping hook; its children become grid items */
-    .row { display: contents; }
-    
+.qbrowser-list {
+    max-height: 75vh;
+    overflow-y: auto;
+}
 
-    /* Cells */
-    .list .row > .name,
-    .list .row > .category,
-    .list .row > .mono,
-    .list .row > .controls {
-    padding: 10px 12px;
-    }
+.qbrowser-list table {
+    margin-bottom: 0;
+}
 
-    /* Keep previous look-and-feel */
-    .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .category { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; color: #c7d2ff; }
+.qbrowser-detail {
+    margin: 0.5rem 0;
+    padding: 1rem;
+    border-left: 4px solid #dee2e6;
+    background-color: var(--bs-light, #f8f9fa);
+}
 
-    /* Zebra striping for data rows */
-    .list .row:not(.header):nth-of-type(odd) > .name,
-    .list .row:not(.header):nth-of-type(odd) > .category,
-    .list .row:not(.header):nth-of-type(odd) > .mono,
-    .list .row:not(.header):nth-of-type(odd) > .controls {
-    background: rgba(255,255,255,0.02);
-    }
-
-    /* Sticky header inside the scrollable list */
-    .list .row.header > .name,
-    .list .row.header > .category,
-    .list .row.header > .mono,
-    .list .row.header > .controls {
-    font-weight: 650;
-    border-bottom: 2px solid #26376f;
-    background: #0e1630;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    color: var(--text);
-    font-size: inherit;
-    }
-
-    /* Full-width rows for details */
-    .detail {
-    grid-column: 1 / -1;   /* span all columns */
-    }
-
-    .controls {
-    display: flex;
-    gap: 4px;
-    }
-    
-    .controls button {
-    padding: 4px 6px;
-    font-size: 10px;
-    border-radius: 6px;
-    }
-
-    .detail {
-    background: #0c1329;
-    border: 1px solid #1b2952;
-    border-radius: 10px;
-    padding: 10px;
-    margin: 8px 12px;
-    font-size: 13px;
-    color: #cfe3ff;
-    line-height: 1.4;
-    }
-    
-    /* Code/JSON content should be monospace with pre-wrap */
-    .detail.code-content {
+.qbrowser-detail.code-content {
     white-space: pre-wrap;
-    font-family: ui-monospace, monospace;
-    font-size: 12px;
-    }
-    
-    /* Question HTML content should render normally */
-    .detail.html-content {
+    font-family: monospace;
+    font-size: 0.875rem;
+}
+
+.qbrowser-detail.html-content {
     font-family: inherit;
+}
+
+.qbrowser-controls .btn {
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+@media (min-width: 992px) {
+    .qbrowser-main {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 1.5rem;
     }
-    
-    /* Style common HTML elements in question text */
-    .detail.html-content code {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-family: ui-monospace, monospace;
-    font-size: 11px;
-    color: #e8f4ff;
-    }
-    
-    .detail.html-content p {
-    margin: 0 0 10px 0;
-    }
-    
-    .detail.html-content ul, .detail.html-content ol {
-    margin: 0 0 10px 20px;
-    }
-    
-    .detail.html-content li {
-    margin: 0 0 4px 0;
-    }
-    
-    .detail.html-content pre {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 6px;
-    padding: 8px;
-    margin: 8px 0;
-    overflow-x: auto;
-    font-size: 12px;
-    }
-    
-    .detail.html-content strong, .detail.html-content b {
-    color: #ffffff;
-    font-weight: 600;
-    }
-  .rowItem .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; color: #c7d2ff; }
-  .rowItem .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rowItem .category { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rowItem button { padding: 6px 8px; font-size: 12px; }
-  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
-  .sep { height: 1px; background: var(--border); margin: 10px 0; }
-  .hint { font-size: 12px; color: var(--muted); }
+}
 </style>
-</head>
-<body>
-  <header>
-    <h1>Question Browser - <?php echo htmlspecialchars($coursename); ?></h1>
-  </header>
 
-  <main>
+<div class="container-fluid qbrowser-main">
     <!-- LEFT: FILTERS -->
-    <section class="card">
-      <div class="panel grid">
-        <h2>Data</h2>
-        <div id="loadStatus">Loaded <?php echo count($questions); ?> questions</div>
-
-        <div class="sep"></div>
-
-        <h2>Text filter</h2>
-        <div class="grid">
-          <div class="row">
-            <label style="min-width:70px">Search</label>
-            <input type="text" id="kw" placeholder="substring or regex" />
-          </div>
-          <div class="row">
-            <label style="min-width:70px">Mode</label>
-            <select id="kwMode">
-              <option>Include</option>
-              <option>Exclude</option>
-            </select>
-            <label style="min-width:70px">Field</label>
-            <select id="kwField">
-              <option>Any</option>
-            </select>
-          </div>
-          <div class="row">
-            <label style="min-width:70px">Type</label>
-            <select id="kwType">
-              <option>Text</option>
-              <option>Regex</option>
-            </select>
-            <label style="min-width:70px"></label>
-            <label style="font-size:11px; color: var(--muted);">Regex uses JavaScript syntax</label>
-          </div>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Filters</h5>
         </div>
+        <div class="card-body qbrowser-filters">
+            <div class="form-group">
+                <h6>Data</h6>
+                <div id="loadStatus" class="text-muted small">Loaded <?php echo count($questions); ?> questions</div>
+            </div>
 
-        <div class="sep"></div>
+            <hr>
 
-        <h2>Numeric filters</h2>
-        <div id="numericFilters" class="grid"></div>
+            <div class="form-group">
+                <h6>Text filter</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="kw" class="form-label small">Search</label>
+                        <input type="text" id="kw" class="form-control form-control-sm" placeholder="substring or regex" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="kwMode" class="form-label small">Mode</label>
+                        <select id="kwMode" class="form-control form-control-sm">
+                            <option>Include</option>
+                            <option>Exclude</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <label for="kwField" class="form-label small">Field</label>
+                        <select id="kwField" class="form-control form-control-sm">
+                            <option>Any</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="kwType" class="form-label small">Type</label>
+                        <select id="kwType" class="form-control form-control-sm">
+                            <option>Text</option>
+                            <option>Regex</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-1">
+                    <small class="text-muted">Regex uses JavaScript syntax</small>
+                </div>
+            </div>
 
-        <div class="sep"></div>
+            <hr>
 
-        <h2>Categorical filters</h2>
-        <div id="categoricalFilters" class="grid"></div>
+            <div class="form-group">
+                <h6>Numeric filters</h6>
+                <div id="numericFilters"></div>
+            </div>
 
-        <div class="sep"></div>
+            <hr>
 
-        <div class="toolbar">
-          <button class="primary" id="apply">Apply Filters</button>
-          <button class="ghost" id="clear">Clear</button>
-          <span class="hint">Tip: filters apply to the loaded dataset; keyword search stacks with them.</span>
+            <div class="form-group">
+                <h6>Categorical filters</h6>
+                <div id="categoricalFilters"></div>
+            </div>
+
+            <hr>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-primary btn-sm" id="apply">Apply Filters</button>
+                <button class="btn btn-secondary btn-sm" id="clear">Clear</button>
+            </div>
+            <div class="mt-2">
+                <small class="text-muted">Tip: filters apply to the loaded dataset; keyword search stacks with them.</small>
+            </div>
         </div>
-      </div>
-    </section>
+    </div>
 
     <!-- RIGHT: RESULTS -->
-    <section class="card">
-      <div class="panel">
-        <div class="resultsHeader">
-          <div class="row" style="gap: 12px;">
-            <h2 style="margin:0">Results</h2>
-            <span class="count" id="count">No data</span>
-          </div>
-          <div class="toolbar">
-            <button id="exportJson" class="success" disabled>Export JSON</button>
-            <button id="exportCsv" class="success" disabled>Export CSV</button>
-          </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0">Results</h5>
+                    <span class="text-muted small ml-3" id="count">No data</span>
+                </div>
+                <div class="d-flex">
+                    <button id="exportJson" class="btn btn-success btn-sm mr-2" disabled>Export JSON</button>
+                    <button id="exportCsv" class="btn btn-success btn-sm" disabled>Export CSV</button>
+                </div>
+            </div>
         </div>
-
-        <div id="list" class="list">
-        <!-- Header will be built dynamically -->
+        <div class="card-body p-0">
+            <div id="list" class="qbrowser-list">
+                <!-- Content will be built dynamically -->
+            </div>
         </div>
-      </div>
-    </section>
-  </main>
+    </div>
+</div>
 
 <script>
 (() => {
@@ -685,39 +547,54 @@ class questions_json_generator {
   function isNumber(x){ return typeof x === 'number' && Number.isFinite(x); }
   
   function buildHeader() {
-    const header = document.createElement('div');
-    header.className = 'row header';
+    const table = document.createElement('table');
+    table.className = 'table table-striped table-hover table-sm';
     
-    const nameCol = document.createElement('div');
-    nameCol.className = 'name';
+    const thead = document.createElement('thead');
+    thead.className = 'table-dark sticky-top';
+    const headerRow = document.createElement('tr');
+    
+    // Name column
+    const nameCol = document.createElement('th');
     nameCol.id = 'sortName';
     nameCol.style.cursor = 'pointer';
     nameCol.textContent = 'Name ↕';
+    nameCol.className = 'user-select-none';
     
-    const controlsCol = document.createElement('div');
-    controlsCol.className = 'controls';
-    controlsCol.textContent = 'Actions';
+    // Actions column (moved between Name and Category)
+    const actionsCol = document.createElement('th');
+    actionsCol.textContent = 'Actions';
+    actionsCol.style.width = '280px';
     
-    const categoryCol = document.createElement('div');
-    categoryCol.className = 'category';
+    // Category column  
+    const categoryCol = document.createElement('th');
     categoryCol.id = 'sortCategory';
     categoryCol.style.cursor = 'pointer';
     categoryCol.textContent = 'Category ↕';
+    categoryCol.className = 'user-select-none';
     
-    header.appendChild(nameCol);
-    header.appendChild(controlsCol);
-    header.appendChild(categoryCol);
-    
+    // Stage column (if applicable)
+    let stageCol = null;
     if (hasStageData) {
-      const stageCol = document.createElement('div');
-      stageCol.className = 'mono';
+      stageCol = document.createElement('th');
       stageCol.id = 'sortStage';
       stageCol.style.cursor = 'pointer';
       stageCol.textContent = 'Stage ↕';
-      header.appendChild(stageCol);
+      stageCol.className = 'user-select-none';
     }
     
-    return header;
+    headerRow.appendChild(nameCol);
+    headerRow.appendChild(actionsCol);
+    headerRow.appendChild(categoryCol);
+    if (stageCol) headerRow.appendChild(stageCol);
+    
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    const tbody = document.createElement('tbody');
+    table.appendChild(tbody);
+    
+    return table;
   }
   
   function toCSV(arr) {
@@ -740,99 +617,147 @@ class questions_json_generator {
     URL.revokeObjectURL(a.href);
   }
 
-  function summarizeRow(q, idx){
-    const row = document.createElement('div');
-    row.className = 'row';
+  function summarizeRow(q, idx, tbody){
+    const row = document.createElement('tr');
 
-    // cells
-    const c1 = document.createElement('div'); c1.className = 'name';     c1.textContent = q.name ?? '';
-    const c2 = document.createElement('div'); c2.className = 'category'; c2.textContent = q.category ?? '';
-    const c3 = hasStageData ? document.createElement('div') : null;
-    if (c3) {
-      c3.className = 'mono';
-      c3.textContent = (q.highest_stage ?? '');
+    // Name cell
+    const nameCell = document.createElement('td');
+    nameCell.textContent = q.name ?? '';
+    nameCell.className = 'text-truncate';
+    nameCell.style.maxWidth = '300px';
+
+    // Actions cell with smaller buttons
+    const actionsCell = document.createElement('td');
+    actionsCell.className = 'qbrowser-controls';
+    
+    const questionBtn = document.createElement('button');
+    questionBtn.className = 'btn btn-outline-secondary';
+    questionBtn.style.cssText = 'padding: 2px 5px; font-size: 10px; margin-right: 1px; line-height: 1.2;';
+    questionBtn.textContent = 'Question';
+    questionBtn.title = 'View Question';
+    
+    const answerBtn = document.createElement('button');
+    answerBtn.className = 'btn btn-outline-secondary';
+    answerBtn.style.cssText = 'padding: 2px 5px; font-size: 10px; margin-right: 1px; line-height: 1.2;';
+    answerBtn.textContent = 'Answer';
+    answerBtn.title = 'View Answer';
+    
+    const previewBtn = document.createElement('button');
+    previewBtn.className = 'btn btn-outline-secondary';
+    previewBtn.style.cssText = 'padding: 2px 5px; font-size: 10px; margin-right: 1px; line-height: 1.2;';
+    previewBtn.textContent = 'Preview';
+    previewBtn.title = 'Preview Question';
+    
+    const bankBtn = document.createElement('button');
+    bankBtn.className = 'btn btn-outline-secondary';
+    bankBtn.style.cssText = 'padding: 2px 5px; font-size: 10px; margin-right: 1px; line-height: 1.2;';
+    bankBtn.textContent = 'Bank';
+    bankBtn.title = 'View in Question Bank';
+
+    const jsonBtn = document.createElement('button');
+    jsonBtn.className = 'btn btn-outline-secondary';
+    jsonBtn.style.cssText = 'padding: 2px 5px; font-size: 10px; line-height: 1.2;';
+    jsonBtn.textContent = 'JSON';
+    jsonBtn.title = 'View JSON';
+
+    actionsCell.append(questionBtn, answerBtn, previewBtn, bankBtn, jsonBtn);
+
+    // Category cell
+    const categoryCell = document.createElement('td');
+    categoryCell.textContent = q.category ?? '';
+    categoryCell.className = 'text-muted small text-truncate';
+    categoryCell.style.maxWidth = '200px';
+
+    // Stage cell (if applicable)
+    let stageCell = null;
+    if (hasStageData) {
+      stageCell = document.createElement('td');
+      stageCell.textContent = q.highest_stage ?? '';
+      stageCell.className = 'font-monospace small';
     }
 
-    // buttons
-    const expBtn = document.createElement('button');     expBtn.className = 'ghost';   expBtn.textContent = 'JSON';
-    const questionBtn = document.createElement('button');questionBtn.className = 'ghost'; questionBtn.textContent = 'Question';
-    const answerBtn = document.createElement('button');  answerBtn.className = 'ghost'; answerBtn.textContent = 'Answer';
-    const previewBtn = document.createElement('button'); previewBtn.className = 'ghost'; previewBtn.textContent = 'Preview';
-    const bankBtn = document.createElement('button');    bankBtn.className = 'ghost';   bankBtn.textContent = 'View in Bank';
-
-    const controls = document.createElement('div');
-    controls.className = 'controls';
-    controls.append(questionBtn, answerBtn, previewBtn, bankBtn, expBtn);
-
-    // details wrapper: children become grid items (so .detail can span 1 / -1)
-    const expWrap = document.createElement('div');
-    expWrap.style.display = 'contents';
+    // Assemble the row in the new order: Name, Actions, Category, Stage
+    row.appendChild(nameCell);
+    row.appendChild(actionsCell);
+    row.appendChild(categoryCell);
+    if (stageCell) row.appendChild(stageCell);
 
     let openType = null; // 'json' | 'question' | 'answer'
+    let detailRow = null;
 
-  function toggleDisplay(type, content, isHTML = false) {
-    if (openType === type) {
-    openType = null;
-    expBtn.textContent = 'JSON';
-    questionBtn.textContent = 'Question';
-    answerBtn.textContent = 'Answer';
-    // remove any open detail panels
-    while (expWrap.lastChild && expWrap.lastChild.classList?.contains('detail')) {
-        expWrap.removeChild(expWrap.lastChild);
-    }
-    } else {
-    // close existing
-    while (expWrap.lastChild && expWrap.lastChild.classList?.contains('detail')) {
-        expWrap.removeChild(expWrap.lastChild);
-    }
-    openType = type;
-    expBtn.textContent = type === 'json' ? 'Close' : 'JSON';
-    questionBtn.textContent = type === 'question' ? 'Close' : 'Question';
-    answerBtn.textContent = type === 'answer' ? 'Close' : 'Answer';
+    function toggleDisplay(type, content, isHTML = false) {
+      if (openType === type) {
+        // Close current detail
+        openType = null;
+        questionBtn.textContent = 'Question';
+        answerBtn.textContent = 'Answer';
+        jsonBtn.textContent = 'JSON';
+        if (detailRow) {
+          detailRow.remove();
+          detailRow = null;
+        }
+      } else {
+        // Close existing detail if any
+        if (detailRow) {
+          detailRow.remove();
+        }
+        
+        // Update button states
+        openType = type;
+        questionBtn.textContent = type === 'question' ? 'Close' : 'Question';
+        answerBtn.textContent = type === 'answer' ? 'Close' : 'Answer';
+        jsonBtn.textContent = type === 'json' ? 'Close' : 'JSON';
 
-    const detail = document.createElement('div');
-    detail.className = isHTML ? 'detail html-content' : 'detail code-content';
-    if (isHTML) detail.innerHTML = content;
-    else        detail.textContent = content;
-    expWrap.appendChild(detail);
+        // Create new detail row
+        detailRow = document.createElement('tr');
+        const detailCell = document.createElement('td');
+        const colSpan = hasStageData ? 4 : 3; // Name, Actions, Category, [Stage]
+        detailCell.colSpan = colSpan;
+        
+        const detail = document.createElement('div');
+        detail.className = isHTML ? 'qbrowser-detail html-content' : 'qbrowser-detail code-content';
+        if (isHTML) detail.innerHTML = content;
+        else        detail.textContent = content;
+        
+        detailCell.appendChild(detail);
+        detailRow.appendChild(detailCell);
+        
+        // Insert detail row after current row
+        row.insertAdjacentElement('afterend', detailRow);
+      }
     }
+
+    jsonBtn.addEventListener('click', () => toggleDisplay('json', JSON.stringify(q, null, 2)));
+    questionBtn.addEventListener('click', () => toggleDisplay('question', q.questiontext || 'No question text available', true));
+    answerBtn.addEventListener('click', () => toggleDisplay('answer', q.answer || 'No answer available'));
+    
+    previewBtn.addEventListener('click', () => {
+      if (q.id) {
+        const previewUrl = `${moodleBaseUrl}/question/bank/previewquestion/preview.php?id=${q.id}`;
+        window.open(previewUrl, '_blank');
+      } else {
+        alert('No question ID available for preview');
+      }
+    });
+
+    bankBtn.addEventListener('click', () => {
+      if (q.id && q.courseid && q.categoryid) {
+        const params = new URLSearchParams({
+          'qperpage': '1000',
+          'category': q.categoryid + ',' + <?php echo $contextid; ?>,
+          'lastchanged': q.id,
+          'courseid': q.courseid,
+          'showhidden': '1'
+        });
+        const bankUrl = `${moodleBaseUrl}/question/edit.php?${params.toString()}`;
+        window.open(bankUrl, '_blank');
+      } else {
+        alert('Missing question data for question bank link');
+      }
+    });
+
+    return row;
   }
-
-  expBtn.addEventListener('click', () => toggleDisplay('json', JSON.stringify(q, null, 2)));
-  questionBtn.addEventListener('click', () => toggleDisplay('question', q.questiontext || 'No question text available', true));
-  answerBtn.addEventListener('click', () => toggleDisplay('answer', q.answer || 'No answer available'));
-  previewBtn.addEventListener('click', () => {
-    if (q.id) {
-      const previewUrl = `${moodleBaseUrl}/question/bank/previewquestion/preview.php?id=${q.id}`;
-      window.open(previewUrl, '_blank');
-    } else {
-      alert('No question ID available for preview');
-    }
-  });
-
-  bankBtn.addEventListener('click', () => {
-    if (q.id && q.courseid && q.categoryid) {
-      // Create question bank URL like bulk tester does
-      const params = new URLSearchParams({
-        'qperpage': '1000',
-        'category': q.categoryid + ',' + <?php echo $contextid; ?>,
-        'lastchanged': q.id,
-        'courseid': q.courseid,
-        'showhidden': '1'
-      });
-      const bankUrl = `${moodleBaseUrl}/question/edit.php?${params.toString()}`;
-      window.open(bankUrl, '_blank');
-    } else {
-      alert('Missing question data for question bank link');
-    }
-  });
-
-  // order matters: cells in grid order, then details (if opened)
-  row.append(c1, controls, c2);
-  if (c3) row.append(c3);
-  row.append(expWrap);
-  return row;
-}
 
   function sortBy(field) {
     if (currentSort.field === field) {
@@ -895,20 +820,20 @@ class questions_json_generator {
   function renderList(data){
     listEl.innerHTML = '';
     
-    // Adjust grid layout based on available data
-    if (hasStageData) {
-      listEl.style.gridTemplateColumns = '1fr max-content max-content max-content'; // Name, Controls, Category, Stage
+    if (data.length === 0) {
+      listEl.innerHTML = '<div class="text-center p-4 text-muted">No questions match the current filters.</div>';
     } else {
-      listEl.style.gridTemplateColumns = '1fr max-content max-content'; // Name, Controls, Category
+      // Build and add table
+      const table = buildHeader();
+      const tbody = table.querySelector('tbody');
+      
+      data.forEach((q, i) => {
+        const row = summarizeRow(q, i, tbody);
+        tbody.appendChild(row);
+      });
+      
+      listEl.appendChild(table);
     }
-    
-    // Build and add header
-    const header = buildHeader();
-    listEl.appendChild(header);
-
-    const frag = document.createDocumentFragment();
-    data.forEach((q, i) => frag.appendChild(summarizeRow(q, i)));
-    listEl.appendChild(frag);
 
     countEl.textContent = `${data.length.toLocaleString()} shown / ${rawData.length.toLocaleString()} total`;
     const hasData = data.length > 0;
@@ -943,13 +868,33 @@ class questions_json_generator {
 
     numericFilters.innerHTML = '';
     numFields.forEach(k => {
-      const wrap = document.createElement('div'); wrap.className = 'grid2';
-      const min = document.createElement('input'); min.type = 'number'; min.placeholder = `${k} min`; min.dataset.key = k; min.dataset.kind = 'min';
-      const max = document.createElement('input'); max.type = 'number'; max.placeholder = `${k} max`; max.dataset.key = k; max.dataset.kind = 'max';
-      const lab = document.createElement('label'); lab.textContent = k; lab.style.gridColumn = '1 / -1';
-      const box = document.createElement('div'); box.className='grid'; box.append(lab, min, max);
-      wrap.appendChild(box);
-      numericFilters.appendChild(wrap);
+      const formGroup = document.createElement('div');
+      formGroup.className = 'form-group mb-2';
+      
+      const label = document.createElement('label');
+      label.textContent = k;
+      label.className = 'form-label small';
+      
+      const inputGroup = document.createElement('div');
+      inputGroup.className = 'qbrowser-grid2';
+      
+      const min = document.createElement('input');
+      min.type = 'number';
+      min.placeholder = `${k} min`;
+      min.className = 'form-control form-control-sm';
+      min.dataset.key = k;
+      min.dataset.kind = 'min';
+      
+      const max = document.createElement('input');
+      max.type = 'number';
+      max.placeholder = `${k} max`;
+      max.className = 'form-control form-control-sm';
+      max.dataset.key = k;
+      max.dataset.kind = 'max';
+      
+      inputGroup.append(min, max);
+      formGroup.append(label, inputGroup);
+      numericFilters.appendChild(formGroup);
     });
 
     // Categorical filters: use known common + any string field with ≤ 30 unique vals
@@ -966,9 +911,16 @@ class questions_json_generator {
 
     categoricalFilters.innerHTML = '';
     [...catFields].forEach(k => {
-      const wrap = document.createElement('div'); wrap.className = 'grid';
-      const lab = document.createElement('label'); lab.textContent = k;
-      const sel = document.createElement('select'); sel.dataset.key = k;
+      const formGroup = document.createElement('div');
+      formGroup.className = 'form-group mb-2';
+      
+      const label = document.createElement('label');
+      label.textContent = k;
+      label.className = 'form-label small';
+      
+      const select = document.createElement('select');
+      select.className = 'form-control form-control-sm';
+      select.dataset.key = k;
       
       let values;
       if (k === 'highest_stage') {
@@ -979,11 +931,20 @@ class questions_json_generator {
         values = Array.from(new Set(data.map(o => o[k]).filter(v => typeof v === 'string' && v.trim() !== ''))).sort();
       }
       
-      const empty = document.createElement('option'); empty.value = ''; empty.textContent = '(any)';
-      sel.appendChild(empty);
-      values.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
-      wrap.append(lab, sel);
-      categoricalFilters.appendChild(wrap);
+      const emptyOption = document.createElement('option');
+      emptyOption.value = '';
+      emptyOption.textContent = '(any)';
+      select.appendChild(emptyOption);
+      
+      values.forEach(v => {
+        const option = document.createElement('option');
+        option.value = v;
+        option.textContent = v;
+        select.appendChild(option);
+      });
+      
+      formGroup.append(label, select);
+      categoricalFilters.appendChild(formGroup);
     });
   }
 
@@ -1126,5 +1087,6 @@ class questions_json_generator {
 
 })();
 </script>
-</body>
-</html>
+
+<?php
+echo $OUTPUT->footer();
