@@ -3305,17 +3305,28 @@ Other arguments to the ajax webservice call are:
 
 ## Administrator scripts
 
-There are currently three CodeRunner-related utility scripts available.
-While initially intended only for administrator use, they
-are proving useful to teachers as well, particularly the third one.
+There are several CodeRunner-related utility scripts available.
 Teachers are able to run the scripts
 only within courses they can normally access; they must be logged into such
 a course before attempting to run the scripts.
 
-The three scripts are:
+The scripts are:
+
+ 1. `&lt;moodle_home&gt;/question/type/coderunner/questionbrowserindex.php`
+    This script displays a list of all question banks and categories accessible to the
+    currently logged in user.
+    Each course/bank/category is displayed as a clickable link which takes the
+    user to an interactive browser that displays all the CodeRunner questions in
+    the given context. Questions can be filtered to select only those which match
+    a given text string or regular expression either anywhere in the question or
+    in a selected field (question text, answer, tags, etc). Questions can be
+    sorted by name or category. Buttons allow expanding out the question text or
+    its answer, or linking to the actual question in the question bank or a 
+    preview of it. The selected subset of questions can be exported in a
+    custom compressed form as JSON or CSV.
 
  1. `&lt;moodle_home&gt;/question/type/coderunner/bulktestindex.php`
-    This script displays a list of all question bank and categories accessible to the
+    This script displays a list of all question banks and categories accessible to the
     user who is currently logged into Moodle on the machine running the script.
     Each course/bank/category is displayed as a clickable link that then runs a script that
     tests the sample answers on all questions in that category, reporting
