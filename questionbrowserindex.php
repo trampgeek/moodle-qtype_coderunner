@@ -84,7 +84,6 @@ $PAGE->set_heading('CodeRunner Question Browser');
 // Display.
 echo $OUTPUT->header();
 
-echo html_writer::tag('h2', 'CodeRunner Question Browser');
 echo html_writer::tag('p', 'Select a context to browse CodeRunner questions with enhanced metadata and filtering capabilities.');
 
 // Find questions from contexts which the user can edit questions in.

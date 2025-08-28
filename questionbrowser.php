@@ -118,13 +118,16 @@ class questions_json_generator {
         // Check if this is a COSC131 course for specialized analysis
         $iscosc131 = $this->is_cosc131_course();
 
+        // Extract the correct answer, handling JSON format if needed
+        $answer = $this->extract_answer($question->answer ?? '');
+
         // Base question data matching the JSON structure.
         $enhanced = [
             'type' => 'coderunner',
             'id' => (string)$question->id,
             'name' => $question->name,
             'questiontext' => $question->questiontext,
-            'answer' => $question->answer ?? '',
+            'answer' => $answer,
             'coderunnertype' => $question->coderunnertype,
             'category' => bulk_tester::get_category_path($question->category),
             'categoryid' => (string)$question->category, // Keep the original category ID for URLs
@@ -133,15 +136,14 @@ class questions_json_generator {
         ];
 
         // Analyze code to add enhanced metadata,
-        $code = $question->answer ?? '';
-        $enhanced['lines_of_code'] = $this->count_lines_of_code($code);
-        $enhanced['constructs_used'] = $this->detect_constructs($code);
+        $enhanced['lines_of_code'] = $this->count_lines_of_code($answer);
+        $enhanced['constructs_used'] = $this->detect_constructs($answer);
         
         // COSC131-specific fields
         if ($iscosc131) {
-            $enhanced['highest_stage'] = $this->classify_stage($enhanced['constructs_used'], $code);
+            $enhanced['highest_stage'] = $this->classify_stage($enhanced['constructs_used'], $answer);
             $enhanced['topic_area'] = $this->determine_topic_area(
-                $code,
+                $answer,
                 $question->name, 
                 $enhanced['constructs_used']
             );
@@ -154,6 +156,35 @@ class questions_json_generator {
         $enhanced['question_type'] = $this->determine_question_type($question->coderunnertype);
 
         return $enhanced;
+    }
+
+    /**
+     * Extract the correct answer from either JSON or plain text format.
+     * If the answer is JSON and contains an 'answer_code' key, use that value.
+     * Otherwise, return the original answer.
+     */
+    private function extract_answer($answer) {
+        if (empty(trim($answer))) {
+            return '';
+        }
+
+        // Attempt to decode JSON
+        $decoded = json_decode($answer, true);
+        
+        // If JSON decoding succeeded and contains 'answer_code' key, use that
+        if (json_last_error() === JSON_ERROR_NONE && 
+            is_array($decoded) && 
+            array_key_exists('answer_code', $decoded)) {
+            // answer_code is typically an array, so join it if needed
+            $answerCode = $decoded['answer_code'];
+            if (is_array($answerCode)) {
+                return implode("\n", $answerCode);
+            }
+            return $answerCode;
+        }
+        
+        // Otherwise, return the original answer
+        return $answer;
     }
 
     private function get_course_id_from_context() {
