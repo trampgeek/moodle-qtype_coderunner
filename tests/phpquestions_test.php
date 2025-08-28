@@ -46,7 +46,7 @@ class phpquestions_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_good_sqr_function() {
+    public function test_good_sqr_function(): void {
         $q = $this->make_question('sqrphp');
         $response = ['answer' => "<?php\nfunction sqr(\$n) { return \$n * \$n; }\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -59,7 +59,7 @@ class phpquestions_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_bad_sqr_function() {
+    public function test_bad_sqr_function(): void {
         $q = $this->make_question('sqrphp');
         $response = ['answer' => "<?php\nfunction sqr(\$n) { return \$n; }\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -72,7 +72,7 @@ class phpquestions_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_bad_syntax() {
+    public function test_bad_syntax(): void {
         $q = $this->make_question('sqrphp');
         $response = ['answer' => "<?php\nfunction sqr(\$n) { return \$n\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);

@@ -114,7 +114,10 @@ if (count($keycountsbycontextid) == 0) {
         $allcourses = bulk_tester::get_all_courses();
         echo html_writer::tag('li', "Displaying all courses you have access to.");
         echo html_writer::tag('li', "Courses are displayed as: <em>[context_id] Course Name (course_id)</em>");
-        echo html_writer::tag('li', "Qbanks and other question containing contexts are displayed as: <em>[context_id] Context prefix:Context name </em>");
+        echo html_writer::tag(
+            'li',
+            "Qbanks and other question containing contexts are displayed as: <em>[context_id] Context prefix:Context name </em>"
+        );
         echo '<hr>';
         echo html_writer::end_tag('ul');
         foreach ($allcourses as $courseid => $course) {
@@ -154,7 +157,10 @@ if (count($keycountsbycontextid) == 0) {
         echo html_writer::end_tag('ul');
     }
     // Display link to admin->cache settings in case someone wants to fully purge grading cache.
-    echo html_writer::tag('p', "Use link below to open Moodle cache admin page so you can purge the whole coderunner_grading_cache.");
+    echo html_writer::tag(
+        'p',
+        "Use link below to open Moodle cache admin page so you can purge the whole coderunner_grading_cache."
+    );
     if (has_capability('moodle/site:config', context_system::instance())) {
         $link = html_writer::link(
             new moodle_url('/cache/admin.php'),

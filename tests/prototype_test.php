@@ -49,7 +49,7 @@ class prototype_test extends \qtype_coderunner_testcase {
 
     // Test we can create a prototype question then a derived question that
     // inherits a few representative fields.
-    public function test_inheritance_from_prototype() {
+    public function test_inheritance_from_prototype(): void {
         $this->make_sqr_user_type_prototype();
         $q2 = $this->make_question('sqr_user_prototype_child');  // Make a derived question.
         $this->assertEquals('{{ STUDENT_ANSWER }}', $q2->template);
@@ -57,7 +57,7 @@ class prototype_test extends \qtype_coderunner_testcase {
     }
 
     // Test any prototype files are also used by child.
-    public function test_files_inherited() {
+    public function test_files_inherited(): void {
         $q = $this->make_parent_and_child();
         $code = "print(open('data.txt').read())";
         $response = ['answer' => $code];
@@ -71,7 +71,7 @@ class prototype_test extends \qtype_coderunner_testcase {
     // inherited by the child but can be overridden by it.
     // xxx and yyy are both defined by the parent prototype and the
     // child overrides xxx and adds zzz.
-    public function test_params_inherited() {
+    public function test_params_inherited(): void {
         $q = $this->make_parent_and_child();
         $q->template = <<<EOTEMPLATE
 print( {{QUESTION.parameters.xxx}}, {{QUESTION.parameters.yyy}}, {{QUESTION.parameters.zzz}})
@@ -101,7 +101,7 @@ EOTEMPLATE;
     }
 
     // Test exported question does not contain inherited fields.
-    public function test_export() {
+    public function test_export(): void {
         $q = $this->make_parent_and_child();
         $q->qtype = $q->qtype->name(); // TODO: Why does qformat_xml expect this field to be a string?!
         $exporter = new \qformat_xml();

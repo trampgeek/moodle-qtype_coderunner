@@ -43,7 +43,7 @@ class walkthrough_multilang_test extends \qbehaviour_walkthrough_test_base {
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
-    public function test_echostdin() {
+    public function test_echostdin(): void {
 
         $answers = [
             'python3' => "try:\n    while 1:\n        print(input())\n\nexcept:\n    pass\n",

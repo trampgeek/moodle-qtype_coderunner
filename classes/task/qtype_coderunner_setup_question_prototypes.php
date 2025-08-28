@@ -16,7 +16,7 @@
 
 namespace qtype_coderunner\task;
 
-/**
+/*
  * An ad hoc task to set up CodeRunner question prototypes after installation.
  * Can't be done in the install.php script because the question type is installed
  * before the question bank module is installed.

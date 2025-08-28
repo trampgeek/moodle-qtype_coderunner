@@ -47,7 +47,7 @@ class walkthrough_combinator_grader_test extends \qbehaviour_walkthrough_test_ba
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
-    public function test_combinator_template_grading() {
+    public function test_combinator_template_grading(): void {
         // Use the question maker to provide a dummy question.
         // Mostly ignore it. This question wants an answer with exactly
         // two occurrences of each of the tokens 'hi' and 'ho' and awards
@@ -91,7 +91,7 @@ EOTEMPLATE;
 
 
     // Test the new template grader testresults, prologuehtml and columnformats fields.
-    public function test_combinator_template_grading2() {
+    public function test_combinator_template_grading2(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
@@ -143,7 +143,7 @@ EOTEMPLATE;
 
     // Test that if the combinator output fails to yield the expected number
     // of test case outputs, we get an appropriate error message.
-    public function test_bad_combinator_error() {
+    public function test_bad_combinator_error(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
@@ -165,7 +165,7 @@ EOTEMPLATE;
 
     // Test that if the combinator grader outputs bad JSON, we get an
     // appropriate error message.
-    public function test_bad_json() {
+    public function test_bad_json(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
@@ -185,7 +185,7 @@ EOTEMPLATE;
 
     // Test that if the combinator grader output has a missing fraction attribute
     // an error is generated.
-    public function test_missing_fraction() {
+    public function test_missing_fraction(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
@@ -207,7 +207,7 @@ EOTEMPLATE;
 
     // Test that if the combinator grader output has a fraction attribute > 1.0
     // an error is generated.
-    public function test_bad_fraction() {
+    public function test_bad_fraction(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
@@ -231,7 +231,7 @@ EOTEMPLATE;
     // Test that if the combinator grader output has a showoutputonly attribute
     // and no fraction, no error is generated, the mark is 1.0 and there is
     // no Passed all tests message.
-    public function test_show_output_only() {
+    public function test_show_output_only(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
@@ -256,7 +256,7 @@ EOTEMPLATE;
 
     // Test that if the combinator grader output has a columnformats with
     // the wrong number of values, an appropriate error is issued.
-    public function test_bad_combinator_grader_error() {
+    public function test_bad_combinator_grader_error(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
@@ -290,7 +290,7 @@ EOTEMPLATE;
 
     // Test that if the combinator output has a misspelled columnformats
     // field, an appropriate error is issued.
-    public function test_bad_combinator_grader_error2() {
+    public function test_bad_combinator_grader_error2(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
@@ -324,7 +324,7 @@ EOTEMPLATE;
 
     // Test that if the combinator output has a bad value in the columnformats
     // field, an appropriate error is issued.
-    public function test_bad_combinator_grader_error3() {
+    public function test_bad_combinator_grader_error3(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json
@@ -358,7 +358,7 @@ EOTEMPLATE;
     // Test that if there is a 'graderstate' in the JSON printed by
     // a combinator template grader, that value is available to the
     // question author on the next submission of an answer.
-    public function test_graderstate_in_stepinfo() {
+    public function test_graderstate_in_stepinfo(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->template = <<<EOTEMPLATE
 import json

@@ -154,7 +154,6 @@ class qtype_coderunner_jobrunner {
             $outcome->sourcecodelist = $this->allruns;
         }
 
-
         return $outcome;
     }
 

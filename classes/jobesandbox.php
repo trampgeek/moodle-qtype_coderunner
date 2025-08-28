@@ -173,13 +173,13 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
         $cachesuffix = "___{$cachecategory}___";
 
         // if ($context->context_level == CONTEXT_COURSECAT) {
-        //     $cachesuffix = "_coursecatcontextid_{$courseid}";
+        // $cachesuffix = "_coursecatcontextid_{$courseid}";
         // } else {
-        //     $cachesuffix = "_courseid_{$courseid}";
+        // $cachesuffix = "_courseid_{$courseid}";
         // }
 
         // if ($cachecategory === 'uncategorized') {
-        //     echo $cachecategory;
+        // echo $cachecategory;
         // }
 
         $language = strtolower($language);
@@ -353,11 +353,11 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
             // Skip "//" comments.
             if ($prog[$i] . $prog[$i + 1] == '//') {
                 $skipto = strpos($prog, "\n", $i + 2);
-            // Skip "/**/" comments.
+                // Skip "/**/" comments.
             } else if ($prog[$i] . $prog[$i + 1] == '/*') {
                 $skipto = strpos($prog, '*/', $i + 2) + 2;
                 $filteredprog[] = ' ';  // The string '/**/' is a token delimiter.
-            // Skip strings.
+                // Skip strings.
             } else if ($prog[$i] == '"') {
                 // Matches the whole string.
                 if (preg_match('/"((\\.)|[^\\"])*"/', $prog, $matches, 0, $i)) {
@@ -365,7 +365,7 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 } else {
                     $skipto = false;
                 }
-            // Copy everything else.
+                // Copy everything else.
             } else {
                 $filteredprog[] = $prog[$i];
             }

@@ -40,7 +40,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class grader_test extends \qtype_coderunner_testcase {
-    public function test_regex_grader() {
+    public function test_regex_grader(): void {
         // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $q->grader = 'RegexGrader';
@@ -75,7 +75,7 @@ EOCODE;
         $this->assertTrue(isset($cache['_testoutcome']));
     }
 
-    public function test_nearequality_grader_right_answer() {
+    public function test_nearequality_grader_right_answer(): void {
         // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $q->grader = 'NearEqualityGrader';
@@ -110,7 +110,7 @@ EOCODE;
         $this->assertTrue(isset($cache['_testoutcome']));
     }
 
-    public function test_nearequality_grader_wrong_answer() {
+    public function test_nearequality_grader_wrong_answer(): void {
         // Check using a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $q->grader = 'NearEqualityGrader';

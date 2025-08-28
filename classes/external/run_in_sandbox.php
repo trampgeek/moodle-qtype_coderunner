@@ -185,7 +185,7 @@ class run_in_sandbox extends external_api {
             if ($jobehostws !== '') {
                 $paramsarray['jobeserver'] = $jobehostws;
             }
-            // usecache set to false for these runs as we will never regrade them.
+            // Usecache set to false for these runs as we will never regrade them.
             $runresult = $sandbox->execute($sourcecode, $language, $stdin, $filesarray, $paramsarray, false);
         } catch (Exception $ex) {
             throw new qtype_coderunner_exception("Attempt to run job failed with error {$ex->message}");

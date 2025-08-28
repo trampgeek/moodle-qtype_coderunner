@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  */
 class ui_parameters_test extends \qtype_coderunner_testcase {
     // Test that the json specifier for the graph_ui class can be loaded.
-    public function test_params() {
+    public function test_params(): void {
         $graphuiparams = new \qtype_coderunner_ui_parameters('graph');
         $this->assertEquals("boolean", $graphuiparams->type('isdirected'));
         $this->assertEquals(true, $graphuiparams->value('isdirected'));
@@ -59,7 +59,7 @@ class ui_parameters_test extends \qtype_coderunner_testcase {
     }
 
     // Test that we can get a list of all plugins and their parameter lists.
-    public function test_plugin_list() {
+    public function test_plugin_list(): void {
         $plugins = \qtype_coderunner_ui_plugins::get_instance();
         $names = $plugins->all_names();
         $this->assertContains('ace', $names);
@@ -70,7 +70,7 @@ class ui_parameters_test extends \qtype_coderunner_testcase {
     }
 
     // Test the dropdown list for the plugins.
-    public function test_dropdown() {
+    public function test_dropdown(): void {
         $plugins = \qtype_coderunner_ui_plugins::get_instance();
         $dropdowns = $plugins->dropdownlist();
         $this->assertEquals('None', $dropdowns['none']);

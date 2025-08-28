@@ -47,7 +47,7 @@ class matlab_question_test extends \qtype_coderunner_testcase {
         $this->check_language_available('matlab');
     }
 
-    public function test_good_sqr_function() {
+    public function test_good_sqr_function(): void {
         $this->check_language_available('matlab');
         $q = $this->make_question('sqrmatlab');
         $response = ['answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n"];
@@ -61,7 +61,7 @@ class matlab_question_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_bad_sqr_function() {
+    public function test_bad_sqr_function(): void {
         $this->check_language_available('matlab');
         $q = $this->make_question('sqrmatlab');
         $response = ['answer' => "function sq = sqr(n)\n  sq = n;\nend\n"];
@@ -75,7 +75,7 @@ class matlab_question_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_bad_syntax() {
+    public function test_bad_syntax(): void {
         $this->check_language_available('matlab');
         $q = $this->make_question('sqrmatlab');
         $response = ['answer' => "function sq = sqr(n)\n  sq = n;\nendd\n"];
@@ -88,7 +88,7 @@ class matlab_question_test extends \qtype_coderunner_testcase {
         $this->assertTrue(strpos($testoutcome->testresults[0]->got, "Abnormal termination") !== false);
     }
 
-    public function test_student_answer_macro() {
+    public function test_student_answer_macro(): void {
         $this->check_language_available('matlab');
         $q = $this->make_question('teststudentanswermacro');
         $response = ['answer' => <<<EOT

@@ -50,10 +50,10 @@ echo $OUTPUT->heading('Courses containing CodeRunner questions');
 // $questionsbycontext = bulk_tester::get_num_coderunner_questions_by_context();
 // $availablequestionsbycontext = [];
 // foreach ($questionsbycontext as $contextid => $numcoderunnerquestions) {
-//     $context = context::instance_by_id($contextid);
-//     if (has_capability('moodle/question:editall', $context)) {
-//         $availablequestionsbycontext[$contextid] = $numcoderunnerquestions;
-//     }
+// $context = context::instance_by_id($contextid);
+// if (has_capability('moodle/question:editall', $context)) {
+// $availablequestionsbycontext[$contextid] = $numcoderunnerquestions;
+// }
 // }
 
 $availablequestionsbycontext = bulk_tester::get_num_available_coderunner_questions_by_context();

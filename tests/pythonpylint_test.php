@@ -43,7 +43,7 @@ class pythonpylint_test extends \qtype_coderunner_testcase {
         $this->check_language_available('python3');
     }
 
-    public function test_pylint_func_good() {
+    public function test_pylint_func_good(): void {
         // Test that a python3_pylint question with a good pylint-compatible.
         // submission passes.
         $q = $this->make_question('sqr_pylint');
@@ -64,7 +64,7 @@ EOCODE;
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
 
-    public function test_pylint_func_bad() {
+    public function test_pylint_func_bad(): void {
         // Test that a python3_pylint question with a bad (pylint-incompatible)
         // submission fails.
         $q = $this->make_question('sqr_pylint');

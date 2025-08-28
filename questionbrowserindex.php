@@ -43,23 +43,23 @@ function display_questions_for_context($contextid, $name, $numcoderunnerquestion
     if (!$browseallstr) {
         $browseallstr = "Browse questions";
     }
-    
+
     $browseurl = new moodle_url('/question/type/coderunner/questionbrowser.php', ['contextid' => $contextid]);
-    
+
     $browselink = html_writer::link(
         $browseurl,
         $browseallstr,
         ['style' => BUTTONSTYLE . ';cursor:pointer;text-decoration:none;']
     );
-    
+
     $litext = $contextid . ' - ' . $name . ' (' . $numcoderunnerquestions . ') ' . $browselink;
-    
+
     if (strpos($name, ": Quiz: ") === false) {
         $class = 'questionbrowser coderunner context normal';
     } else {
         $class = 'questionbrowser coderunner context quiz';
     }
-    
+
     echo html_writer::start_tag('li', ['class' => $class]);
     echo $litext;
     echo html_writer::end_tag('li');
@@ -93,12 +93,15 @@ if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', 'You do not have permission to browse questions in any contexts.');
 } else {
     echo html_writer::tag('h3', 'Available Contexts (' . count($availablequestionsbycontext) . ')');
-    echo html_writer::tag('p', '<strong>Instructions:</strong> Click "Browse questions" to open the question browser for that context.');
-    
+    echo html_writer::tag(
+        'p',
+        '<strong>Instructions:</strong> Click "Browse questions" to open the question browser for that context.'
+    );
+
     display_questions_for_all_contexts($availablequestionsbycontext);
 }
 
-// Add some basic styling
+// Add some basic styling.
 echo <<<HTML
 <style>
 .questionbrowser.coderunner.context {

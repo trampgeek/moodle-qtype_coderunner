@@ -46,7 +46,7 @@ class cpp_questions_test extends \qtype_coderunner_testcase {
         $this->check_language_available('cpp');
     }
 
-    public function test_good_sqr_function() {
+    public function test_good_sqr_function(): void {
         $q = $this->make_question('sqr_cpp');
         $response = ['answer' => "int sqr(int n) { return n * n;}\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -60,7 +60,7 @@ class cpp_questions_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_good_hello_world() {
+    public function test_good_hello_world(): void {
         $q = $this->make_question('hello_prog_cpp');
         $response = ['answer' => "#include <iostream>\nusing namespace std;\n" .
             "int main() { cout << \"Hello ENCE260\\n\";\nreturn 0;}\n"];
@@ -75,7 +75,7 @@ class cpp_questions_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_copy_stdin_cpp() {
+    public function test_copy_stdin_cpp(): void {
         $q = $this->make_question('copy_stdin_cpp');
         $response = ['answer' => "#include <iostream>
 using namespace std;
@@ -94,7 +94,7 @@ int main() {
     }
 
 
-    public function test_runtime_error() {
+    public function test_runtime_error(): void {
         $q = $this->make_question('hello_prog_cpp');
         $response = ['answer' => "#include <iostream>\n" .
             "using namespace std;\n" .
@@ -110,7 +110,7 @@ int main() {
         $this->assertTrue(strpos($testoutcome->testresults[0]->got, '***Run error***') === 0);
     }
 
-    public function test_cpp_strings() {
+    public function test_cpp_strings(): void {
         // Trivial test that the C++ string class is being included.
         $q = $this->make_question('str_to_upper_cpp');
         $response = ['answer' => "string str_to_upper(string s) {

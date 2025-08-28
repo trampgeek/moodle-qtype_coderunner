@@ -90,8 +90,8 @@ class UnscrewedSqlTable extends table_sql {
         if (empty($row->datetime)) {
             return '-';
         }
-        
-        // Use Moodle's built-in time formatting function
+
+        // Use Moodle's built-in time formatting function.
         return userdate($row->datetime);
     }
     //phpcs:enable

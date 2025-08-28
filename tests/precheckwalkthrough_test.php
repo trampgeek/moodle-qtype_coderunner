@@ -97,7 +97,7 @@ EOTEMPLATE;
     // Test that a precheck run with precheck set to 2 (PRECHECK_EXAMPLES)
     // runs just the use-as-example tests, and that it's marked wrong when
     // given wrong answer, right when given right answers.
-    public function test_precheck_examples() {
+    public function test_precheck_examples(): void {
         $q = $this->make_precheck_question();
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $qa = $this->get_question_attempt();
@@ -159,7 +159,7 @@ EOTEMPLATE;
     // Test that a precheck run with precheck set to 3 (PRECHECK_SELECTED)
     // runs just the selected tests and that the final check also runs just
     // the appropriate set of tests.
-    public function test_precheck_selected() {
+    public function test_precheck_selected(): void {
         $q = $this->make_precheck_question();
         $q->precheck = constants::PRECHECK_SELECTED;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -211,7 +211,7 @@ EOTEMPLATE;
     // Test that a precheck run with precheck set to 4 (PRECHECK_ALL)
     // runs all tests with the template parameter IS_PRECHECK set to true.
     // Then do a normal 'Check' run and verify that IS_PRECHECK is false.
-    public function test_precheck_all() {
+    public function test_precheck_all(): void {
         $q = $this->make_precheck_question();
         $q->precheck = constants::PRECHECK_ALL;
         $q->template = <<<EOTEMPLATE

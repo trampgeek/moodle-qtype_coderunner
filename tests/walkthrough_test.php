@@ -44,7 +44,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
     }
 
-    public function test_adaptive() {
+    public function test_adaptive(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $qa = $this->get_question_attempt();
@@ -107,7 +107,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->assertEquals('Submit: def sqr(n): return n * n', $qa->summarise_action($qa->get_last_step()));
     }
 
-    public function test_view_hidden_testcases_capability() {
+    public function test_view_hidden_testcases_capability(): void {
         global $DB, $PAGE;
         $this->resetAfterTest();
 
@@ -150,7 +150,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $this->assertStringNotContainsString('print(sqr(-6))', $this->currentoutput);
     }
 
-    public function test_partial_marks() {
+    public function test_partial_marks(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr_part_marks');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
@@ -190,7 +190,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
     // Check that penalty regime is displayed with both the Moodle default
     // penalty (if no explicit regime - legacy test) or with CodeRunner's regime
     // if set.
-    public function test_display_of_penalty_regime() {
+    public function test_display_of_penalty_regime(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->penaltyregime = '';
         $q->penalty = 0.18555555;
@@ -207,7 +207,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
     // Test that if an runtime error occurs with a combinator template,
     // the system falls back to a per test template and that the final results
     // table includes all tests up to and including the failing test.
-    public function test_behaviour_with_run_error() {
+    public function test_behaviour_with_run_error(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $answer = "def sqr(n): return n * n if n != 11 else x * x\n";
@@ -222,7 +222,7 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
     }
 
 
-    public function test_grading_template_output() {
+    public function test_grading_template_output(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqrnoprint');
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
@@ -267,7 +267,7 @@ EOTEMPLATE;
      * JSON object to a True value, the test-runner stops running testcases
      * at that point.
      */
-    public function test_grading_template_abort() {
+    public function test_grading_template_abort(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqrnoprint');
         $q->template = <<<EOTEMPLATE
 {{ STUDENT_ANSWER }}
@@ -295,7 +295,7 @@ EOTEMPLATE;
     /**
      *  Test that HTML in result table cells is appropriately sanitised
      */
-    public function test_result_table_sanitising() {
+    public function test_result_table_sanitising(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
 
@@ -306,7 +306,7 @@ EOTEMPLATE;
         $this->check_output_does_not_contain('<b>');
     }
 
-    public function test_grading_template_html_output() {
+    public function test_grading_template_html_output(): void {
         /* Test a grading template that supplies a JSON record with a got_html
            attribute. For a per-test template this is used in the results
            table as the raw html contents of the "got" column.
@@ -342,7 +342,7 @@ EOTEMPLATE;
 
 
     // Check that if Template Debugging is enabled, the source code appears.
-    public function test_template_debugging() {
+    public function test_template_debugging(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->showsource = 1;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -354,7 +354,7 @@ EOTEMPLATE;
     }
 
     // Check hidecheck option works.
-    public function test_hide_check() {
+    public function test_hide_check(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
         $this->check_output_contains('Check');
@@ -364,7 +364,7 @@ EOTEMPLATE;
     }
 
     // Check that a question with an answer preload is not gradable if answer not changed.
-    public function test_preload_not_graded() {
+    public function test_preload_not_graded(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->answerpreload = 'def sqr(n):';
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -374,7 +374,7 @@ EOTEMPLATE;
         $this->check_current_mark(null);
     }
 
-    public function test_stop_button_always() {
+    public function test_stop_button_always(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->giveupallowed = constants::GIVEUP_ALWAYS;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -455,7 +455,7 @@ EOTEMPLATE;
         );
     }
 
-    public function test_stop_button_always_never_answered() {
+    public function test_stop_button_always_never_answered(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->giveupallowed = constants::GIVEUP_ALWAYS;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -486,7 +486,7 @@ EOTEMPLATE;
         );
     }
 
-    public function test_stop_button_after_max() {
+    public function test_stop_button_after_max(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->giveupallowed = constants::GIVEUP_AFTER_MAX_MARKS;
         $this->start_attempt_at_question($q, 'adaptive', 1, 1);
@@ -590,7 +590,7 @@ EOTEMPLATE;
         );
     }
 
-    public function test_stop_button_after_max_repeatedly_wrong() {
+    public function test_stop_button_after_max_repeatedly_wrong(): void {
         $q = \test_question_maker::make_question('coderunner', 'sqr');
         $q->penaltyregime = '50, 100';
         $q->giveupallowed = constants::GIVEUP_AFTER_MAX_MARKS;

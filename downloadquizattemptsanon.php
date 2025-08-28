@@ -23,5 +23,7 @@
  * @copyright 2017 Richard Lobb, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
+
 define('ANONYMISE', 1);
-include(__DIR__ . '/downloadquizattempts.php');
+require(__DIR__ . '/downloadquizattempts.php');

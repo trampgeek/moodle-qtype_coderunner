@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php')
  * @coversNothing
  */
 class template_test extends \qtype_coderunner_testcase {
-    public function test_template_engine() {
+    public function test_template_engine(): void {
         // Check if the template engine is installed and working OK.
         $macros = \qtype_coderunner_twigmacros::macros();
         $twigloader = new \Twig\Loader\ArrayLoader($macros);
@@ -55,7 +55,7 @@ class template_test extends \qtype_coderunner_testcase {
         $this->assertEquals('Hello Fabien!', $renderedstring);
     }
 
-    public function test_question_template() {
+    public function test_question_template(): void {
         // Check that a Python question gets suitably expanded with parameters
         // from the question itself. Also tests the JSON handling of sandbox
         // params.
@@ -86,7 +86,7 @@ EOTEMPLATE;
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
 
-    public function test_grading_template() {
+    public function test_grading_template(): void {
         // Test a template that is also custom grader, plus python-escaping
         // in Twig templates.
         // This grader gives full marks if the input value is negative and
@@ -128,7 +128,7 @@ EOTEMPLATE;
         $this->assertTrue($mark == 0.0);
     }
 
-    public function test_template_params() {
+    public function test_template_params(): void {
         // Test that a templateparams field in the question is expanded
         // from a JSON string and available to the template engine.
 

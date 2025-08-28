@@ -44,7 +44,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->check_language_available('c');
     }
 
-    public function test_good_sqr_function() {
+    public function test_good_sqr_function(): void {
         $q = $this->make_question('sqr_c');
         $response = ['answer' => "int sqr(int n) { return n * n;}\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -56,7 +56,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->all_correct());
     }
 
-    public function test_compile_error() {
+    public function test_compile_error(): void {
         $q = $this->make_question('sqr_c');
         $response = ['answer' => "int sqr(int n) { return n * n; /* No closing brace */"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -68,7 +68,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(0, count($testoutcome->testresults));
     }
 
-    public function test_good_hello_world() {
+    public function test_good_hello_world(): void {
         $q = $this->make_question('hello_prog_c');
         $response = ['answer' => "#include <stdio.h>\nint main() { printf(\"Hello ENCE260\\n\");return 0;}\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -81,7 +81,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->all_correct());
     }
 
-    public function test_bad_hello_world() {
+    public function test_bad_hello_world(): void {
         $q = $this->make_question('hello_prog_c');
         $response = ['answer' => "#include <stdio.h>\nint main() { printf(\"Hello ENCE260!\\n\");return 0;}\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -94,7 +94,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->all_correct());
     }
 
-    public function test_copy_stdin_c() {
+    public function test_copy_stdin_c(): void {
         $q = $this->make_question('copy_stdin_c');
         $response = ['answer' => "#include <stdio.h>\n" .
             "int main() {\n" .
@@ -113,7 +113,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->all_correct());
     }
 
-    public function test_c_func_with_side_effects() {
+    public function test_c_func_with_side_effects(): void {
         // This used to test the c_function_side_effects question type, but
         // that's now defunct. The test is still vaguely useful, though, as
         // it tests that what looks like a global array in each test case
@@ -137,7 +137,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->all_correct());
     }
 
-    public function test_runtime_error() {
+    public function test_runtime_error(): void {
         $q = $this->make_question('hello_prog_c');
         $response = ['answer' => "#include <stdio.h>\n" .
             "#include <stdlib.h>\n" .
@@ -153,7 +153,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertTrue(strpos($testoutcome->testresults[0]->got, '***Run error***') === 0);
     }
 
-    public function test_timelimit_exceeded() {
+    public function test_timelimit_exceeded(): void {
         $q = $this->make_question('hello_prog_c');
         $response = ['answer' => "#include <stdio.h>\nint main() { while(1) {};return 0;}\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -167,7 +167,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertEquals("***Time limit exceeded***\n", $testoutcome->testresults[0]->got);
     }
 
-    public function test_outputlimit_exceeded() {
+    public function test_outputlimit_exceeded(): void {
         $q = $this->make_question('hello_prog_c');
         $response = ['answer' => "#include <stdio.h>\nint main() { while(1) { printf(\"Hello\"); };return 0;}\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -184,7 +184,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         );
     }
 
-    public function test_missing_semicolon() {
+    public function test_missing_semicolon(): void {
         // Check that a missing semicolon in a simple printf test is reinsterted.
         // Check grading of a "write-a-function" question with multiple
         // test cases and a correct solution.
@@ -199,7 +199,7 @@ class c_questions_test extends \qtype_coderunner_testcase {
         $this->assertTrue($testoutcome->all_correct());
     }
 
-    public function test_simple_fork_bomb() {
+    public function test_simple_fork_bomb(): void {
         // Check that sandbox can handle a fork-bomb.
         $q = $this->make_question('sqr_c_single_test');
         $response = ['answer' => <<< EOANS

@@ -61,17 +61,17 @@ class questiontype_test extends \advanced_testcase {
         return $q;
     }
 
-    public function test_name() {
+    public function test_name(): void {
         $this->assertEquals('coderunner', $this->qtype->name());
     }
 
 
-    public function test_get_random_guess_score() {
+    public function test_get_random_guess_score(): void {
         $q = $this->get_test_question_data();
         $this->assertEquals(0, $this->qtype->get_random_guess_score($q));
     }
 
-    public function test_get_possible_responses() {
+    public function test_get_possible_responses(): void {
         $q = $this->get_test_question_data();
         $this->assertEquals([], $this->qtype->get_possible_responses($q));
     }

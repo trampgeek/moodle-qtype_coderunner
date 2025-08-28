@@ -47,7 +47,7 @@ class octave_question_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_good_sqr_function() {
+    public function test_good_sqr_function(): void {
         $q = $this->make_question('sqroctave');
         $response = ['answer' => "function sq = sqr(n)\n  sq = n * n;\nend\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -60,7 +60,7 @@ class octave_question_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_bad_sqr_function() {
+    public function test_bad_sqr_function(): void {
         $q = $this->make_question('sqroctave');
         $response = ['answer' => "function sq = sqr(n)\n  sq = n;\nend\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -73,7 +73,7 @@ class octave_question_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_bad_syntax() {
+    public function test_bad_syntax(): void {
         $q = $this->make_question('sqroctave');
         $response = ['answer' => "function sq = sqr(n)\n  sq = n:\nend\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -86,7 +86,7 @@ class octave_question_test extends \qtype_coderunner_testcase {
                 || strpos($testoutcome->testresults[0]->got, "syntax error") !== false);
     }
 
-    public function test_student_answer_macro() {
+    public function test_student_answer_macro(): void {
         $q = $this->make_question('teststudentanswermacrooctave');
         $response = ['answer' => <<<EOT
 function mytest()

@@ -45,7 +45,7 @@ class java_question_test extends \qtype_coderunner_testcase {
         $this->check_language_available('java');
     }
 
-    public function test_good_sqr_function() {
+    public function test_good_sqr_function(): void {
         $q = $this->make_question('sqrjava');
         $response = ['answer' => "int sqr(int n) { return n * n; }\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -58,7 +58,7 @@ class java_question_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_bad_sqr_function() {
+    public function test_bad_sqr_function(): void {
         $q = $this->make_question('sqrjava');
         $response = ['answer' => "int sqr(int n) { return n; }\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -71,7 +71,7 @@ class java_question_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_bad_syntax() {
+    public function test_bad_syntax(): void {
         $q = $this->make_question('sqrjava');
         $response = ['answer' => "int sqr(n) { return n * n; }\n"];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -84,7 +84,7 @@ class java_question_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_class_type() {
+    public function test_class_type(): void {
         $q = $this->make_question('nameclass');
         $response = ['answer' => <<<EOCODE
 class Name {
@@ -110,7 +110,7 @@ EOCODE
         $this->assertTrue($testoutcome->all_correct());
     }
 
-    public function test_program_type() {
+    public function test_program_type(): void {
         $q = $this->make_question('printsquares');
         $response = ['answer' => <<<EOCODE
 import java.util.Scanner;
@@ -137,7 +137,7 @@ EOCODE
         $this->assertTrue($testoutcome->all_correct());
     }
 
-    public function test_program_type_alternate_syntax() {
+    public function test_program_type_alternate_syntax(): void {
         $q = $this->make_question('printsquares');
         $response = ['answer' => <<<EOCODE
 import java.util.Scanner;
@@ -166,7 +166,7 @@ EOCODE
 
 
     // Checks if the Java Twig escape filter works.
-    public function test_java_escape() {
+    public function test_java_escape(): void {
         $q = $this->make_question('printstr');
         $response = ['answer' => ''];
         [$mark, , ] = $q->grade_response($response);

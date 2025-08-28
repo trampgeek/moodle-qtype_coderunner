@@ -178,7 +178,8 @@ echo $OUTPUT->header();
 echo <<<HTML
 <div class="bulk-test-config" style="margin-bottom: 20px; padding: 10px; background-color: #f5f5f5; border: 1px solid #ddd;">
     <h3>Test Configuration</h3>
-    <div style="margin-bottom: 10px; display: grid; grid-template-columns: 180pt 80pt auto; gap: 10px; align-items: center; max-width:1000;">
+    <div style="margin-bottom: 10px; display: grid; grid-template-columns: 180pt 80pt auto; gap: 10px;
+        align-items: center; max-width:1000;">
         <div style="grid-column: span 3; border-top: 1px solid rgb(10, 16, 74);"> </div>
         <label for="nruns">$numrunslabel</label>
         <input type="number" id="nruns" class="form-control" value="{$nruns}" min="1" style="width: 80px;">
@@ -220,7 +221,7 @@ if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
 } else {
     echo html_writer::tag('p', '<b>jobe_host:</b> ' . $jobehost);
-    // Something to do
+    // Something to do.
     if ($oldskool) {
         // Moodle 4 style.
         echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));

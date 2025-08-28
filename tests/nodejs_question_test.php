@@ -46,7 +46,7 @@ class nodejs_question_test extends \qtype_coderunner_testcase {
         $this->check_language_available('nodejs');
     }
 
-    public function test_good_sqr_function() {
+    public function test_good_sqr_function(): void {
         $this->check_language_available('nodejs');
         $q = $this->make_question('sqrnodejs');
         $response = ['answer' => "function sqr(n) {\n  return n * n;\n}\n"];
@@ -60,7 +60,7 @@ class nodejs_question_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_bad_sqr_function() {
+    public function test_bad_sqr_function(): void {
         // Return a wrong answer in this version.
         $this->check_language_available('nodejs');
         $q = $this->make_question('sqrnodejs');

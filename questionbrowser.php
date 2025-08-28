@@ -35,14 +35,14 @@ require_once($CFG->libdir . '/questionlib.php');
 require_once(__DIR__ . '/classes/bulk_tester.php');
 
 // Get the parameter from the URL.
-$contextid = required_param('contextid', PARAM_INT); 
+$contextid = required_param('contextid', PARAM_INT);
 
 // Login and check permissions.
 require_login();
 $context = \context::instance_by_id($contextid);
 require_capability('moodle/question:editall', $context);
 
-// Get course name for display
+// Get course name for display.
 $coursename = '';
 if ($context->contextlevel == CONTEXT_COURSE) {
     $course = $DB->get_record('course', ['id' => $context->instanceid], 'fullname');
@@ -55,12 +55,12 @@ if ($context->contextlevel == CONTEXT_COURSE) {
     $coursename = $context->get_context_name() . ' (' . $contextid . ')';
 }
 
-// Generate questions data directly
+// Generate questions data directly.
 $generator = new questions_json_generator($context);
 $questions = $generator->generate_questions_data();
 $questionsjson = json_encode($questions, JSON_UNESCAPED_UNICODE);
 
-// Get the correct Moodle base URL for JavaScript
+// Get the correct Moodle base URL for JavaScript.
 global $CFG;
 $moodlebaseurl = $CFG->wwwroot;
 
@@ -83,8 +83,8 @@ class questions_json_generator {
     private $context;
 
     private static $stageorder = [
-        'fundamentals', 'if', 'while', 'lists', 'for', 'files', 
-        'numpy/matplotlib', 'dicts', 'oop'
+        'fundamentals', 'if', 'while', 'lists', 'for', 'files',
+        'numpy/matplotlib', 'dicts', 'oop',
     ];
 
     public function __construct($context) {
@@ -95,7 +95,7 @@ class questions_json_generator {
      * Generate the complete questions data array.
      */
     public function generate_questions_data() {
-        // Use the same query pattern as bulk_tester
+        // Use the same query pattern as bulk_tester.
         $questions = bulk_tester::get_all_coderunner_questions_in_context($this->context->id, false);
 
         $enhancedquestions = [];
@@ -112,13 +112,13 @@ class questions_json_generator {
      * Enhance a single question with metadata analysis.
      */
     private function enhance_question_metadata($question) {
-        // Determine course ID from context
+        // Determine course ID from context.
         $courseid = $this->get_course_id_from_context();
-        
-        // Check if this is a COSC131 course for specialized analysis
+
+        // Check if this is a COSC131 course for specialized analysis.
         $iscosc131 = $this->is_cosc131_course();
 
-        // Extract the correct answer, handling JSON format if needed
+        // Extract the correct answer, handling JSON format if needed.
         $answer = $this->extract_answer($question->answer ?? '');
 
         // Base question data matching the JSON structure.
@@ -130,25 +130,25 @@ class questions_json_generator {
             'answer' => $answer,
             'coderunnertype' => $question->coderunnertype,
             'category' => bulk_tester::get_category_path($question->category),
-            'categoryid' => (string)$question->category, // Keep the original category ID for URLs
+            'categoryid' => (string)$question->category, // Keep the original category ID for URLs.
             'version' => (int)$question->version,
-            'courseid' => (string)$courseid
+            'courseid' => (string)$courseid,
         ];
 
-        // Analyze code to add enhanced metadata,
+        // Analyze code to add enhanced metadata.
         $enhanced['lines_of_code'] = $this->count_lines_of_code($answer);
         $enhanced['constructs_used'] = $this->detect_constructs($answer);
-        
-        // COSC131-specific fields
+
+        // COSC131-specific fields.
         if ($iscosc131) {
             $enhanced['highest_stage'] = $this->classify_stage($enhanced['constructs_used'], $answer);
             $enhanced['topic_area'] = $this->determine_topic_area(
                 $answer,
-                $question->name, 
+                $question->name,
                 $enhanced['constructs_used']
             );
         }
-        
+
         $enhanced['spec_difficulty'] = $this->assess_difficulty(
             $enhanced['lines_of_code'],
             $enhanced['constructs_used']
@@ -168,22 +168,24 @@ class questions_json_generator {
             return '';
         }
 
-        // Attempt to decode JSON
+        // Attempt to decode JSON.
         $decoded = json_decode($answer, true);
-        
-        // If JSON decoding succeeded and contains 'answer_code' key, use that
-        if (json_last_error() === JSON_ERROR_NONE && 
-            is_array($decoded) && 
-            array_key_exists('answer_code', $decoded)) {
-            // answer_code is typically an array, so join it if needed
-            $answerCode = $decoded['answer_code'];
-            if (is_array($answerCode)) {
-                return implode("\n", $answerCode);
+
+        // If JSON decoding succeeded and contains 'answer_code' key, use that.
+        if (
+            json_last_error() === JSON_ERROR_NONE &&
+            is_array($decoded) &&
+            array_key_exists('answer_code', $decoded)
+        ) {
+            // Answer_code is typically an array, so join it if needed.
+            $answercode = $decoded['answer_code'];
+            if (is_array($answercode)) {
+                return implode("\n", $answercode);
             }
-            return $answerCode;
+            return $answercode;
         }
-        
-        // Otherwise, return the original answer
+
+        // Otherwise, return the original answer.
         return $answer;
     }
 
@@ -196,20 +198,20 @@ class questions_json_generator {
         }
         return '0';
     }
-    
+
     private function is_cosc131_course() {
         global $DB;
-        
+
         $courseid = $this->get_course_id_from_context();
         if ($courseid == '0') {
             return false;
         }
-        
+
         $course = $DB->get_record('course', ['id' => $courseid], 'shortname');
         if (!$course) {
             return false;
         }
-        
+
         return stripos($course->shortname, 'cosc131') === 0;
     }
 
@@ -237,20 +239,20 @@ class questions_json_generator {
         }
 
         $constructs = [];
-        
-        // Remove Twig variables for analysis
+
+        // Remove Twig variables for analysis.
         $codeforanalysis = preg_replace('/\{\{([^}]+)\}\}/', '$1', $code);
         $lines = explode("\n", $codeforanalysis);
 
         foreach ($lines as $line) {
             $line = trim($line);
-            
-            // Skip empty lines and comments
+
+            // Skip empty lines and comments.
             if (empty($line) || strpos($line, '#') === 0) {
                 continue;
             }
 
-            // Simple keyword detection at line start or after whitespace
+            // Simple keyword detection at line start or after whitespace.
             if (preg_match('/^\s*if\b/', $line)) {
                 $constructs[] = 'if';
             }
@@ -270,7 +272,7 @@ class questions_json_generator {
                 $constructs[] = 'try-except';
             }
 
-            // Content-based detection (anywhere in line)
+            // Content-based detection (anywhere in line).
             if (strpos($line, 'open(') !== false) {
                 $constructs[] = 'file-io';
             }
@@ -284,7 +286,8 @@ class questions_json_generator {
             $isdictline = false;
 
             // Dictionary literal with key:value pairs, avoiding f-strings and format strings.
-            if (preg_match('/\{[^}]*:[^}]*\}/', $line) &&
+            if (
+                preg_match('/\{[^}]*:[^}]*\}/', $line) &&
                 !preg_match('/f["\']/', $line) &&
                 !preg_match('/\.format\s*\(/', $line)
             ) {
@@ -296,13 +299,9 @@ class questions_json_generator {
                 $isdictline = true;
             }
 
-            // Dictionary indexing/assignment.
-            if (preg_match('/\w+\[.+\]\s*=/', $line) || preg_match('/=.*\w+\[.+\]/', $line)) {
-                $isdictline = true;
-            }
-
             // Dictionary constructor or methods.
-            if (preg_match('/\bdict\s*\(/', $line) ||
+            if (
+                preg_match('/\bdict\s*\(/', $line) ||
                 preg_match('/\.(keys|values|items|get|update)\s*\(/', $line)
             ) {
                 $isdictline = true;
@@ -324,15 +323,32 @@ class questions_json_generator {
             return 'fundamentals';
         }
 
-        // Check from highest to lowest stage
-        if (in_array('class', $constructs)) return 'oop';
-        if (in_array('numpy/matplotlib', $constructs)) return 'numpy/matplotlib';
-        if (in_array('dict', $constructs)) return 'dicts';
-        if (in_array('file-io', $constructs)) return 'files';
-        if (in_array('for', $constructs) || in_array('list-comp', $constructs)) return 'for';
-        if (preg_match('/\[[^\]]*\]/', $code)) return 'lists'; // Simple list detection
-        if (in_array('while', $constructs)) return 'while';
-        if (in_array('if', $constructs)) return 'if';
+        // Check from highest to lowest stage.
+        if (in_array('class', $constructs)) {
+            return 'oop';
+        }
+        if (in_array('numpy/matplotlib', $constructs)) {
+            return 'numpy/matplotlib';
+        }
+        if (in_array('dict', $constructs)) {
+            return 'dicts';
+        }
+        if (in_array('file-io', $constructs)) {
+            return 'files';
+        }
+        if (in_array('for', $constructs) || in_array('list-comp', $constructs)) {
+            return 'for';
+        }
+        // Simple list detection.
+        if (preg_match('/\[[^\]]*\]/', $code)) {
+            return 'lists';
+        }
+        if (in_array('while', $constructs)) {
+            return 'while';
+        }
+        if (in_array('if', $constructs)) {
+            return 'if';
+        }
 
         return 'fundamentals';
     }
@@ -387,7 +403,7 @@ $PAGE->set_title('Question Browser - ' . $coursename);
 $PAGE->set_heading('Question Browser - ' . $coursename);
 $PAGE->set_pagelayout('incourse'); // Use incourse layout for proper course context.
 
-// Set up proper navigation context for the course
+// Set up proper navigation context for the course.
 if ($context->contextlevel == CONTEXT_COURSE) {
     $PAGE->set_course($DB->get_record('course', ['id' => $context->instanceid]));
 } else if ($context->contextlevel == CONTEXT_MODULE) {
@@ -397,7 +413,7 @@ if ($context->contextlevel == CONTEXT_COURSE) {
     $PAGE->set_cm($cm);
 }
 
-// Add the question browser to the navigation
+// Add the question browser to the navigation.
 $PAGE->navbar->add('Question Browser');
 
 echo $OUTPUT->header();
@@ -409,6 +425,13 @@ echo $OUTPUT->header();
 #page-header, .page-header-headings {
     margin-top: 0;
     padding-top: 0.5rem;
+}
+
+/* Highlight active buttons when panels are open */
+.qbrowser-btn-active {
+    background-color: #0066cc !important;
+    border-color: #0066cc !important;
+    color: white !important;
 }
 
 /* Minimal custom styles to work with Moodle theme */
@@ -561,23 +584,23 @@ echo $OUTPUT->header();
 
 <script>
 (() => {
-  // Questions data is embedded directly from PHP
+  // Questions data is embedded directly from PHP.
   const rawData = <?php echo $questionsjson; ?>;
   let viewData = rawData.slice();
   
-  // Get the correct Moodle base URL from PHP
+  // Get the correct Moodle base URL from PHP.
   const moodleBaseUrl = '<?php echo $moodlebaseurl; ?>';
   
   // Common categorical keys you likely have; only rendered if present in data.
   const COMMON_CATS = ["highest_stage", "spec_difficulty", "question_type", "topic_area"];
   
-  // Teaching order for highest_stage dropdown
+  // Teaching order for highest_stage dropdown.
   const STAGE_ORDER = ["fundamentals", "if", "while", "lists", "for", "files", "numpy/matplotlib", "dicts", "oop"];
 
   let currentSort = {field: null, direction: 'asc'};
   let hasStageData = false; // Whether the current dataset has stage data
 
-  // Elements
+  // Elements.
   const kw = document.getElementById('kw');
   const kwMode = document.getElementById('kwMode');
   const kwField = document.getElementById('kwField');
@@ -591,7 +614,7 @@ echo $OUTPUT->header();
   const exportJsonBtn = document.getElementById('exportJson');
   const exportCsvBtn = document.getElementById('exportCsv');
 
-  // Helpers
+  // Helpers.
   function isNumber(x){ return typeof x === 'number' && Number.isFinite(x); }
   
   function buildHeader() {
@@ -602,26 +625,26 @@ echo $OUTPUT->header();
     thead.className = 'table-dark sticky-top';
     const headerRow = document.createElement('tr');
     
-    // Name column
+    // Name column.
     const nameCol = document.createElement('th');
     nameCol.id = 'sortName';
     nameCol.style.cursor = 'pointer';
     nameCol.textContent = 'Name ↕';
     nameCol.className = 'user-select-none';
     
-    // Actions column (moved between Name and Category)
+    // Actions column (moved between Name and Category).
     const actionsCol = document.createElement('th');
     actionsCol.textContent = 'Actions';
     actionsCol.style.width = '280px';
     
-    // Category column  
+    // Category column.
     const categoryCol = document.createElement('th');
     categoryCol.id = 'sortCategory';
     categoryCol.style.cursor = 'pointer';
     categoryCol.textContent = 'Category ↕';
     categoryCol.className = 'user-select-none';
     
-    // Stage column (if applicable)
+    // Stage column (if applicable).
     let stageCol = null;
     if (hasStageData) {
       stageCol = document.createElement('th');
@@ -668,13 +691,13 @@ echo $OUTPUT->header();
   function summarizeRow(q, idx, tbody){
     const row = document.createElement('tr');
 
-    // Name cell
+    // Name cell.
     const nameCell = document.createElement('td');
     nameCell.textContent = q.name ?? '';
     nameCell.className = 'text-truncate';
     nameCell.style.maxWidth = '300px';
 
-    // Actions cell with smaller buttons
+    // Actions cell with smaller buttons.
     const actionsCell = document.createElement('td');
     actionsCell.className = 'qbrowser-controls';
     
@@ -740,6 +763,10 @@ echo $OUTPUT->header();
         questionBtn.textContent = 'Question';
         answerBtn.textContent = 'Answer';
         jsonBtn.textContent = 'JSON';
+        // Remove highlighting from all buttons
+        questionBtn.classList.remove('qbrowser-btn-active');
+        answerBtn.classList.remove('qbrowser-btn-active');
+        jsonBtn.classList.remove('qbrowser-btn-active');
         if (detailRow) {
           detailRow.remove();
           detailRow = null;
@@ -750,11 +777,20 @@ echo $OUTPUT->header();
           detailRow.remove();
         }
         
-        // Update button states
+        // Update button states and highlighting
         openType = type;
         questionBtn.textContent = type === 'question' ? 'Close' : 'Question';
         answerBtn.textContent = type === 'answer' ? 'Close' : 'Answer';
         jsonBtn.textContent = type === 'json' ? 'Close' : 'JSON';
+        
+        // Remove highlighting from all buttons, then add to active one
+        questionBtn.classList.remove('qbrowser-btn-active');
+        answerBtn.classList.remove('qbrowser-btn-active');
+        jsonBtn.classList.remove('qbrowser-btn-active');
+        
+        if (type === 'question') questionBtn.classList.add('qbrowser-btn-active');
+        else if (type === 'answer') answerBtn.classList.add('qbrowser-btn-active');
+        else if (type === 'json') jsonBtn.classList.add('qbrowser-btn-active');
 
         // Create new detail row
         detailRow = document.createElement('tr');

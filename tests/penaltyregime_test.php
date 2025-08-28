@@ -65,7 +65,7 @@ class penaltyregime_test extends \qbehaviour_walkthrough_test_base {
         $this->check_current_mark($expected);
     }
 
-    public function test_with_good_regime() {
+    public function test_with_good_regime(): void {
         $this->run_with_regime("15, 30, 50, ...", 0, 1.0);
         $this->run_with_regime("15, 30, 50, ...", 1, 0.85);
         $this->run_with_regime("15, 30, 50, ...", 2, 0.70);
@@ -75,7 +75,7 @@ class penaltyregime_test extends \qbehaviour_walkthrough_test_base {
         $this->run_with_regime("15, 30, 50, ...", 6, 0.0);
     }
 
-    public function test_with_missing_comma_at_end() {
+    public function test_with_missing_comma_at_end(): void {
         $this->run_with_regime("15, 30, 50 ...", 0, 1.0);
         $this->run_with_regime("15, 30, 50 ...", 1, 0.85);
         $this->run_with_regime("15, 30, 50 ...", 2, 0.70);
@@ -85,7 +85,7 @@ class penaltyregime_test extends \qbehaviour_walkthrough_test_base {
         $this->run_with_regime("15, 30, 50 ...", 6, 0.0);
     }
 
-    public function test_with_space_separators_and_percents() {
+    public function test_with_space_separators_and_percents(): void {
         $this->run_with_regime("15%  30  50% ...", 0, 1.0);
         $this->run_with_regime("15   30%   50 ...", 1, 0.85);
         $this->run_with_regime("15 30   50   ...", 2, 0.70);

@@ -37,7 +37,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class ideonesandbox_test extends \qtype_coderunner_testcase {
-    public function test_testfunction() {
+    public function test_testfunction(): void {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new \qtype_coderunner_ideonesandbox();  // Lots happens here!
 
@@ -56,7 +56,7 @@ class ideonesandbox_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_ideonesandbox_python2_good() {
+    public function test_ideonesandbox_python2_good(): void {
         // Test ideone using the execute method of the base class
         // with a valid python2 program.
         $this->check_sandbox_enabled('ideonesandbox');
@@ -71,7 +71,7 @@ class ideonesandbox_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_ideonesandbox_python3_good() {
+    public function test_ideonesandbox_python3_good(): void {
         // Test the ideone sandbox using the execute method of the base class
         // with a valid python3 program.
         $this->check_sandbox_enabled('ideonesandbox');
@@ -88,7 +88,7 @@ class ideonesandbox_test extends \qtype_coderunner_testcase {
 
     // Test the ideone sandbox using the execute method of the base class
     // with a syntactically invalid python3 program.
-    public function test_ideonesandbox_python3_bad() {
+    public function test_ideonesandbox_python3_bad(): void {
         $this->check_sandbox_enabled('ideonesandbox');
         $source = "print('Hello sandbox!'):\n";
         $sandbox = new \qtype_coderunner_ideonesandbox();
@@ -98,7 +98,7 @@ class ideonesandbox_test extends \qtype_coderunner_testcase {
     }
 
 
-    public function test_ideonesandbox_python3_timeout() {
+    public function test_ideonesandbox_python3_timeout(): void {
         // Test the ideone sandbox using the execute method of the base class
         // with a python3 program that loops.
         $this->check_sandbox_enabled('ideonesandbox');
@@ -117,7 +117,7 @@ class ideonesandbox_test extends \qtype_coderunner_testcase {
 
 
     // Test the ideone sandbox with a syntactically bad C program.
-    public function test_ideone_sandbox_bad_c() {
+    public function test_ideone_sandbox_bad_c(): void {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new \qtype_coderunner_ideonesandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
@@ -128,7 +128,7 @@ class ideonesandbox_test extends \qtype_coderunner_testcase {
     }
 
     // Test the ideone sandbox with a valid C program.
-    public function test_ideone_sandbox_ok_c() {
+    public function test_ideone_sandbox_ok_c(): void {
         $this->check_sandbox_enabled('ideonesandbox');
         $sandbox = new \qtype_coderunner_ideonesandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";

@@ -37,7 +37,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class customise_test extends \qtype_coderunner_testcase {
-    public function test_grade_response_right() {
+    public function test_grade_response_right(): void {
         $q = $this->make_question('sqr_customised');
         $response = ['answer' => 'def sqr(n): return times(n, n)'];
         [$mark, $grade, $cache] = $q->grade_response($response);

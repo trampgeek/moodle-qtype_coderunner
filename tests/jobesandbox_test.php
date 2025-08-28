@@ -42,7 +42,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @coversNothing
  */
 class jobesandbox_test extends \qtype_coderunner_testcase {
-    public function test_fail_with_bad_key() {
+    public function test_fail_with_bad_key(): void {
         $this->check_sandbox_enabled('jobesandbox');
         if (!get_config('qtype_coderunner', 'jobe_apikey_enabled')) {
             $this->markTestSkipped("Jobe API key security disabled: test skipped");
@@ -53,7 +53,7 @@ class jobesandbox_test extends \qtype_coderunner_testcase {
         $this->assertEquals($sandbox::AUTH_ERROR, $langs->error);
     }
 
-    public function test_succeed_with_good_key() {
+    public function test_succeed_with_good_key(): void {
         $this->check_sandbox_enabled('jobesandbox');
         if (!get_config('qtype_coderunner', 'jobe_apikey_enabled')) {
             $this->markTestSkipped("Jobe API key security disabled: test skipped");
@@ -64,7 +64,7 @@ class jobesandbox_test extends \qtype_coderunner_testcase {
         $this->assertEquals($sandbox::OK, $langs->error);
     }
 
-    public function test_languages() {
+    public function test_languages(): void {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new \qtype_coderunner_jobesandbox();
         $langs = $sandbox->get_languages()->languages;
@@ -72,7 +72,7 @@ class jobesandbox_test extends \qtype_coderunner_testcase {
         $this->assertTrue(in_array('c', $langs, true));
     }
 
-    public function test_jobesandbox_python3_good() {
+    public function test_jobesandbox_python3_good(): void {
         // Test the jobe sandbox using the execute method of the base class.
         // with a valid python3 program.
         $this->check_sandbox_enabled('jobesandbox');
@@ -89,7 +89,7 @@ class jobesandbox_test extends \qtype_coderunner_testcase {
 
     // Test the jobe sandbox using the execute method of the base class.
     // with a syntactically invalid python3 program.
-    public function test_jobesandbox_python3_bad() {
+    public function test_jobesandbox_python3_bad(): void {
         $this->check_sandbox_enabled('jobesandbox');
         $source = "print('Hello sandbox!'):\n";
         $sandbox = new \qtype_coderunner_jobesandbox();
@@ -99,7 +99,7 @@ class jobesandbox_test extends \qtype_coderunner_testcase {
         $sandbox->close();
     }
 
-    public function test_jobesandbox_python3_with_files() {
+    public function test_jobesandbox_python3_with_files(): void {
         $this->check_sandbox_enabled('jobesandbox');
         $source = "print(open('first.a').read())
 print(open('second.bb').read())
@@ -119,7 +119,7 @@ print(open('second.bb').read())
         $this->assertEquals("Line1\nLine2\nOtherfile\n", $result->output);
     }
 
-    public function test_jobesandbox_python3_timeout() {
+    public function test_jobesandbox_python3_timeout(): void {
         // Test the jobe sandbox using the execute method of the base class
         // with a python3 program that loops.
         $this->check_sandbox_enabled('jobesandbox');
@@ -135,7 +135,7 @@ print(open('second.bb').read())
     }
 
     // Test the jobe sandbox with a syntactically bad C program.
-    public function test_jobe_sandbox_bad_c() {
+    public function test_jobe_sandbox_bad_c(): void {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new \qtype_coderunner_jobesandbox();
         $code = "#include <stdio.h>\nint main(): {\n    printf(\"Hello sandbox\");\n    return 0;\n}\n";
@@ -147,7 +147,7 @@ print(open('second.bb').read())
     }
 
     // Test the jobe sandbox with a valid C program.
-    public function test_jobe_sandbox_ok_c() {
+    public function test_jobe_sandbox_ok_c(): void {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new \qtype_coderunner_jobesandbox();
         $code = "#include <stdio.h>\nint main() {\n    printf(\"Hello sandbox\\n\");\n    return 0;\n}\n";
@@ -161,7 +161,7 @@ print(open('second.bb').read())
     }
 
     // Test the jobe sandbox with a valid java program.
-    public function test_jobe_sandbox_ok_java() {
+    public function test_jobe_sandbox_ok_java(): void {
         $this->check_sandbox_enabled('jobesandbox');
         $sandbox = new \qtype_coderunner_jobesandbox();
         $langs = $sandbox->get_languages()->languages;
@@ -188,7 +188,7 @@ EOCODE;
     // Test if limits are enforced, but only if all previous tests passed
     // (otherwise we're done with testing for an hour) and if config parameter
     // 'jobe_limits_enforced is true.
-    public function test_limits_enforced() {
+    public function test_limits_enforced(): void {
         $this->check_sandbox_enabled('jobesandbox');
         if (!get_config('qtype_coderunner', 'jobe_limits_enforced')) {
             $this->markTestSkipped("Jobe limits not being enforced: test skipped");

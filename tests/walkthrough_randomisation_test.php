@@ -43,7 +43,7 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
     // that prints the sqr of either 111 or 112. Checks Twig expansion of
     // questiontext test code, extra, and expected for all four possible
     // combinations.
-    public function test_randomised_sqr() {
+    public function test_randomised_sqr(): void {
 
         $iters = 0;
         $tests = [
@@ -77,7 +77,7 @@ class walkthrough_randomisation_test extends \qbehaviour_walkthrough_test_base {
     // We check that iterating over a sequence of seeds eventually results in
     // each possible answer and that continuing with a fixed seed results in
     // no further randomisation.
-    public function test_randomised_sqr_with_seed() {
+    public function test_randomised_sqr_with_seed(): void {
 
         $tests = [
             ['searchfor' => 'print(mysqr(111))', 'answer' => "def mysqr(n): return n * n"],

@@ -40,9 +40,11 @@ $categoryid = optional_param('categoryid', null, PARAM_INT);
 $randomseed = optional_param('randomseed', -1, PARAM_INT);
 $repeatrandomonly = optional_param('repeatrandomonly', 1, PARAM_INT);
 $nruns = optional_param('nruns', 1, PARAM_INT);
-$questionids = optional_param('questionids', '', PARAM_RAW);  // A list of specific questions to check, eg, for rechecking failed tests.
 $clearcachefirst = optional_param('clearcachefirst', 0, PARAM_INT);
 $usecache = optional_param('usecache', 1, PARAM_INT);
+
+// A list of specific questions to check, eg, for rechecking failed tests.
+$questionids = optional_param('questionids', '', PARAM_RAW);
 
 
 // Login and check permissions.
@@ -51,7 +53,8 @@ $context = \context::instance_by_id($contextid);
 require_capability('moodle/question:editall', $context);
 
 $urlparams = ['contextid' => $context->id, 'categoryid' => $categoryid, 'randomseed' => $randomseed,
-            'repeatrandomonly' => $repeatrandomonly, 'nruns' => $nruns, 'clearcachefirst' => $clearcachefirst, 'questionids' => $questionids];
+            'repeatrandomonly' => $repeatrandomonly, 'nruns' => $nruns, 'clearcachefirst' => $clearcachefirst,
+            'questionids' => $questionids];
 $PAGE->set_url('/question/type/coderunner/bulktest.php', $urlparams);
 $PAGE->set_context($context);
 $title = get_string('bulktesttitle', 'qtype_coderunner', $context->get_context_name());
@@ -85,7 +88,7 @@ $bulktester = new bulk_tester(
 // Was: Release the session, so the user can do other things while this runs.
 // Seems like Moodle 4.5 doesn't like this - gives an error. So commented out.
 // User will have to use an incognito window instead.
-// \core\session\manager::write_close();
+// \core\session\manager::write_close().
 
 // Display.
 echo $OUTPUT->header();
@@ -107,7 +110,7 @@ ini_set('memory_limit', '1024M');  // For big question banks - TODO: make this a
 $bulktester->run_tests($questionids);
 
 
-// Prints the summary of failed/missing tests
+// Prints the summary of failed/missing tests.
 $bulktester->print_overall_result();
 
 

@@ -207,8 +207,8 @@ function qtype_coderunner_twig_random(Twig\Environment $env, $values = null, $ma
         return $values;
     }
 
-    $coreExtension = $env->getExtension(Twig\Extension\CoreExtension::class);
-    $values = $coreExtension->toArray($values);
+    $coreextension = $env->getExtension(Twig\Extension\CoreExtension::class);
+    $values = $coreextension->toArray($values);
 
     if (0 === \count($values)) {
         throw new RuntimeError('The "random" function cannot pick from an empty  sequence or mapping.');

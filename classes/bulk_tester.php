@@ -98,8 +98,10 @@ class bulk_tester {
      * @param int $repeatrandomonly when true(or 1), only repeats tests for questions with random in the name.
      *              Default = true (or really 1).
      * @param int $nruns the number times to test each question. Default to 1.
-     * @param int $clearcachefirst If 1 then clears the grading cache (ignoring ttl) for the given context before running the tests. Default is 0.
-     * @param int $usecache Set to 0 to not use the grading cache when testing. Helpful for multiple runs of fixed, non-randomised, questions. Default is 1.
+     * @param int $clearcachefirst If 1 then clears the grading cache (ignoring ttl) for the given context before running the tests.
+     *            Default is 0.
+     * @param int $usecache Set to 0 to not use the grading cache when testing. Helpful for multiple runs of fixed, non-randomised,
+     *            questions. Default is 1.
      */
     public function __construct(
         $context = null,
@@ -607,7 +609,7 @@ class bulk_tester {
     public function run_tests($questionidstoinclude = []) {
         global $OUTPUT;
         global $PAGE;
-        $oldskool = !(qtype_coderunner_util::using_mod_qbank()); // no qbanks in Moodle < 5.0.
+        $oldskool = !(qtype_coderunner_util::using_mod_qbank()); // No qbanks in Moodle < 5.0.
         if ($this->context->contextlevel == CONTEXT_COURSE) {
             if ($oldskool) {
                 $this->run_tests_for_simple_context($this->context, questionidstoinclude:$questionidstoinclude);
@@ -826,7 +828,7 @@ class bulk_tester {
      * @return html link to the question in the question bank
      */
     private static function make_question_link($courseid, $question) {
-        $qbankparams = ['qperpage' => 1000]; // Can't easily get the true vrequire_once($CFG->libdir . '/questionlib.php');alue.
+        $qbankparams = ['qperpage' => 1000]; // Can't easily get the true value.
         $qbankparams['category'] = $question->category . ',' . $question->contextid;
         $qbankparams['lastchanged'] = $question->questionid;
         $qbankparams['courseid'] = $courseid;
@@ -842,34 +844,34 @@ class bulk_tester {
      */
     public static function get_category_path($categoryid) {
         global $DB;
-        
-        static $categorypath_cache = [];
-        
-        if (isset($categorypath_cache[$categoryid])) {
-            return $categorypath_cache[$categoryid];
+
+        static $categorypathcache = [];
+
+        if (isset($categorypathcache[$categoryid])) {
+            return $categorypathcache[$categoryid];
         }
-        
+
         $path = [];
         $currentid = $categoryid;
-        
-        // Build path by traversing up the category hierarchy
+
+        // Build path by traversing up the category hierarchy.
         while ($currentid != 0) {
             $category = $DB->get_record('question_categories', ['id' => $currentid], 'id,name,parent');
             if (!$category) {
                 break;
             }
-            
-            // Skip the top level category (usually just contains contextid)
+
+            // Skip the top level category (usually just contains contextid).
             if ($category->parent != 0) {
                 array_unshift($path, $category->name);
             }
-            
+
             $currentid = $category->parent;
         }
-        
+
         $fullpath = empty($path) ? 'Default' : implode('/', $path);
-        $categorypath_cache[$categoryid] = $fullpath;
-        
+        $categorypathcache[$categoryid] = $fullpath;
+
         return $fullpath;
     }
 }

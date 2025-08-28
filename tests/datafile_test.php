@@ -37,7 +37,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  */
 class datafile_test extends \qtype_coderunner_testcase {
     // Test loading of files in the jobe sandbox.
-    public function test_datafile_jobesandbox() {
+    public function test_datafile_jobesandbox(): void {
         $code = $this->python_solution();
         $this->check_files_in_sandbox('generic_python3', 'jobesandbox', $code);
     }

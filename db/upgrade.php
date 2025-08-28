@@ -438,7 +438,6 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025071100, 'qtype', 'coderunner');
     }
 
-
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 

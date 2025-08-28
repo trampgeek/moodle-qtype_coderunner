@@ -50,13 +50,13 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
         $this->goodcode = "def sqr(n): return n * n";
     }
 
-    public function test_summarise_response() {
+    public function test_summarise_response(): void {
         $s = $this->goodcode;
         $q = $this->make_question('sqr');
         $this->assertEquals($s, $q->summarise_response(['answer' => $s]));
     }
 
-    public function test_grade_response_right() {
+    public function test_grade_response_right(): void {
         $q = $this->make_question('sqr');
         $response = ['answer' => $this->goodcode];
         [$mark, $grade, $cache] = $q->grade_response($response);
@@ -70,7 +70,7 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
         }
     }
 
-    public function test_grade_response_wrong_ans() {
+    public function test_grade_response_wrong_ans(): void {
         $q = $this->make_question('sqr');
         $code = "def sqr(x): return x * x * x / abs(x)";
         $response = ['answer' => $code];
@@ -80,7 +80,7 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
         $this->assertTrue(isset($cache['_testoutcome']));
     }
 
-    public function test_grade_syntax_error() {
+    public function test_grade_syntax_error(): void {
         $q = $this->make_question('sqr');
         $code = "def sqr(x): return x  x";
         $response = ['answer' => $code];
@@ -93,7 +93,7 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(0, count($testoutcome->testresults));
     }
 
-    public function test_grade_runtime_error() {
+    public function test_grade_runtime_error(): void {
         $q = $this->make_question('sqr');
         $code = "def sqr(x): return x * y";
         $response = ['answer' => $code];
@@ -107,7 +107,7 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->testresults[0]->iscorrect);
     }
 
-    public function test_student_answer_variable() {
+    public function test_student_answer_variable(): void {
         $q = $this->make_question('studentanswervar');
         $code = "\"\"\"Line1\n\"Line2\"\n'Line3'\nLine4\n\"\"\"";
         $response = ['answer' => $code];
@@ -117,7 +117,7 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
         $this->assertEquals(\question_state::$gradedright, $grade);
     }
 
-    public function test_illegal_open_error() {
+    public function test_illegal_open_error(): void {
         $q = $this->make_question('sqr');
         $code = "def sqr(x):\n    f = open('/twaddle/blah/xxx');\n    return x * x";
         $response = ['answer' => $code];
@@ -131,7 +131,7 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->testresults[0]->iscorrect);
     }
 
-    public function test_grade_delayed_runtime_error() {
+    public function test_grade_delayed_runtime_error(): void {
         $q = $this->make_question('sqr');
         $code = "def sqr(x):\n  if x != 11:\n    return x * x\n  else:\n    return y";
         $response = ['answer' => $code];
@@ -146,7 +146,7 @@ class pythonquestions_test extends \qtype_coderunner_testcase {
         $this->assertFalse($testoutcome->testresults[2]->iscorrect);
     }
 
-    public function test_triple_quotes() {
+    public function test_triple_quotes(): void {
         $q = $this->make_question('sqr');
         $code = <<<EOCODE
 def sqr(x):
@@ -167,7 +167,7 @@ EOCODE;
         }
     }
 
-    public function test_hellofunc() {
+    public function test_hellofunc(): void {
         // Check a question type with a function that prints output.
         $q = $this->make_question('hello_func');
         $code = "def sayHello(name):\n  print('Hello ' + name)";
@@ -184,7 +184,7 @@ EOCODE;
         }
     }
 
-    public function test_copystdin() {
+    public function test_copystdin(): void {
         // Check a question that reads stdin and writes to stdout.
         $q = $this->make_question('copy_stdin');
         $code = <<<EOCODE
@@ -209,7 +209,7 @@ EOCODE;
         $this->assertTrue(strpos($testoutcome->testresults[4]->got, 'EOFError') !== false);
     }
 
-    public function test_timeout() {
+    public function test_timeout(): void {
          // Check a question that loops forever. Should cause sandbox timeout.
         $q = $this->make_question('timeout');
         $code = "def timeout():\n  while (1):\n    pass";
@@ -229,7 +229,7 @@ EOCODE;
         $this->assertTrue(strpos($testoutcome->testresults[0]->got, 'Time limit exceeded') !== false);
     }
 
-    public function test_exceptions() {
+    public function test_exceptions(): void {
          // Check a function that conditionally throws exceptions.
         $q = $this->make_question('exceptions');
         $code = "def checkOdd(n):\n  if n & 1:\n    raise ValueError()";
@@ -252,7 +252,7 @@ EOCODE;
         );
     }
 
-    public function test_partial_mark_question() {
+    public function test_partial_mark_question(): void {
         // Test a question that isn't of the usual allornothing variety.
         $q = $this->make_question('sqr_part_marks');
         $code = "def sqr(n):\n  return -17.995";
@@ -296,7 +296,7 @@ EOCODE;
         $this->assertTrue(abs($mark - 0.5 / 7.5) < 0.00001);
     }
 
-    public function test_customised_timeout() {
+    public function test_customised_timeout(): void {
         $q = $this->make_question('hello_python');
         $slowsquare = <<<EOT
 from time import sleep

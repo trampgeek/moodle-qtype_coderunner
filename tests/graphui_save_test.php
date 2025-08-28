@@ -44,7 +44,7 @@ class graphui_save_test extends \qtype_coderunner_testcase {
         $this->qtype = new \qtype_coderunner();
     }
 
-    public function test_question_saving_graph_ui() {
+    public function test_question_saving_graph_ui(): void {
         $this->setAdminUser();
 
         $questiondata = \test_question_maker::get_question_data('coderunner');
