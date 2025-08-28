@@ -354,15 +354,35 @@ class questions_json_generator {
     }
 }
 
-// Set up page using Moodle's layout system
+// Set up page using Moodle's layout system.
 $PAGE->set_title('Question Browser - ' . $coursename);
 $PAGE->set_heading('Question Browser - ' . $coursename);
+$PAGE->set_pagelayout('incourse'); // Use incourse layout for proper course context.
+
+// Set up proper navigation context for the course
+if ($context->contextlevel == CONTEXT_COURSE) {
+    $PAGE->set_course($DB->get_record('course', ['id' => $context->instanceid]));
+} else if ($context->contextlevel == CONTEXT_MODULE) {
+    $cm = get_coursemodule_from_id(false, $context->instanceid, 0, false, MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $PAGE->set_course($course);
+    $PAGE->set_cm($cm);
+}
+
+// Add the question browser to the navigation
+$PAGE->navbar->add('Question Browser');
 
 echo $OUTPUT->header();
 
 ?>
 
 <style>
+/* Reduce excessive white space */
+#page-header, .page-header-headings {
+    margin-top: 0;
+    padding-top: 0.5rem;
+}
+
 /* Minimal custom styles to work with Moodle theme */
 .qbrowser-filters .form-group {
     margin-bottom: 1rem;
