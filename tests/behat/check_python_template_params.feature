@@ -7,6 +7,7 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
 
   Background:
     Given the CodeRunner test configuration file is loaded
+    And the Jobe server supports "python3"
     And the following "users" exist:
       | username | firstname       | lastname  | email            |
       | teacher1 | Teacher         | Last      | teacher1@asd.com |
