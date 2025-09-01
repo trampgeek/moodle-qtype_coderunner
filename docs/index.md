@@ -35,20 +35,21 @@ by how many submissions the student makes on each question.
 However, it is also possible to configure CodeRunner questions so
 that the mark is determined by how many of the tests the code successfully passed.
 
-CodeRunner has been in use at the University of Canterbury for over ten years
+CodeRunner has been in use at the University of Canterbury for over fifteen years
 running many millions of student quiz question submissions in Python, C, JavaScript,
 PHP, Octave and Matlab. It is used in laboratory work, assignments, tests and
 exams in multiple courses. In recent years CodeRunner has spread around the
-world and as of January 2021 is installed on over 1800 Moodle sites worldwide
+world and as of August 2025 is installed nearly 4000 Moodle sites worldwide
 (see [here](https://moodle.org/plugins/stats.php?plugin=qtype_coderunner)), with
-at least some of its language strings translated into 19 other languages (see
+at least some of its language strings translated into 20 other languages (see
 [here](https://moodle.org/plugins/translations.php?plugin=qtype_coderunner])).
 
-CodeRunner supports the following languages: Python2 (considered obsolete),
+CodeRunner supports the following languages: 
 Python3, C, C++, Java, PHP, Pascal, JavaScript (NodeJS), Octave and Matlab.
 However, other languages are easily supported without altering the source
 code of either CodeRunner or the Jobe server just by scripting
-the execution of the new language within a Python-based question.
+the execution of the new language within a Python-based question
+(see [supporting new languages](#supporting-or-implementing-new-languages)).
 
 CodeRunner can safely be used on an institutional Moodle server,
 provided that the sandbox software in which code is run ("Jobe")
@@ -58,22 +59,25 @@ tests and final exams, a separate Moodle server is recommended, both for
 load reasons and so that various Moodle communication facilities, like
 chat and messaging, can be turned off without impacting other classes.
 
-The most recent version of CodeRunner specifies that it requires Moodle version 3.9 or later,
-but previous releases support Moodle version 3.0 or later. The current version
-should work with older versions of Moodle 3.0 or later, too, provided they are
-running PHP V7.2 or later. CodeRunner is developed
+The most recent version of CodeRunner specifies that it requires Moodle version 4.3 or later,
+but previous releases support Moodle version 3.0 or later. 
+
+CodeRunner is developed
 and tested on Linux only, but Windows-based Moodle sites have also used it.
 
 Submitted jobs are run on a separate Linux-based machine, called the
 [Jobe server](https://github.com/trampgeek/jobe), for security purposes.
 CodeRunner is initially configured to use a small, outward-facing Jobe server
 at the University of Canterbury, and this server can
-be used for initial testing; however, the Canterbury server is not suitable
-for production use. Institutions will need to install and operate their own Jobe server
+be used for initial testing. However, the Canterbury server is not suitable
+for production use; institutions will need to install and operate their own Jobe server
 when using CodeRunner in a production capacity.
+
 Instructions for installing a Jobe server are provided in the Jobe documentation.
 Once Jobe is installed, use the Moodle administrator interface for the
-CodeRunner plug-in to specify the Jobe host name and port number.
+CodeRunner plug-in to specify the Jobe host name and port number. Multiple 
+semicolon-separated Jobe servers can also be specified for increased bandwidth;
+one is selected at random for each run.
 A [Docker Jobe server image](https://hub.docker.com/r/trampgeek/jobeinabox) is also available.
 
 A modern 8-core Moodle server can handle an average quiz question
@@ -82,7 +86,10 @@ a response time of less than 3 - 4 seconds, assuming the student code
 itself runs in a fraction of a second. We have run CodeRunner-based exams
 with nearly 500 students and experienced only light to moderate load factors
 on our 8-core Moodle server. The Jobe server, which runs student submissions
-(see below), is even more lightly loaded during such an exam.
+(see below), is generally more lightly loaded during such an exam, although
+this depends on the language being used and the complexity of the individual
+questions. Python3 and C are relatively cheap; C++ and Java are much more
+expensive.
 
 Some videos introducing CodeRunner and explaining question authoring
 are available in [this youtube channel](https://coderunner.org.nz/mod/url/view.php?id=472).
@@ -90,7 +97,7 @@ are available in [this youtube channel](https://coderunner.org.nz/mod/url/view.p
 ## Installation
 
 This chapter describes how to install CodeRunner. It assumes the
-existence of a working Moodle system, version 3.0 or later.
+existence of a working Moodle system, version 4.3 or later.
 
 ### Installing CodeRunner
 
@@ -131,10 +138,9 @@ welcome to use this during initial testing, but it is
 not intended for production use. Authentication and authorisation
 on that server is
 via an API-key and the default API-key given with CodeRunner imposes
-a limit of 100
-per hour over all clients using that key, worldwide. If you decide that CodeRunner is
+a limit of 60 runs per hour per Moodle client. If you decide that CodeRunner is
 useful to you, *please* set up your own Jobe sandbox as
-described in *Sandbox configuration* below.
+described in [sandbox configuration](#sandbox-configuration) below.
 
 WARNING: at least a couple of users have broken CodeRunner by duplicating
 the prototype questions in the System/CR\_PROTOTYPES category. `Do not` touch
@@ -209,14 +215,14 @@ incorrect answers.
 
 If you want a few more CodeRunner questions to play with, try importing the
 files
-`MoodleHome>/question/type/coderunner/samples/simpledemoquestions.xml` and/or
-`MoodleHome>/question/type/coderunner/samples/python3demoquestions.xml`.
+`<MoodleHome>/question/type/coderunner/samples/simpledemoquestions.xml` and/or
+`<MoodleHome>/question/type/coderunner/samples/python3demoquestions.xml`.
 These contains
 most of the questions from the two tutorial quizzes on the
 [demo site](http://www.coderunner.org.nz).
 If you wish to run the questions in the file `python3demoquestions.xml`,
 you will also need to import
-the file `MoodleHome>/question/type/coderunner/samples/uoc_prototypes.xml`
+the file `<MoodleHome>/question/type/coderunner/samples/uoc_prototypes.xml`
 or you will receive a "Missing prototype" error.
 
 Also included in the *samples* folder is a prototype question,
@@ -225,7 +231,8 @@ Also included in the *samples* folder is a prototype question,
 type, by scripting in Python the process of compiling and running the student
 code. This is a useful template for authors who wish to implement their own
 question types or who need to support non-built-in languages. It is discussed
-in detail in the section "Supporting or implementing new languages".
+in detail in the section
+[Supporting or implementing new languages](#supporting-or-implementing-new-languages).
 
 ### Setting the quiz review options
 
@@ -422,7 +429,7 @@ The above description is somewhat simplified, in the following ways:
     in order that students can be
     presented with all test results up until the one that failed.
 
-    Combinator templates are explained in the *Templates*
+    Combinator templates are explained in the [Templates](#templates)
     section.
 
  *  The question author can pass parameters to the
@@ -478,19 +485,28 @@ display; see the section [Grading with templates](#grading-with-templates).
 The EqualityGrader is recommended for most normal use, as it
 encourages students to get their output exactly correct; they should be able to
 resubmit almost-right answers for a small penalty, which is generally a
-better approach than trying to award part marks based on regular expression
-matches.
+better approach than trying to award part marks.
+
+Although very powerful, regular expression graders are 
+likely to confuse students who are unfamiliar with regular expressions, as
+the expected regular expression is shown to them in the result table. It is usually
+better to use hidden test code in the test's *Extra* field or to use a template grader.
 
 Test cases are defined by the question author to check the student's code.
 Each test case defines a fragment of test code, the standard input to be used
-when the test program is run and the expected output from that run. The
+when the test program is run and the expected output from that run. There is also
+an *Extra* field into which the question author can put hidden test-case specific code, although
+they must modify the question's template to include this either before or after the visible
+test code. 
+
+The
 author can also add additional files to the execution environment.
 
 The test program is constructed from the test case information plus the
 student's submission using the template defined by the prototype. The template
 can be either a *per-test template*, which defines a different program for
 each test case or a *combinator template*, which has the ability to define a program that combines
-multiple test cases into a single run. Templates are explained in the *Templates*
+multiple test cases into a single run. Templates are explained in the [Templates](#templates)
 section.
 
 ### An example question type
@@ -535,105 +551,116 @@ The file `<moodlehome>/question/type/coderunner/db/builtin_PROTOTYPES.xml`
 is a moodle-xml export format file containing the definitions of all the
 built-in question types. During installation, and at the end of any version upgrade,
 the prototype questions from that file are all loaded into a category
-`CR_PROTOTYPES` in the system context. A system administrator can edit
+`CR_PROTOTYPES` which lives either in the system context prior to Moodle 5.0 or in the 
+Front Page course's "System shared question bank" for Moodle 5.0 or later.
+
+A system administrator can edit
 those prototypes but this is not recommended as the modified versions
 will be lost on each upgrade. Instead, a category `LOCAL_PROTOTYPES`
-(or other such name of your choice) should be created and copies of any prototype
+(or other such name of your choice) should be created within a course
+and copies of any prototype
 questions that need editing should be stored there, with the question-type
 name modified accordingly. New prototype question types can also be created
-in that category. Editing of prototypes is discussed later in this
-document.
+in that category. Editing of prototypes is discussed in the section
+[User defined question types](#user-defined-question-types).
+
+Built-in question types include the following:
 
 Built-in question types include the following:
 
  1. **c\_function**. This is the question type discussed in the above
-example, except that it uses a combinator template. The student supplies
- just a function (plus possible support functions) and each test is (typically) of the form
+    example, except that it uses a combinator template. The student supplies
+    just a function (plus possible support functions) and each test is (typically) of the form
 
-    printf(format_string, func(arg1, arg2, ..))
+        printf(format_string, func(arg1, arg2, ..))
 
- The template for this question type generates some standard includes, followed
- by the student code followed by a main function that executes the tests one by
- one. However, if any of the test cases have any standard input defined, the
- template is expanded and executed separately for each test case separately.
+    The template for this question type generates some standard includes, followed
+    by the student code followed by a main function that executes the tests one by
+    one. However, if any of the test cases have any standard input defined, the
+    template is expanded and executed separately for each test case separately.
 
- The manner in which a C (or any other) program is executed is not part of the question
- type definition: it is defined by the particular sandbox to which the
- execution is passed. The architecture of CodeRunner allows for the multiple
- different sandboxes but currently only the Jobe sandbox is supported. It
- uses the `gcc` compiler with the language set to
- accept C99 and with both *-Wall* and *-Werror* options set on the command line
- to issue all warnings and reject the code if there are any warnings.
+    The manner in which a C (or any other) program is executed is primarily
+    defined by the Jobe sandbox that runs the code. By default it
+    uses the `gcc` compiler with the language set to
+    accept C99 and with both *-Wall* and *-Werror* options set on the command line
+    to issue all warnings and reject the code if there are any warnings. If you
+    want different compile-and-run behaviour, you can either:
+ 
+    * Customise the question and in the Advanced customisation section set the 
+        Sandbox parameters field to contain custom values for _compileargs_, _linkargs_ and _runargs_
+        as explained in the in-line help in the authoring form, or
+
+    * Define your own question type as explained in the section
+        [Supporting or implementing new languages](#supporting-or-implementing-new-langages).
+      
+    The second option is much more flexible but does require that you can manage your own
+    question prototypes.
+
 
  1. **cpp\_function**. This is the C++ version of the previous question type.
-The student supplies just a function (plus possible support functions)
-and each test is (typically) of the form
+    The student supplies just a function (plus possible support functions)
+    and each test is (typically) of the form
 
     cout << func(arg1, arg2, ..)
 
- The template for this question type generates some standard includes, followed
- by the line
+    The template for this question type generates some standard includes, followed
+    by the line
 
     using namespace std;
 
-followed by the student code followed by a main function that executes the tests one by
- one.
+    followed by the student code followed by a main function that executes the tests one by
+    one.
 
 1. **c\_program** and **cpp\_program**. These two very simple question types
-require the student to supply
-a complete working program. For each test case the author usually provides
-`stdin` and specifies the expected `stdout`. The program is compiled and run
-as-is, and in the default all-or-nothing grading mode, must produce the right
-output for all test cases to be marked correct.
+    require the student to supply
+    a complete working program. For each test case the author usually provides
+    `stdin` and specifies the expected `stdout`. The program is compiled and run
+    as-is, and in the default all-or-nothing grading mode, must produce the right
+    output for all test cases to be marked correct.
 
  1. **python3**. Used for most Python3 questions. For each test case, the student
-code is run first, followed by the test code.
+    code is run first, followed by the test code.
 
  1. **python3\_w\_input**. A variant of the *python3* question in which the
-`input` function is redefined at the start of the program so that the standard
-input characters that it consumes are echoed to standard output as they are
-when typed on the keyboard during interactive testing. A slight downside of
-this question type compared to the *python3* type is that the student code
-is displaced downwards in the file so that line numbers present in any
-syntax or runtime error messages do not match those in the student's original
-code.
-
- 1. **python2**. Used for most Python2 questions. As for python3, the student
-code is run first, followed by the sequence of tests. This question type
-should be considered to be obsolescent due to the widespread move to Python3
-through the education community.
+    `input` function is redefined at the start of the program so that the standard
+    input characters that it consumes are echoed to standard output as they are
+    when typed on the keyboard during interactive testing. A slight downside of
+    this question type compared to the *python3* type is that the student code
+    is displaced downwards in the file so that line numbers present in any
+    syntax or runtime error messages do not match those in the student's original
+    code.
 
  1. **java\_method**. This is intended for early Java teaching where students are
-still learning to write individual methods. The student code is a single method,
-plus possible support methods, that is wrapped in a class together with a
-static main method containing the supplied tests (which will generally call the
-student's method and print the results).
+    still learning to write individual methods. The student code is a single method,
+    plus possible support methods, that is wrapped in a class together with a
+    static main method containing the supplied tests (which will generally call the
+    student's method and print the results).
 
  1. **java\_class**. Here the student writes an entire class (or possibly
-multiple classes in a single file). The test cases are then wrapped in the main
-method for a separate
-public test class which is added to the students class and the whole is then
-executed. The class the student writes may be either private or public; the
-template replaces any occurrences of `public class` in the submission with
-just `class`. While students might construct programs
-that will not be correctly processed by this simplistic substitution, the
-outcome will simply be that they fail the tests. They will soon learn to write
-their
-classes in the expected manner (i.e. with `public` and `class` on the same
-line, separated by a single space)!
+    multiple classes in a single file). The test cases are then wrapped in the main
+    method for a separate
+    public test class which is added to the students class and the whole is then
+    executed. The class the student writes may be either private or public; the
+    template replaces any occurrences of `public class` in the submission with
+    just `class`. While students might construct programs
+    that will not be correctly processed by this simplistic substitution, the
+    outcome will simply be that they fail the tests. They will soon learn to write
+    their
+    classes in the expected manner (i.e. with `public` and `class` on the same
+    line, separated by a single space)!
 
  1. **java\_program**. Here the student writes a complete program which is compiled
-then executed once for each test case to see if it generates the expected output
-for that test. The name of the main class, which is needed for naming the
-source file, is extracted from the submission by a regular expression search for
-a public class with a `public static void main` method.
+    then executed once for each test case to see if it generates the expected output
+    for that test. The name of the main class, which is needed for naming the
+    source file, is extracted from the submission by a regular expression search for
+    a public class with a `public static void main` method.
 
  1. **octave\_function**. This uses the open-source Octave system to process
-matlab-like student submissions.
+    matlab-like student submissions.
 
  1. **php**. A php question in which the student submission is a normal php
-file, with PHP code enclosed in <?php ... ?> tags and the output is the
-usual PHP output including all HTML content outside the php tags.
+    file, with PHP code enclosed in <?php ... ?> tags and the output is the
+    usual PHP output including all HTML content outside the php tags.
 
 Other less commonly used built-in question types are:
 *nodejs*, *pascal\_program* and *pascal\_function*.
@@ -646,13 +673,19 @@ be customised or extended in various ways.
 The following question types, used by the University
 of Canterbury (UOC) are not part of the basic supported question type set.
 They can be imported, if desired, from the file
-`uoc_prototypes.xml`, located in the CodeRunner/coderunner/samples folder.
-However, they come with no guarantees of correctness or on-going support.
+`uoc_prototypes.xml`, located in the
+[samples folder](https://github.com/trampgeek/moodle-qtype_coderunner/tree/master/samples) in CodeRunner
+repo. 
+However, they were written many years ago and
+come with no guarantees of correctness or on-going support. More up-to-date
+variants of these question types might be available in
+[this GitHub repo](https://github.com/trampgeek/ucquestiontypes), though
+again with no guarantees or support.
 
 The UOC question types include:
 
  1. **python3\_cosc121**. This is a complex Python3 question
-type that's used at the University of Canterbury for nearly all questions in
+type that was used at the University of Canterbury for nearly all questions in
 the COSC121 course.  The student submission
 is first passed through the [pylint](https://www.pylint.org/)
 source code analyser and the submission is rejected if pylint gives any errors.
@@ -717,7 +750,7 @@ this possibility is discussed later, in the section
 [Grading with templates](#grading-with-templates).
 
 Expansion of the template is done by the
-[Twig](http://twig.sensiolabs.org/) template engine. The engine is given both
+[Twig](https://twig.symfony.com/) template engine. The engine is given both
 the template to be rendered and a set of pre-defined variables that we will
 call the *Twig Context*. The default set of context variables is:
 
@@ -831,7 +864,9 @@ a per-test template as suggested above, but is the following combinator template
 
 The Twig template language control structures are wrapped in `{%`
 and `%}`. If a C-function question had two three test cases, the above template
-might expand to something like the following:
+might expand to something like the following. Note that the separate tests
+are enclosed in braces to provide
+a local syntactic context.
 
     #include <stdio.h>
     #include <stdlib.h>
@@ -846,17 +881,24 @@ might expand to something like the following:
     }
 
     int main() {
-        printf("%d\n", sqr(-9));
-        printf("%s\n", SEPARATOR);
-        printf("%d\n", sqr(11));
-        printf("%s\n", SEPARATOR);
-        printf("%d\n", sqr(-13));
-        return 0;
+        {
+         printf("%d\n", sqr(-9));
+         printf("%s\n", SEPARATOR);
+        }
+        {
+         printf("%d\n", sqr(11));
+         printf("%s\n", SEPARATOR);
+        }
+        {
+         printf("%d\n", sqr(-13));
+         return 0;
+        }
     }
 
 The output from the execution is then the outputs from the three tests
-separated by a special separator string, which can be customised for each
-question if desired. On receiving the output back from the sandbox, CodeRunner
+separated by a special separator string. 
+
+On receiving the output back from the sandbox, CodeRunner
 then splits the output using the separator into three separate test outputs,
 exactly as if a per-test template had been used on each test case separately.
 
@@ -874,8 +916,8 @@ The combinator template is then
 functioning just like a per-test template but using the TESTCASES variable
 rather than a TEST variable.
 
-However, advanced combinator templates can actually manage the multiple
-runs themselves, e.g. using Python Subprocesses. To enable this, there
+However, advanced combinator templates can sometimes manage the multiple
+runs themselves, e.g. using Python subprocesses. To enable this, there
 is a checkbox "Allow multiple stdins" which, if checked, reverts to the usual
 combinator mode of passing all testcases to the combinator template in a
 single run.
@@ -888,7 +930,7 @@ a per-test mode, as described above.
 
 ### Customising templates
 
-As mentioned above, if a question author clicks in the *customise* checkbox,
+As mentioned above, if a question author clicks the *customise* checkbox,
 the question template is made visible and can be edited by the question author
 to modify the behaviour for that question.
 
@@ -1250,7 +1292,7 @@ in the section [Miscellaneous tips](#miscellaneous-tips).
 
 An alternative approach is to compute the
 template parameters in an alternative language of your choice - one that is supported
-by the sandbox (Jobe) server, e.g. Python
+by the sandbox (Jobe) server, e.g. Python,
 Java etc. You set the template parameter Preprocessor language
 to your chosen language and fill the template parameters field with a program
 in that language. The standard output from that program must be a JSON string
@@ -1271,7 +1313,7 @@ it cautiously in exams
 at the University of Canterbury with courses of a few hundred students, but have
 been careful to ensure that not too many questions in the exam use this
 randomisation method. We have also mitigated the sandbox server overload risk by spreading
-the exam start times for students over several minutes. Lastly, we have two
+the exam start times for students over several minutes. Lastly, we have multiple
 separate 8-core sandbox (Jobe) servers to give us a high throughput. Multiple
 Jobe servers are supported by listing them all, separated by a semicolon, in
 the CodeRunner settings Jobe server URL field.
@@ -1300,7 +1342,9 @@ the program *must* generate the same output when given the same seed.
  1. Student email address (string)
 
 The student parameters can be ignored unless you wish to customise a question
-differently for different students.
+differently for different students in such a way that a given student always gets
+the same version of a question no matter how many times they meet it or attempt it;
+see [ randomising per-student](#randomising-per-student-rather-than-per-question-attempt).
 
 Here, for example, is a Python preprocessor program that could be used to
 ask a student to write a function that has 3 variant names to print the
@@ -1350,7 +1394,10 @@ values in the "For example" table. However, you then either need to replicate th
 sample answer within the template parameters program, or have that program
 define the sample answer as a string which it both uses internally to compute the
 expected outputs and which it also returns as one of the template parameters.
-Not recommended!
+This is not recommended. It is usually much easier and safer to leave the Expected field
+empty and Validate on Save checked; when the question is saved, you will then
+be presented with the buttons to click to fill in the missing expected values.
+But you'd better be sure your sample answer is correct!
 
 ### The Twig TEST variable
 
@@ -1368,7 +1415,8 @@ isn't generally needed by the question author because CodeRunner by default copi
 a file and sets standard input to use that file when running the test.
  * `TEST.expected` The expected output when running this test.
  * `TEST.useasexample` True (1) if the "Use as example" checkbox is checked for
-this test.
+this test, resulting in the test case being displayed to the student in the
+"For example" table. 
  * `TEST.display` One of the string values "SHOW", "HIDE", "HIDE_IF_SUCCEED" or
 "HIDE_IF_FAIL".
  * `TEST.hiderestiffail` True (1) if the "Hide rest if fail" checkbox is checked
@@ -1380,7 +1428,7 @@ not using "All or nothing" grading.
 
 The template variable `TESTCASES`, which is defined in the Twig context only when
 Twig is rendering a combinator template, is just a list of TEST objects, as
-defined in the previous section.
+explained earier.
 
 ### The Twig QUESTION variable
 
@@ -1389,19 +1437,26 @@ subset of the fields of the PHP question object.
 
 By far the most import fields are:
 
- * `QUESTION.id` The unique internal ID of this question.
- * `QUESTION.questionid` Same as `QUESTION.id` - deprecated.
  * `QUESTION.parameters` A Twig object whose (key, value) pairs are the
-result of merging the evaluated template parameters of the prototype with those
-of the question itself. These template parameters
-can either by used in Twig code like {{ QUESTION.parameters.someparam }} or,
-it *hoisttemplateparams* was set in the question authoring form, simply as
-{{ someparam }}.
+    result of merging the evaluated template parameters of the prototype with those
+    of the question itself. These template parameters
+    can either by used in Twig code like
+
+        {{ QUESTION.parameters.someparam }}
+    
+    or, if *hoisttemplateparams* was set in the question authoring form, simply as
+
+        {{ someparam }}.
+
   * `QUESTION.uiparameters` A Twig object whose (key, value) pairs are the
-result of merging the UI parameters of the prototype with those
-of the question itself. These template parameters
-must be referenced in Twig code like {{ QUESTION.uiparameters.someparam }};
-they are not available as global variables.
+    result of merging the UI parameters of the prototype with those
+    of the question itself. These template parameters
+    must be referenced in Twig code like
+
+        {{ QUESTION.uiparameters.someparam }};
+
+    they are not available as hoisted global variables.
+
   * `QUESTION.answer` The supplied sample answer (null if not explicitly set).
 
 Other fields are:
@@ -1423,7 +1478,7 @@ Other fields are:
    combinator template grader is being used and the question author has chosen
    to report the grader state in a previous submission, a string-valued attribute
    *graderstate* may be present. The use of this is entirely over to the question
-   author. See under Combinator-template grading.
+   author. See under [combinator-template grading](#combinator-template-grading).
  * `QUESTION.language` The language being used to run the question in the sandbox,
 e.g. "Python3".
  * `QUESTION.precheck` The setting of the precheck dropdown: 0 = no precheck, 1 = empty,
@@ -1432,7 +1487,7 @@ e.g. "Python3".
  * `QUESTION.iscombinatortemplate` True if this is a combinator question.
  * `QUESTION.penaltyregime` The penalty regime for this question.
  * `QUESTION.globalextra` Extra data for use by template authors, global to all tests.
- * `QUESTION.prototypeextra` Extra data for use by prototype or customised code.
+ * `QUESTION.prototypeextra` Extra data for use by prototypes or customised code.
  * `QUESTION.useace` '1'/'0' if the ace editor is/is not in use.
  * `QUESTION.acelang` The language for the Ace editor to use for syntax colouring etc.
  * `QUESTION.allowmultiplestdins` True if the author has requested all tests
@@ -1474,7 +1529,7 @@ PHP user object. The fields/attributes of STUDENT are:
  * `STUDENT.lastname` The last name of the current user.
  * `STUDENT.email` The email address of the current user.
 
-### Twig macros
+### Twig macros (deprecated - may be removed in future)
 
 Twig has a [macro capability](https://twig.symfony.com/doc/1.x/tags/macro.html)
 that provides something akin to functions in normal programming languages.
@@ -1600,14 +1655,22 @@ albeit with only four different names, as follows:
 
 1. Set the template parameters field of the question authoring form to
 
-    { "name": "{{ random(["Bob", "Carol", "Ted", "Alice"]) }}" }
+        { "name": "{{ random(["Bob", "Carol", "Ted", "Alice"]) }}" }
+
+1. Set the *Preprocessor* dropdown to Twig so that the template parameters are
+   run through Twig to generate the JSON object that will define the Twig
+   environment used to process all the other question fields.
 
 1. Turn on the *Twig All* checkbox, so that all fields of the question will
    get processed by Twig, once the template parameters have been set up.
-1. Turn on the *Hoist template parameters* checkbox if necessary. It's on by
-   default for new questions but off for old questions.
+
+1. Check that the *Hoist template parameters* checkbox is on. It's off only for 
+   very old questions.
+
 1. Set the question text to *Write a program that prints `Hello {{ name }}`*
+
 1. Set the expected output of the first test case to `Hello {{ name }}`
+
 1. Set the sample answer to `print("Hello {{name}}")`
 
 The underlying mechanism will now be explained in more detail. It assumes
@@ -1645,12 +1708,18 @@ all other text fields of the question, except for the template
 itself, are processed by Twig directly after the template parameters field
 has been Twigged. This yields new values for the question text, test cases etc,
 which are used
-throughout the question's lifetime. The Twig environment used when processing
+throughout the question's lifetime. At that point the question is ready for
+display to the student. 
+
+The Twig environment used when processing
 all these
-other fields is that defined by the Twigged template parameters field.
+other fields is that defined by the processed template parameters field.
 
 It is usual to click the *Twig All* checkbox with randomised questions, as otherwise only
-the template will be subject to randomisation, which isn't usually appropriate.
+the question template will be subject to randomisation, which isn't usually appropriate.
+Note that the question template is not processed by Twig until the student clicks
+the check button. Only then is the Twig STUDENT_ANSWER variable, needed by 
+the template, available.
 
 ### Randomising per-student rather than per-question-attempt
 
@@ -1736,43 +1805,47 @@ to true on newly created questions.
 1. Sometimes you need a set of random variables to be "coupled". For example
     you might want an `animal` to be one of `dog`, `cat`, `cow` and an associated
     variable `sound` to be respectively `woof`, `miaow`, `moo`. Three ways of achieving
-    this are:
-    1. Create a single random `index` variable and use that to index into
+    this are are with a template parameter field (which has to evaluate to a JSON object)
+    are as follows:
+
+    a) Create a single random `index` variable and use that to index into
        separate animal and sound lists. For example:
 
-           {
-               {% set index = random(2) %}
-               "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
-               "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
+            {
+                {% set index = random(2) %}
+                "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
+                "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
+            }
 
-    1. Select an animal at random from a list of Twig 'hash' objects, then plug
+    b) Select an animal at random from a list of Twig 'hash' objects, then plug
        each of the animal attributes into the JSON record. For example:
 
-           {
-               {% set obj = random([
-                   {'name': 'Dog', 'sound': 'Woof'},
-                   {'name': 'Cat', 'sound': 'Miaow'},
-                   {'name': 'Cow', 'sound': 'Moo'}
-               ]) %}
-               "animal": "{{ obj.name }}",
-               "sound":  "{{ obj.sound }}"
-           }
+            {
+                {% set obj = random([
+                    {'name': 'Dog', 'sound': 'Woof'},
+                    {'name': 'Cat', 'sound': 'Miaow'},
+                    {'name': 'Cow', 'sound': 'Moo'}
+                ]) %}
+                "animal": "{{ obj.name }}",
+                "sound":  "{{ obj.sound }}"
+            }
 
-    1. Select an animal at random from a list of Twig 'hash' objects as above,
+
+    c) Select an animal at random from a list of Twig 'hash' objects as above,
        but then json_encode the entire object as a single template parameter.
        For example
 
-           {
-               {% set animal = random([
-                   {'name': 'Dog', 'sound': 'Woof'},
-                   {'name': 'Cat', 'sound': 'Miaow'},
-                   {'name': 'Cow', 'sound': 'Moo'}
-               ]) %}
-               "animal": {{ animal | json_encode }}
-           }
+            {
+                {% set animal = random([
+                    {'name': 'Dog', 'sound': 'Woof'},
+                    {'name': 'Cat', 'sound': 'Miaow'},
+                    {'name': 'Cow', 'sound': 'Moo'}
+                ]) %}
+            }
+            "animal": {{ animal | json_encode }}
 
     In the last case, the template parameters will need to be referred to as
-    {{ animal.name }} and {{ animal.sound }} instead of {{ animal }} and {{ sound }}.
+    `{{ animal.name }}` and `{{ animal.sound }}` instead of `{{ animal }}` and `{{ sound }}`.
 
 1. Since the Twig output must be JSON, and newlines aren't allowed in JSON
    strings, you may find the Twig whitespace control modifiers (`{{-` and `-}}`)
@@ -1781,35 +1854,36 @@ to true on newly created questions.
    generate a JSON structure that defines a value `expression`, which
    is a random fully-parenthesised infix expression.
 
-       {% macro randomexpr(depth) %}
-       {% from _self import randomexpr as expr %}
-       {% if depth >= 5 %}{# Leaf nodes are random operands #}
-           {{- random(["a", "b", "c", "d"]) -}}
-       {% else %}{# Internal nodes are of the form ( expr op expr ) #}
-           {{- '(' -}}
-           {{- expr(depth + 1 + random(3)) -}}
-           {{- random(['*', '/', '+', '-']) -}}
-           {{- expr(depth + 1 + random(3)) -}}
-           {{- ')' -}}
-       {% endif %}
-       {% endmacro %}
+        {% macro randomexpr(depth) %}
+        {% from _self import randomexpr as expr %}
+        {% if depth >= 5 %}{# Leaf nodes are random operands #}
+            {{- random(["a", "b", "c", "d"]) -}}
+        {% else %}{# Internal nodes are of the form ( expr op expr ) #}
+            {{- '(' -}}
+            {{- expr(depth + 1 + random(3)) -}}
+            {{- random(['*', '/', '+', '-']) -}}
+            {{- expr(depth + 1 + random(3)) -}}
+            {{- ')' -}}
+        {% endif %}
+        {% endmacro %}
 
-       {% import _self as exp %}
-       { "expression": "{{ exp.randomexpr(0) }}"}
+        {% import _self as exp %}
+        { "expression": "{{ exp.randomexpr(0) }}"}
 
 
- This generates expressions like
+    This generates expressions like
 
-    (((c+b)+d)-(a*((c-a)-d)))
+        (((c+b)+d)-(a*((c-a)-d)))
 
- and
+    and
 
-    (((a/(a-d))-(c/b))+(d+(((d/c)/d)*(c+a))))
+        (((a/(a-d))-(c/b))+(d+(((d/c)/d)*(c+a))))
 
-1. The [TwigFiddle web site](http://twigfiddle.com) is useful for debugging Twig code
-   in your template parameters.
-   You can enter your template parameter field, click Run, and see the resulting
-   JSON. Alternatively, you can set up a trivial question that simply prints
+1. There are a few useful online Twig experimentation sites that allow
+   you to enter your template parameter field, click Run, and see the resulting
+   JSON. For example [here](https://twig.symfony.com/play) and [here](https://fiddle.nette.org/twig/).
+   
+   Alternatively, you can set up a trivial question that simply prints
    the values of the QUESTION.parameters Twig variable. For example (in Python)
 
        print("""{{QUESTION.parameters | json_encode}}""")
@@ -1824,7 +1898,9 @@ you may wish to subject
 a student's code to a very large
 number of tests and award a mark according to how many of the test cases
 it can handle. The usual exact-match
-grader cannot handle these situations. For such cases the *TemplateGrader* option
+grader cannot handle these situations.
+
+For such cases the *TemplateGrader* option
 can be selected in the *Grading* field of the question authoring form, after
 clicking the *Customise* checkbox. The template
 code then has a somewhat different role: the output from running the expanded
@@ -1860,15 +1936,15 @@ form can be used to customise the display of the test case in the result
 table. That field allows the author to define an arbitrary number of arbitrarily
 named result-table columns and to specify using *printf* style formatting
 how the attributes of the grading output object should be formatted into those
-columns. For more details see the section on result-table customisation.
+columns. For more details see the section on [result-table customisation](#customising-the-result-table).
 
 Writing a grading template that executes the student's code is, however,
 rather difficult as the generated program needs to be robust against errors
 in the submitted code. The template-grader should always return a JSON object
 and should not generate any stderr output.
 
-Although template graders can be written in any language, the developer
-finds it convenient to write them in Python, regardless of
+Although template graders can be written in any language, we recommend
+writing them in Python, regardless of
 the language in which the student answer is written. Python's subprocess
 module can be used to execute the student code plus whatever test code is required.
 This ensures that errors in the syntax  or runtime errors in the student code
@@ -1907,64 +1983,75 @@ In this mode, the JSON string output by the template grader
 should again contain a 'fraction' field, this time for the total mark,
 and may contain zero or more of the following attributes:
 
- 1. prologuehtml: this is html that is displayed before the (optional) result table.
- 1. epiloguehtml: this is html that is displayed after the (optional) result table.
- 1. instructorhtml: this is like epiloguehtml except that it is visible only to
+ 1. `prologuehtml`: this is html that is displayed before the (optional) result table.
+
+ 1. `epiloguehtml`: this is html that is displayed after the (optional) result table.
+
+ 1. `instructorhtml`: this is like `epiloguehtml` except that it is visible only to
     instructors.
- 1. testresults: is a list of lists used to display a result table similar to
-that displayed by the built-in question types. The first row is the column-header
-row and all other rows define the table body. Two special column header values exist: 'iscorrect'
-and 'ishidden'. The \'iscorrect\' column(s) are used to display ticks or
-crosses for 1 or 0 row values respectively. The 'ishidden' column isn't
-actually displayed but 0 or 1 values in the column can be used to turn on and
-off row visibility. Students do not see hidden rows but markers and other
-staff do.
- 1. columnformats: this field is only meaningful if there is a testresults field.
-It is a list of format specifier strings, one per table column excluding the optional
-ishidden and iscorrect columns. Each format specifier
-should either be '%s', in which case all formatting is left to the renderer
-(which sanitises the field and encloses it in a &lt;pre&gt; element)
-or '%h' in which case the table cell is displayed directly without further
-processing. '%s' formatting is the default in the absence of an explicit
-'columnformats' field.
- 1. showoutputonly: if set true, this results in the prologuehtml and
-epiloguehtml fields being displayed against a neutral background with the
-usual outcome message (e.g. "Passed all tests") suppressed. The mode is intended
-for use in pseudo-questions that can be used by students to experiment with a
-given bit of code. The 'fraction' attribute is not
-required and is ignored if given. Since a mark is still required by the framework
-when a question is checked, full marks are awarded regardless of the result of
-the run but questions of this sort would normally not contribute marks towards
-a student's grade.
- 1. showdifferences: if set true, the standard 'Show differences' button
- will be displayedafter the result table if full marks were not
-awarded to the question.
- 1. graderstate: this is a string value that is stored in the database
-with the question attempt and is passed back to the combinator template grader
-code on the next attempt of that question as the field 'graderstate' of the
-'QUESTION.stepinfo' object. The use of this variable is entirely at the
-discretion of the question author; the facility is available only to allow
-question authors to grade a submission differently according to what was
-previously submitted. It could, for example, be a json-encoded record of the
-correctness of the different tests.
- 1. files (new, experimental): this allows the question author to return
-temporary files that are displayed within the response page. It is
-a JSON object mapping filenames to the corresponding
-base4 encoded file contents. This parameter is intended primarily for returning image files
-that will be displayed in the feedback, but could have other uses. If a 'files'
-attribute is present, the files are written to the Moodle file area and
-URLs generated to reference those files. The URLs are then used to update any
-occurrences of the strings
- `src="filename"` or `href="filename"` within the 'prologuehtml', 'testresults',
- 'epiloguehtml' and 'instructorhtml' attributes to use the full URL instead of just the
- filename. Unmatched filenames are disregarded. Single quotes instead of double 
- quotes can also be used in the 'src' and 'href' attribute assignments.
-Files are timestamped so the same filename can be used unambiguously
-in multiple grade responses. Warning: the files created in this way
-are temporary in the sense that they will not survive a course
-backup/restore sequence. They should only be referenced from within
-the question grading response. If really needed after a course
-restore they can be regenerated by a regrade.
+
+ 1. `testresults`: is a list of lists used to display a result table similar to
+    that displayed by the built-in question types. The first row is the column-header
+    row and all other rows define the table body. Two special column header values exist: `iscorrect`
+    and `ishidden`. The `iscorrect` column(s) are used to display ticks or
+    crosses for 1 or 0 row values respectively. The `ishidden` column isn't
+    actually displayed but 0 or 1 values in the column can be used to turn on and
+    off row visibility. Students do not see hidden rows but markers and other
+    staff do.
+
+ 1. `columnformats`: this field is only meaningful if there is a `testresults` field.
+    It is a list of format specifier strings, one per table column excluding the optional
+    ishidden and iscorrect columns. Each format specifier
+    should either be '%s', in which case all formatting is left to the renderer
+    (which sanitises the field and encloses it in a &lt;pre&gt; element)
+    or '%h' in which case the table cell is displayed directly without further
+    processing. '%s' formatting is the default in the absence of an explicit
+    `columnformats` field.
+
+ 1. `showoutputonly`: if set true, this results in the prologuehtml and
+    epiloguehtml fields being displayed against a neutral background with the
+    usual outcome message (e.g. "Passed all tests") suppressed. The mode is intended
+    for use in pseudo-questions that can be used by students to experiment with a
+    given bit of code. The 'fraction' attribute is not
+    required and is ignored if given. Since a mark is still required by the framework
+    when a question is checked, full marks are awarded regardless of the result of
+    the run but questions of this sort would normally not contribute marks towards
+    a student's grade.
+
+ 1. `showdifferences`: if set true, the standard 'Show differences' button
+    will be displayedafter the result table if full marks were not
+    awarded to the question.
+
+ 1. `graderstate`: this is a string value that is stored in the database
+    with the question attempt and is passed back to the combinator template grader
+    code on the next attempt of that question as the field `graderstate` of the
+    `QUESTION.stepinfo` object. The use of this variable is entirely at the
+    discretion of the question author; the facility is available only to allow
+    question authors to grade a submission differently according to what was
+    previously submitted. It could, for example, be a json-encoded record of the
+    correctness of the different tests.
+    
+ 1. `files` (new, experimental): this allows the question author to return
+    temporary files that are displayed within the response page. It is
+    a JSON object mapping filenames to the corresponding
+    base4 encoded file contents. This parameter is intended primarily for returning image files
+    that will be displayed in the feedback, but could have other uses. If a 'files'
+    attribute is present, the files are written to the Moodle file area and
+    URLs generated to reference those files. The URLs are then used to update any
+    occurrences of the strings
+    `src="filename"` or `href="filename"` within the `prologuehtml`, `testresults`,
+    `epiloguehtml` and `instructorhtml` attributes to use the full URL instead of just the
+    filename. Unmatched filenames are disregarded. Single quotes instead of double 
+    quotes can also be used in the 'src' and 'href' attribute assignments.
+
+    Files are timestamped so the same filename can be used unambiguously
+    in multiple grade responses.
+    
+    **Warning**: the files created in this way
+    are temporary in the sense that they will not survive a course
+    backup/restore sequence. They should only be referenced from within
+    the question grading response. If really needed after a course
+    restore they can be regenerated by a regrade.
 
 Combinator-template grading gives the user complete control of the feedback to
 the student as well as of the grading process. The ability to include HTML
@@ -1989,7 +2076,8 @@ shows how we can test student code in a more complex manner than simply running
 tests and matching the output against the expected output.
 
 For a more comprehensive example, inspect the dotnet C# question prototype
-in the distribution's unsupported question types folder.
+in the distribution's
+[unsupported question types](https://github.com/trampgeek/moodle-qtype_coderunner/tree/master/unsupportedquestiontypes) folder.
 
 ### A simple grading-template example
 A simple case in which one might use a template grader is where the
@@ -2182,12 +2270,17 @@ The column headers are language dependent.
 ### Column specifiers
 
 Each column specifier is itself a list,
-typically with just two or three elements. The first element is the
-column header, the second element is usually the field from the TestResult
-object being displayed in the column (one of those values listed above) and the optional third
-element is an `sprintf` format string used to display the field.
+typically with just two or three elements:
+
+ 1. The column header
+ 2. Usually the field from the TestResult
+    object being displayed in the column (one of those values listed above)
+ 3. [Optional] An `sprintf` format string used to display the field.
+
 Per-test template graders can add their
-own fields, which can also be selected for display. It is also possible
+own fields, which can also be selected for display.
+
+It is also possible
 to combine multiple fields into a column by adding extra fields to the
 specifier: these must precede the `sprintf` format specifier, which then
 becomes mandatory. For example, to display a `Mark Fraction` column in the
@@ -2206,32 +2299,6 @@ the student's program was HTML.
 NOTE: `%h` format requires PHP >= 5.4.0 and Libxml >= 2.7.8 in order to
 parse and clean the HTML output.
 
-### Extended column specifier syntax (*obsolescent*)
-
-It was stated above that the values to be formatted by the format string (if
-given) were fields from the TestResult object. This is a slight simplification.
-The syntax actually allows for expressions of the form:
-
-    filter(testResultField [,testResultField]... )
-
-where `filter` is the name of a built-in filter function that filters the
-given testResult field(s) in some way. Currently the only such built-in
-filter function is `diff`. This is (or was) a function
-taking two test result fields as parameters and
-returning an HTML string that representing the first test field with embedded
-HTML &lt;ins&gt; and &lt;del&gt; elements that show the insertions and deletions
-necessary
-to convert the first field into the second. This was used to provide support
-for the Show Differences button, which the user could click in order to
-highlight differences between the *Expected* and *Got* fields. However that
-functionality is now provided by JavaScript; the Show Differences button is
-automatically displayed if an answer is being marked wrong and if an
-exact-match grader is being used. Hence the *diff* filter function
-is no longer functional but it remains supported syntactically to support
-legacy questions that use it.
-
-<img src="http://coderunner.org.nz/pluginfile.php/56/mod_page/content/24/Selection_074.png" />
-
 ### Default result columns
 
 The default value of *result_columns*  is:
@@ -2244,29 +2311,39 @@ For normal programming questions, the Ace editor is used both for
 author editing of the templates and for the student answer. Ace provides
 syntax colouring, bracket matching, auto indent and many other programmer-oriented
 capabilities to make editing of the underlying pure text more user-friendly.
+The Ace editor is a JavaScript module that essentially provides a user-friendly
+view of the underlying textual student answer.
 
 Sometimes question authors ask questions in which the answer is not in fact
 program code. For example, it might be a textual representation of an FSM
 (finite state machine). In such questions the Ace editor is often not
-appropriate. Prior to version 3.3, authors could turn off the Ace editor by
-unchecking a *Use Ace* checkbox, but this disabled it both for student answers
-and for the author's template.
+appropriate. 
 
-Since version 3.3.0, CodeRunner now supports pluggable user interfaces,
-although an administrator has to install the plugin. The user interfaces
-currently built in to CodeRunner are Ace, Ace-gapfiller, Gapfiller, Graph,
-Scratchpad and Table. The question author selects the required
-user interface via a dropdown menu in the customisation section of the question
-author form. The selection controls editing of the sample answer and answer
-preload fields of the authoring form and the student's answer in the live
-quiz. The Ace editor is always used for editing the template itself, unless
+CodeRunner supports several user interfaces, which provide
+an alternative view of the underlying student answer and, in the question
+authoring page, the sample answer and answer preload fields.
+The Ace editor is always used for editing the template itself, unless
 turned off with the *Template uses ace* checkbox in the authoring
 form.
 
-The value of the STUDENT_ANSWER variable seen by the template code is different
-for the various UI plugins. For example, with the Ace editor the STUDENT_ANSWER
+The available interfaces are: Ace, Ace-gapfiller, Gapfiller, Graph,
+Scratchpad, Table, and HTML. The latter is a general-purpose UI that
+can be customised by question authors to provide almost any desired 
+look-and-feel for a question.
+
+The question author selects the required
+user interface via a dropdown menu in the customisation section of the question
+author form. The selection controls editing of the sample answer and answer
+preload fields of the authoring form and the student's answer in the live
+quiz. 
+
+The value of the STUDENT_ANSWER variable seen by the template is the value of the underlying
+text area that the user-interface plugin is "wrapping". We refer to this as the "serialisation"
+of the answer.
+For example, with the Ace editor the STUDENT_ANSWER
 is simply the raw text edited by Ace, while for the Ace-gapfiller it's a JSON
-list of the string values that the student entered into the gaps.
+list of the string values that the student entered into the gaps. For the GraphUI
+is a complex JSON description of a graph.
 
 Most UI plugins support a few configuration options via a UI parameters entry
 field in the question authoring form.
@@ -2308,7 +2385,8 @@ specialised UI parameters exist:
        the Ace editor to see a list of available themes. Default: textmate.
 
 If a user uses the ctrl + ',' option to select a theme, this theme will be used
-in all Ace editor windows within that browser until changed back.
+in all Ace editor windows within that browser until changed back. However, none
+of the other settings displayed by CTRL + ',' are persisted in this way.
 
 
 ### Ace-gapfiller UI
@@ -2340,7 +2418,7 @@ gaps.
 
 #### UI parameters
 
- 1. ui_source. This parameter specifies where to get the source text
+ * ui_source. This parameter specifies where to get the source text
        to be displayed in the editor (with gaps as specified above).
        The default value is "globalextra" but the alternative is "test0".
        In the latter case, the contents of the test code field of the first
@@ -2361,7 +2439,7 @@ elements. But the program is displayed as simple non-syntax-coloured text.
 This UI replaces the usual textarea answer box with a div
 consisting of pre-formatted text supplied by the question author in either the
 "globalextra" field or the testcode field of the first test case, according
-to the ui parameter ui_source (default: globalextra).  HTML
+to the ui parameter `ui_source` (default: globalextra).  HTML
 entry or textarea elements are then inserted at
 specified points. It is intended primarily for use with coding questions
 where the answerbox presents the students with code that has smallish bits
