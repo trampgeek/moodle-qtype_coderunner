@@ -1,160 +1,287 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="None">
-        
-        
-        <link rel="shortcut icon" href="img/favicon.ico">
-        <title>CodeRunner</title>
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/fontawesome.min.css" rel="stylesheet">
-        <link href="css/brands.min.css" rel="stylesheet">
-        <link href="css/solid.min.css" rel="stylesheet">
-        <link href="css/v4-font-face.min.css" rel="stylesheet">
-        <link href="css/base.css" rel="stylesheet">
-        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
-        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-        <script>hljs.highlightAll();</script> 
-    </head>
-
-    <body class="homepage">
-        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
-            <div class="container">
-                <a class="navbar-brand" href=".">CodeRunner</a>
-
-                <!-- Expanded navigation -->
-                <div id="navbar-collapse" class="navbar-collapse collapse">
-
-                    <ul class="nav navbar-nav ms-md-auto">
-                        <li class="nav-item">
-                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
-                                <i class="fa fa-search"></i> Search
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="container">
-            <div class="row">
-                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
-            <span class="fa fa-angle-down"></span>
-        </button>
-    </div>
-
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>CodeRunner</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="stylesheets/extra.css" rel="stylesheet" />
     
-    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
-        <ul class="nav flex-column">
-            
-            <li class="nav-item" data-bs-level="1"><a href="#coderunner" class="nav-link">CodeRunner</a>
-              <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#introduction" class="nav-link">Introduction</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#installation" class="nav-link">Installation</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#uninstalling-coderunner" class="nav-link">Uninstalling CodeRunner</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#the-architecture-of-coderunner" class="nav-link">The Architecture of CodeRunner</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#question-types" class="nav-link">Question types</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#templates" class="nav-link">Templates</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#template-debugging" class="nav-link">Template debugging</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#using-the-template-as-a-script-for-more-advanced-questions" class="nav-link">Using the template as a script for more advanced questions</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#template-parameters" class="nav-link">Template parameters</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#use-of-the-precheck-button" class="nav-link">Use of the Precheck button</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#randomising-questions" class="nav-link">Randomising questions</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#grading-with-templates" class="nav-link">Grading with templates</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#template-grader-examples" class="nav-link">Template grader examples</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#customising-the-result-table" class="nav-link">Customising the result table</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#user-interface-selection" class="nav-link">User-interface selection</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#user-defined-question-types" class="nav-link">User-defined question types</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#supporting-or-implementing-new-languages" class="nav-link">Supporting or implementing new languages</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#multilanguage-questions" class="nav-link">Multilanguage questions</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#the-qtype_coderunner_run_in_sandbox-web-service" class="nav-link">The 'qtype_coderunner_run_in_sandbox' web service</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#administrator-scripts" class="nav-link">Administrator scripts</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#a-note-on-accessibility" class="nav-link">A note on accessibility</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#appendix-1-how-questions-get-marked" class="nav-link">APPENDIX 1: How questions get marked</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#appendix-2-how-programming-quizzes-should-work" class="nav-link">APPENDIX 2: How programming quizzes should work</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-              </ul>
-            </li>
-        </ul>
-    </div>
-</div></div>
-                    <div class="col-md-9" role="main">
+      <script>
+        // Current page data
+        var mkdocs_page_name = "CodeRunner";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
 
-<h1 id="coderunner">CodeRunner</h1>
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> CodeRunner
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">CodeRunner</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#installing-coderunner">Installing CodeRunner</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#upgrading-from-earlier-versions-of-coderunner">Upgrading from earlier versions of CodeRunner</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#preliminary-testing-of-the-coderunner-question-type">Preliminary testing of the CodeRunner question type</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#setting-the-quiz-review-options">Setting the quiz review options</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sandbox-configuration">Sandbox Configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#running-the-unit-tests">Running the unit tests</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#uninstalling-coderunner">Uninstalling CodeRunner</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-architecture-of-coderunner">The Architecture of CodeRunner</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#question-types">Question types</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#an-example-question-type">An example question type</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#built-in-question-types">Built-in question types</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#some-more-specialised-question-types">Some more-specialised question types</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#templates">Templates</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#per-test-templates">Per-test templates</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#combinator-templates">Combinator templates</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#customising-templates">Customising templates</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#template-debugging">Template debugging</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-the-template-as-a-script-for-more-advanced-questions">Using the template as a script for more advanced questions</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#twig-escapers">Twig Escapers</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#template-parameters">Template parameters</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#twigging-the-whole-question">Twigging the whole question</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#preprocessing-of-template-parameters">Preprocessing of template parameters</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#preprocessing-with-twig">Preprocessing with Twig</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#preprocessing-with-other-languages">Preprocessing with other languages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#the-template-parameter-preprocessor-program">The template parameter preprocessor program</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#the-evaluate-per-run-option">The Evaluate per run option</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-twig-test-variable">The Twig TEST variable</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-twig-testcases-variable">The Twig TESTCASES variable</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-twig-question-variable">The Twig QUESTION variable</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-twig-student-variable">The Twig STUDENT variable</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#twig-macros-deprecated-may-be-removed-in-future">Twig macros (deprecated - may be removed in future)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#use-of-the-precheck-button">Use of the Precheck button</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#randomising-questions">Randomising questions</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#how-it-works">How it works</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#randomising-per-student-rather-than-per-question-attempt">Randomising per-student rather than per-question-attempt</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#an-important-warning-about-editing-template-parameters">An important warning about editing template parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#hoisting-the-template-parameters">Hoisting the template parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#miscellaneous-tips">Miscellaneous tips</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#grading-with-templates">Grading with templates</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#per-test-case-template-grading">Per-test-case template grading</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#combinator-template-grading">Combinator-template grading</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#template-grader-examples">Template grader examples</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#a-simple-grading-template-example">A simple grading-template example</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#a-more-advanced-grading-template-example">A more advanced grading-template example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#customising-the-result-table">Customising the result table</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#column-specifiers">Column specifiers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#html-formatted-columns">HTML formatted columns</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#default-result-columns">Default result columns</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#user-interface-selection">User-interface selection</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#ace-ui">Ace UI</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#serialisation">Serialisation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#ui-parameters">UI parameters</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ace-gapfiller-ui">Ace-gapfiller UI</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#serialisation_1">Serialisation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#ui-parameters_1">UI parameters</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#gap-filler-ui">Gap Filler UI</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#serialisation_2">Serialisation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#ui-parameters_2">UI parameters</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#graph-ui">Graph UI</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#serialisation_3">Serialisation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#ui-parameters_3">UI Parameters</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-html-ui">The Html UI</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#ui-parameters_4">UI parameters</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#serialisation_4">Serialisation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#the-textareaid-macro">The textareaId macro</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#including-other-coderunner-uis-in-an-html-ui-page">Including other CodeRunner UIs in an HTML UI page</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#scratchpad-ui">Scratchpad UI</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#serialisation_5">Serialisation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#ui-parameters_5">UI parameters</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#table-ui">Table UI</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#user-defined-question-types">User-defined question types</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#prototype-template-parameters">Prototype template parameters</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#supporting-or-implementing-new-languages">Supporting or implementing new languages</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#multilanguage-questions">Multilanguage questions</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-coderunner-sandbox-web-service">The CodeRunner sandbox web service</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#enabling-and-configuring-the-web-service">Enabling and configuring the web service</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#use-of-the-web-service">Use of the web service.</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#administrator-scripts">Administrator scripts</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#a-note-on-accessibility">A note on accessibility</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#appendix-1-how-questions-get-marked">APPENDIX 1: How questions get marked</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#when-a-question-is-first-instantiated">When a question is first instantiated.</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#grading-a-submission">Grading a submission</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#lots-more-to-come-when-i-get-a-round-tuit">Lots more to come when I get a round TUIT</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#appendix-2-how-programming-quizzes-should-work">APPENDIX 2: How programming quizzes should work</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">CodeRunner</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">CodeRunner</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="coderunner">CodeRunner</h1>
 <p>Version: 5.7.2+ August 26, 2025. Requires <strong>MOODLE V4.3 or later + PHP &gt;=8.1</strong>. Earlier versions
 of Moodle must use CodeRunner V4.</p>
 <p>Authors: Richard Lobb, University of Canterbury, New Zealand.
@@ -1389,8 +1516,9 @@ first_name = args['firstname']
 print(json.dumps({'func_name': func_name, 'first_name': first_name}))
 </code></pre>
 <p>The question text could then say:</p>
-<p><code>Write a function {{ func_name }}() that prints a welcome message of the
-form "Hello {{ first_name }}!".</code></p>
+<pre><code>Write a function {{ func_name }}() that prints a welcome message of the
+form "Hello {{ first_name }}!".
+</code></pre>
 <p>Note that this simple example is chosen only to illustrate
 the technique. It is a very bad example of <em>when</em> to use
 a preprocessor, as the job is more easily and more efficiently done in Twig,
@@ -2252,35 +2380,35 @@ parse and clean the HTML output.</p>
 <p><code>[["Test", "testcode"], ["Input", "stdin"], ["Expected", "expected"], ["Got", "got"]]</code>.</p>
 <h2 id="user-interface-selection">User-interface selection</h2>
 <p>For normal programming questions, the Ace editor is used both for
-author editing of the templates and for the student answer. Ace provides
+author editing of the templates and for the student answer.
+The Ace editor is a JavaScript module that provides a programmer-friendly
+view of the underlying textual student answer. It does
 syntax colouring, bracket matching, auto indent and many other programmer-oriented
-capabilities to make editing of the underlying pure text more user-friendly.
-The Ace editor is a JavaScript module that essentially provides a user-friendly
-view of the underlying textual student answer.</p>
+capabilities.</p>
 <p>Sometimes question authors ask questions in which the answer is not in fact
 program code. For example, it might be a textual representation of an FSM
-(finite state machine). In such questions the Ace editor is often not
-appropriate. </p>
+(finite state machine). In such non-programming questions the Ace editor is
+often not appropriate. </p>
 <p>CodeRunner supports several user interfaces, which provide
 an alternative view of the underlying student answer and, in the question
 authoring page, the sample answer and answer preload fields.
-The Ace editor is always used for editing the template itself, unless
+However, the Ace editor is always used for editing the template itself, unless
 turned off with the <em>Template uses ace</em> checkbox in the authoring
 form.</p>
-<p>The available interfaces are: Ace, Ace-gapfiller, Gapfiller, Graph,
-Scratchpad, Table, and HTML. The latter is a general-purpose UI that
-can be customised by question authors to provide almost any desired 
-look-and-feel for a question.</p>
 <p>The question author selects the required
 user interface via a dropdown menu in the customisation section of the question
 author form. The selection controls editing of the sample answer and answer
 preload fields of the authoring form and the student's answer in the live
 quiz. </p>
+<p>The available uesr interfaces are: Ace, Ace-gapfiller, Gapfiller, Graph,
+Scratchpad, Table, and HTML. The latter is a general-purpose UI that
+can be customised by question authors to provide almost any desired 
+look-and-feel for a question.</p>
 <p>The value of the STUDENT_ANSWER variable seen by the template is the value of the underlying
 text area that the user-interface plugin is "wrapping". We refer to this as the "serialisation"
 of the answer.
 For example, with the Ace editor the STUDENT_ANSWER
-is simply the raw text edited by Ace, while for the Ace-gapfiller it's a JSON
+is simply the raw program code edited by Ace, while for the Ace-gapfiller it's a JSON
 list of the string values that the student entered into the gaps. For the GraphUI
 is a complex JSON description of a graph.</p>
 <p>Most UI plugins support a few configuration options via a UI parameters entry
@@ -2294,7 +2422,8 @@ are as follows.</p>
 <p>This is the default UI interface and is the one most-commonly used for programming
 questions.</p>
 <h4 id="serialisation">Serialisation</h4>
-<p>The serialisation is simply the raw text that the Ace editor is displaying.</p>
+<p>The serialisation is simply the raw program-code text that the Ace editor is displaying
+in syntax-coloured form.</p>
 <h4 id="ui-parameters">UI parameters</h4>
 <p>Mostly the default configuration options will be used but a few
 specialised UI parameters exist:</p>
@@ -2318,11 +2447,11 @@ specialised UI parameters exist:</p>
 <p>live_autocompletion. Turns on the Ace editor auto-complete function.</p>
 </li>
 <li>
-<p>theme. The theme to be used by the ace editor. Type ctrl + ',' within
+<p>theme. The theme to be used by the ace editor. Type CTRL + ',' within
        the Ace editor to see a list of available themes. Default: textmate.</p>
 </li>
 </ol>
-<p>If a user uses the ctrl + ',' option to select a theme, this theme will be used
+<p>If a user uses the CTRL + ',' option to select a theme, this theme will be used
 in all Ace editor windows within that browser until changed back. However, none
 of the other settings displayed by CTRL + ',' are persisted in this way.</p>
 <h3 id="ace-gapfiller-ui">Ace-gapfiller UI</h3>
@@ -2341,22 +2470,28 @@ respectively. It the second number (and the preceding '-') is omitted,
 the field width can expand arbitrarily.</p>
 <p>For example (a case in which the source is test0):</p>
 <p><img src="https://coderunner.org.nz/pluginfile.php/56/mod_page/content/31/Screenshot%20from%202023-08-29%2016-50-18.png" /></p>
+<p>Since the STUDENT_ANSWER with this UI is just a list of the strings the student entered into
+the gaps, the answer can't be just executed as is. Instead the template code must insert
+the gap strings back into the original code. See the section <a href="https://coderunner.org.nz/mod/page/view.php?id=568">The Ace Gapfiller UI</a> 
+at https://coderunner.org.nz for more details and examples.</p>
 <h4 id="serialisation_1">Serialisation</h4>
 <p>The serialisation is a
 JSON list of strings, which are the values entered by the student into the
-gaps.</p>
+gaps, or an empty string if all the gaps are left empty.</p>
 <h4 id="ui-parameters_1">UI parameters</h4>
 <ul>
-<li>ui_source. This parameter specifies where to get the source text
+<li>
+<p>ui_source. This parameter specifies where to get the source text
        to be displayed in the editor (with gaps as specified above).
-       The default value is "globalextra" but the alternative is "test0".
-       In the latter case, the contents of the test code field of the first
-       test is used. In this latter case, all other test cases should contain
-       corresponding gap fillers and the result table will substitute the
-       student's gap fillers into all tests with syntax colouring to denote
-       the substitution. In this mode, you can't use the "Use as example"
-       feature because the test code isn't defined until the student has
-       filled in the gaps.</li>
+       The default value is "globalextra" (a field in the question authoring form)
+       but the alternative is "test0".</p>
+<p>In the latter case, the contents of the test code field of the first
+   test is used. Then, all other test cases should contain
+   corresponding gap fillers and the result table will substitute the
+   student's gap fillers into all tests. In this mode, you can't use the "Use as example"
+   feature because the test code isn't defined until the student has
+   filled in the gaps.</p>
+</li>
 </ul>
 <h3 id="gap-filler-ui">Gap Filler UI</h3>
 <p>This plugin is an older version of the Ace gapfiller UI and has largely been
@@ -2523,6 +2658,10 @@ question author. The HTML will usually include data entry fields such as
 html input and text area elements and it is the values that the user enters
 into these fields that constitutes the student answer. The HTML can
 also include JavaScript in <code>&lt;script&gt;</code> elements.</p>
+<p>This is a very powerful UI, that can be used to generate complex question types
+like <a href="https://coderunner.org.nz/mod/page/view.php?id=561">Parson's Problems</a>,
+although authoring such question types is not for the
+faint-of-heart. </p>
 <p>The HTML to use in the answer area must be provided as the contents of
 either the <code>globalextra</code> field  or the <code>prototypeextra</code> field (see UI parameters
 below) in the question authoring form.</p>
@@ -2554,7 +2693,7 @@ emptor!</p>
        prototypeextra field.</p>
 </li>
 <li>
-<p>sync_interval_secs. This sests the time interval in seconds between
+<p>sync_interval_secs. This sets the time interval in seconds between
        calls to sync the UI contents serialisation back into the question
        answer. 0 for no such auto-syncing.</p>
 </li>
@@ -2591,7 +2730,7 @@ only necessary when you need to use Twig within the answer or sample answer,
 which is rare.</p>
 <p>It is possible that the question author might want a dynamic answer box in
 which the student can add extra fields. A simple example of this is the Table UI,
-which is a special case of the Html UI. The Table UI provides
+which is like a special case of the Html UI. The Table UI provides
 an optional <em>Add rows</em> button, plus associated JavaScript, which allows
 students to add rows to the table. The serialisation then contains more
 data than can be accommodated in the fields of the original HTML. In the case of
@@ -2628,27 +2767,38 @@ that macro is replaced everywhere by the actual ID of the answer box's text-area
 different for the student and author answers. This technique can also be used
 to ensure that the names given to elements like radio buttons are different
 in the two answers.</p>
-<p>Using this macro, it is also possible to include the GraphUI in the HtmlUI.
-By including a custom grader, it is possible to create a Question with several
-sub questions. To do this, in the html-code a textarea element needs to be
-defined:</p>
+<h4 id="including-other-coderunner-uis-in-an-html-ui-page">Including other CodeRunner UIs in an HTML UI page</h4>
+<p>Using the <code>___textareaId___</code> macro, it is also possible to embed other 
+CodeRunner UI elements within the HTML page. For example, you might
+want a page with two different code areas managed by Ace. Or one with a
+Graph UI element in it.</p>
+<p>To embed other UI elements in the page, you must first define a textarea
+to be "wrapped" by the added UI elements. For example, if you wish to 
+insert a graph UI element, you might add code like</p>
 <pre><code>&lt;textarea class="coderunner-ui-element"
 id="graph_target_name____textareaId___"
 name="graph_target" spellcheck="false" rows="18" data-params=""
 data-globalextra=""&gt;&lt;/textarea&gt;
 </code></pre>
 <p>This element is hidden, but the graph will be drawn at this position and its
-contents serialised into that textarea.</p>
-<p>Secondly, the amd-script needs to get called using:</p>
+contents serialised into that textarea. The STUDENT_ANSWER variable passed to
+the Twig template will be a JSON object that includes the attribute
+<code>graph_target</code>, the value of which will be a singleton list containing the
+serialisation of the graph.</p>
+<p>Secondly, the CodeRunner user interface needs to get called to
+manage that text area using code like:</p>
 <pre><code>M.util.js_pending('qtype_coderunner/userinterfacewrapper');
 require(['qtype_coderunner/userinterfacewrapper'], function(amd) {
     amd.newUiWrapper("graph", "graph_target_name____textareaId___");
     M.util.js_complete('qtype_coderunner/userinterfacewrapper');
 });
 </code></pre>
-<p>By using multiple graph elements, keep in mind that the id and name should
-be unique. For more information, see this CodeRunner author's forum thread
-where Markus Gafner (who contributed this workaround) shows a HtmlUI question
+<p>If instead, you wish to load the Ace editor, replace the two occurrences of
+the substring 'graph' in the above by the string 'ace'.</p>
+<p>If using multiple coderunner ui elements, keep in mind that the id and name should
+be unique. For more information, see
+<a href="https://coderunner.org.nz/mod/forum/discuss.php?d=417">this CodeRunner author's forum thread</a>
+where Markus Gafner (who contributed the <code>___textareaId___</code> macro idea) shows an HtmlUI question
 with an embedded GraphUI question, plus other embedded questions.</p>
 <h3 id="scratchpad-ui">Scratchpad UI</h3>
 <p>This UI is an extension of the Ace UI. In addition to the usual Ace code edit
@@ -2675,7 +2825,7 @@ as when the <em>Check</em> button is clicked. The question author can customise 
 behaviour of the scratchpad UI using the UI parameters below, but the process
 can be complex, particularly for question types that might need to collect
 images from the Jobe server. Some examples are given
-<a href="https://coderunner.org.nz/mod/quiz/edit.php?cmid=548">here</a>
+<a href="https://coderunner.org.nz/mod/quiz/view.php?id=548">here</a>
 on the CodeRunner demo site.</p>
 <h4 id="serialisation_5">Serialisation</h4>
 <p>The serialisation is a JSON object with the following attributes. The values
@@ -2738,30 +2888,32 @@ these.</p>
 <li><code>text</code>: Display the output as text, html escaped. (default)</li>
 <li>
 <p><code>json</code>: Display programs that output JSON, useful for capturing stdin
-            and displaying images. (recommended). Accepts JSON in the run
-            output with the fields:</p>
+            and displaying images. (recommended).</p>
+<p>The run output (which
+must be JSON) should have the following fields:</p>
 <ul>
-<li><code>returncode</code>: Exit code from program run.</li>
-<li><code>stdout</code>: Stdout text from program run.</li>
-<li><code>stderr</code>: Error text from program run.</li>
-<li><code>files</code>: An object containing filenames mapped to base64
-        encoded images. These will be displayed below any stdout text.
-        When the returncode is set to 42, an HTML input field will be
-        added after the last stdout received. When the enter key is
-        pressed inside the input, the input's value is added to stdin
-        and the program is run again with this updated stdin.
-        This is repeated until returncode is not set to 42. This allows
-        simulation of interactive keyboard standard input within the
-        run (with considerable effort - see CodeRunner demo website).</li>
+<li><code>returncode</code>: exit code from program run.</li>
+<li><code>stdout</code>: stdout text from the program run.</li>
+<li><code>stderr</code>: error text from the program run.</li>
+<li>
+<p><code>files</code>: an object containing filenames mapped to base64
+        encoded images. These will be displayed below any stdout text.</p>
+<p>As a special case, if the returncode is set to 42, an HTML input field will be
+added after the last stdout received. When the enter key is
+pressed inside the input, the input field's value is added to stdin
+and the program is run again with this updated stdin.
+This is repeated until returncode is not set to 42. This allows
+simulation of interactive keyboard standard input within the
+run (with considerable effort - see the <a href="https://coderunner.org.nz/mod/quiz/view.php?id=548">demo quiz</a>
+on the CodeRunner website).</p>
+</li>
 </ul>
 </li>
 <li>
-<p><code>html</code>: Display program output as raw html inside the output area. (advanced)
-            + This can be used to show images and insert other HTML.
-            + Giving an <input> element the class coderunner-run-input will
-           add an event: when the enter key is pressed inside the input,
-           the input's value is added to stdin and the program is run again
-           with this updated stdin.</p>
+<p><code>html</code>: Display program output as raw html inside the output area. (advanced)</p>
+<ul>
+<li>This can be used to show images and insert other HTML.</li>
+</ul>
 </li>
 </ul>
 </li>
@@ -2831,7 +2983,9 @@ are required and the rest are optional.</p>
    The preload answer must be defined before the locked_cells template
    parameter is defined, or the question author will not be able to define
    the required values in the first place.</p>
-<p>For example, the <code>python3\_program\_testing</code> question type uses the following
+<p>For example, the <code>python3_program_testing</code> question type, available in the
+CodeRunner repository <a href="https://github.com/trampgeek/moodle-qtype_coderunner/tree/master/samples">samples folder</a>,
+uses the following
 UI parameter setting:</p>
 <pre><code>{
     "num_rows": 3,
@@ -2845,8 +2999,6 @@ table cells excluding the header row.</p>
 <p>As a special case of the serialisation, if all values in the serialisation
 are empty strings, the serialisation is
 itself the empty string.</p>
-<p>An example of the use of this UI type can be seen in the
-<em>python3_program_testing</em> prototype in the <em>samples</em> folder.</p>
 <h2 id="user-defined-question-types">User-defined question types</h2>
 <p>NOTE: User-defined question types are very powerful but are not for the faint
 of heart. There are some known pitfalls, so please read the following very
@@ -2869,17 +3021,28 @@ question type name you use should be unique, at least within the context of the 
 in which the prototype question is being used.</p>
 <p>The question text of a prototype question is displayed in the 'Question type
 details' panel in the question authoring form.</p>
-<p>CodeRunner searches for prototype questions
-just in the current course context. The search includes parent
-contexts, typically visible only to an administrator, such as the system
-context; the built-in prototypes all reside in that system context. Thus if
-a teacher in one course creates a new question type, it will immediately
+<p>CodeRunner searches <strong>by name</strong> for prototype questions, as follows:</p>
+<ul>
+<li>
+<p>On versions prior to Moodle 5.0 the search includes parent
+    contexts, typically visible only to an administrator, such as the system
+    context in which all the built-in prototypes reside.</p>
+</li>
+<li>
+<p>In Moodle versions 5.0 and later,
+    all question banks in the current course are searched, together with the system shared
+    question banks in the Front Page Course (usually directly visible only to administrators).
+    It is strongly recommended that
+    a special question bank be created in each course solely for CodeRunner question prototypes.</p>
+</li>
+</ul>
+<p>If a teacher in one course creates a new question type, it will immediately
 appear in the question type list for all authors editing questions within
 that course but it will not be visible to authors in other courses. If you wish
-to make a new question type available globally you should ask a
-Moodle administrator
-to move the question to the system context, such as a LOCAL_PROTOTYPES
-category.</p>
+to make a new question type available to another course then in Moodle 5.0 of later you will need to
+create a question bank that can be shared with that other course. In earlier versions of Moodle
+you will need to ask a system administrator to create an intermediate level context in
+the course hierarchy that is a parent of both courses.</p>
 <p>When you create a question of a particular type, including user-defined
 types, all the so-called "customisable" fields are inherited from the
 prototype. This means changes to the prototype will affect all the "children"
@@ -2898,7 +3061,7 @@ that you include the prototype, or all of its children will die on being importe
 anywhere else!
 Similarly, if you delete a prototype question that's actually
 in use, all the children will break, giving "missing prototype" errors. To recover
-from such screw ups you will need to create a new prototype
+from such screw-ups you will need to create a new prototype
 of the right name (preferably by importing the original correct prototype).
 To repeat:
 user-defined question types are not for the faint of heart. Caveat emptor.</p>
@@ -2906,7 +3069,52 @@ user-defined question types are not for the faint of heart. Caveat emptor.</p>
 e.g. for validation purposes, they are not inherited by the "children" of
 the prototype.</p>
 <h3 id="prototype-template-parameters">Prototype template parameters</h3>
-<p>** TBS **</p>
+<p>It is generally best to avoid customising individual questions of some type, 
+because if your requirements change you will likely find yourself having
+to change all of your customised questions. To reduce the need to customise,
+and also to reduce proliferation of user-defined question types, you can
+use the <code>template parameters</code> field of your prototype question to give
+parameterised behaviour. </p>
+<p>As an example, consider the "for-to-while" question type that is developed
+in <a href="https://www.youtube.com/watch?v=W-En_LN6qh4&amp;t=5s">this video</a>. The
+question type parses the student's code before running it and if any
+<em>for</em> statements are encountered, the submission is rejected. But
+that's a very specific question type - might you not also want to write
+"while-to-for" questions that disallowed <em>while</em> statements? Or ones
+that prevent the use of <em>import</em> statements in order to force students to write
+their own implementations of functions available in other modules?</p>
+<p>A solution to that sort of dilemma is to write a question type that
+has as a template parameter called something like <code>banned_constructs</code>
+The template for this question type could parse the student's code
+and print an error message if any of the listed constructs is found
+in the parse tree.</p>
+<p>For example, the template parameter field of an instance of the 
+question (<em>not</em> the template parameter field of the prototype) might
+be </p>
+<pre><code>    {
+        "banned_constructs":["for", "while"]
+    }
+</code></pre>
+<p>to ban explicit looping constructs, e.g. to encourage a recursive
+solution.</p>
+<p>This approach works because when a question is being prepared for display
+and execution the following steps take place:</p>
+<ol>
+<li>Locate the prototype for the question.</li>
+<li>Merge the template parameter fields of the question and its prototype.</li>
+<li>If <em>TwigAll</em> is set, apply Twig to all fields except the template,
+      using the merged template parameters as the environment for Twig.</li>
+<li>When the student submits their answer, use the merged template
+      parameters plus the student answer to construct the program to
+      be run.</li>
+<li>Execute the program</li>
+</ol>
+<p>As an extreme example of the use of template parameters, the 
+<a href="https://github.com/trampgeek/ucquestiontypes/tree/main/python3_scratchpad">python3_scratchpad</a>
+question type used at the University of Canterbury has over 50 prototype template
+parameters to do such things as ban specific constructs, require specific constructs,
+set various style-checker parameters, limit the use of global variables, limit the
+number of output characters, set the execution time limit, etc.</p>
 <h2 id="supporting-or-implementing-new-languages">Supporting or implementing new languages</h2>
 <p>Most authors seem to assume that if they wish to write CodeRunner questions
 that use a language not directly supported by the Jobe sandbox, they must
@@ -2950,7 +3158,8 @@ question type but is more flexible; for example, it can easily be extended to pe
 checks on the submitted C code prior to compilation.</p>
 <p>The full
 question prototype for the <em>c_via_python</em> question type
-is included in the <em>samples</em> folder of the CodeRunner
+is included in the <a href="https://github.com/trampgeek/moodle-qtype_coderunner/tree/master/samples">samples</a>
+folder of the CodeRunner
 distribution.</p>
 <pre><code>""" The template for a question type that compiles and runs a student-submitted
     C program.
@@ -3046,7 +3255,7 @@ isn't efficient for sluggish languages like Java.</p>
 <p>If the author wishes to supply a sample answer to a multilanguage question,
 they must write it in the default language, if specified, or the
 first of the allowed languages otherwise.</p>
-<h2 id="the-qtype_coderunner_run_in_sandbox-web-service">The 'qtype_coderunner_run_in_sandbox' web service</h2>
+<h2 id="the-coderunner-sandbox-web-service">The CodeRunner sandbox web service</h2>
 <p>CodeRunner provides an Ajax-accessible web service that allows JavaScript code
 to directly run jobs on the Jobe server. (More precisely, it runs jobs
 on whatever sandbox has been configured for the specified language, but
@@ -3057,7 +3266,7 @@ in order to display syntax-coloured editable code with a 'Try it!' button
 in any Moodle content page, but may have other uses.</p>
 <h3 id="enabling-and-configuring-the-web-service">Enabling and configuring the web service</h3>
 <p>The web service is not enabled by default, and must be enabled in the CodeRunner
-settings page by by a moodle system
+settings page by by a Moodle system
 administrator. There are several additional configuration options:</p>
 <ol>
 <li>
@@ -3096,8 +3305,24 @@ administrator. There are several additional configuration options:</p>
 </li>
 </ol>
 <h3 id="use-of-the-web-service">Use of the web service.</h3>
-<p>The service is intended for use within Moodle content pages, usually within
-AMD scripts. However, the service can be used from JavaScript directly
+<p>The two primary uses of the web service within CodeRunner are:</p>
+<ol>
+<li>
+<p>The <a href="https://github.com/trampgeek/ace_inline">Ace_inline code Moodle filter plugin</a>.
+      This is very useful in tutorial-type quizzes, providing students with simple
+      "Try it!" boxes. For example, here's a screenshot from a quiz at the University of
+      Canterbury introducing Python <em>for</em> loops to students who have already learnt <em>while</em> loops.
+      Students can run the code directly in the web page, edit it, rerun, etc.</p>
+<p><img src="https://coderunner.org.nz/pluginfile.php/145/mod_page/content/3/Screenshot%20from%202025-09-02%2016-26-30.png" width="700" /></p>
+<p>See the 
+  <a href="https://coderunner.org.nz/mod/page/view.php?id=545">demo page for the Ace in line filter </a>
+  for more examples.</p>
+</li>
+<li>
+<p>The <a href="https://trampgeek.github.io/moodle-qtype_coderunner#scratchpad-ui">Scratchpad UI</a> uses the service to run code in the scratchpad.</p>
+</li>
+</ol>
+<p>However, the service can be used from JavaScript directly
 embedded in a page using an HTML editor. For example:</p>
 <pre><code>&lt;h3&gt;A simple demo of the CodeRunner sandbox web service.&lt;/h3&gt;
 &lt;textarea id="code" rows="4" cols="40"&gt;&lt;/textarea&gt;
@@ -3132,13 +3357,6 @@ embedded in a page using an HTML editor. For example:</p>
     }
 &lt;/script&gt;
 </code></pre>
-<p>This page displays a textarea into which a user can enter Python code, which
-can then be run by clicking the button. The output is displayed in an alert.
-The <a href="https://github.com/trampgeek/ace_inline">ace_inline filter plugin</a>
-does something similar to this, except it
-uses the Ace editor to provide code editing, displays the output inline in the
-page, does much more extensive error analysis and has many more configuration
-options.</p>
 <p>The <em>response</em> object is an object with at least an attribute 'error'. This is one of the
 values 0 through 9 (OK to SERVER_OVERLOAD) as defined in the CodeRunner source
 file <a href="https://github.com/trampgeek/moodle-qtype_coderunner/blob/master/classes/sandbox.php">sandbox.php</a>.
@@ -3503,87 +3721,49 @@ entered and, if their answer is wrong, can resubmit, usually for a
 small penalty. The mark obtained in a
 programming-style quiz is thus determined primarily by how many of the problems the
 student can solve in the given time, and secondarily by how many submissions the student
-needs to make on each question.</p></div>
+needs to make on each question.</p>
+              
             </div>
-        </div>
+          </div><footer>
 
-        <footer class="col-md-12">
-            <hr>
-            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
-        </footer>
-        <script src="js/bootstrap.bundle.min.js"></script>
-        <script>
-            var base_url = ".",
-                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
-        </script>
-        <script src="js/base.js"></script>
-        <script src="search/main.js"></script>
+  <hr/>
 
-        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="searchModalLabel">Search</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>From here you can search these documents. Enter your search terms below.</p>
-                <form>
-                    <div class="form-group">
-                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
-                    </div>
-                </form>
-                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
-            </div>
-            <div class="modal-footer">
-            </div>
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
         </div>
-    </div>
-</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th style="width: 20%;">Keys</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="help shortcut"><kbd>?</kbd></td>
-                    <td>Open this help</td>
-                  </tr>
-                  <tr>
-                    <td class="next shortcut"><kbd>n</kbd></td>
-                    <td>Next page</td>
-                  </tr>
-                  <tr>
-                    <td class="prev shortcut"><kbd>p</kbd></td>
-                    <td>Previous page</td>
-                  </tr>
-                  <tr>
-                    <td class="search shortcut"><kbd>s</kbd></td>
-                    <td>Search</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="modal-footer">
-            </div>
-        </div>
-    </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
 </div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
 
-    </body>
+</body>
 </html>
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-09-01 05:16:00.454026+00:00
+Build Date UTC : 2025-09-02 05:16:38.313654+00:00
 -->
