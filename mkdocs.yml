@@ -1,1 +1,5 @@
 site_name: CodeRunner
+theme:
+    name: readthedocs
+extra_css:
+  - stylesheets/extra.css
