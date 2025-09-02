@@ -249,8 +249,6 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#grading-a-submission">Grading a submission</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#lots-more-to-come-when-i-get-a-round-tuit">Lots more to come when I get a round TUIT</a>
-    </li>
         </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#appendix-2-how-programming-quizzes-should-work">APPENDIX 2: How programming quizzes should work</a>
@@ -1936,35 +1934,35 @@ to true on newly created questions.</p>
     are as follows:</p>
 <p>a) Create a single random <code>index</code> variable and use that to index into
    separate animal and sound lists. For example:</p>
-<pre><code>    {
-        {% set index = random(2) %}
-        "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
-        "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
-    }
+<pre><code>{
+    {% set index = random(2) %}
+    "animal": "{{ ["Dog", "Cat", "Cow"][index] }}",
+    "sound":  "{{ ["Woof", "Miaow", "Moo"][index] }}"
+}
 </code></pre>
 <p>b) Select an animal at random from a list of Twig 'hash' objects, then plug
    each of the animal attributes into the JSON record. For example:</p>
-<pre><code>    {
-        {% set obj = random([
-            {'name': 'Dog', 'sound': 'Woof'},
-            {'name': 'Cat', 'sound': 'Miaow'},
-            {'name': 'Cow', 'sound': 'Moo'}
-        ]) %}
-        "animal": "{{ obj.name }}",
-        "sound":  "{{ obj.sound }}"
-    }
+<pre><code>{
+    {% set obj = random([
+        {'name': 'Dog', 'sound': 'Woof'},
+        {'name': 'Cat', 'sound': 'Miaow'},
+        {'name': 'Cow', 'sound': 'Moo'}
+    ]) %}
+    "animal": "{{ obj.name }}",
+    "sound":  "{{ obj.sound }}"
+}
 </code></pre>
 <p>c) Select an animal at random from a list of Twig 'hash' objects as above,
    but then json_encode the entire object as a single template parameter.
    For example</p>
-<pre><code>    {
-        {% set animal = random([
-            {'name': 'Dog', 'sound': 'Woof'},
-            {'name': 'Cat', 'sound': 'Miaow'},
-            {'name': 'Cow', 'sound': 'Moo'}
-        ]) %}
-    }
-    "animal": {{ animal | json_encode }}
+<pre><code>{
+    {% set animal = random([
+        {'name': 'Dog', 'sound': 'Woof'},
+        {'name': 'Cat', 'sound': 'Miaow'},
+        {'name': 'Cow', 'sound': 'Moo'}
+    ]) %}
+}
+"animal": {{ animal | json_encode }}
 </code></pre>
 <p>In the last case, the template parameters will need to be referred to as
 <code>{{ animal.name }}</code> and <code>{{ animal.sound }}</code> instead of <code>{{ animal }}</code> and <code>{{ sound }}</code>.</p>
@@ -3417,6 +3415,7 @@ a course before attempting to run the scripts.</p>
 <ol>
 <li>
 <p><code>&lt;moodle_home&gt;/question/type/coderunner/questionbrowserindex.php</code>
+    [Coming soon to the Master branch]
     This script displays a list of all question banks and categories accessible to the
     currently logged in user.
     Each course/bank/category is displayed as a clickable link which takes the
@@ -3551,7 +3550,7 @@ text area inputs now have two modes:</p>
 <h2 id="appendix-1-how-questions-get-marked">APPENDIX 1: How questions get marked</h2>
 <p>CodeRunner is a rather complex system and, being web based, is driven by
 user-events. In this Appendix we attempt to describe the effective
-behaviour using pseudocode algorithms.</p>
+behaviour using pseudocode algorithms with Python syntax highlighting.</p>
 <p>An understanding of the Twig template engine is assumed in what follows.
 See <a href="https://twig.symfony.com/">the Twig documentation</a> if you are not
 familiar with Twig. CodeRunner uses standard Twig, except for the addition
@@ -3568,28 +3567,46 @@ That seed
 is used for all subsequent randomisation except that the question
 author can explicitly call the <em>set_random_seed</em> function to use a different
 seed, such as the student's ID number.</p>
-<p>That initialisation process can be described as follows:</p>
-<pre>
-<b>procedure</b> create_question_instance(question):
+<p>The process of initialising a question ready for display can be described
+by the following pseudocode for the (hypothetical) function <code>create_question_instance</code>, </p>
+<pre><code class="language-python">def process_template_params(question):
+    &quot;&quot;&quot;Support function - applies the template parameter preprocessor,
+       if there is one.
+    &quot;&quot;&quot;
+    if question.preprocessor == 'twig':
+        set_twig_environment(question.random_seed, question.student)
+        return twig_expand(question.template_params)
+    elif question.language is not None:
+        return run_jobe_program(question.preprocessor,
+           question.seed, question.student, question.template_params)
+
+
+def create_question_instance(question):
+    &quot;&quot;&quot; Initialise a question for display&quot;&quot;&quot;
+
+    # Set up the environment
     question.student = get_current_moodle_user_info()
     question.prototype = locate_prototype_question(question.prototype_name)
     question.random_seed = make_new_random_seed()
-    set_twig_environment(question.random_seed, question.student)
-    question.template_params = twig_expand(question.template_params)
-    <b>if</b> question.prototype has template parameters:
-        prototype_params = twig_expand(question.prototype.template_params)
-        question.template_params = merge_json(prototype_params, question.template_params)
-    <b>if</b> question.twigall:
+
+    # Process the question and prototype template parameters
+    question.template_params = process_template_params(question)
+    prototype_params = process_template_params(question.prototype)
+    question.template_params = merge_json(prototype_params, question.template_params)
+
+    if question.twigall:
         # Twig expand question text, sample answer, answer preload,
         # all test case fields and global extra. The just-computed
         # template parameters provide (most of) the twig environment.
         set_twig_environment(question.random_seed,
             question.student, question.template_params)
-        <b>for each</b> twiggable attribute of question:
+        for each twiggable attribute of question:
             question.attribute = twig_expand(question.attribute)
-    save question instance
-</pre>
-
+    save_question_instance(question)
+</code></pre>
+<p>At that point the question can be displayed to the student. Note, though, 
+that the template itself has not been Twig-expanded. That doesn't happen
+until the student submits their answer.</p>
 <h3 id="grading-a-submission">Grading a submission</h3>
 <p>When the user clicks the <em>Check</em> button (or <em>Precheck</em> if turned on), the
 current answer is graded. The "current answer" comprises:</p>
@@ -3599,7 +3616,8 @@ current answer is graded. The "current answer" comprises:</p>
    by the selected UI (user interface) plug-in. For coding questions, the
    UI is usually the Ace code-editor so the serialised text is just the raw
    code without syntax colouring. Other UIs (e.g. GraphUI, TableUI, GapFillerUI)
-   have their own unique serialisations; see the UI plug-in documentation for
+   have their own unique serialisations; see the
+   <a href="#user-interface-selection">UI plug-in documentation</a> for
    details.</p>
 </li>
 <li>
@@ -3607,13 +3625,15 @@ current answer is graded. The "current answer" comprises:</p>
 </li>
 </ol>
 <p>The grading process involves expanding the question template, executing the
-code and grading the result. However, the process is complicated by the
-choice of sandbox, whether the question uses a so-called "combinator" or not (i.e.
-whether it attempts to combine all test-cases into a single run), whether the
-question requires that different standard input be set for each test case,
-whether it's a precheck or a full check and
-what grading method has been selected (Exact Match, Near Exact Match,
-Regular Expression, or Template Grader).</p>
+code and grading the result. However, the process is complicated by:</p>
+<ul>
+<li>whether the question uses a so-called "combinator" or not (i.e.
+     whether it attempts to combine all test-cases into a single run),</li>
+<li>whether the question requires that different standard input be set for each test case,</li>
+<li>whether it's a precheck or a full check and</li>
+<li>what grading method has been selected (Exact Match, Near Exact Match,
+     Regular Expression, or Template Grader).</li>
+</ul>
 <p>Another complication relates to the environment in which the question's template
 gets expanded by Twig, i.e. the set of "template parameters". In legacy code
 the template refers to the question's template parameters using a notation like</p>
@@ -3624,44 +3644,55 @@ which adds the template parameters directly to the Twig environment, allowing
 the question author to refer directly to</p>
 <pre><code>{{ sometemplateparam }}
 </code></pre>
-<p>In the following pseudocode, we assume Hoist template parameters is true.</p>
+<p>In the following pseudocode, we assume Hoist template parameters is true. We also
+disregard nearly all error conditions except a failed combinator run. </p>
 <p>Although CodeRunner is set up to use a variety of different sandboxes, in
 recent years only the Jobe sandbox has been supported, so we will generally disregard
 all other sandboxes. However, it sometimes helps to remember that CodeRunner
 could in principle use different sandboxes, and that not all sandboxes might
 provide the same functionality as Jobe e.g., setting of maximum
 memory or maximum runtime.</p>
-<pre>
-<b>function</b> grade_response(question, attachments, is_precheck):
+<pre><code class="language-python">def grade_response(question, student_answer, attachments, is_precheck):
     # Grade the current submission and return a table of test results
     if question.answer plus current set of attachments has already been graded:
         return cached results
     test_cases = select_subset_of_tests(question.testcases, is_precheck)
     run_results = None
-    <b>if</b> question.is_combinator and (template grader is being used or
+    if question.is_combinator and (template grader is being used or
         question.allow_multiple_stdins or all stdins are empty strings):
         # Try running the combinator. If something breaks, e.g. a
         # testcase times out, the result will be None.
-        Set up the Twig environment (templateParams) to consist of all
-            the variables in question.templateParams plus STUDENT_ANSWER,
-            IS_PRECHECK, ANSWER_LANGUAGE, and ATTACHMENTS. Additionally
-            the entire question is made available as the parameter QUESTION.
-        run_results = run_combinator(question, testcases, templateParams)
-    <b>if</b> run_result is not None:
+        question.template_params['STUDENT_ANSWER'] = student_answer
+        question.template_params['QUESTION'] = question
+        question.template_params['IS_PRECHECK'] = is_precheck
+        run_results = run_combinator(question)
+    if run_results is None:
         run_results = []
-        <b>for</b> each test in test_cases:
-            run_results.append(run_single_testcase(question, test, templateParams)
-    <b>return</b> run_results
-</pre>
-
+        for each test in test_cases:
+            run_results.append(run_single_testcase(question, test)
+    return run_results
+</code></pre>
 <p>The algorithms used in <code>run_combinator</code> and <code>run_single_testcase</code> are</p>
-<pre>
-<b>function</b> run_combinator(question, testcases, templateParams)
+<pre><code class="language-python">def run_combinator(question):
+    question.template_params['TESTCASES'] = question.test_cases
+    program_to_run = twig_expand(question.template, question.template_params)
+    run_result = run_job_on_jobe(program_to_run, question.run_language)
+    if run_result is OK:
+        if question.grader is 'template':
+            test_results = extract_mark_and_result_table_etc(run_result)
+        else:
+            individual_tests = split_with_testsplitter(outcome)
+            test_results = grade_all_tests(individual_tests)
+    else:
+        test_results = None
 
-*** TBS ***
-</pre>
-
-<h3 id="lots-more-to-come-when-i-get-a-round-tuit">Lots more to come when I get a round TUIT</h3>
+</code></pre>
+<pre><code class="language-python">def run_single_test_case(question, test):
+    question.template_params['TEST'] = test
+    program_to_run = twig_expand(question.template, question.template_params)
+    run_result = run_job_on_jobe(program_to_run, question.run_language) 
+    return grade_test(run_result) 
+</code></pre>
 <h2 id="appendix-2-how-programming-quizzes-should-work">APPENDIX 2: How programming quizzes should work</h2>
 <p>Historical notes and a diatribe on the use of Adaptive Mode questions ...</p>
 <p>The original pycode was inspired by <a href="http://codingbat.com">CodingBat</a>, a site where
@@ -3765,5 +3796,5 @@ needs to make on each question.</p>
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-09-02 05:16:38.313654+00:00
+Build Date UTC : 2025-09-02 23:37:21.074804+00:00
 -->
