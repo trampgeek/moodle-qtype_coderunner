@@ -1,0 +1,17 @@
+/* Increase line height in code blocks */
+.codehilite pre, 
+.highlight pre,
+pre code {
+    line-height: 1.5 !important;
+}
+
+/* For inline code as well, if needed */
+code {
+    line-height: 1.5 !important;
+}
+
+h2 {
+    padding-top: 10px;
+    border-top: 1px solid darkgray;
+    font-size: 200%;
+}

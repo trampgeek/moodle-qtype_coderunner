@@ -8,9 +8,10 @@ on:
       - 'README*'
       - 'LICENSE'
       - '.gitignore'
+<<<<<<< HEAD
+=======
       - 'site/**'
-      - '*.html'
-      - 'mkdocs.yml'
+>>>>>>> 5489a43e (Prevent testsuite runs on documentation changes only.)
   pull_request:
     paths-ignore:
       - 'docs/**'
@@ -18,9 +19,10 @@ on:
       - 'README*'
       - 'LICENSE'
       - '.gitignore'
+<<<<<<< HEAD
+=======
       - 'site/**'
-      - '*.html'
-      - 'mkdocs.yml'
+>>>>>>> 5489a43e (Prevent testsuite runs on documentation changes only.)
 
 jobs:
   test:
