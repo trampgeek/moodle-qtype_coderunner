@@ -1329,7 +1329,7 @@ command line arguments specifying the random number seed that it must use
 and the various attributes of the student. For example, it should behave as if
 invoked from a Linux command line of the form:
 
-    blah seed=1257134 id=902142 username='amgc001' firstname='Angus' 'lastname=McGurk' email='angus@somewhere.ac'
+    blah seed=1257134 id=902142 username='amgc001' firstname='Angus' lastname='McGurk' email='angus@somewhere.ac' quizname='exam2025' quiztags='exam,test'
 
 The command line arguments are
 
@@ -1340,11 +1340,20 @@ the program *must* generate the same output when given the same seed.
  1. Student first name (string)
  1. Student last name (string)
  1. Student email address (string)
+ 1. The quiz name (string)
+ 1. The quiz tags (string) - a comma-separated list of normalised tags
+
+ The quizname is present only when a question is running in a quiz. Otherwise, say during validation or preview, it is absent.
+
+ The quiztags parameter is present only when the question is running in a quiz *and* has a non-empty set of tags.
 
 The student parameters can be ignored unless you wish to customise a question
 differently for different students in such a way that a given student always gets
 the same version of a question no matter how many times they meet it or attempt it;
 see [ randomising per-student](#randomising-per-student-rather-than-per-question-attempt).
+
+Likewise the two quiz parameters can be ignored unless you wish to customise the
+question's behaviour according to the quiz and/or its tags.
 
 Here, for example, is a Python preprocessor program that could be used to
 ask a student to write a function that has 3 variant names to print the
@@ -1528,6 +1537,19 @@ PHP user object. The fields/attributes of STUDENT are:
  * `STUDENT.firstname` The first name of the current user.
  * `STUDENT.lastname` The last name of the current user.
  * `STUDENT.email` The email address of the current user.
+
+
+### The Twig QUIZ variable
+
+The template variable `QUIZ` is an object containing information about the
+quiz in which a question is currently running. The fields/attributes of QUIZ are:
+
+* `QUIZ.name` The name of the quiz (a string) or the empty string if the question is not running within a quiz (e.g. during validation or preview).
+* `QUIZ.tags` An array of the normalised tags of the current quiz, empty if the question is not running within a quiz.
+
+If the question is not running within in a quiz, e.g. during question
+validation or preview, the name is the empty string and 
+
 
 ### Twig macros (deprecated - may be removed in future)
 
