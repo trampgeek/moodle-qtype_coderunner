@@ -84,19 +84,18 @@ class qtype_coderunner_twig {
     }
 
 
-    // Render the given Twigged string with the given set of parameters, to
-    // which is added the STUDENT parameter.
+    // Render the given Twigged string with the given set of parameters,
+    // which should include the STUDENT and QUIZ variables.
     // Return the Twig-expanded string.
     // Any Twig exceptions raised must be caught higher up.
     // Since Twig range functions can result in PHP ValueError being thrown, and
     // a call to the slice filter with a string parameter gives an error.
     // So all errors are caught and re-thrown as TwigErrors.
-    public static function render($s, $student, $parameters = [], $isstrict = false) {
+    public static function render($s, $parameters = [], $isstrict = false) {
         if ($s === null || trim($s) === '') {
             return '';
         }
         $twig = self::get_twig_environment($isstrict);
-        $parameters['STUDENT'] = new qtype_coderunner_student($student);
         if (array_key_exists('__twigprefix__', $parameters)) {
             $prefix = $parameters['__twigprefix__'];
             $s = $prefix . $s;
@@ -140,6 +139,7 @@ class qtype_coderunner_twig {
             'stdClass' => '*',
             'qtype_coderunner_student' => '*',
             'qtype_coderunner_question' => '*',
+            'qtype_coderunner_quiz' => '*',
         ];
         $policy = new qtype_coderunner_twig_security_policy($tags, $filters, $methods, $properties, $functions);
         return $policy;

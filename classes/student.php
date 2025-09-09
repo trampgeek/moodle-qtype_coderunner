@@ -13,8 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
-
-
 /**
  * Student class to access user details without exposing all properties of global $USER.
  *
@@ -22,8 +20,6 @@
  * @copyright  2017 David Bowes <d.h.bowes@herts.ac.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
 
 class qtype_coderunner_student {
 

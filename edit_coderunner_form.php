@@ -1715,8 +1715,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // @return Rendered text.
     private function twig_render($text, $params = [], $isstrict = false) {
         global $USER;
-        $student = new qtype_coderunner_student($USER);
-        return qtype_coderunner_twig::render($text, $student, (array) $params, $isstrict);
+        $params['STUDENT'] = new qtype_coderunner_student($USER);
+        $params['QUIZ'] = new qtype_coderunner_quiz();
+        return qtype_coderunner_twig::render($text, $params, $isstrict);
     }
 
 

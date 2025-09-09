@@ -237,11 +237,14 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
     public function start_attempt(question_attempt_step $step = null, $variant = null) {
         global $DB, $USER;
+
+        $this->quiz = new qtype_coderunner_quiz(); // Will be meaningless if not running in a quiz.
         if ($step !== null) {
             parent::start_attempt($step, $variant);
             $userid = $step->get_user_id();
             $this->student = new qtype_coderunner_student($DB->get_record('user', ['id' => $userid]));
             $step->set_qt_var('_STUDENT', serialize($this->student));
+            $step->set_qt_var('_QUIZ', serialize($this->quiz));
         } else {  // Validation, so just use the global $USER as student.
             $this->student = new qtype_coderunner_student($USER);
         }
@@ -259,6 +262,8 @@ class qtype_coderunner_question extends question_graded_automatically {
     public function apply_attempt_state(question_attempt_step $step) {
         parent::apply_attempt_state($step);
         $this->student = unserialize($step->get_qt_var('_STUDENT'));
+        $quiz = $step->get_qt_var('_QUIZ');
+        $this->quiz = $quiz ? unserialize($quiz) : null;
         $seed = $step->get_qt_var('_mtrandseed');
         if ($seed === null) {
             // Rendering a question that was begun before randomisation
@@ -484,7 +489,8 @@ class qtype_coderunner_question extends question_graded_automatically {
     // initialisation when evaluating the template parametersfunction evaluate_template_params_on_jobeg.
     private function twig_render_with_seed($text, $seed) {
         mt_srand($seed);
-        return qtype_coderunner_twig::render($text, $this->student);
+        $params = [$this->student, $this->quiz];
+        return qtype_coderunner_twig::render($text, $params);
     }
 
 
@@ -1047,17 +1053,19 @@ class qtype_coderunner_question extends question_graded_automatically {
      * parameters are to be hoisted, the (key, value) pairs in $this->parameters.
      * @param string $text Text to be twig expanded.
      */
-    public function twig_expand($text, $context = []) {
+    public function twig_expand($text, $params = []) {
         if (empty(trim($text ?? ''))) {
             return $text;
         } else {
-            $context['QUESTION'] = $this->sanitised_clone_of_this();
+            $params['QUESTION'] = $this->sanitised_clone_of_this();
             if ($this->hoisttemplateparams) {
                 foreach ($this->parameters as $key => $value) {
-                    $context[$key] = $value;
+                    $params[$key] = $value;
                 }
             }
-            return qtype_coderunner_twig::render($text, $this->student, $context);
+            $params['STUDENT'] = $this->student;
+            $params['QUIZ'] = $this->quiz;
+            return qtype_coderunner_twig::render($text, $params);
         }
     }
 
