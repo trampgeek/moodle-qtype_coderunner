@@ -193,7 +193,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
 
 
     /**
-     * Gets the form data that would come back when the editing form is saved,
+     * Gets the form data that would come back when the editing form is saved
      * if you were creating a Python3 question with a template that just
      * prints the student answer. This question has no test cases defined.
      * @return stdClass the form data.
