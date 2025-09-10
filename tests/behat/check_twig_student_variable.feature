@@ -33,7 +33,7 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
       | id_answerboxlines       | 5                                          |
       | id_validateonsave       | 0                                          |
       | id_template             | {{ STUDENT_ANSWER }}                       |
-      | id_answer               | print("{{STUDENT.username}})"              |
+      | id_answer               | print("{{STUDENT.username}}")              |
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # This isn't used                          |
       | id_expected_0           | {{ STUDENT.username }}                     |

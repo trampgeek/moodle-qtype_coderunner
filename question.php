@@ -454,17 +454,17 @@ class qtype_coderunner_question extends question_graded_automatically {
         $runargs = ["seed=$seed"];
 
         // Add student attributes with proper quoting for strings.
-        $runargs[] = "id=" . $this->student->id;  // ID is numeric, no quotes
+        $runargs[] = "id=" . $this->student->id;  // ID is numeric, no quotes.
         foreach (['username', 'firstname', 'lastname', 'email'] as $key) {
             $value = $this->student->$key;
             // Escape single quotes in the value and wrap in single quotes.
-            $value = str_replace("'", "\\'", $value);
+            $value = str_replace("'", "'\\''", $value);  // Horrible way of escaping quotes in bash.
             $runargs[] = "$key='$value'";
         }
 
         // Add quiz name if present (only when running in a quiz).
         if (!empty($this->quiz->name)) {
-            $quizname = str_replace("'", "\\'", $this->quiz->name);
+            $quizname = str_replace("'", "'\\''", $this->quiz->name);
             $runargs[] = "quizname='$quizname'";
         }
 
@@ -472,7 +472,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if (!empty($this->quiz->tags)) {
             // Join array of tags with commas, then escape single quotes.
             $quiztags = implode(',', $this->quiz->tags);
-            $quiztags = str_replace("'", "\\'", $quiztags);
+            $quiztags = str_replace("'", "'\\''", $quiztags);
             $runargs[] = "quiztags='$quiztags'";
         }
 
