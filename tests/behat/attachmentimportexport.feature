@@ -6,6 +6,7 @@ Feature: Test importing and exporting of question with attachments
 
   Background:
     Given the CodeRunner test configuration file is loaded
+    And the Jobe server supports "python3"
     And the CodeRunner webservice is enabled
     And the following "users" exist:
       | username |

@@ -67,6 +67,7 @@ Feature: missing_prototype
     Then I should see "Broken question (missing or duplicate prototype 'python3_test_prototype'). Cannot be run."
 
   Scenario: As a teacher, I should be able to re-parent the question and have it work correctly
+    Given the Jobe server supports "python3"
     And I am on the "Prototype tester" "core_question > edit" page
     Then I should see "This question was defined to be of type 'python3_test_prototype' but the prototype does not exist, or is unavailable in this context"
     And I set the field "id_coderunnertype" to "python3"
