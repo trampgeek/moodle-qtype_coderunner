@@ -1461,6 +1461,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $errorstring = '';
         $expectedpr = '/[0-9]+(\.[0-9]*)?%?([, ] *[0-9]+(\.[0-9]*)?%?)*([, ] *...)?/';
         $penaltyregime = trim($data['penaltyregime'] ?? '');
+        if (preg_match('/{{.*}}/', $penaltyregime)) {
+            return ''; // Looks like it's a Twig expression. Hope for the best.
+        }
         if ($penaltyregime == '') {
             $errorstring = get_string('emptypenaltyregime', 'qtype_coderunner');
         } else if (!preg_match($expectedpr, $penaltyregime)) {
@@ -1505,7 +1508,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $parameters['QUESTION'] = $question;
 
         // Try twig expanding everything (see question::twig_all), with strict_variables true.
-        foreach (['questiontext', 'answer', 'answerpreload', 'globalextra', 'prototypeextra'] as $field) {
+        foreach (['questiontext', 'answer', 'answerpreload', 'globalextra', 'prototypeextra', 'penaltyregime'] as $field) {
             $text = $question->$field;
             if (is_array($text)) {
                 $text = $text['text'];

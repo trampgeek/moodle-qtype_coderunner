@@ -18,6 +18,9 @@ striptrailingwhitespace.py
 composer.json
 composer.lock
 excludesfromstylechecker.txt
+vendor/symfony/
+vendor/composer/
+vendor/autoload.php
 miscsqlqueries
 moodleopenshift.md
 dbquerieswhilefixingbug.sql

@@ -3622,7 +3622,7 @@ def create_question_instance(question):
     question.template_params = merge_json(prototype_params, question.template_params)
 
     if question.twigall:
-        # Twig expand question text, sample answer, answer preload,
+        # Twig expand question text, sample answer, answer preload, penalty_regime,
         # all test case fields and global extra. The just-computed
         # template parameters provide (most of) the twig environment.
         set_twig_environment(question.random_seed,
