@@ -187,7 +187,7 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
             }
         }
 
-        if ($this->valid_table_formats($testresults, $this->columnformats)) {
+        if ($testresults && $this->valid_table($testresults) && $this->valid_table_formats($testresults, $this->columnformats)) {
             $this->format_results_table($testresults, $this->columnformats, $urls);
         }
     }
@@ -436,6 +436,31 @@ class qtype_coderunner_combinator_grader_outcome extends qtype_coderunner_testin
 
     public function get_grader_state() {
         return empty($this->graderstate) ? '' : $this->graderstate;
+    }
+
+    /**
+     * Check if the given testresults table is a list of lists.
+     * @param array $testresults  The testresults attribute from the grader.
+     * @return bool True iff $testresults is an array of arrays. If false,
+     * an appropriate status error message is set.
+     */
+    private function valid_table($testresults) {
+        $ok = is_array($testresults);
+        if ($ok) {
+            foreach ($testresults as $row) {
+                if (!is_array($row)) {
+                    $ok = false;
+                }
+            }
+        }
+        if (!$ok) {
+            $error = get_string(
+                'badresultstable',
+                'qtype_coderunner'
+            );
+            $this->set_status(self::STATUS_BAD_COMBINATOR, $error);
+        }
+        return $ok;
     }
 
 

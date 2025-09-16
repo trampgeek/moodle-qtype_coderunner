@@ -173,6 +173,25 @@ class qtype_coderunner extends question_type {
         ];
     }
 
+    /** A list of all fields in a question that are to be Twig expanded
+     * when TwigAll is set. It excludes the template itself, which is
+     * Twig expanded only when the question is run (as it needs a
+     * student answer).
+     * @return array A list of all fields to be Twig-expanded prior to rendering.
+     */
+    public static function twigablefields() {
+        return [
+            'questiontext',
+            'generalfeedback',
+            'answer',
+            'answerpreload',
+            'globalextra',
+            'prototypeextra',
+            'penaltyregime',
+            'uiparameters',
+        ];
+    }
+
     public function response_file_areas() {
         return ['attachments'];
     }

@@ -1020,10 +1020,9 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function twig_all() {
         // Twig expand everything in a context that includes the template
         // parameters and the STUDENT and QUESTION objects.
-        $twigables = ['questiontext', 'generalfeedback', 'answer', 'answerpreload',
-            'globalextra', 'prototypeextra', 'penaltyregime', 'uiparameters'];
+        $twigables = qtype_coderunner::twigablefields();
         foreach ($twigables as $twigable) {
-            if ($empty($this->$twigable)) {
+            if (!empty($this->$twigable)) {
                 $this->$twigable = $this->twig_expand($this->$twigable);
             }
         }

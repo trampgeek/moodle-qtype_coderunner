@@ -87,6 +87,7 @@ $string['badpenalties'] = 'Penalty regime must be a comma separated list of numb
 $string['badquestion'] = 'Error in question';
 $string['badrandomintarg'] = 'Bad argument to JSON @randomint function';
 $string['badrandompickarg'] = 'Bad argument to JSON @randompic function';
+$string['badresultstable'] = 'Bad test results table. Should be a list of lists.';
 $string['badsandboxparams'] = '\'Other\' field (sandbox params) must be either blank or a valid JSON record';
 $string['badtemplateparams'] = 'Template parameters must evaluate to blank or a valid JSON record. Got: <pre class="templateparamserror">{$a}</pre>';
 $string['baduiparams'] = 'UI parameters must be blank or a valid JSON record.';
