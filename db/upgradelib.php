@@ -86,6 +86,9 @@ function update_question_types() {
 function update_question_types_internal() {
     mtrace("Setting up CodeRunner question prototypes...");
     $result = false;
+    if (PHPUNIT_TEST) {
+        return $result;
+    }
     try {
         if (qtype_coderunner_util::using_mod_qbank()) {
             $result = update_question_types_with_qbank();
