@@ -105,7 +105,7 @@ class qtype_coderunner_util {
     // Used e.g. by the equality grader subclass.
     // UTF-8 character handling is rudimentary - only standard ASCII
     // control characters, whitespace etc are processed.
-    public static function clean(&$s) {
+    public static function clean_legacy(&$s) {
         $nls = '';     // Unused line breaks.
         $output = '';  // Output string.
         $spaces = '';  // Unused space characters.
@@ -134,6 +134,47 @@ class qtype_coderunner_util {
         if ($output !== '') {
             $output .= "\n";
         }
+        return $output;
+    }
+
+    // The above legacy function was written for PHP5 which had appallingly inefficient
+    // string handling. PHP7 reportedly uses 90% less CPU and much less memory.
+    // So the following much simpler method should now be viable. It also properly
+    // removes all trailing whitespace characters from the string, not just space
+    // characters before a newline.
+    public static function clean(&$s) {
+        if (trim($s) === '') {
+            return '';
+        }
+
+        // Trim trailing space off all lines.
+        $lines = explode("\n", $s);
+        $trimmedlines = [];
+        foreach ($lines as $line) {
+            $trimmedlines[] = rtrim($line);
+        }
+
+        // Remove trailing blank lines.
+        while (end($trimmedlines) === '') {
+            array_pop($trimmedlines);
+        }
+
+        $output = implode("\n", $trimmedlines);
+
+        // Replace all non-printing chars with \r, \t or a hex representation.
+        $output = preg_replace_callback('/[\x00-\x1f]/', function ($matches) {
+            $char = $matches[0];
+            if ($char === "\n") {
+                return $char;
+            }
+            if ($char === "\t") {
+                return '\t';
+            }
+            if ($char === "\r") {
+                return '\r';
+            }
+            return '\\x' . sprintf("%02x", ord($char));
+        }, $output);
         return $output;
     }
 
