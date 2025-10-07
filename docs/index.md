@@ -1548,7 +1548,7 @@ quiz in which a question is currently running. The fields/attributes of QUIZ are
 * `QUIZ.tags` An array of the normalised tags of the current quiz, empty if the question is not running within a quiz.
 
 If the question is not running within in a quiz, e.g. during question
-validation or preview, the name is the empty string and 
+validation or preview, the `name` attributes is the empty string and `tags` is an empty list.
 
 
 ### Twig macros (deprecated - may be removed in future)
