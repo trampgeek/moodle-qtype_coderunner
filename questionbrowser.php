@@ -599,6 +599,7 @@ echo $OUTPUT->header();
 
   let currentSort = {field: null, direction: 'asc'};
   let hasStageData = false; // Whether the current dataset has stage data
+  let currentlyOpenDetails = null; // Track currently open details to close them when opening new ones
 
   // Elements.
   const kw = document.getElementById('kw');
@@ -756,38 +757,52 @@ echo $OUTPUT->header();
     let openType = null; // 'json' | 'question' | 'answer'
     let detailRow = null;
 
+    function closeDetails() {
+      // Helper function to close this row's details
+      openType = null;
+      questionBtn.textContent = 'Question';
+      answerBtn.textContent = 'Answer';
+      jsonBtn.textContent = 'JSON';
+      // Remove highlighting from all buttons
+      questionBtn.classList.remove('qbrowser-btn-active');
+      answerBtn.classList.remove('qbrowser-btn-active');
+      jsonBtn.classList.remove('qbrowser-btn-active');
+      if (detailRow) {
+        detailRow.remove();
+        detailRow = null;
+      }
+      // Clear global tracking if this was the currently open detail
+      if (currentlyOpenDetails === closeDetails) {
+        currentlyOpenDetails = null;
+      }
+    }
+
     function toggleDisplay(type, content, isHTML = false) {
       if (openType === type) {
         // Close current detail
-        openType = null;
-        questionBtn.textContent = 'Question';
-        answerBtn.textContent = 'Answer';
-        jsonBtn.textContent = 'JSON';
-        // Remove highlighting from all buttons
-        questionBtn.classList.remove('qbrowser-btn-active');
-        answerBtn.classList.remove('qbrowser-btn-active');
-        jsonBtn.classList.remove('qbrowser-btn-active');
-        if (detailRow) {
-          detailRow.remove();
-          detailRow = null;
-        }
+        closeDetails();
       } else {
-        // Close existing detail if any
+        // Close any other currently open details first
+        if (currentlyOpenDetails && currentlyOpenDetails !== closeDetails) {
+          currentlyOpenDetails();
+        }
+
+        // Close existing detail if any (in same row)
         if (detailRow) {
           detailRow.remove();
         }
-        
+
         // Update button states and highlighting
         openType = type;
         questionBtn.textContent = type === 'question' ? 'Close' : 'Question';
         answerBtn.textContent = type === 'answer' ? 'Close' : 'Answer';
         jsonBtn.textContent = type === 'json' ? 'Close' : 'JSON';
-        
+
         // Remove highlighting from all buttons, then add to active one
         questionBtn.classList.remove('qbrowser-btn-active');
         answerBtn.classList.remove('qbrowser-btn-active');
         jsonBtn.classList.remove('qbrowser-btn-active');
-        
+
         if (type === 'question') questionBtn.classList.add('qbrowser-btn-active');
         else if (type === 'answer') answerBtn.classList.add('qbrowser-btn-active');
         else if (type === 'json') jsonBtn.classList.add('qbrowser-btn-active');
@@ -797,17 +812,20 @@ echo $OUTPUT->header();
         const detailCell = document.createElement('td');
         const colSpan = hasStageData ? 4 : 3; // Name, Actions, Category, [Stage]
         detailCell.colSpan = colSpan;
-        
+
         const detail = document.createElement('div');
         detail.className = isHTML ? 'qbrowser-detail html-content' : 'qbrowser-detail code-content';
         if (isHTML) detail.innerHTML = content;
         else        detail.textContent = content;
-        
+
         detailCell.appendChild(detail);
         detailRow.appendChild(detailCell);
-        
+
         // Insert detail row after current row
         row.insertAdjacentElement('afterend', detailRow);
+
+        // Track this as the currently open detail
+        currentlyOpenDetails = closeDetails;
       }
     }
 
