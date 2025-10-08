@@ -175,6 +175,10 @@ class qtype_coderunner_util {
             }
             return '\\x' . sprintf("%02x", ord($char));
         }, $output);
+        
+        if ($output !== '') {
+            $output .= "\n";
+        }
         return $output;
     }
 
