@@ -390,16 +390,20 @@ body#page-question-type-coderunner .ace_wrapper {
     border: 1px solid #bbb;
 }
 
-body#page-question-type-coderunner div[id^=fitem_id_]:not([id=fitem_id_templateparams], [id=fitem_id_templateparams],
-[id=fitem_id_templateparams], [id=fitem_id_category], [id=fitem_id_name], [id=fitem_id_questiontext], [id=fitem_id_status],
-[id=fitem_id_defaultmark], [id=fitem_id_generalfeedback], [id=fitem_id_idnumber], [id=fitem_id_answer],
-[id=fitem_id_answerpreload], [id=fitem_id_globalextra], [id=fitem_id_datafiles], [id=fitem_id_addanswers],
-[id=fitem_id_attachments], [id=fitem_id_attachmentsrequired], [id=fitem_id_maxfilesize], [id=fitem_id_tags]),
-body#page-question-type-coderunner div[id^=fgroup_id_]:not([id=fgroup_id_coderunner_type_group],
-[id=fgroup_id_coderunner_type_checkboxes], [id=fgroup_id_answerbox_group], [id=fgroup_id_coderunner_precheck_group],
-[id=fgroup_id_coderunner_giveup_group], [id=fgroup_id_coderunner_feedback_group], [id=fgroup_id_markinggroup],
-[id=fgroup_id_twigcontrols], [id=fgroup_id_uiparametergroup], [id=fgroup_id_filenamesgroup], [id=fgroup_id_updatebuttonar],
-[id=fgroup_id_buttonar]) {
+body#page-question-type-coderunner div[id^=fitem_id_]:not([id=fitem_id_addanswers], [id=fitem_id_answer],
+[id=fitem_id_answerpreload], [id=fitem_id_attachments], [id=fitem_id_attachmentsrequired], [id=fitem_id_category],
+[id=fitem_id_datafiles], [id=fitem_id_defaultmark], [id=fitem_id_generalfeedback], [id=fitem_id_globalextra],
+[id=fitem_id_idnumber], [id=fitem_id_maxfilesize], [id=fitem_id_name], [id=fitem_id_prototypeextra],
+[id=fitem_id_questiontext], [id=fitem_id_resultcolumns], [id=fitem_id_status], [id=fitem_id_tags],
+[id=fitem_id_template], [id=fitem_id_templateparams], [id=fitem_id_versioninfo]),
+body#page-question-type-coderunner div[id^=fgroup_id_]:not([id=fgroup_id_answerbox_group], [id=fgroup_id_buttonar],
+[id=fgroup_id_coderunner_feedback_group], [id=fgroup_id_coderunner_giveup_group],
+[id=fgroup_id_coderunner_precheck_group], [id=fgroup_id_coderunner_type_checkboxes],
+[id=fgroup_id_coderunner_type_group], [id=fgroup_id_currentgrp], [id=fgroup_id_filenamesgroup],
+[id=fgroup_id_gradingcontrols], [id=fgroup_id_languages], [id=fgroup_id_markinggroup],
+[id=fgroup_id_prototypecontrols], [id=fgroup_id_sandboxcontrols], [id=fgroup_id_templatecontrols],
+[id=fgroup_id_twigcontrols], [id=fgroup_id_uicontrols], [id=fgroup_id_uiparametergroup],
+[id=fgroup_id_updatebuttonar]) {
     background: #eee;
     margin-bottom: 0;
     margin-top: 0;
