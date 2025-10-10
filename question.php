@@ -263,7 +263,11 @@ class qtype_coderunner_question extends question_graded_automatically {
         parent::apply_attempt_state($step);
         $this->student = unserialize($step->get_qt_var('_STUDENT'));
         $quiz = $step->get_qt_var('_QUIZ');
-        $this->quiz = $quiz ? unserialize($quiz) : null;
+
+        // If the saved attempt did not have a quiz variable, create a dummy (empty) one.
+        $this->quiz = $quiz ? unserialize($quiz) : new qtype_coderunner_quiz();
+
+        // Ensure any randomisation is always the same.
         $seed = $step->get_qt_var('_mtrandseed');
         if ($seed === null) {
             // Rendering a question that was begun before randomisation
