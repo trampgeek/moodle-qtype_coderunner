@@ -1,5 +1,20 @@
 # CHANGE HISTORY
 
+### 12 October 2025, 5.7.3
+
+ * New question browser script moodlehome/question/type/coderunner/questionbrowserindex.php allows easy browsing
+   of all CodeRunner questions in a given course or context, including text or regex search on any of the
+   question fields and instant display of question text and answer.
+ * Add a QUIZ variable to the Twig context with fields QUIZ.name and QUIZ.tags. Allows customising the behaviour
+   of CodeRunner questions according to the quiz in which they're running.
+ * Extend TwigAll to include penalty regime.
+ * Improve resilience of combinator template grader code to bad response from author's template.
+ * Bug fix: when using equality grader, trailing space characters were correctly being removed from
+   all lines but the spec said all whitespace characters were being removed. That wasn't true - characters
+   like tabs and return characters weren't removed
+ * Move document to mkdocs format with much improved browsing at https://trampgeek.github.io/moodle-qtype_coderunner/
+ * Various code tweaks and polishing.
+
 ### 15 August 2025, 5.7.2+
 
  * Bug fix #254 The presence of a CodeRunner question in the course's question bank causes the duplication of quizzes to fail.
