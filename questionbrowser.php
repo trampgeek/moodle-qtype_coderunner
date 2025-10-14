@@ -82,11 +82,6 @@ if ($context->contextlevel == CONTEXT_MODULE) {
 class questions_json_generator {
     private $context;
 
-    private static $stageorder = [
-        'fundamentals', 'if', 'while', 'lists', 'for', 'files',
-        'numpy/matplotlib', 'dicts', 'oop',
-    ];
-
     public function __construct($context) {
         $this->context = $context;
     }
@@ -115,11 +110,11 @@ class questions_json_generator {
         // Determine course ID from context.
         $courseid = $this->get_course_id_from_context();
 
-        // Check if this is a COSC131 course for specialized analysis.
-        $iscosc131 = $this->is_cosc131_course();
-
         // Extract the correct answer, handling JSON format if needed.
         $answer = $this->extract_answer($question->answer ?? '');
+
+        // Get question tags.
+        $tags = $this->get_question_tags($question->id);
 
         // Base question data matching the JSON structure.
         $enhanced = [
@@ -133,27 +128,11 @@ class questions_json_generator {
             'categoryid' => (string)$question->category, // Keep the original category ID for URLs.
             'version' => (int)$question->version,
             'courseid' => (string)$courseid,
+            'tags' => $tags,
         ];
 
         // Analyze code to add enhanced metadata.
         $enhanced['lines_of_code'] = $this->count_lines_of_code($answer);
-        $enhanced['constructs_used'] = $this->detect_constructs($answer);
-
-        // COSC131-specific fields.
-        if ($iscosc131) {
-            $enhanced['highest_stage'] = $this->classify_stage($enhanced['constructs_used'], $answer);
-            $enhanced['topic_area'] = $this->determine_topic_area(
-                $answer,
-                $question->name,
-                $enhanced['constructs_used']
-            );
-        }
-
-        $enhanced['spec_difficulty'] = $this->assess_difficulty(
-            $enhanced['lines_of_code'],
-            $enhanced['constructs_used']
-        );
-        $enhanced['question_type'] = $this->determine_question_type($question->coderunnertype);
 
         return $enhanced;
     }
@@ -199,22 +178,6 @@ class questions_json_generator {
         return '0';
     }
 
-    private function is_cosc131_course() {
-        global $DB;
-
-        $courseid = $this->get_course_id_from_context();
-        if ($courseid == '0') {
-            return false;
-        }
-
-        $course = $DB->get_record('course', ['id' => $courseid], 'shortname');
-        if (!$course) {
-            return false;
-        }
-
-        return stripos($course->shortname, 'cosc131') === 0;
-    }
-
     private function count_lines_of_code($code) {
         if (empty(trim($code))) {
             return 0;
@@ -233,168 +196,19 @@ class questions_json_generator {
         return $count;
     }
 
-    private function detect_constructs($code) {
-        if (empty(trim($code))) {
-            return [];
+    /**
+     * Get tags for a question.
+     *
+     * @param int $questionid The question ID
+     * @return array Array of tag names
+     */
+    private function get_question_tags($questionid) {
+        $tagobjects = \core_tag_tag::get_item_tags('core_question', 'question', $questionid);
+        $tags = [];
+        foreach ($tagobjects as $tag) {
+            $tags[] = $tag->name;
         }
-
-        $constructs = [];
-
-        // Remove Twig variables for analysis.
-        $codeforanalysis = preg_replace('/\{\{([^}]+)\}\}/', '$1', $code);
-        $lines = explode("\n", $codeforanalysis);
-
-        foreach ($lines as $line) {
-            $line = trim($line);
-
-            // Skip empty lines and comments.
-            if (empty($line) || strpos($line, '#') === 0) {
-                continue;
-            }
-
-            // Simple keyword detection at line start or after whitespace.
-            if (preg_match('/^\s*if\b/', $line)) {
-                $constructs[] = 'if';
-            }
-            if (preg_match('/^\s*for\s+\w+\s+in\b/', $line)) {
-                $constructs[] = 'for';
-            }
-            if (preg_match('/^\s*while\b/', $line)) {
-                $constructs[] = 'while';
-            }
-            if (preg_match('/^\s*def\s+\w+\s*\(/', $line)) {
-                $constructs[] = 'def';
-            }
-            if (preg_match('/^\s*class\s+\w+/', $line)) {
-                $constructs[] = 'class';
-            }
-            if (preg_match('/^\s*try\s*:/', $line)) {
-                $constructs[] = 'try-except';
-            }
-
-            // Content-based detection (anywhere in line).
-            if (strpos($line, 'open(') !== false) {
-                $constructs[] = 'file-io';
-            }
-            if (preg_match('/\bimport\b|\bfrom\s+\w+\s+import/', $line)) {
-                $constructs[] = 'import';
-            }
-            if (preg_match('/\b(numpy|np|matplotlib|plt)\b/', $line)) {
-                $constructs[] = 'numpy/matplotlib';
-            }
-            // Detect dictionary usage patterns.
-            $isdictline = false;
-
-            // Dictionary literal with key:value pairs, avoiding f-strings and format strings.
-            if (
-                preg_match('/\{[^}]*:[^}]*\}/', $line) &&
-                !preg_match('/f["\']/', $line) &&
-                !preg_match('/\.format\s*\(/', $line)
-            ) {
-                $isdictline = true;
-            }
-
-            // Empty dictionary initialization.
-            if (preg_match('/=\s*\{\s*\}/', $line)) {
-                $isdictline = true;
-            }
-
-            // Dictionary constructor or methods.
-            if (
-                preg_match('/\bdict\s*\(/', $line) ||
-                preg_match('/\.(keys|values|items|get|update)\s*\(/', $line)
-            ) {
-                $isdictline = true;
-            }
-
-            if ($isdictline) {
-                $constructs[] = 'dict';
-            }
-            if (preg_match('/\[.*for\s+\w+\s+in\s+.*\]/', $line)) {
-                $constructs[] = 'list-comp';
-            }
-        }
-
-        return array_unique($constructs);
-    }
-
-    private function classify_stage($constructs, $code) {
-        if (empty($constructs)) {
-            return 'fundamentals';
-        }
-
-        // Check from highest to lowest stage.
-        if (in_array('class', $constructs)) {
-            return 'oop';
-        }
-        if (in_array('numpy/matplotlib', $constructs)) {
-            return 'numpy/matplotlib';
-        }
-        if (in_array('dict', $constructs)) {
-            return 'dicts';
-        }
-        if (in_array('file-io', $constructs)) {
-            return 'files';
-        }
-        if (in_array('for', $constructs) || in_array('list-comp', $constructs)) {
-            return 'for';
-        }
-        // Simple list detection.
-        if (preg_match('/\[[^\]]*\]/', $code)) {
-            return 'lists';
-        }
-        if (in_array('while', $constructs)) {
-            return 'while';
-        }
-        if (in_array('if', $constructs)) {
-            return 'if';
-        }
-
-        return 'fundamentals';
-    }
-
-    private function assess_difficulty($linesofcode, $constructs) {
-        $constructcount = count($constructs);
-
-        if ($linesofcode <= 3 && $constructcount <= 1) {
-            return 'very_easy';
-        } else if ($linesofcode <= 8 && $constructcount <= 2) {
-            return 'easy';
-        } else if ($linesofcode <= 15 && $constructcount <= 4) {
-            return 'medium';
-        } else if ($linesofcode <= 25 && $constructcount <= 6) {
-            return 'hard';
-        } else {
-            return 'very_hard';
-        }
-    }
-
-    private function determine_topic_area($code, $name, $constructs) {
-        $text = strtolower($code . ' ' . $name);
-
-        if (preg_match('/numpy|matplotlib|plot|graph|array/', $text)) {
-            return 'data_science';
-        } else if (preg_match('/file|read|write|open/', $text)) {
-            return 'file_io';
-        } else if (preg_match('/class|object|inherit/', $text)) {
-            return 'oop';
-        } else if (preg_match('/list|array|sort/', $text)) {
-            return 'data_structures';
-        } else if (preg_match('/function|def|return/', $text)) {
-            return 'functions';
-        } else {
-            return 'general';
-        }
-    }
-
-    private function determine_question_type($coderunnertype) {
-        if (strpos($coderunnertype, 'scratchpad') !== false) {
-            return 'scratchpad';
-        } else if (strpos($coderunnertype, 'function') !== false) {
-            return 'function';
-        } else {
-            return 'code';
-        }
+        return $tags;
     }
 }
 
@@ -592,13 +406,9 @@ echo $OUTPUT->header();
   const moodleBaseUrl = '<?php echo $moodlebaseurl; ?>';
   
   // Common categorical keys you likely have; only rendered if present in data.
-  const COMMON_CATS = ["highest_stage", "spec_difficulty", "question_type", "topic_area"];
-  
-  // Teaching order for highest_stage dropdown.
-  const STAGE_ORDER = ["fundamentals", "if", "while", "lists", "for", "files", "numpy/matplotlib", "dicts", "oop"];
+  const COMMON_CATS = [];
 
   let currentSort = {field: null, direction: 'asc'};
-  let hasStageData = false; // Whether the current dataset has stage data
   let currentlyOpenDetails = null; // Track currently open details to close them when opening new ones
 
   // Elements.
@@ -644,21 +454,19 @@ echo $OUTPUT->header();
     categoryCol.style.cursor = 'pointer';
     categoryCol.textContent = 'Category ↕';
     categoryCol.className = 'user-select-none';
-    
-    // Stage column (if applicable).
-    let stageCol = null;
-    if (hasStageData) {
-      stageCol = document.createElement('th');
-      stageCol.id = 'sortStage';
-      stageCol.style.cursor = 'pointer';
-      stageCol.textContent = 'Stage ↕';
-      stageCol.className = 'user-select-none';
-    }
-    
+
+    // Tags column.
+    const tagsCol = document.createElement('th');
+    tagsCol.id = 'sortTags';
+    tagsCol.style.cursor = 'pointer';
+    tagsCol.textContent = 'Tags ↕';
+    tagsCol.className = 'user-select-none';
+    tagsCol.style.width = '200px';
+
     headerRow.appendChild(nameCol);
     headerRow.appendChild(actionsCol);
     headerRow.appendChild(categoryCol);
-    if (stageCol) headerRow.appendChild(stageCol);
+    headerRow.appendChild(tagsCol);
     
     thead.appendChild(headerRow);
     table.appendChild(thead);
@@ -740,19 +548,19 @@ echo $OUTPUT->header();
     categoryCell.className = 'text-muted small text-truncate';
     categoryCell.style.maxWidth = '200px';
 
-    // Stage cell (if applicable)
-    let stageCell = null;
-    if (hasStageData) {
-      stageCell = document.createElement('td');
-      stageCell.textContent = q.highest_stage ?? '';
-      stageCell.className = 'font-monospace small';
-    }
+    // Tags cell
+    const tagsCell = document.createElement('td');
+    const tagText = Array.isArray(q.tags) && q.tags.length > 0 ? q.tags.join(', ') : '';
+    tagsCell.textContent = tagText;
+    tagsCell.className = 'text-muted small text-truncate';
+    tagsCell.style.maxWidth = '200px';
+    tagsCell.title = tagText; // Show full tags on hover
 
-    // Assemble the row in the new order: Name, Actions, Category, Stage
+    // Assemble the row in the new order: Name, Actions, Category, Tags
     row.appendChild(nameCell);
     row.appendChild(actionsCell);
     row.appendChild(categoryCell);
-    if (stageCell) row.appendChild(stageCell);
+    row.appendChild(tagsCell);
 
     let openType = null; // 'json' | 'question' | 'answer'
     let detailRow = null;
@@ -810,8 +618,7 @@ echo $OUTPUT->header();
         // Create new detail row
         detailRow = document.createElement('tr');
         const detailCell = document.createElement('td');
-        const colSpan = hasStageData ? 4 : 3; // Name, Actions, Category, [Stage]
-        detailCell.colSpan = colSpan;
+        detailCell.colSpan = 4; // Name, Actions, Category, Tags
 
         const detail = document.createElement('div');
         detail.className = isHTML ? 'qbrowser-detail html-content' : 'qbrowser-detail code-content';
@@ -870,29 +677,27 @@ echo $OUTPUT->header();
       currentSort.field = field;
       currentSort.direction = 'asc';
     }
-    
-    // Special sorting for highest_stage to follow teaching order
-    if (field === 'highest_stage') {
-      viewData.sort((a, b) => {
-        const aIndex = STAGE_ORDER.indexOf(a[field] || '');
-        const bIndex = STAGE_ORDER.indexOf(b[field] || '');
-        const aVal = aIndex === -1 ? 999 : aIndex;
-        const bVal = bIndex === -1 ? 999 : bIndex;
-        return currentSort.direction === 'asc' ? aVal - bVal : bVal - aVal;
-      });
-    } else {
-      // Standard string sorting
-      viewData.sort((a, b) => {
-        const aVal = (a[field] || '').toString().toLowerCase();
-        const bVal = (b[field] || '').toString().toLowerCase();
-        if (currentSort.direction === 'asc') {
-          return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-        } else {
-          return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
-        }
-      });
-    }
-    
+
+    // Sorting with special handling for tags array
+    viewData.sort((a, b) => {
+      let aVal, bVal;
+      if (field === 'tags') {
+        // For tags, join array and sort
+        aVal = (Array.isArray(a[field]) ? a[field].join(', ') : '').toLowerCase();
+        bVal = (Array.isArray(b[field]) ? b[field].join(', ') : '').toLowerCase();
+      } else {
+        // Standard field sorting
+        aVal = (a[field] || '').toString().toLowerCase();
+        bVal = (b[field] || '').toString().toLowerCase();
+      }
+
+      if (currentSort.direction === 'asc') {
+        return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+      } else {
+        return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+      }
+    });
+
     renderList(viewData);
     updateHeaderSortIndicators();
   }
@@ -901,15 +706,15 @@ echo $OUTPUT->header();
     // Update header to show sort direction
     const sortName = document.getElementById('sortName');
     const sortCategory = document.getElementById('sortCategory');
-    const sortStage = document.getElementById('sortStage');
-    
-    [sortName, sortCategory, sortStage].forEach(header => {
+    const sortTags = document.getElementById('sortTags');
+
+    [sortName, sortCategory, sortTags].forEach(header => {
       if (!header) return;
       let field;
       if (header.id === 'sortName') field = 'name';
       else if (header.id === 'sortCategory') field = 'category';
-      else if (header.id === 'sortStage') field = 'highest_stage';
-      
+      else if (header.id === 'sortTags') field = 'tags';
+
       if (field === currentSort.field) {
         const arrow = currentSort.direction === 'asc' ? '↑' : '↓';
         header.textContent = header.textContent.replace(/[↕↑↓]/, arrow);
@@ -945,9 +750,7 @@ echo $OUTPUT->header();
     // Attach sort event listeners
     document.getElementById('sortName')?.addEventListener('click', () => sortBy('name'));
     document.getElementById('sortCategory')?.addEventListener('click', () => sortBy('category'));
-    if (hasStageData) {
-      document.getElementById('sortStage')?.addEventListener('click', () => sortBy('highest_stage'));
-    }
+    document.getElementById('sortTags')?.addEventListener('click', () => sortBy('tags'));
   }
 
   function buildFilters(data){
@@ -1024,14 +827,9 @@ echo $OUTPUT->header();
       select.className = 'form-control form-control-sm';
       select.dataset.key = k;
       
-      let values;
-      if (k === 'highest_stage') {
-        // Use predefined teaching order for highest_stage, only include stages present in data
-        const dataStages = new Set(data.map(o => o[k]).filter(v => typeof v === 'string' && v.trim() !== ''));
-        values = STAGE_ORDER.filter(stage => dataStages.has(stage));
-      } else {
-        values = Array.from(new Set(data.map(o => o[k]).filter(v => typeof v === 'string' && v.trim() !== ''))).sort();
-      }
+      // Get unique values from data and sort alphabetically
+      const dataValues = new Set(data.map(o => o[k]).filter(v => typeof v === 'string' && v.trim() !== ''));
+      const values = Array.from(dataValues).sort();
       
       const emptyOption = document.createElement('option');
       emptyOption.value = '';
@@ -1078,23 +876,8 @@ echo $OUTPUT->header();
       const key = sel.dataset.key;
       const val = sel.value;
       if (val !== '') {
-        if (key === 'highest_stage') {
-          // For highest_stage, include selected stage AND all lower stages
-          const selectedIndex = STAGE_ORDER.indexOf(val);
-          if (selectedIndex !== -1) {
-            out = out.filter(o => {
-              const questionStage = o[key] ?? '';
-              const questionIndex = STAGE_ORDER.indexOf(questionStage);
-              return questionIndex !== -1 && questionIndex <= selectedIndex;
-            });
-          } else {
-            // Fallback to exact match if stage not in order
-            out = out.filter(o => (o[key] ?? '') === val);
-          }
-        } else {
-          // Standard exact match for other categorical filters
-          out = out.filter(o => (o[key] ?? '') === val);
-        }
+        // Standard exact match for categorical filters
+        out = out.filter(o => (o[key] ?? '') === val);
       }
     });
 
@@ -1119,7 +902,7 @@ echo $OUTPUT->header();
         if (fieldChoice === 'Any') {
           return Object.values(obj).some(v => {
             let s;
-            if (Array.isArray(v)) s = v.join(' ');
+            if (Array.isArray(v)) s = v.join(', ');
             else if (v && typeof v === 'object') s = JSON.stringify(v);
             else s = String(v ?? '');
             
@@ -1132,7 +915,7 @@ echo $OUTPUT->header();
         } else {
           const v = obj[fieldChoice];
           let s;
-          if (Array.isArray(v)) s = v.join(' ');
+          if (Array.isArray(v)) s = v.join(', ');
           else if (v && typeof v === 'object') s = JSON.stringify(v);
           else s = String(v ?? '');
           
@@ -1161,9 +944,6 @@ echo $OUTPUT->header();
 
   // Initialize on page load
   document.addEventListener('DOMContentLoaded', () => {
-    // Detect if we have stage data
-    hasStageData = rawData.length > 0 && rawData.some(q => q.hasOwnProperty('highest_stage'));
-    
     buildFilters(rawData);
     renderList(viewData);
   });
