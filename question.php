@@ -418,6 +418,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $this->cachedfuncparams === ['lang' => $lang, 'seed' => $seed]
         ) {
             // Use previously cached result if possible.
+
             $jsontemplateparams = $this->cachedevaldtemplateparams;
         } else {
             $lang = strtolower($lang); // Just in case some old legacy DB entries escaped.
@@ -513,7 +514,7 @@ class qtype_coderunner_question extends question_graded_automatically {
     // initialisation when evaluating the template parametersfunction evaluate_template_params_on_jobeg.
     private function twig_render_with_seed($text, $seed) {
         mt_srand($seed);
-        $params = [$this->student, $this->quiz];
+        $params = ['STUDENT' => $this->student, 'QUIZ' => $this->quiz];
         return qtype_coderunner_twig::render($text, $params);
     }
 
