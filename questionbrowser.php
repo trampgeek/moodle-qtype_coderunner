@@ -16,8 +16,7 @@
 
 /**
  * Simplified Question Browser that generates data inline.
- * This version generates question data directly when the page loads,
- * eliminating the need for separate files or web services.
+ * Enhanced with advanced filter builder.
  *
  * @package   qtype_coderunner
  * @copyright 2025 Richard Lobb, The University of Canterbury
@@ -70,8 +69,6 @@ $PAGE->set_context($context);
 $PAGE->set_title("Question browser");
 
 if ($context->contextlevel == CONTEXT_MODULE) {
-    // Calling $PAGE->set_context should be enough, but it seems that it is not.
-    // Therefore, we get the right $cm and $course, and set things up ourselves.
     $cm = get_coursemodule_from_id(false, $context->instanceid, 0, false, MUST_EXIST);
     $PAGE->set_cm($cm, $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST));
 }
@@ -90,9 +87,7 @@ class questions_json_generator {
      * Generate the complete questions data array.
      */
     public function generate_questions_data() {
-        // Use the same query pattern as bulk_tester.
         $questions = bulk_tester::get_all_coderunner_questions_in_context($this->context->id, false);
-
         $enhancedquestions = [];
 
         foreach ($questions as $question) {
@@ -107,16 +102,10 @@ class questions_json_generator {
      * Enhance a single question with metadata analysis.
      */
     private function enhance_question_metadata($question) {
-        // Determine course ID from context.
         $courseid = $this->get_course_id_from_context();
-
-        // Extract the correct answer, handling JSON format if needed.
         $answer = $this->extract_answer($question->answer ?? '');
-
-        // Get question tags.
         $tags = $this->get_question_tags($question->id);
 
-        // Base question data matching the JSON structure.
         $enhanced = [
             'type' => 'coderunner',
             'id' => (string)$question->id,
@@ -125,38 +114,29 @@ class questions_json_generator {
             'answer' => $answer,
             'coderunnertype' => $question->coderunnertype,
             'category' => bulk_tester::get_category_path($question->category),
-            'categoryid' => (string)$question->category, // Keep the original category ID for URLs.
+            'categoryid' => (string)$question->category,
             'version' => (int)$question->version,
             'courseid' => (string)$courseid,
             'tags' => $tags,
         ];
 
-        // Analyze code to add enhanced metadata.
         $enhanced['lines_of_code'] = $this->count_lines_of_code($answer);
 
         return $enhanced;
     }
 
-    /**
-     * Extract the correct answer from either JSON or plain text format.
-     * If the answer is JSON and contains an 'answer_code' key, use that value.
-     * Otherwise, return the original answer.
-     */
     private function extract_answer($answer) {
         if (empty(trim($answer))) {
             return '';
         }
 
-        // Attempt to decode JSON.
         $decoded = json_decode($answer, true);
 
-        // If JSON decoding succeeded and contains 'answer_code' key, use that.
         if (
             json_last_error() === JSON_ERROR_NONE &&
             is_array($decoded) &&
             array_key_exists('answer_code', $decoded)
         ) {
-            // Answer_code is typically an array, so join it if needed.
             $answercode = $decoded['answer_code'];
             if (is_array($answercode)) {
                 return implode("\n", $answercode);
@@ -164,7 +144,6 @@ class questions_json_generator {
             return $answercode;
         }
 
-        // Otherwise, return the original answer.
         return $answer;
     }
 
@@ -196,12 +175,6 @@ class questions_json_generator {
         return $count;
     }
 
-    /**
-     * Get tags for a question.
-     *
-     * @param int $questionid The question ID
-     * @return array Array of tag names
-     */
     private function get_question_tags($questionid) {
         $tagobjects = \core_tag_tag::get_item_tags('core_question', 'question', $questionid);
         $tags = [];
@@ -215,9 +188,8 @@ class questions_json_generator {
 // Set up page using Moodle's layout system.
 $PAGE->set_title('Question Browser - ' . $coursename);
 $PAGE->set_heading('Question Browser - ' . $coursename);
-$PAGE->set_pagelayout('incourse'); // Use incourse layout for proper course context.
+$PAGE->set_pagelayout('incourse');
 
-// Set up proper navigation context for the course.
 if ($context->contextlevel == CONTEXT_COURSE) {
     $PAGE->set_course($DB->get_record('course', ['id' => $context->instanceid]));
 } else if ($context->contextlevel == CONTEXT_MODULE) {
@@ -227,7 +199,6 @@ if ($context->contextlevel == CONTEXT_COURSE) {
     $PAGE->set_cm($cm);
 }
 
-// Add the question browser to the navigation.
 $PAGE->navbar->add('Question Browser');
 
 echo $OUTPUT->header();
@@ -290,18 +261,195 @@ echo $OUTPUT->header();
     margin-bottom: 0.25rem;
 }
 
+/* Advanced filter styles */
+.advanced-section {
+    margin-top: 1rem;
+    border-top: 2px solid #dee2e6;
+    padding-top: 1rem;
+}
+
+.advanced-toggle {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #0066cc;
+    font-weight: 500;
+}
+
+.advanced-toggle:hover {
+    color: #0052a3;
+}
+
+.advanced-toggle-icon {
+    transition: transform 0.2s;
+    display: inline-block;
+}
+
+.advanced-toggle-icon.expanded {
+    transform: rotate(90deg);
+}
+
+.advanced-content {
+    display: none;
+    margin-top: 1rem;
+}
+
+.advanced-content.show {
+    display: block;
+}
+
+.filter-rule {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 2fr auto;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+.filter-rule select,
+.filter-rule input {
+    font-size: 0.875rem;
+}
+
+.filter-connector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.25rem 0;
+    padding-left: 0.5rem;
+}
+
+.filter-connector-select {
+    width: auto;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    font-weight: 600;
+}
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background-color: #e3f2fd;
+    border: 1px solid #90caf9;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    color: #1976d2;
+}
+
+.filter-chip-remove {
+    cursor: pointer;
+    font-weight: bold;
+    color: #1976d2;
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.filter-chip-remove:hover {
+    color: #d32f2f;
+}
+
 @media (min-width: 992px) {
     .qbrowser-main {
         display: grid;
         grid-template-columns: 350px 1fr;
         gap: 1.5rem;
+        position: relative;
     }
+    
+    .qbrowser-main-resizer {
+        position: absolute;
+        left: calc(350px + 0.75rem); /* Center in the gap */
+        top: 0;
+        bottom: 0;
+        width: 8px;
+        margin-left: -4px; /* Center the handle */
+        cursor: col-resize;
+        z-index: 10;
+        background-color: #dee2e6;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+    
+    .qbrowser-main-resizer:hover {
+        background-color: #0066cc;
+    }
+    
+    .qbrowser-main-resizer::before {
+        content: '⋮';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 16px;
+        line-height: 1;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+}
+
+/* Resizable table columns */
+.qbrowser-list table th {
+    position: relative;
+    overflow: visible;
+}
+
+.column-resizer {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    cursor: col-resize;
+    user-select: none;
+    z-index: 10;
+}
+
+.column-resizer:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.column-resizer::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 60%;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.resizing {
+    cursor: col-resize !important;
+    user-select: none !important;
+}
+
+.resizing * {
+    cursor: col-resize !important;
+    user-select: none !important;
 }
 </style>
 
-<div class="container-fluid qbrowser-main">
+<div class="container-fluid qbrowser-main" id="qbrowserMain">
     <!-- LEFT: FILTERS -->
-    <div class="card">
+    <div class="card" id="filterPanel">
         <div class="card-header">
             <h5 class="mb-0">Filters</h5>
         </div>
@@ -351,15 +499,31 @@ echo $OUTPUT->header();
             <hr>
 
             <div class="form-group">
-                <h6>Numeric filters</h6>
+                <h6>Lines of code</h6>
                 <div id="numericFilters"></div>
             </div>
 
             <hr>
 
             <div class="form-group">
-                <h6>Categorical filters</h6>
+                <h6>CodeRunner type</h6>
                 <div id="categoricalFilters"></div>
+            </div>
+
+            <!-- Advanced Filters Section -->
+            <div class="advanced-section">
+                <div class="advanced-toggle" id="advancedToggle">
+                    <span class="advanced-toggle-icon">▶</span>
+                    <h6 class="mb-0">Advanced Filters</h6>
+                </div>
+                <div class="advanced-content" id="advancedContent">
+                    <div class="mb-2">
+                        <small class="text-muted">Build complex filter rules with AND/OR logic</small>
+                    </div>
+                    <div id="filterRules"></div>
+                    <button class="btn btn-sm btn-outline-primary mt-2" id="addRule">+ Add Rule</button>
+                    <div id="activeFiltersChips" class="filter-chips"></div>
+                </div>
             </div>
 
             <hr>
@@ -369,13 +533,16 @@ echo $OUTPUT->header();
                 <button class="btn btn-secondary btn-sm" id="clear">Clear</button>
             </div>
             <div class="mt-2">
-                <small class="text-muted">Tip: filters apply to the loaded dataset; keyword search stacks with them.</small>
+                <small class="text-muted">Tip: All filters combine with AND logic. Advanced filters provide OR options.</small>
             </div>
         </div>
     </div>
 
+    <!-- Resizer for main columns -->
+    <div class="qbrowser-main-resizer" id="mainResizer"></div>
+
     <!-- RIGHT: RESULTS -->
-    <div class="card">
+    <div class="card" id="resultsPanel">
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
@@ -398,18 +565,23 @@ echo $OUTPUT->header();
 
 <script>
 (() => {
-  // Questions data is embedded directly from PHP.
   const rawData = <?php echo $questionsjson; ?>;
   let viewData = rawData.slice();
   
-  // Get the correct Moodle base URL from PHP.
   const moodleBaseUrl = '<?php echo $moodlebaseurl; ?>';
   
-  // Common categorical keys you likely have; only rendered if present in data.
   const COMMON_CATS = [];
 
   let currentSort = {field: null, direction: 'asc'};
-  let currentlyOpenDetails = null; // Track currently open details to close them when opening new ones
+  let currentlyOpenDetails = null;
+  let advancedRules = [];
+  let ruleIdCounter = 0;
+  let columnWidths = {
+    name: null,
+    actions: 280,
+    category: null,
+    tags: 200
+  };
 
   // Elements.
   const kw = document.getElementById('kw');
@@ -424,6 +596,14 @@ echo $OUTPUT->header();
   const countEl = document.getElementById('count');
   const exportJsonBtn = document.getElementById('exportJson');
   const exportCsvBtn = document.getElementById('exportCsv');
+  const advancedToggle = document.getElementById('advancedToggle');
+  const advancedContent = document.getElementById('advancedContent');
+  const filterRulesEl = document.getElementById('filterRules');
+  const addRuleBtn = document.getElementById('addRule');
+  const activeFiltersChips = document.getElementById('activeFiltersChips');
+  const qbrowserMain = document.getElementById('qbrowserMain');
+  const filterPanel = document.getElementById('filterPanel');
+  const mainResizer = document.getElementById('mainResizer');
 
   // Helpers.
   function isNumber(x){ return typeof x === 'number' && Number.isFinite(x); }
@@ -431,37 +611,72 @@ echo $OUTPUT->header();
   function buildHeader() {
     const table = document.createElement('table');
     table.className = 'table table-striped table-hover table-sm';
+    table.style.tableLayout = 'fixed';
+    table.style.width = '100%';
+    
+    const colgroup = document.createElement('colgroup');
+    const nameColDef = document.createElement('col');
+    const actionsColDef = document.createElement('col');
+    const categoryColDef = document.createElement('col');
+    const tagsColDef = document.createElement('col');
+    
+    if (columnWidths.name) nameColDef.style.width = columnWidths.name + 'px';
+    actionsColDef.style.width = columnWidths.actions + 'px';
+    if (columnWidths.category) categoryColDef.style.width = columnWidths.category + 'px';
+    if (columnWidths.tags) tagsColDef.style.width = columnWidths.tags + 'px';
+    
+    colgroup.append(nameColDef, actionsColDef, categoryColDef, tagsColDef);
+    table.appendChild(colgroup);
     
     const thead = document.createElement('thead');
     thead.className = 'table-dark sticky-top';
     const headerRow = document.createElement('tr');
     
-    // Name column.
     const nameCol = document.createElement('th');
     nameCol.id = 'sortName';
     nameCol.style.cursor = 'pointer';
-    nameCol.textContent = 'Name ↕';
     nameCol.className = 'user-select-none';
+    nameCol.style.position = 'relative';
+    const nameText = document.createElement('span');
+    nameText.textContent = 'Name ↕';
+    nameCol.appendChild(nameText);
     
-    // Actions column (moved between Name and Category).
     const actionsCol = document.createElement('th');
-    actionsCol.textContent = 'Actions';
-    actionsCol.style.width = '280px';
+    actionsCol.style.position = 'relative';
+    const actionsText = document.createElement('span');
+    actionsText.textContent = 'Actions';
+    actionsCol.appendChild(actionsText);
     
-    // Category column.
     const categoryCol = document.createElement('th');
     categoryCol.id = 'sortCategory';
     categoryCol.style.cursor = 'pointer';
-    categoryCol.textContent = 'Category ↕';
     categoryCol.className = 'user-select-none';
+    categoryCol.style.position = 'relative';
+    const categoryText = document.createElement('span');
+    categoryText.textContent = 'Category ↕';
+    categoryCol.appendChild(categoryText);
 
-    // Tags column.
     const tagsCol = document.createElement('th');
     tagsCol.id = 'sortTags';
     tagsCol.style.cursor = 'pointer';
-    tagsCol.textContent = 'Tags ↕';
     tagsCol.className = 'user-select-none';
-    tagsCol.style.width = '200px';
+    const tagsText = document.createElement('span');
+    tagsText.textContent = 'Tags ↕';
+    tagsCol.appendChild(tagsText);
+
+    // Add resizers to all columns except the last
+    [nameCol, actionsCol, categoryCol].forEach((col, idx) => {
+      const resizer = document.createElement('div');
+      resizer.className = 'column-resizer';
+      resizer.dataset.columnIndex = idx;
+      
+      // Stop clicks from bubbling to prevent triggering sort
+      resizer.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+      
+      col.appendChild(resizer);
+    });
 
     headerRow.appendChild(nameCol);
     headerRow.appendChild(actionsCol);
@@ -500,13 +715,11 @@ echo $OUTPUT->header();
   function summarizeRow(q, idx, tbody){
     const row = document.createElement('tr');
 
-    // Name cell.
     const nameCell = document.createElement('td');
     nameCell.textContent = q.name ?? '';
     nameCell.className = 'text-truncate';
     nameCell.style.maxWidth = '300px';
 
-    // Actions cell with smaller buttons.
     const actionsCell = document.createElement('td');
     actionsCell.className = 'qbrowser-controls';
     
@@ -542,36 +755,31 @@ echo $OUTPUT->header();
 
     actionsCell.append(questionBtn, answerBtn, previewBtn, bankBtn, jsonBtn);
 
-    // Category cell
     const categoryCell = document.createElement('td');
     categoryCell.textContent = q.category ?? '';
     categoryCell.className = 'text-muted small text-truncate';
     categoryCell.style.maxWidth = '200px';
 
-    // Tags cell
     const tagsCell = document.createElement('td');
     const tagText = Array.isArray(q.tags) && q.tags.length > 0 ? q.tags.join(', ') : '';
     tagsCell.textContent = tagText;
     tagsCell.className = 'text-muted small text-truncate';
     tagsCell.style.maxWidth = '200px';
-    tagsCell.title = tagText; // Show full tags on hover
+    tagsCell.title = tagText;
 
-    // Assemble the row in the new order: Name, Actions, Category, Tags
     row.appendChild(nameCell);
     row.appendChild(actionsCell);
     row.appendChild(categoryCell);
     row.appendChild(tagsCell);
 
-    let openType = null; // 'json' | 'question' | 'answer'
+    let openType = null;
     let detailRow = null;
 
     function closeDetails() {
-      // Helper function to close this row's details
       openType = null;
       questionBtn.textContent = 'Question';
       answerBtn.textContent = 'Answer';
       jsonBtn.textContent = 'JSON';
-      // Remove highlighting from all buttons
       questionBtn.classList.remove('qbrowser-btn-active');
       answerBtn.classList.remove('qbrowser-btn-active');
       jsonBtn.classList.remove('qbrowser-btn-active');
@@ -579,7 +787,6 @@ echo $OUTPUT->header();
         detailRow.remove();
         detailRow = null;
       }
-      // Clear global tracking if this was the currently open detail
       if (currentlyOpenDetails === closeDetails) {
         currentlyOpenDetails = null;
       }
@@ -587,26 +794,21 @@ echo $OUTPUT->header();
 
     function toggleDisplay(type, content, isHTML = false) {
       if (openType === type) {
-        // Close current detail
         closeDetails();
       } else {
-        // Close any other currently open details first
         if (currentlyOpenDetails && currentlyOpenDetails !== closeDetails) {
           currentlyOpenDetails();
         }
 
-        // Close existing detail if any (in same row)
         if (detailRow) {
           detailRow.remove();
         }
 
-        // Update button states and highlighting
         openType = type;
         questionBtn.textContent = type === 'question' ? 'Close' : 'Question';
         answerBtn.textContent = type === 'answer' ? 'Close' : 'Answer';
         jsonBtn.textContent = type === 'json' ? 'Close' : 'JSON';
 
-        // Remove highlighting from all buttons, then add to active one
         questionBtn.classList.remove('qbrowser-btn-active');
         answerBtn.classList.remove('qbrowser-btn-active');
         jsonBtn.classList.remove('qbrowser-btn-active');
@@ -615,10 +817,9 @@ echo $OUTPUT->header();
         else if (type === 'answer') answerBtn.classList.add('qbrowser-btn-active');
         else if (type === 'json') jsonBtn.classList.add('qbrowser-btn-active');
 
-        // Create new detail row
         detailRow = document.createElement('tr');
         const detailCell = document.createElement('td');
-        detailCell.colSpan = 4; // Name, Actions, Category, Tags
+        detailCell.colSpan = 4;
 
         const detail = document.createElement('div');
         detail.className = isHTML ? 'qbrowser-detail html-content' : 'qbrowser-detail code-content';
@@ -628,10 +829,8 @@ echo $OUTPUT->header();
         detailCell.appendChild(detail);
         detailRow.appendChild(detailCell);
 
-        // Insert detail row after current row
         row.insertAdjacentElement('afterend', detailRow);
 
-        // Track this as the currently open detail
         currentlyOpenDetails = closeDetails;
       }
     }
@@ -670,23 +869,18 @@ echo $OUTPUT->header();
 
   function sortBy(field) {
     if (currentSort.field === field) {
-      // Toggle direction if same field
       currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
     } else {
-      // New field, start with ascending
       currentSort.field = field;
       currentSort.direction = 'asc';
     }
 
-    // Sorting with special handling for tags array
     viewData.sort((a, b) => {
       let aVal, bVal;
       if (field === 'tags') {
-        // For tags, join array and sort
         aVal = (Array.isArray(a[field]) ? a[field].join(', ') : '').toLowerCase();
         bVal = (Array.isArray(b[field]) ? b[field].join(', ') : '').toLowerCase();
       } else {
-        // Standard field sorting
         aVal = (a[field] || '').toString().toLowerCase();
         bVal = (b[field] || '').toString().toLowerCase();
       }
@@ -703,7 +897,6 @@ echo $OUTPUT->header();
   }
   
   function updateHeaderSortIndicators() {
-    // Update header to show sort direction
     const sortName = document.getElementById('sortName');
     const sortCategory = document.getElementById('sortCategory');
     const sortTags = document.getElementById('sortTags');
@@ -730,7 +923,6 @@ echo $OUTPUT->header();
     if (data.length === 0) {
       listEl.innerHTML = '<div class="text-center p-4 text-muted">No questions match the current filters.</div>';
     } else {
-      // Build and add table
       const table = buildHeader();
       const tbody = table.querySelector('tbody');
       
@@ -747,23 +939,19 @@ echo $OUTPUT->header();
     exportJsonBtn.disabled = !hasData;
     exportCsvBtn.disabled = !hasData;
     
-    // Attach sort event listeners
     document.getElementById('sortName')?.addEventListener('click', () => sortBy('name'));
     document.getElementById('sortCategory')?.addEventListener('click', () => sortBy('category'));
     document.getElementById('sortTags')?.addEventListener('click', () => sortBy('tags'));
   }
 
   function buildFilters(data){
-    // Keyword field choices
     kwField.innerHTML = '';
     const keys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
     const optAny = document.createElement('option'); optAny.textContent = 'Any'; kwField.appendChild(optAny);
-    keys.filter(k => k !== 'version' && k !== 'timemodified').forEach(k => {
+    keys.filter(k => k !== 'version' && k !== 'timemodified' && k !== 'type' && k !== 'courseid' && k !== 'lines_of_code').forEach(k => {
       const o = document.createElement('option'); o.textContent = k; kwField.appendChild(o);
     });
 
-    // Detect numeric fields (appear as numbers in majority of records)
-    // Exclude version and timemodified from numeric filters
     const numFields = keys.filter(k => {
       if (k === 'version' || k === 'timemodified') return false;
       let n=0, t=0;
@@ -773,39 +961,29 @@ echo $OUTPUT->header();
 
     numericFilters.innerHTML = '';
     numFields.forEach(k => {
-      const formGroup = document.createElement('div');
-      formGroup.className = 'form-group mb-2';
-      
-      const label = document.createElement('label');
-      label.textContent = k;
-      label.className = 'form-label small';
-      
       const inputGroup = document.createElement('div');
       inputGroup.className = 'qbrowser-grid2';
       
       const min = document.createElement('input');
       min.type = 'number';
-      min.placeholder = `${k} min`;
+      min.placeholder = 'min';
       min.className = 'form-control form-control-sm';
       min.dataset.key = k;
       min.dataset.kind = 'min';
       
       const max = document.createElement('input');
       max.type = 'number';
-      max.placeholder = `${k} max`;
+      max.placeholder = 'max';
       max.className = 'form-control form-control-sm';
       max.dataset.key = k;
       max.dataset.kind = 'max';
       
       inputGroup.append(min, max);
-      formGroup.append(label, inputGroup);
-      numericFilters.appendChild(formGroup);
+      numericFilters.appendChild(inputGroup);
     });
 
-    // Categorical filters: use known common + any string field with ≤ 30 unique vals
     const catFields = new Set(COMMON_CATS.filter(k => keys.includes(k)));
     keys.forEach(k => {
-      // consider only string-like fields with limited unique values
       const vals = new Set();
       let seen = 0;
       for (const o of data) {
@@ -816,18 +994,10 @@ echo $OUTPUT->header();
 
     categoricalFilters.innerHTML = '';
     [...catFields].forEach(k => {
-      const formGroup = document.createElement('div');
-      formGroup.className = 'form-group mb-2';
-      
-      const label = document.createElement('label');
-      label.textContent = k;
-      label.className = 'form-label small';
-      
       const select = document.createElement('select');
       select.className = 'form-control form-control-sm';
       select.dataset.key = k;
       
-      // Get unique values from data and sort alphabetically
       const dataValues = new Set(data.map(o => o[k]).filter(v => typeof v === 'string' && v.trim() !== ''));
       const values = Array.from(dataValues).sort();
       
@@ -843,8 +1013,7 @@ echo $OUTPUT->header();
         select.appendChild(option);
       });
       
-      formGroup.append(label, select);
-      categoricalFilters.appendChild(formGroup);
+      categoricalFilters.appendChild(select);
     });
   }
 
@@ -859,6 +1028,270 @@ echo $OUTPUT->header();
       ranges[key][kind] = val;
     });
     return ranges;
+  }
+
+  // Advanced filter functions
+  function getAvailableFields() {
+    const keys = Array.from(new Set(rawData.flatMap(obj => Object.keys(obj))));
+    return keys.filter(k => k !== 'version' && k !== 'timemodified' && k !== 'type' && k !== 'courseid' && k !== 'lines_of_code').sort();
+  }
+
+  function getOperatorsForField(field) {
+    // Determine field type from data
+    const sampleValues = rawData.slice(0, 10).map(obj => obj[field]).filter(v => v !== null && v !== undefined);
+    
+    if (sampleValues.length === 0) {
+      return ['contains', 'does not contain', 'equals', 'does not equal', 'matches regex', 'does not match regex'];
+    }
+
+    const firstValue = sampleValues[0];
+    
+    if (Array.isArray(firstValue)) {
+      return ['includes', 'does not include', 'is empty', 'is not empty', 'matches regex', 'does not match regex'];
+    } else if (typeof firstValue === 'number') {
+      return ['equals', 'does not equal', 'greater than', 'less than', 'greater or equal', 'less or equal'];
+    } else {
+      return ['contains', 'does not contain', 'equals', 'does not equal', 'starts with', 'ends with', 'is empty', 'is not empty', 'matches regex', 'does not match regex'];
+    }
+  }
+
+  function evaluateRule(obj, rule) {
+    const fieldValue = obj[rule.field];
+    const compareValue = rule.value;
+
+    switch (rule.operator) {
+      case 'contains':
+        return String(fieldValue || '').toLowerCase().includes(String(compareValue).toLowerCase());
+      case 'does not contain':
+        return !String(fieldValue || '').toLowerCase().includes(String(compareValue).toLowerCase());
+      case 'equals':
+        return String(fieldValue || '').toLowerCase() === String(compareValue).toLowerCase();
+      case 'does not equal':
+        return String(fieldValue || '').toLowerCase() !== String(compareValue).toLowerCase();
+      case 'starts with':
+        return String(fieldValue || '').toLowerCase().startsWith(String(compareValue).toLowerCase());
+      case 'ends with':
+        return String(fieldValue || '').toLowerCase().endsWith(String(compareValue).toLowerCase());
+      case 'is empty':
+        return !fieldValue || (Array.isArray(fieldValue) && fieldValue.length === 0) || String(fieldValue).trim() === '';
+      case 'is not empty':
+        return fieldValue && (!Array.isArray(fieldValue) || fieldValue.length > 0) && String(fieldValue).trim() !== '';
+      case 'includes':
+        if (Array.isArray(fieldValue)) {
+          return fieldValue.some(v => String(v).toLowerCase().includes(String(compareValue).toLowerCase()));
+        }
+        return String(fieldValue || '').toLowerCase().includes(String(compareValue).toLowerCase());
+      case 'does not include':
+        if (Array.isArray(fieldValue)) {
+          return !fieldValue.some(v => String(v).toLowerCase().includes(String(compareValue).toLowerCase()));
+        }
+        return !String(fieldValue || '').toLowerCase().includes(String(compareValue).toLowerCase());
+      case 'matches regex':
+        try {
+          const regex = new RegExp(compareValue, 'i');
+          if (Array.isArray(fieldValue)) {
+            return fieldValue.some(v => regex.test(String(v)));
+          }
+          return regex.test(String(fieldValue || ''));
+        } catch (e) {
+          console.error('Invalid regex pattern:', compareValue, e);
+          return false;
+        }
+      case 'does not match regex':
+        try {
+          const regex = new RegExp(compareValue, 'i');
+          if (Array.isArray(fieldValue)) {
+            return !fieldValue.some(v => regex.test(String(v)));
+          }
+          return !regex.test(String(fieldValue || ''));
+        } catch (e) {
+          console.error('Invalid regex pattern:', compareValue, e);
+          return true; // If regex is invalid, consider it as "not matching"
+        }
+      case 'greater than':
+        return Number(fieldValue) > Number(compareValue);
+      case 'less than':
+        return Number(fieldValue) < Number(compareValue);
+      case 'greater or equal':
+        return Number(fieldValue) >= Number(compareValue);
+      case 'less or equal':
+        return Number(fieldValue) <= Number(compareValue);
+      default:
+        return true;
+    }
+  }
+
+  function createFilterRule(rule = null) {
+    const ruleId = rule?.id || ruleIdCounter++;
+    const ruleDiv = document.createElement('div');
+    ruleDiv.dataset.ruleId = ruleId;
+
+    const ruleContainer = document.createElement('div');
+    ruleContainer.className = 'filter-rule';
+    ruleContainer.style.gridTemplateColumns = '1.8fr 2fr 1.8fr auto';
+
+    // Field select
+    const fieldSelect = document.createElement('select');
+    fieldSelect.className = 'form-control form-control-sm';
+    const fields = getAvailableFields();
+    fields.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f;
+      opt.textContent = f;
+      if (rule && rule.field === f) opt.selected = true;
+      fieldSelect.appendChild(opt);
+    });
+
+    // Operator select
+    const operatorSelect = document.createElement('select');
+    operatorSelect.className = 'form-control form-control-sm';
+    const updateOperators = () => {
+      const selectedField = fieldSelect.value;
+      operatorSelect.innerHTML = '';
+      const operators = getOperatorsForField(selectedField);
+      operators.forEach(op => {
+        const opt = document.createElement('option');
+        opt.value = op;
+        opt.textContent = op;
+        if (rule && rule.operator === op) opt.selected = true;
+        operatorSelect.appendChild(opt);
+      });
+      updateValueInput();
+    };
+
+    // Value input
+    const valueInput = document.createElement('input');
+    valueInput.type = 'text';
+    valueInput.className = 'form-control form-control-sm';
+    valueInput.placeholder = 'value';
+    if (rule) valueInput.value = rule.value || '';
+
+    const updateValueInput = () => {
+      const operator = operatorSelect.value;
+      if (operator === 'is empty' || operator === 'is not empty') {
+        valueInput.disabled = true;
+        valueInput.value = '';
+        valueInput.placeholder = '';
+        valueInput.title = '';
+      } else if (operator === 'matches regex' || operator === 'does not match regex') {
+        valueInput.disabled = false;
+        valueInput.placeholder = 'regex pattern';
+        valueInput.title = 'JavaScript regex pattern (case-insensitive)';
+      } else {
+        valueInput.disabled = false;
+        valueInput.placeholder = 'value';
+        valueInput.title = '';
+      }
+    };
+
+    fieldSelect.addEventListener('change', updateOperators);
+    operatorSelect.addEventListener('change', updateValueInput);
+
+    // Remove button
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn btn-sm btn-outline-danger';
+    removeBtn.textContent = '×';
+    removeBtn.title = 'Remove rule';
+    removeBtn.addEventListener('click', () => {
+      advancedRules = advancedRules.filter(r => r.id !== ruleId);
+      ruleDiv.remove();
+      updateActiveFiltersChips();
+    });
+
+    ruleContainer.append(fieldSelect, operatorSelect, valueInput, removeBtn);
+    ruleDiv.appendChild(ruleContainer);
+
+    // Add connector if not the first rule
+    if (filterRulesEl.children.length > 0) {
+      const connector = document.createElement('div');
+      connector.className = 'filter-connector';
+      
+      const connectorSelect = document.createElement('select');
+      connectorSelect.className = 'form-control filter-connector-select';
+      ['AND', 'OR'].forEach(op => {
+        const opt = document.createElement('option');
+        opt.value = op;
+        opt.textContent = op;
+        if (rule && rule.connector === op) opt.selected = true;
+        connectorSelect.appendChild(opt);
+      });
+      
+      connector.appendChild(connectorSelect);
+      ruleDiv.insertBefore(connector, ruleContainer);
+      
+      connectorSelect.addEventListener('change', () => {
+        const existingRule = advancedRules.find(r => r.id === ruleId);
+        if (existingRule) {
+          existingRule.connector = connectorSelect.value;
+        }
+      });
+    }
+
+    updateOperators();
+
+    // Store rule data
+    const ruleData = {
+      id: ruleId,
+      connector: rule?.connector || 'AND',
+      get field() { return fieldSelect.value; },
+      get operator() { return operatorSelect.value; },
+      get value() { return valueInput.value; }
+    };
+
+    if (!rule) {
+      advancedRules.push(ruleData);
+    }
+
+    return ruleDiv;
+  }
+
+  function updateActiveFiltersChips() {
+    activeFiltersChips.innerHTML = '';
+    
+    advancedRules.forEach((rule, idx) => {
+      const chip = document.createElement('div');
+      chip.className = 'filter-chip';
+      
+      const text = document.createElement('span');
+      const connector = idx > 0 ? `${rule.connector} ` : '';
+      const valueText = rule.operator === 'is empty' || rule.operator === 'is not empty' ? '' : `: "${rule.value}"`;
+      text.textContent = `${connector}${rule.field} ${rule.operator}${valueText}`;
+      
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'filter-chip-remove';
+      removeBtn.textContent = '×';
+      removeBtn.title = 'Remove filter';
+      removeBtn.addEventListener('click', () => {
+        advancedRules = advancedRules.filter(r => r.id !== rule.id);
+        const ruleEl = filterRulesEl.querySelector(`[data-rule-id="${rule.id}"]`);
+        if (ruleEl) ruleEl.remove();
+        updateActiveFiltersChips();
+      });
+      
+      chip.append(text, removeBtn);
+      activeFiltersChips.appendChild(chip);
+    });
+  }
+
+  function applyAdvancedFilters(data) {
+    if (advancedRules.length === 0) return data;
+
+    return data.filter(obj => {
+      let result = evaluateRule(obj, advancedRules[0]);
+      
+      for (let i = 1; i < advancedRules.length; i++) {
+        const rule = advancedRules[i];
+        const ruleResult = evaluateRule(obj, rule);
+        
+        if (rule.connector === 'AND') {
+          result = result && ruleResult;
+        } else {
+          result = result || ruleResult;
+        }
+      }
+      
+      return result;
+    });
   }
 
   function applyFilters(){
@@ -876,7 +1309,6 @@ echo $OUTPUT->header();
       const key = sel.dataset.key;
       const val = sel.value;
       if (val !== '') {
-        // Standard exact match for categorical filters
         out = out.filter(o => (o[key] ?? '') === val);
       }
     });
@@ -884,17 +1316,17 @@ echo $OUTPUT->header();
     // Keyword
     const needle = kw.value.trim();
     if (needle) {
-      const mode = kwMode.value;          // Include/Exclude
-      const fieldChoice = kwField.value;  // Any or specific key
-      const searchType = kwType.value;    // Text or Regex
+      const mode = kwMode.value;
+      const fieldChoice = kwField.value;
+      const searchType = kwType.value;
       
       let regex = null;
       if (searchType === 'Regex') {
         try {
-          regex = new RegExp(needle, 'i'); // case-insensitive regex
+          regex = new RegExp(needle, 'i');
         } catch (e) {
           alert('Invalid regex pattern: ' + e.message);
-          return; // Don't apply filter if regex is invalid
+          return;
         }
       }
       
@@ -929,8 +1361,12 @@ echo $OUTPUT->header();
       out = out.filter(o => (mode === 'Include') ? matches(o) : !matches(o));
     }
 
+    // Advanced filters
+    out = applyAdvancedFilters(out);
+
     viewData = out;
     renderList(viewData);
+    updateActiveFiltersChips();
   }
 
   function clearFiltersUI(){
@@ -940,12 +1376,40 @@ echo $OUTPUT->header();
     kwMode.value = 'Include';
     kwField.value = 'Any';
     kwType.value = 'Text';
+    
+    // Clear advanced filters
+    advancedRules = [];
+    filterRulesEl.innerHTML = '';
+    updateActiveFiltersChips();
   }
+
+  // Advanced filter toggle
+  advancedToggle.addEventListener('click', () => {
+    const isExpanded = advancedContent.classList.contains('show');
+    if (isExpanded) {
+      advancedContent.classList.remove('show');
+      advancedToggle.querySelector('.advanced-toggle-icon').classList.remove('expanded');
+    } else {
+      advancedContent.classList.add('show');
+      advancedToggle.querySelector('.advanced-toggle-icon').classList.add('expanded');
+    }
+  });
+
+  // Add rule button
+  addRuleBtn.addEventListener('click', () => {
+    if (advancedRules.length >= 6) {
+      alert('Maximum of 6 advanced filter rules allowed');
+      return;
+    }
+    const ruleEl = createFilterRule();
+    filterRulesEl.appendChild(ruleEl);
+  });
 
   // Initialize on page load
   document.addEventListener('DOMContentLoaded', () => {
     buildFilters(rawData);
     renderList(viewData);
+    initializeResizers();
   });
 
   // Enter key on search field applies filters
@@ -954,6 +1418,80 @@ echo $OUTPUT->header();
       applyFilters();
     }
   });
+
+  // Resizer functionality
+  function initializeResizers() {
+    // Main panel resizer
+    let isResizingMain = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    mainResizer.addEventListener('mousedown', (e) => {
+      isResizingMain = true;
+      startX = e.clientX;
+      startWidth = filterPanel.offsetWidth;
+      document.body.classList.add('resizing');
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isResizingMain) {
+        const delta = e.clientX - startX;
+        const newWidth = Math.max(250, Math.min(600, startWidth + delta));
+        qbrowserMain.style.gridTemplateColumns = `${newWidth}px 1fr`;
+        // Update resizer position to stay centered in gap
+        mainResizer.style.left = `calc(${newWidth}px + 0.75rem)`;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizingMain) {
+        isResizingMain = false;
+        document.body.classList.remove('resizing');
+      }
+    });
+
+    // Column resizers (delegated event listener)
+    document.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('column-resizer')) {
+        const resizer = e.target;
+        const columnIndex = parseInt(resizer.dataset.columnIndex);
+        const table = resizer.closest('table');
+        const colgroup = table.querySelector('colgroup');
+        const cols = Array.from(colgroup.children);
+        
+        let startX = e.clientX;
+        let startWidth = cols[columnIndex].offsetWidth || parseInt(cols[columnIndex].style.width);
+        let nextStartWidth = cols[columnIndex + 1].offsetWidth || parseInt(cols[columnIndex + 1].style.width);
+
+        document.body.classList.add('resizing');
+        e.preventDefault();
+
+        const onMouseMove = (e) => {
+          const delta = e.clientX - startX;
+          const newWidth = Math.max(80, startWidth + delta);
+          const nextNewWidth = Math.max(80, nextStartWidth - delta);
+          
+          cols[columnIndex].style.width = newWidth + 'px';
+          cols[columnIndex + 1].style.width = nextNewWidth + 'px';
+          
+          // Store widths
+          const columnNames = ['name', 'actions', 'category', 'tags'];
+          columnWidths[columnNames[columnIndex]] = newWidth;
+          columnWidths[columnNames[columnIndex + 1]] = nextNewWidth;
+        };
+
+        const onMouseUp = () => {
+          document.body.classList.remove('resizing');
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      }
+    });
+  }
 
   // Apply/Clear
   applyBtn.addEventListener('click', applyFilters);
