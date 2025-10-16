@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
-
+require_once($CFG->dirroot . '/question/type/coderunner/db/upgradelib.php');
 /**
  * @coversNothing
  */
@@ -39,11 +39,22 @@ class qtype_coderunner_testcase extends advanced_testcase {
     /** @var stdClass Holds question category.*/
     protected $category;
 
+    protected static bool $prototypesinstalled = false;
+
     protected function setUp(): void {
         parent::setUp();
         self::setup_test_sandbox_configuration();
-        $this->resetAfterTest(false);
+        $this->resetAfterTest(true);
         $this->setAdminUser();
+        ob_start();
+        if (!self::$prototypesinstalled) {
+            if (\qtype_coderunner_util::using_mod_qbank()) {
+                update_question_types_with_qbank();
+            } else {
+                update_question_types_legacy();
+            }
+        }
+        ob_end_clean();
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $this->category = $generator->create_question_category([]);
     }

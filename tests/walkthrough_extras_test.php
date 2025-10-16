@@ -24,6 +24,7 @@ global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/walkthrough_testbase.php');
 
 define('PRELOAD_TEST', "# TEST COMMENT TO CHECK PRELOAD IS WORKING\n");
 
@@ -38,7 +39,7 @@ define('PRELOAD_TEST', "# TEST COMMENT TO CHECK PRELOAD IS WORKING\n");
  * @copyright  2012, 2014 Richard Lobb, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class walkthrough_extras_test extends \qbehaviour_walkthrough_test_base {
+class walkthrough_extras_test extends walkthrough_testbase {
     protected function setUp(): void {
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
