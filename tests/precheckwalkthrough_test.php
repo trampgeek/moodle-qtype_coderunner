@@ -32,13 +32,14 @@ global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/walkthrough_testbase.php');
 
 use qtype_coderunner\constants;
 
 /**
  * @coversNothing
  */
-class precheckwalkthrough_test extends \qbehaviour_walkthrough_test_base {
+class precheckwalkthrough_test extends walkthrough_testbase {
     protected function setUp(): void {
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();

@@ -31,6 +31,8 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
+require_once($CFG->dirroot . '/question/type/coderunner/question.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/walkthrough_testbase.php');
 
 /**
  * Unit tests for the coderunner question type.
@@ -38,7 +40,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @copyright  2011 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class walkthrough_test extends \qbehaviour_walkthrough_test_base {
+class walkthrough_test extends walkthrough_testbase {
     protected function setUp(): void {
         parent::setUp();
         \qtype_coderunner_testcase::setup_test_sandbox_configuration();
@@ -117,6 +119,8 @@ class walkthrough_test extends \qbehaviour_walkthrough_test_base {
         $user = $generator->create_user();
         $coursecontext = \context_course::instance($course->id);
         $generator->enrol_user($user->id, $course->id, 'editingteacher');
+        // Reset the page after we installed the prototypes.
+        $PAGE->reset_theme_and_output();
         $this->setUser($user);
         $PAGE->set_course($course);
 

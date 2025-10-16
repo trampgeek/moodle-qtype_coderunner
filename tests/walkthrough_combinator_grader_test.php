@@ -32,6 +32,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
+require_once($CFG->dirroot . '/question/type/coderunner/tests/walkthrough_testbase.php');
 
 /**
  * Unit tests for the coderunner question type.
@@ -40,7 +41,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
  * @copyright  2011, 2020 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class walkthrough_combinator_grader_test extends \qbehaviour_walkthrough_test_base {
+class walkthrough_combinator_grader_test extends walkthrough_testbase {
     protected function setUp(): void {
         global $CFG;
         parent::setUp();
