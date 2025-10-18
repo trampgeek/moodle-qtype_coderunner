@@ -365,6 +365,13 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 } else {
                     $skipto = false;
                 }
+            } else if ($prog[$i] == "'") {
+                // Matches the whole string - single quotes.
+                if (preg_match("/'((\\.)|[^\\'])*'/", $prog, $matches, 0, $i)) {
+                    $skipto = $i + strlen($matches[0]);
+                } else {
+                    $skipto = false;
+                }
             // Copy everything else.
             } else {
                 $filteredprog[] = $prog[$i];
