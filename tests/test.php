@@ -70,9 +70,8 @@ class qtype_coderunner_testcase extends advanced_testcase {
         $localconfig = $CFG->dirroot . '/question/type/coderunner/tests/fixtures/test-sandbox-config.php';
         if (is_readable($localconfig)) {
             require($localconfig);
-        } else {
-            throw new coding_exception('tests/fixtures/test-sandbox-config.php must exist to define test configuration');
         }
+
         $USER->username  = 'tester';
         $USER->email     = 'tester@nowhere.com';
         $USER->firstname = 'Test';
