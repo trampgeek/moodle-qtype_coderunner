@@ -78,6 +78,7 @@ if ($context->contextlevel == CONTEXT_MODULE) {
  */
 class questions_json_generator {
     private $context;
+    private $usagemap;
 
     public function __construct($context) {
         $this->context = $context;
@@ -88,6 +89,10 @@ class questions_json_generator {
      */
     public function generate_questions_data() {
         $questions = bulk_tester::get_all_coderunner_questions_in_context($this->context->id, false);
+
+        // Fetch quiz usage for all questions in one bulk query.
+        $this->usagemap = $this->fetch_quiz_usage_bulk($questions);
+
         $enhancedquestions = [];
 
         foreach ($questions as $question) {
@@ -99,12 +104,60 @@ class questions_json_generator {
     }
 
     /**
+     * Fetch quiz usage for all questions in a single query.
+     */
+    private function fetch_quiz_usage_bulk($questions) {
+        global $DB;
+
+        if (empty($questions)) {
+            return [];
+        }
+
+        $questionids = array_column($questions, 'id');
+
+        if (empty($questionids)) {
+            return [];
+        }
+
+        // Build the query to get quiz usage for all questions.
+        // This combines question_references (direct usage) and question_attempts (random question usage).
+        [$insql, $params] = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
+
+        $sql = "SELECT CONCAT(qv.questionid, '-', qz.id) as uniqueid,
+                       qv.questionid, qz.id as quizid, qz.name as quizname
+                  FROM {question_versions} qv
+                  JOIN {question_bank_entries} qbe ON qbe.id = qv.questionbankentryid
+                  JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
+                  JOIN {quiz_slots} slot ON slot.id = qr.itemid
+                  JOIN {quiz} qz ON qz.id = slot.quizid
+                 WHERE qv.questionid $insql
+                   AND qr.component = 'mod_quiz'
+                   AND qr.questionarea = 'slot'
+              GROUP BY qv.questionid, qz.id, qz.name
+              ORDER BY qv.questionid, qz.name";
+
+        $usages = $DB->get_records_sql($sql, $params);
+
+        // Build lookup map: questionid => array of quiz names.
+        $usagemap = [];
+        foreach ($usages as $usage) {
+            if (!isset($usagemap[$usage->questionid])) {
+                $usagemap[$usage->questionid] = [];
+            }
+            $usagemap[$usage->questionid][] = $usage->quizname;
+        }
+
+        return $usagemap;
+    }
+
+    /**
      * Enhance a single question with metadata analysis.
      */
     private function enhance_question_metadata($question) {
         $courseid = $this->get_course_id_from_context();
         $answer = $this->extract_answer($question->answer ?? '');
         $tags = $this->get_question_tags($question->id);
+        $usedin = $this->usagemap[$question->id] ?? [];
 
         $enhanced = [
             'type' => 'coderunner',
@@ -118,6 +171,7 @@ class questions_json_generator {
             'version' => (int)$question->version,
             'courseid' => (string)$courseid,
             'tags' => $tags,
+            'usedin' => $usedin,
         ];
 
         $enhanced['lines_of_code'] = $this->count_lines_of_code($answer);
@@ -580,7 +634,8 @@ echo $OUTPUT->header();
     name: null,
     actions: 280,
     category: null,
-    tags: 200
+    tags: 200,
+    usedin: 200
   };
 
   // Elements.
@@ -619,13 +674,15 @@ echo $OUTPUT->header();
     const actionsColDef = document.createElement('col');
     const categoryColDef = document.createElement('col');
     const tagsColDef = document.createElement('col');
-    
+    const usedinColDef = document.createElement('col');
+
     if (columnWidths.name) nameColDef.style.width = columnWidths.name + 'px';
     actionsColDef.style.width = columnWidths.actions + 'px';
     if (columnWidths.category) categoryColDef.style.width = columnWidths.category + 'px';
     if (columnWidths.tags) tagsColDef.style.width = columnWidths.tags + 'px';
-    
-    colgroup.append(nameColDef, actionsColDef, categoryColDef, tagsColDef);
+    if (columnWidths.usedin) usedinColDef.style.width = columnWidths.usedin + 'px';
+
+    colgroup.append(nameColDef, actionsColDef, categoryColDef, tagsColDef, usedinColDef);
     table.appendChild(colgroup);
     
     const thead = document.createElement('thead');
@@ -660,21 +717,31 @@ echo $OUTPUT->header();
     tagsCol.id = 'sortTags';
     tagsCol.style.cursor = 'pointer';
     tagsCol.className = 'user-select-none';
+    tagsCol.style.position = 'relative';
     const tagsText = document.createElement('span');
     tagsText.textContent = 'Tags ↕';
     tagsCol.appendChild(tagsText);
 
+    const usedinCol = document.createElement('th');
+    usedinCol.id = 'sortUsedIn';
+    usedinCol.style.cursor = 'pointer';
+    usedinCol.className = 'user-select-none';
+    usedinCol.style.position = 'relative';
+    const usedinText = document.createElement('span');
+    usedinText.textContent = 'Used In ↕';
+    usedinCol.appendChild(usedinText);
+
     // Add resizers to all columns except the last
-    [nameCol, actionsCol, categoryCol].forEach((col, idx) => {
+    [nameCol, actionsCol, categoryCol, tagsCol].forEach((col, idx) => {
       const resizer = document.createElement('div');
       resizer.className = 'column-resizer';
       resizer.dataset.columnIndex = idx;
-      
-      // Stop clicks from bubbling to prevent triggering sort
+
+      // Stop propagation to prevent triggering sort on parent <th>
       resizer.addEventListener('click', (e) => {
         e.stopPropagation();
       });
-      
+
       col.appendChild(resizer);
     });
 
@@ -682,6 +749,7 @@ echo $OUTPUT->header();
     headerRow.appendChild(actionsCol);
     headerRow.appendChild(categoryCol);
     headerRow.appendChild(tagsCol);
+    headerRow.appendChild(usedinCol);
     
     thead.appendChild(headerRow);
     table.appendChild(thead);
@@ -767,10 +835,31 @@ echo $OUTPUT->header();
     tagsCell.style.maxWidth = '200px';
     tagsCell.title = tagText;
 
+    const usedinCell = document.createElement('td');
+    const usedinArray = Array.isArray(q.usedin) ? q.usedin : [];
+    usedinCell.className = 'text-muted small';
+    usedinCell.style.maxWidth = '200px';
+
+    // Create one div per quiz name, each with its own truncation
+    if (usedinArray.length > 0) {
+      usedinArray.forEach(quizname => {
+        const quizDiv = document.createElement('div');
+        quizDiv.textContent = quizname;
+        quizDiv.className = 'text-truncate';
+        quizDiv.title = quizname;
+        usedinCell.appendChild(quizDiv);
+      });
+    }
+
+    // Tooltip shows full list
+    const usedinText = usedinArray.join('\n');
+    usedinCell.title = usedinText;
+
     row.appendChild(nameCell);
     row.appendChild(actionsCell);
     row.appendChild(categoryCell);
     row.appendChild(tagsCell);
+    row.appendChild(usedinCell);
 
     let openType = null;
     let detailRow = null;
@@ -819,7 +908,7 @@ echo $OUTPUT->header();
 
         detailRow = document.createElement('tr');
         const detailCell = document.createElement('td');
-        detailCell.colSpan = 4;
+        detailCell.colSpan = 5;
 
         const detail = document.createElement('div');
         detail.className = isHTML ? 'qbrowser-detail html-content' : 'qbrowser-detail code-content';
@@ -877,7 +966,7 @@ echo $OUTPUT->header();
 
     viewData.sort((a, b) => {
       let aVal, bVal;
-      if (field === 'tags') {
+      if (field === 'tags' || field === 'usedin') {
         aVal = (Array.isArray(a[field]) ? a[field].join(', ') : '').toLowerCase();
         bVal = (Array.isArray(b[field]) ? b[field].join(', ') : '').toLowerCase();
       } else {
@@ -900,19 +989,25 @@ echo $OUTPUT->header();
     const sortName = document.getElementById('sortName');
     const sortCategory = document.getElementById('sortCategory');
     const sortTags = document.getElementById('sortTags');
+    const sortUsedIn = document.getElementById('sortUsedIn');
 
-    [sortName, sortCategory, sortTags].forEach(header => {
+    [sortName, sortCategory, sortTags, sortUsedIn].forEach(header => {
       if (!header) return;
       let field;
       if (header.id === 'sortName') field = 'name';
       else if (header.id === 'sortCategory') field = 'category';
       else if (header.id === 'sortTags') field = 'tags';
+      else if (header.id === 'sortUsedIn') field = 'usedin';
+
+      // Find the span element that contains the text
+      const span = header.querySelector('span');
+      if (!span) return;
 
       if (field === currentSort.field) {
         const arrow = currentSort.direction === 'asc' ? '↑' : '↓';
-        header.textContent = header.textContent.replace(/[↕↑↓]/, arrow);
+        span.textContent = span.textContent.replace(/[↕↑↓]/, arrow);
       } else {
-        header.textContent = header.textContent.replace(/[↕↑↓]/, '↕');
+        span.textContent = span.textContent.replace(/[↕↑↓]/, '↕');
       }
     });
   }
@@ -942,6 +1037,7 @@ echo $OUTPUT->header();
     document.getElementById('sortName')?.addEventListener('click', () => sortBy('name'));
     document.getElementById('sortCategory')?.addEventListener('click', () => sortBy('category'));
     document.getElementById('sortTags')?.addEventListener('click', () => sortBy('tags'));
+    document.getElementById('sortUsedIn')?.addEventListener('click', () => sortBy('usedin'));
   }
 
   function buildFilters(data){
@@ -1474,9 +1570,9 @@ echo $OUTPUT->header();
           
           cols[columnIndex].style.width = newWidth + 'px';
           cols[columnIndex + 1].style.width = nextNewWidth + 'px';
-          
+
           // Store widths
-          const columnNames = ['name', 'actions', 'category', 'tags'];
+          const columnNames = ['name', 'actions', 'category', 'tags', 'usedin'];
           columnWidths[columnNames[columnIndex]] = newWidth;
           columnWidths[columnNames[columnIndex + 1]] = nextNewWidth;
         };
