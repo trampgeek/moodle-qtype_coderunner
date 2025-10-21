@@ -511,7 +511,7 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     // Render the given twig text using the given random number seed and
     // student variable. This version should be called only during question
-    // initialisation when evaluating the template parametersfunction evaluate_template_params_on_jobeg.
+    // initialisation when evaluating the template parameters.
     private function twig_render_with_seed($text, $seed) {
         mt_srand($seed);
         $params = ['STUDENT' => $this->student, 'QUIZ' => $this->quiz];
