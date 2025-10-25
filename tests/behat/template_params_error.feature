@@ -28,6 +28,7 @@ Feature: template_params_error
     And I disable UI plugins in the CodeRunner question type
 
   Scenario: As a teacher, I should be given an informative Twig error
+    Given the Jobe server supports "twig"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I set the field "id_templateparamslang" to "twig"
     And I set the following fields to these values:
@@ -38,6 +39,8 @@ Feature: template_params_error
     Then I should see "Unexpected token"
 
   Scenario: As a teacher, I should be given an informative Python error
+    Given the CodeRunner test configuration file is loaded
+    And the Jobe server supports "python3"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I set the field "id_templateparamslang" to "python3"
     And I set the following fields to these values:
@@ -48,6 +51,7 @@ Feature: template_params_error
     Then I should see "SyntaxError"
 
   Scenario: As a teacher, I should be given an informative C error
+    Given the Jobe server supports "c"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I set the field "id_templateparamslang" to "c"
     And I set the following fields to these values:
@@ -58,6 +62,7 @@ Feature: template_params_error
     Then I should see "error: missing terminating > character"
 
   Scenario: As a teacher, I should be given an informative Java error
+    Given the Jobe server supports "java"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I set the field "id_templateparamslang" to "java"
     And I set the following fields to these values:
@@ -68,6 +73,7 @@ Feature: template_params_error
     Then I should see "NO_PUBLIC_CLASS_FOUND.java"
 
   Scenario: As a teacher, I should be given an informative php error
+    Given the Jobe server supports "php"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I set the field "id_templateparamslang" to "php"
     And I set the field "id_templateparams" to:
@@ -82,6 +88,7 @@ Feature: template_params_error
     Then I should see "PHP Parse error:"
 
   Scenario: As a teacher, I should be given an informative Octave error
+    Given the Jobe server supports "octave"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I set the field "id_templateparamslang" to "octave"
     And I set the following fields to these values:
@@ -92,6 +99,7 @@ Feature: template_params_error
     Then I should see "Run error"
 
   Scenario: As a teacher, I should be given an informative Pascal error
+    Given the Jobe server supports "pascal"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I set the field "id_templateparamslang" to "pascal"
     And I set the following fields to these values:
