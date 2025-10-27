@@ -24,7 +24,7 @@
 
 use Behat\Mink\Exception\ExpectationException;
 use Facebook\WebDriver\Exception\NoSuchAlertException;
-
+use Moodle\BehatExtension\Exception\SkippedException;
 
 class behat_coderunner extends behat_base {
     /**
@@ -312,7 +312,17 @@ class behat_coderunner extends behat_base {
         }
     }
 
-
+    /**
+     * Skips scenario if the given language is not installed on the Jobe server
+     *
+     * @Given /^the Jobe server supports "(?P<lang>[^"]+)"$/
+     */
+    public function jobe_supports_lanugage(string $lang): void {
+        if (qtype_coderunner_sandbox::get_best_sandbox($lang, true) === null) {
+            $msg = "$lang is not installed on your server. Scenario skipped.";
+            throw new SkippedException($msg);
+        }
+    }
 
     /**
      * Presses a named button. Checks if there is a specified error text displayed.
