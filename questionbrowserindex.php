@@ -25,18 +25,29 @@
 namespace qtype_coderunner;
 
 use context_system;
+use context;
+use context_course;
 use html_writer;
 use moodle_url;
+use qtype_coderunner_util;
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once(__DIR__ . '/classes/bulk_tester.php');
+
+// We are Moodle 4 or less if don't have mod_qbank.
+$oldskool = !(qtype_coderunner_util::using_mod_qbank());
 
 // Login and check permissions.
 $context = context_system::instance();
 require_login();
 
 const BUTTONSTYLE = 'background-color: #FFFFD0; padding: 2px 2px 0px 2px;border: 4px solid white';
+
+function display_course_header($coursecontextid, $coursename) {
+    $litext = $coursecontextid . ' - ' . $coursename;
+    echo html_writer::tag('h5', $litext);
+}
 
 function display_questions_for_context($contextid, $name, $numcoderunnerquestions) {
     $browseallstr = get_string('browsequestions', 'qtype_coderunner', $name);
@@ -65,15 +76,6 @@ function display_questions_for_context($contextid, $name, $numcoderunnerquestion
     echo html_writer::end_tag('li');
 }
 
-function display_questions_for_all_contexts($availablequestionsbycontext) {
-    echo html_writer::start_tag('ul');
-    foreach ($availablequestionsbycontext as $contextid => $info) {
-        $name = $info['name'];
-        $numcoderunnerquestions = $info['numquestions'];
-        display_questions_for_context($contextid, $name, $numcoderunnerquestions);
-    }
-    echo html_writer::end_tag('ul');
-}
 
 // Set up page.
 $PAGE->set_url('/question/type/coderunner/questionbrowserindex.php');
@@ -92,13 +94,27 @@ $availablequestionsbycontext = bulk_tester::get_num_available_coderunner_questio
 if (count($availablequestionsbycontext) == 0) {
     echo html_writer::tag('p', 'You do not have permission to browse questions in any contexts.');
 } else {
-    echo html_writer::tag('h3', 'Available Contexts (' . count($availablequestionsbycontext) . ')');
     echo html_writer::tag(
         'p',
         '<strong>Instructions:</strong> Click "Browse questions" to open the question browser for that context.'
     );
 
-    display_questions_for_all_contexts($availablequestionsbycontext);
+    if ($oldskool) {
+        // Moodle 4 style.
+        echo html_writer::tag('h3', 'Available Contexts (' . count($availablequestionsbycontext) . ')');
+        qtype_coderunner_util::display_course_contexts(
+            $availablequestionsbycontext,
+            'qtype_coderunner\display_questions_for_context'
+        );
+    } else {
+        // Deal with funky question bank madness in Moodle 5.0.
+        echo html_writer::tag('p', "Moodle >= 5.0 detected. Listing by course then question bank.");
+        qtype_coderunner_util::display_course_grouped_contexts(
+            $availablequestionsbycontext,
+            'qtype_coderunner\display_course_header',
+            'qtype_coderunner\display_questions_for_context'
+        );
+    }
 }
 
 // Add some basic styling.

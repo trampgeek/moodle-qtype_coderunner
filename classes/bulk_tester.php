@@ -389,13 +389,7 @@ class bulk_tester {
      * @return moodle_url base URL used for seeing the results of a test run.
      */
     private function get_question_base_test_url() {
-        if ($this->context->contextlevel == CONTEXT_COURSE) {
-            $qparams['courseid'] = $this->context->instanceid;
-        } else if ($this->context->contextlevel == CONTEXT_MODULE) {
-            $qparams['cmid'] = $this->context->instanceid;
-        } else {
-            $qparams['courseid'] = SITEID;
-        }
+        $qparams = qtype_coderunner_util::get_question_bank_params($this->context->id);
         $questiontestsurl = new moodle_url('/question/type/coderunner/questiontestrun.php');
         $questiontestsurl->params($qparams);
         return $questiontestsurl;
@@ -823,16 +817,12 @@ class bulk_tester {
 
     /**
      * Return a link to the given question in the question bank.
-     * @param int $courseid the id of the course containing the question
+     * @param int $courseid the id of the course containing the question (not used - kept for compatibility)
      * @param stdObj $question the question
      * @return html link to the question in the question bank
      */
     private static function make_question_link($courseid, $question) {
-        $qbankparams = ['qperpage' => 1000]; // Can't easily get the true value.
-        $qbankparams['category'] = $question->category . ',' . $question->contextid;
-        $qbankparams['lastchanged'] = $question->questionid;
-        $qbankparams['courseid'] = $courseid;
-        $qbankparams['showhidden'] = 1;
+        $qbankparams = qtype_coderunner_util::make_question_bank_url_params($question);
         $questionbanklink = new moodle_url('/question/edit.php', $qbankparams);
         return html_writer::link($questionbanklink, $question->name, ['target' => '_blank']);
     }

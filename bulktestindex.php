@@ -127,21 +127,6 @@ function display_questions_for_all_contexts($availablequestionsbycontext) {
 
 
 
-/**
- * Used for displaying all the questions in the Oldskool Moodle 4 setup.
- * $availablequestionsbycontext maps from
- *    contextid to [name, numquestions] associative arrays.
- */
-function display_questions_for_all_course_contexts($availablequestionsbycontext) {
-    foreach ($availablequestionsbycontext as $contextid => $info) {
-        $context = context::instance_by_id($contextid);
-        if ($context->contextlevel === CONTEXT_COURSE || $context->contextlevel === CONTEXT_COURSECAT) {
-            $name = $info['name'];
-            $numcoderunnerquestions = $info['numquestions'];
-            display_questions_for_context($contextid, $name, $numcoderunnerquestions);
-        }
-    }
-}
 
 
 
@@ -225,30 +210,18 @@ if (count($availablequestionsbycontext) == 0) {
     if ($oldskool) {
         // Moodle 4 style.
         echo $OUTPUT->heading(get_string('coderunnercontexts', 'qtype_coderunner'));
-        display_questions_for_all_course_contexts($availablequestionsbycontext);
+        qtype_coderunner_util::display_course_contexts(
+            $availablequestionsbycontext,
+            'qtype_coderunner\display_questions_for_context'
+        );
     } else {
         // Deal with funky question bank madness in Moodle 5.0.
         echo html_writer::tag('p', "Moodle >= 5.0 detected. Listing by course then qbank.");
-        $allcourses = bulk_tester::get_all_courses();
-        foreach ($allcourses as $courseid => $course) {
-            $coursecontext = context_course::instance($courseid);
-            display_course_header_and_link($coursecontext->id, $course->name);
-            $allbanks = bulk_tester::get_all_qbanks_for_course($courseid);
-            if (count($allbanks) > 0) {
-                echo html_writer::start_tag('ul');
-                foreach ($allbanks as $bank) {
-                    $contextid = $bank->contextid;
-                    if (array_key_exists($contextid, $availablequestionsbycontext)) {
-                        $contextdata = $availablequestionsbycontext[$contextid];
-                        $name = $contextdata['name'];
-                        $numquestions = $contextdata['numquestions'];
-                        $coursenamebankname = $bank->coursenamebankname;
-                        display_questions_for_context($contextid, $name, $numquestions);
-                    }
-                }
-                echo html_writer::end_tag('ul');
-            }
-        }
+        qtype_coderunner_util::display_course_grouped_contexts(
+            $availablequestionsbycontext,
+            'qtype_coderunner\display_course_header_and_link',
+            'qtype_coderunner\display_questions_for_context'
+        );
     }
     // Output final stuff, including link to bulktestall.
     echo html_writer::empty_tag('br');

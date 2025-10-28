@@ -159,6 +159,9 @@ class questions_json_generator {
         $tags = $this->get_question_tags($question->id);
         $usedin = $this->usagemap[$question->id] ?? [];
 
+        // Get question bank URL parameters (handles Moodle 5's cmid vs courseid).
+        $qbankparams = \qtype_coderunner_util::make_question_bank_url_params($question);
+
         $enhanced = [
             'type' => 'coderunner',
             'id' => (string)$question->id,
@@ -168,10 +171,12 @@ class questions_json_generator {
             'coderunnertype' => $question->coderunnertype,
             'category' => bulk_tester::get_category_path($question->category),
             'categoryid' => (string)$question->category,
+            'contextid' => (string)$question->contextid,
             'version' => (int)$question->version,
             'courseid' => (string)$courseid,
             'tags' => $tags,
             'usedin' => $usedin,
+            'qbankparams' => $qbankparams,
         ];
 
         $enhanced['lines_of_code'] = $this->count_lines_of_code($answer);
@@ -938,18 +943,12 @@ echo $OUTPUT->header();
     });
 
     bankBtn.addEventListener('click', () => {
-      if (q.id && q.courseid && q.categoryid) {
-        const params = new URLSearchParams({
-          'qperpage': '1000',
-          'category': q.categoryid + ',' + <?php echo $contextid; ?>,
-          'lastchanged': q.id,
-          'courseid': q.courseid,
-          'showhidden': '1'
-        });
+      if (q.qbankparams) {
+        const params = new URLSearchParams(q.qbankparams);
         const bankUrl = `${moodleBaseUrl}/question/edit.php?${params.toString()}`;
         window.open(bankUrl, '_blank');
       } else {
-        alert('Missing question data for question bank link');
+        alert('Missing question bank parameters');
       }
     });
 
@@ -1044,7 +1043,8 @@ echo $OUTPUT->header();
     kwField.innerHTML = '';
     const keys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
     const optAny = document.createElement('option'); optAny.textContent = 'Any'; kwField.appendChild(optAny);
-    keys.filter(k => k !== 'version' && k !== 'timemodified' && k !== 'type' && k !== 'courseid' && k !== 'lines_of_code').forEach(k => {
+    const excludedKeys = ['version', 'timemodified', 'type', 'courseid', 'lines_of_code'];
+    keys.filter(k => !excludedKeys.includes(k)).forEach(k => {
       const o = document.createElement('option'); o.textContent = k; kwField.appendChild(o);
     });
 
@@ -1129,7 +1129,8 @@ echo $OUTPUT->header();
   // Advanced filter functions
   function getAvailableFields() {
     const keys = Array.from(new Set(rawData.flatMap(obj => Object.keys(obj))));
-    return keys.filter(k => k !== 'version' && k !== 'timemodified' && k !== 'type' && k !== 'courseid' && k !== 'lines_of_code').sort();
+    const excludedKeys = ['version', 'timemodified', 'type', 'courseid', 'lines_of_code'];
+    return keys.filter(k => !excludedKeys.includes(k)).sort();
   }
 
   function getOperatorsForField(field) {
@@ -1147,7 +1148,10 @@ echo $OUTPUT->header();
     } else if (typeof firstValue === 'number') {
       return ['equals', 'does not equal', 'greater than', 'less than', 'greater or equal', 'less or equal'];
     } else {
-      return ['contains', 'does not contain', 'equals', 'does not equal', 'starts with', 'ends with', 'is empty', 'is not empty', 'matches regex', 'does not match regex'];
+      return [
+        'contains', 'does not contain', 'equals', 'does not equal', 'starts with', 'ends with',
+        'is empty', 'is not empty', 'matches regex', 'does not match regex'
+      ];
     }
   }
 

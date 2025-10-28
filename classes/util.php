@@ -68,6 +68,95 @@ class qtype_coderunner_util {
     }
 
 
+    /**
+     * Display contexts for all course-level contexts (Moodle 4 style).
+     * $availablequestionsbycontext maps from contextid to [name, numquestions] associative arrays.
+     * $displaycallback is a function that takes ($contextid, $name, $numquestions).
+     */
+    public static function display_course_contexts($availablequestionsbycontext, $displaycallback) {
+        echo \html_writer::start_tag('ul');
+        foreach ($availablequestionsbycontext as $contextid => $info) {
+            $context = \context::instance_by_id($contextid);
+            if ($context->contextlevel === CONTEXT_COURSE || $context->contextlevel === CONTEXT_COURSECAT) {
+                $name = $info['name'];
+                $numquestions = $info['numquestions'];
+                $displaycallback($contextid, $name, $numquestions);
+            }
+        }
+        echo \html_writer::end_tag('ul');
+    }
+
+
+    /**
+     * Get URL parameters for accessing a question in the question bank.
+     * Returns array with either 'cmid' or 'courseid' depending on context level.
+     *
+     * @param int $contextid The context ID where the question resides
+     * @return array URL parameters (cmid or courseid)
+     */
+    public static function get_question_bank_params($contextid) {
+        $qcontext = \context::instance_by_id($contextid);
+        $params = [];
+        if ($qcontext->contextlevel == CONTEXT_COURSE) {
+            $params['courseid'] = $qcontext->instanceid;
+        } else if ($qcontext->contextlevel == CONTEXT_MODULE) {
+            $params['cmid'] = $qcontext->instanceid;
+        } else {
+            $params['courseid'] = SITEID;
+        }
+        return $params;
+    }
+
+
+    /**
+     * Build complete URL parameters for linking to a question in the question bank.
+     *
+     * @param object $question Question object with id, category, and contextid properties
+     * @return array Complete URL parameters for question/edit.php
+     */
+    public static function make_question_bank_url_params($question) {
+        $params = self::get_question_bank_params($question->contextid);
+        $params['qperpage'] = 1000;
+        $params['category'] = $question->category . ',' . $question->contextid;
+        $params['lastchanged'] = $question->id;
+        $params['showhidden'] = 1;
+        return $params;
+    }
+
+
+    /**
+     * Display contexts grouped by course (Moodle 5 style).
+     * $availablequestionsbycontext maps from contextid to [name, numquestions] associative arrays.
+     * $courseheadercallback is a function that takes ($coursecontextid, $coursename).
+     * $contextcallback is a function that takes ($contextid, $name, $numquestions).
+     */
+    public static function display_course_grouped_contexts(
+        $availablequestionsbycontext,
+        $courseheadercallback,
+        $contextcallback
+    ) {
+        $allcourses = \qtype_coderunner\bulk_tester::get_all_courses();
+        foreach ($allcourses as $courseid => $course) {
+            $coursecontext = \context_course::instance($courseid);
+            $courseheadercallback($coursecontext->id, $course->name);
+            $allbanks = \qtype_coderunner\bulk_tester::get_all_qbanks_for_course($courseid);
+            if (count($allbanks) > 0) {
+                echo \html_writer::start_tag('ul');
+                foreach ($allbanks as $bank) {
+                    $contextid = $bank->contextid;
+                    if (array_key_exists($contextid, $availablequestionsbycontext)) {
+                        $contextdata = $availablequestionsbycontext[$contextid];
+                        $name = $contextdata['name'];
+                        $numquestions = $contextdata['numquestions'];
+                        $contextcallback($contextid, $name, $numquestions);
+                    }
+                }
+                echo \html_writer::end_tag('ul');
+            }
+        }
+    }
+
+
     // A utility method used for iterating over multibyte (utf-8) strings
     // in php. Taken from https://stackoverflow.com/questions/3666306/how-to-iterate-utf-8-string-in-php
     // We can't simply use mb_substr to extract the ith characters from a multibyte
@@ -175,7 +264,7 @@ class qtype_coderunner_util {
             }
             return '\\x' . sprintf("%02x", ord($char));
         }, $output);
-        
+
         if ($output !== '') {
             $output .= "\n";
         }
