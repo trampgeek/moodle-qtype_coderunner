@@ -317,7 +317,7 @@ class behat_coderunner extends behat_base {
      *
      * @Given /^the Jobe server supports "(?P<lang>[^"]+)"$/
      */
-    public function jobe_supports_lanugage(string $lang): void {
+    public function jobe_supports_language(string $lang): void {
         if (qtype_coderunner_sandbox::get_best_sandbox($lang, true) === null) {
             $msg = "$lang is not installed on your server. Scenario skipped.";
             throw new SkippedException($msg);
