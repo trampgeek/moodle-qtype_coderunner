@@ -117,6 +117,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#the-twig-student-variable">The Twig STUDENT variable</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-twig-quiz-variable">The Twig QUIZ variable</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#twig-macros-deprecated-may-be-removed-in-future">Twig macros (deprecated - may be removed in future)</a>
     </li>
         </ul>
@@ -241,18 +243,6 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#administrator-scripts">Administrator scripts</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#a-note-on-accessibility">A note on accessibility</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#appendix-1-how-questions-get-marked">APPENDIX 1: How questions get marked</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#when-a-question-is-first-instantiated">When a question is first instantiated.</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#grading-a-submission">Grading a submission</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#appendix-2-how-programming-quizzes-should-work">APPENDIX 2: How programming quizzes should work</a>
-    </li>
     </ul>
                 </li>
               </ul>
@@ -280,7 +270,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="coderunner">CodeRunner</h1>
-<p>Version: 5.7.2+ August 26, 2025. Requires <strong>MOODLE V4.3 or later + PHP &gt;=8.1</strong>. Earlier versions
+<p>Version: 5.7.3 October 11, 2025. Requires <strong>MOODLE V4.3 or later + PHP &gt;=8.1</strong>. Earlier versions
 of Moodle must use CodeRunner V4.</p>
 <p>Authors: Richard Lobb, University of Canterbury, New Zealand.
          Paul McKeown, University of Canterbury, New Zealand.
@@ -1487,7 +1477,7 @@ template parameter field as pure JSON with no preprocessor. The program is given
 command line arguments specifying the random number seed that it must use
 and the various attributes of the student. For example, it should behave as if
 invoked from a Linux command line of the form:</p>
-<pre><code>blah seed=1257134 id=902142 username='amgc001' firstname='Angus' 'lastname=McGurk' email='angus@somewhere.ac'
+<pre><code>blah seed=1257134 id=902142 username='amgc001' firstname='Angus' lastname='McGurk' email='angus@somewhere.ac' quizname='exam2025' quiztags='exam,test'
 </code></pre>
 <p>The command line arguments are</p>
 <ol>
@@ -1498,11 +1488,17 @@ the program <em>must</em> generate the same output when given the same seed.</li
 <li>Student first name (string)</li>
 <li>Student last name (string)</li>
 <li>Student email address (string)</li>
+<li>The quiz name (string)</li>
+<li>The quiz tags (string) - a comma-separated list of normalised tags</li>
 </ol>
+<p>The quizname is present only when a question is running in a quiz. Otherwise, say during validation or preview, it is absent.</p>
+<p>The quiztags parameter is present only when the question is running in a quiz <em>and</em> has a non-empty set of tags.</p>
 <p>The student parameters can be ignored unless you wish to customise a question
 differently for different students in such a way that a given student always gets
 the same version of a question no matter how many times they meet it or attempt it;
 see <a href="#randomising-per-student-rather-than-per-question-attempt"> randomising per-student</a>.</p>
+<p>Likewise the two quiz parameters can be ignored unless you wish to customise the
+question's behaviour according to the quiz and/or its tags.</p>
 <p>Here, for example, is a Python preprocessor program that could be used to
 ask a student to write a function that has 3 variant names to print the
 student's first name:</p>
@@ -1673,6 +1669,15 @@ PHP user object. The fields/attributes of STUDENT are:</p>
 <li><code>STUDENT.lastname</code> The last name of the current user.</li>
 <li><code>STUDENT.email</code> The email address of the current user.</li>
 </ul>
+<h3 id="the-twig-quiz-variable">The Twig QUIZ variable</h3>
+<p>The template variable <code>QUIZ</code> is an object containing information about the
+quiz in which a question is currently running. The fields/attributes of QUIZ are:</p>
+<ul>
+<li><code>QUIZ.name</code> The name of the quiz (a string) or the empty string if the question is not running within a quiz (e.g. during validation or preview).</li>
+<li><code>QUIZ.tags</code> An array of the normalised tags of the current quiz, empty if the question is not running within a quiz.</li>
+</ul>
+<p>If the question is not running within in a quiz, e.g. during question
+validation or preview, the <code>name</code> attributes is the empty string and <code>tags</code> is an empty list.</p>
 <h3 id="twig-macros-deprecated-may-be-removed-in-future">Twig macros (deprecated - may be removed in future)</h3>
 <p>Twig has a <a href="https://twig.symfony.com/doc/1.x/tags/macro.html">macro capability</a>
 that provides something akin to functions in normal programming languages.
@@ -3411,7 +3416,23 @@ include an error message in the stderr field.</p>
 Teachers are able to run the scripts
 only within courses they can normally access; they must be logged into such
 a course before attempting to run the scripts.</p>
-<p>The scripts are:</p>
+<p>The scripts are:
+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:README.md</p>
+<ol>
+<li><code>&amp;lt;moodle_home&amp;gt;/question/type/coderunner/questionbrowserindex.php</code>
+    This script displays a list of all question banks and categories accessible to the
+    currently logged in user.
+    Each course/bank/category is displayed as a clickable link which takes the
+    user to an interactive browser that displays all the CodeRunner questions in
+    the given context. Questions can be filtered to select only those which match
+    a given text string or regular expression either anywhere in the question or
+    in a selected field (question text, answer, tags, etc). Questions can be
+    sorted by name or category. Buttons allow expanding out the question text or
+    its answer, or linking to the actual question in the question bank or a 
+    preview of it. The selected subset of questions can be exported in a
+    custom compressed form as JSON or CSV.</li>
+</ol>
+<h1 id="1-ltmoodle_homegtquestiontypecoderunnerbulktestindexphp">1. <code>&amp;lt;moodle_home&amp;gt;/question/type/coderunner/bulktestindex.php</code></h1>
 <ol>
 <li>
 <p><code>&lt;moodle_home&gt;/question/type/coderunner/questionbrowserindex.php</code>
@@ -3429,12 +3450,29 @@ a course before attempting to run the scripts.</p>
     custom compressed form as JSON or CSV.</p>
 </li>
 <li>
-<p><code>&lt;moodle_home&gt;/question/type/coderunner/bulktestindex.php</code>
+<p><code>&lt;moodle_home&gt;/question/type/coderunner/bulktestindex.php</code></p>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>master:docs/index.md
     This script displays a list of all question banks and categories accessible to the
     user who is currently logged into Moodle on the machine running the script.
     Each course/bank/category is displayed as a clickable link that then runs a script that
     tests the sample answers on all questions in that category, reporting
     all successes and failures.</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
 </li>
 <li>
 <p><code>&lt;moodle_home&gt;/question/type/coderunner/prototypeusageindex.php</code>
@@ -3595,7 +3633,7 @@ def create_question_instance(question):
     question.template_params = merge_json(prototype_params, question.template_params)
 
     if question.twigall:
-        # Twig expand question text, sample answer, answer preload,
+        # Twig expand question text, sample answer, answer preload, penalty_regime,
         # all test case fields and global extra. The just-computed
         # template parameters provide (most of) the twig environment.
         set_twig_environment(question.random_seed,
@@ -3796,5 +3834,5 @@ needs to make on each question.</p>
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-10-25 07:39:38.986630+00:00
+Build Date UTC : 2025-10-29 23:47:09.288373+00:00
 -->
