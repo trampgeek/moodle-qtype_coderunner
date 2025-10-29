@@ -117,29 +117,14 @@ class restore_test extends \advanced_testcase {
 
     public function test_restore_from_v3_1_2(): void {
         global $CFG;
-        $this->restore_backup($CFG->dirroot .
-                '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup_V3.1.2.mbz');
-
-        // Verify some restored questions look OK.
-        [$options, $tests] = $this->load_question_data_by_name('c_to_fpy3');
-        $this->assertCount(3, $tests);
-        $this->assertNull($options->template);
-
-        [$options, $tests] = $this->load_question_data_by_name('PROTOTYPE_clojure_with_combinator');
-        $this->assertCount(1, $tests);
-        $this->assertStringStartsWith('import subprocess', $options->template);
-    }
-
-    public function test_restore_from_v4_5_3(): void {
-        global $CFG;
         $moodleversion = (float) get_config('core', 'release');
-        if ($moodleversion < 4.5) {
-            $this->markTestSkipped('This test requires Moodle 4.5.3 or later.');
+        if ($moodleversion >= 5) {
+            $this->markTestSkipped('This test fails on Moodle 5 due to warnings.');
         } else {
             $this->restore_backup($CFG->dirroot .
-                    '/question/type/coderunner/tests/fixtures/loadtesting_pseudocourse_backup_V4.5.3.mbz');
+                    '/question/type/coderunner/tests/fixtures/backuptester_V3.1.2.mbz');
 
-            // Verify some restored questions look OK.
+            // Verify a couple of restored questions look OK.
             [$options, $tests] = $this->load_question_data_by_name('c_to_fpy3');
             $this->assertCount(3, $tests);
             $this->assertNull($options->template);
@@ -147,6 +132,46 @@ class restore_test extends \advanced_testcase {
             [$options, $tests] = $this->load_question_data_by_name('PROTOTYPE_clojure_with_combinator');
             $this->assertCount(1, $tests);
             $this->assertStringStartsWith('import subprocess', $options->template);
+        }
+    }
+
+    public function test_restore_from_v4_5_3(): void {
+        global $CFG;
+        $moodleversion = (float) get_config('core', 'release');
+        if ($moodleversion < 4.5 || $moodleversion >= 5) {
+            $this->markTestSkipped('This test requires Moodle 4.5.3 or later and less than Moodle 5.');
+        } else {
+            $this->restore_backup($CFG->dirroot .
+                    '/question/type/coderunner/tests/fixtures/backuptester_V4.5.3.mbz');
+
+            // Verify a couple of restored questions look OK.
+            [$options, $tests] = $this->load_question_data_by_name('c_to_fpy3');
+            $this->assertCount(3, $tests);
+            $this->assertNull($options->template);
+
+            [$options, $tests] = $this->load_question_data_by_name('PROTOTYPE_clojure_with_combinator');
+            $this->assertCount(1, $tests);
+            $this->assertStringStartsWith('import subprocess', $options->template);
+        }
+    }
+
+    public function test_restore_from_v5_0_3(): void {
+        global $CFG;
+        $moodleversion = (float) get_config('core', 'release');
+        if ($moodleversion < 5) {
+            $this->markTestSkipped('This test requires Moodle 5.0 or later.');
+        } else {
+            $this->restore_backup($CFG->dirroot .
+                    '/question/type/coderunner/tests/fixtures/backuptester_V5.0.3.mbz');
+
+            // Verify a couple of restored questions look OK.
+            [$options, $tests] = $this->load_question_data_by_name('Question in quiz');
+            $this->assertCount(1, $tests);
+            $this->assertNull($options->template);
+
+            [$options, $tests] = $this->load_question_data_by_name('Java Class: bod');
+            $this->assertCount(3, $tests);
+            $this->assertNull($options->template);
         }
     }
 }

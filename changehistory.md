@@ -8,7 +8,7 @@
  * Add a QUIZ variable to the Twig context with fields QUIZ.name and QUIZ.tags. Allows customising the behaviour
    of CodeRunner questions according to the quiz in which they're running.
  * Extend TwigAll to include penalty regime.
- * Improve resilience of combinator template grader code to bad response from author's template.
+ * Improve resilience of combinator template grader code to bad responses from author's template.
  * Improvements to test suite (issues #266, #267 and #276)
  * Bug fix: when using equality grader, trailing space characters were correctly being removed from
    all lines but the spec said all whitespace characters were being removed. That wasn't true - characters
