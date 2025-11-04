@@ -1,5 +1,12 @@
 # CHANGE HISTORY
 
+### 4 November 2025, 5.8.1
+
+ * New scripts for question bank clean up (deletion of old unused versions) and integrity checking.
+ * Addition of a top-level management.php script that links to other CodeRunner management scripts.
+ * Fix bug in CodeRunner upgrade lib that resulted in the built-in prototypes being invisibly orphaned
+   rather than properly deleted prior to installing the latest versions.
+
 ### 28 October 2025, 5.8.0
 
  * New question browser script moodlehome/question/type/coderunner/questionbrowserindex.php allows easy browsing

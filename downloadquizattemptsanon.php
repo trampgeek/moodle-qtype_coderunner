@@ -19,11 +19,15 @@
  * differs only in that the user name and email are replaced by a single
  * hashed_email field.
  *
+ * This is a wrapper script that sets the ANONYMISE flag and then includes
+ * downloadquizattempts.php, which handles all Moodle initialization and login checks.
+ *
  * @package   qtype_coderunner
  * @copyright 2017 Richard Lobb, The University of Canterbury
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
 
+// @codingStandardsIgnoreStart
 define('ANONYMISE', 1);
 require(__DIR__ . '/downloadquizattempts.php');
+// @codingStandardsIgnoreEnd

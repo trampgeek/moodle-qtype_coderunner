@@ -120,17 +120,17 @@ function update_question_types_internal() {
  */
 function update_question_types_with_qbank() {
     global $DB;
-    mtrace("CodeRunner prototypes set up using qbank");
+    mtrace("CodeRunner prototypes set up using qbank.");
     $topcategory = moodle5_top_category();
     $topcategorycontextid = $topcategory->contextid;
     $oldprototypecategory = get_old_prototype_category();
     if ($oldprototypecategory) {
-        mtrace("CodeRunner is moving old CR_PROTOTYPES category to new qbank category");
+        mtrace("CodeRunner is moving old CR_PROTOTYPES category to new qbank category.");
         $sourcecategoryid = $oldprototypecategory->id;
         question_move_category_to_context($sourcecategoryid, $sourcecategoryid, $topcategorycontextid);
         $DB->set_field('question_categories', 'parent', $topcategory->id, ['parent' => $sourcecategoryid]);
     }
-    mtrace("CodeRunner: replacing existing prototypes with new ones");
+    mtrace("CodeRunner: replacing existing prototypes with new ones.");
     delete_existing_prototypes($topcategorycontextid);
     $prototypescategory = find_or_make_prototype_category($topcategorycontextid, $topcategory->id);
     load_new_prototypes($topcategorycontextid, $prototypescategory);
@@ -142,10 +142,10 @@ function update_question_types_with_qbank() {
  * @return bool true if successful
  */
 function update_question_types_legacy() {
-    mtrace("CodeRunner prototypes set up in system context");
+    mtrace("CodeRunner prototypes set up in system context.");
     $systemcontext = context_system::instance();
     $systemcontextid = $systemcontext->id;
-    mtrace("CodeRunner: replacing existing prototypes with new ones");
+    mtrace("CodeRunner: replacing existing prototypes with new ones.");
     delete_existing_prototypes($systemcontextid);
     if (function_exists('question_get_top_category')) { // Moodle version >= 3.5.
         $parentid = get_top_id($systemcontextid);
@@ -186,6 +186,55 @@ function get_old_prototype_category() {
 }
 
 /**
+ * Get the existing system question bank instance for Moodle 4.6+.
+ * This is a helper function to avoid duplicating the qbank lookup logic.
+ *
+ * @return object|null The question bank module instance, or null if not found/applicable
+ */
+function get_system_question_bank() {
+    if (!qtype_coderunner_util::using_mod_qbank()) {
+        return null;
+    }
+    try {
+        $course = get_site();
+        return question_bank_helper::get_default_open_instance_system_type($course);
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
+/**
+ * Get the context ID where CodeRunner prototypes are stored.
+ * For Moodle 4.6+: Returns the front-page question bank context ID (if it exists)
+ * For Moodle <4.6: Returns the system context ID (if CR_PROTOTYPES category exists)
+ *
+ * @return int|null The context ID, or null if prototypes context doesn't exist yet
+ */
+function get_prototype_contextid() {
+    global $DB;
+
+    if (qtype_coderunner_util::using_mod_qbank()) {
+        // Moodle 4.6+ - prototypes are in front-page question bank.
+        $qbank = get_system_question_bank();
+        if ($qbank && $qbank->context) {
+            return $qbank->context->id;
+        }
+    } else {
+        // Moodle <4.6 - prototypes are in system context.
+        $systemcontext = context_system::instance();
+        // Verify CR_PROTOTYPES category exists in system context.
+        $prototypecat = $DB->get_record('question_categories', [
+            'contextid' => $systemcontext->id,
+            'name' => 'CR_PROTOTYPES',
+        ]);
+        if ($prototypecat) {
+            return $systemcontext->id;
+        }
+    }
+    return null;
+}
+
+/**
  * If we're on Moodle 4.6 or later we can't use the
  * old system of storing prototypes in a category in the system context. Instead
  * we need to create a new question bank in the front-page course and within that
@@ -198,9 +247,9 @@ function moodle5_top_category() {
     $course = get_site();
     $bankname = get_string('systembank', 'question');
     try {
-        $newmod = question_bank_helper::get_default_open_instance_system_type($course);
+        $newmod = get_system_question_bank();
         if (!$newmod) {
-            mtrace('CodeRunner: creating new system question bank');
+            mtrace('CodeRunner: creating new system question bank.');
             $newmod = question_bank_helper::create_default_open_instance($course, $bankname, question_bank_helper::TYPE_SYSTEM);
         }
     } catch (Exception $e) {
@@ -233,8 +282,10 @@ function delete_existing_prototypes($contextid) {
     }
 
     // Clean up any orphaned version records from previous upgrades that used
-    // the old direct deletion method. Only clean up records that were originally
-    // BUILTIN_PROTOTYPE questions by checking the naming pattern.
+    // the old direct deletion method. These orphaned versions are guaranteed to be
+    // from BUILTIN prototypes because the old buggy code only deleted questions with
+    // names matching 'BUILTIN_PROTOTYPE_%', so user-defined prototypes were never
+    // deleted and thus have no orphaned version records.
     $orphanedversions = $DB->get_records_sql(
         "SELECT DISTINCT qv.id
            FROM {question_versions} qv
@@ -243,18 +294,12 @@ function delete_existing_prototypes($contextid) {
       LEFT JOIN {question} q ON q.id = qv.questionid
           WHERE qc.contextid = ?
             AND qc.name = 'CR_PROTOTYPES'
-            AND q.id IS NULL
-            AND EXISTS (
-                SELECT 1 FROM {question_versions} qv2
-                JOIN {question} q2 ON q2.id = qv2.questionid
-                WHERE qv2.questionbankentryid = qbe.id
-                AND q2.name LIKE 'BUILT%IN_PROTOTYPE_%'
-            )",
+            AND q.id IS NULL",
         [$contextid]
     );
 
     if (!empty($orphanedversions)) {
-        mtrace("  Cleaning up " . count($orphanedversions) . " orphaned prototype version records");
+        mtrace("  Cleaning up " . count($orphanedversions) . " orphaned prototype version records.");
         foreach ($orphanedversions as $versionrecord) {
             $DB->delete_records('question_versions', ['id' => $versionrecord->id]);
         }
@@ -274,7 +319,7 @@ function delete_existing_prototypes($contextid) {
     );
 
     if (!empty($orphanedentries)) {
-        mtrace("  Cleaning up " . count($orphanedentries) . " orphaned prototype bank entries");
+        mtrace("  Cleaning up " . count($orphanedentries) . " orphaned prototype bank entries.");
         foreach ($orphanedentries as $entryrecord) {
             $DB->delete_records('question_bank_entries', ['id' => $entryrecord->id]);
         }

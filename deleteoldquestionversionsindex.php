@@ -33,6 +33,7 @@ use qtype_coderunner_util;
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once(__DIR__ . '/classes/bulk_tester.php');
+require_once(__DIR__ . '/db/upgradelib.php');
 
 // We are Moodle 4 or less if don't have mod_qbank.
 $oldskool = !(qtype_coderunner_util::using_mod_qbank());
@@ -168,7 +169,6 @@ $PAGE->set_heading('Delete Old Question Versions');
 // Display.
 echo $OUTPUT->header();
 
-echo html_writer::tag('h3', 'Delete Old Question Versions');
 echo html_writer::tag(
     'p',
     'This tool deletes all old versions of questions, keeping only the most recent version of each question. ' .
@@ -187,26 +187,37 @@ echo 'If a deletion was interrupted (e.g., due to timeout), you may have orphane
 echo 'Use the integrity checker links below (next to each context) to find and fix any issues.';
 echo html_writer::end_tag('div');
 
-echo html_writer::start_tag('div', ['class' => 'alert alert-warning']);
-echo html_writer::tag('strong', '⚠ Important: ');
-$verifyurl = new moodle_url('/question/type/coderunner/verifyprototypes.php');
-echo 'Before using the integrity checker, ';
-echo html_writer::link($verifyurl, 'verify your CodeRunner prototypes', ['style' => 'font-weight: bold;']);
-echo ' to ensure they were not affected by any interrupted operations.';
-echo html_writer::end_tag('div');
-
 echo html_writer::tag(
     'p',
     'Select a context below. Use <strong>Dry Run</strong> to preview what would be deleted, ' .
     'or <strong>Delete Old Versions</strong> to perform the actual deletion.'
 );
 
+// Check if system prototypes context exists and user has permission.
+$prototypecontextid = get_prototype_contextid();
+$showprototypes = false;
+if ($prototypecontextid && has_capability('moodle/question:editall', \context::instance_by_id($prototypecontextid))) {
+    $showprototypes = true;
+}
+
+// Display system prototypes context first if it exists.
+if ($showprototypes) {
+    echo html_writer::tag('h4', 'System Prototypes');
+    echo html_writer::start_tag('ul');
+    $prototypelabel = $oldskool
+        ? 'System Context - CR_PROTOTYPES (Built-in CodeRunner Prototypes)'
+        : 'Front Page Question Bank - CR_PROTOTYPES (Built-in CodeRunner Prototypes)';
+    display_context_with_buttons($prototypecontextid, $prototypelabel, 0);
+    echo html_writer::end_tag('ul');
+    echo html_writer::tag('br', '');
+}
+
 // Find questions from contexts which the user can edit questions in.
 $availablequestionsbycontext = bulk_tester::get_num_available_coderunner_questions_by_context();
 
-if (count($availablequestionsbycontext) == 0) {
+if (count($availablequestionsbycontext) == 0 && !$showprototypes) {
     echo html_writer::tag('p', 'You do not have permission to edit questions in any contexts.');
-} else {
+} else if (count($availablequestionsbycontext) > 0) {
     if ($oldskool) {
         // Moodle 4 style.
         echo html_writer::tag('h4', 'Available Contexts (' . count($availablequestionsbycontext) . ')');
@@ -216,6 +227,7 @@ if (count($availablequestionsbycontext) == 0) {
         );
     } else {
         // Deal with funky question bank madness in Moodle 5.0.
+        echo html_writer::tag('h4', 'Course Contexts');
         echo html_writer::tag('p', "Moodle >= 5.0 detected. Listing by course then question bank.");
         qtype_coderunner_util::display_course_grouped_contexts(
             $availablequestionsbycontext,
@@ -237,6 +249,10 @@ echo <<<HTML
 .deleteversions.context.quiz {
     border-left-color: #004085;
     background-color: #cce5ff;
+}
+.deleteversions.context.normal {
+    border-left-color: #856404;
+    background-color: #fff3cd;
 }
 .deleteversions.context:hover {
     background-color: #ffeaa7;
