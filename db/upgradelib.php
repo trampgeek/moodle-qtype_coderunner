@@ -227,8 +227,57 @@ function delete_existing_prototypes($contextid) {
               AND q.name LIKE 'BUILT%IN_PROTOTYPE_%'";
     $prototypes = $DB->get_records_sql($query, [$contextid]);
     foreach ($prototypes as $question) {
-        $DB->delete_records('question_coderunner_options', ['questionid' => $question->id]);
-        $DB->delete_records('question', ['id' => $question->id]);
+        // Use Moodle's proper question deletion API which handles all related tables
+        // including question_versions, question_bank_entries, and other dependencies.
+        question_delete_question($question->id);
+    }
+
+    // Clean up any orphaned version records from previous upgrades that used
+    // the old direct deletion method. Only clean up records that were originally
+    // BUILTIN_PROTOTYPE questions by checking the naming pattern.
+    $orphanedversions = $DB->get_records_sql(
+        "SELECT DISTINCT qv.id
+           FROM {question_versions} qv
+           JOIN {question_bank_entries} qbe ON qbe.id = qv.questionbankentryid
+           JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+      LEFT JOIN {question} q ON q.id = qv.questionid
+          WHERE qc.contextid = ?
+            AND qc.name = 'CR_PROTOTYPES'
+            AND q.id IS NULL
+            AND EXISTS (
+                SELECT 1 FROM {question_versions} qv2
+                JOIN {question} q2 ON q2.id = qv2.questionid
+                WHERE qv2.questionbankentryid = qbe.id
+                AND q2.name LIKE 'BUILT%IN_PROTOTYPE_%'
+            )",
+        [$contextid]
+    );
+
+    if (!empty($orphanedversions)) {
+        mtrace("  Cleaning up " . count($orphanedversions) . " orphaned prototype version records");
+        foreach ($orphanedversions as $versionrecord) {
+            $DB->delete_records('question_versions', ['id' => $versionrecord->id]);
+        }
+    }
+
+    // Clean up any orphaned bank entries that have no versions left and were
+    // originally for prototypes.
+    $orphanedentries = $DB->get_records_sql(
+        "SELECT DISTINCT qbe.id
+           FROM {question_bank_entries} qbe
+           JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+      LEFT JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
+          WHERE qc.contextid = ?
+            AND qc.name = 'CR_PROTOTYPES'
+            AND qv.id IS NULL",
+        [$contextid]
+    );
+
+    if (!empty($orphanedentries)) {
+        mtrace("  Cleaning up " . count($orphanedentries) . " orphaned prototype bank entries");
+        foreach ($orphanedentries as $entryrecord) {
+            $DB->delete_records('question_bank_entries', ['id' => $entryrecord->id]);
+        }
     }
 }
 
