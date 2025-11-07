@@ -54,4 +54,3 @@ Feature: Check the QUIZ Twig variable allows access to the current quiz name and
     And I am on the "Test quiz" "quiz activity" page logged in as student1
     And I press "Attempt quiz"
     Then I should see "Quiz is Test quiz, tags are [\"one\",\"two\"]"
-

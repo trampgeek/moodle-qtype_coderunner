@@ -26,7 +26,7 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
       | contextlevel    | reference | name           |
       | Activity module | quiz1     | Test questions |
 
-Scenario: if evaluate per student is true, both teacher and student should be able to answer with their own names
+  Scenario: if evaluate per student is true, both teacher and student should be able to answer with their own names
     When I am on the "Quiz 1" "mod_quiz > Edit" page logged in as "teacher1"
     And I disable UI plugins in the CodeRunner question type
     And I open the "last" add to quiz menu
@@ -74,7 +74,7 @@ Scenario: if evaluate per student is true, both teacher and student should be ab
     Then I should see "Write a program that prints True if seed parameter provided, then Student First O'Connell"
     And I should see "Passed all tests"
 
-Scenario: if evaluate per student is unchecked, the teacher's name is displayed not the student's.
+  Scenario: if evaluate per student is unchecked, the teacher's name is displayed not the student's.
     When I am on the "Quiz 1" "mod_quiz > Edit" page logged in as "teacher1"
     And I disable UI plugins in the CodeRunner question type
     And I open the "last" add to quiz menu
