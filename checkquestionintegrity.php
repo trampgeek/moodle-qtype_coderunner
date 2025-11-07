@@ -75,6 +75,12 @@ $PAGE->set_url('/question/type/coderunner/checkquestionintegrity.php', ['context
 $PAGE->set_context($context);
 $PAGE->set_title('Question Database Integrity Check');
 
+// Handle Moodle 5.x question bank module contexts.
+if ($context->contextlevel == CONTEXT_MODULE) {
+    $cm = get_coursemodule_from_id(false, $context->instanceid, 0, false, MUST_EXIST);
+    $PAGE->set_cm($cm, $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST));
+}
+
 echo $OUTPUT->header();
 
 echo html_writer::tag('h3', 'Question Database Integrity Check');
@@ -155,7 +161,7 @@ function delete_orphaned_versions($versionids) {
         return 0;
     }
 
-    list($insql, $params) = $DB->get_in_or_equal($versionids, SQL_PARAMS_NAMED);
+    [$insql, $params] = $DB->get_in_or_equal($versionids, SQL_PARAMS_NAMED);
     $DB->delete_records_select('question_versions', "id $insql", $params);
 
     return count($versionids);
@@ -174,7 +180,7 @@ function delete_empty_entries($entryids) {
         return 0;
     }
 
-    list($insql, $params) = $DB->get_in_or_equal($entryids, SQL_PARAMS_NAMED);
+    [$insql, $params] = $DB->get_in_or_equal($entryids, SQL_PARAMS_NAMED);
     $DB->delete_records_select('question_bank_entries', "id $insql", $params);
 
     return count($entryids);
