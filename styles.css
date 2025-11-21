@@ -7,6 +7,11 @@
     box-sizing: border-box;
 }
 
+#page-question-type-coderunner table,
+.que.coderunner table {
+    width:auto;
+}
+
 #page-question-type-coderunner table.coderunner-test-results td,
 #page-question-type-coderunner table.coderunner-test-results th,
 .que.coderunner table.coderunner-test-results td,

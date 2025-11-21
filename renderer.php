@@ -379,7 +379,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $testresults = $outcome->get_test_results($question);
         if (is_array($testresults) && count($testresults) > 1) {
             $table = new html_table();
-            $table->attributes['class'] = 'coderunner-test-results';
+            $table->attributes['class'] = 'table coderunner-test-results';
             $headers = $testresults[0];
             foreach ($headers as $header) {
                 if (strtolower($header) != 'ishidden') {
@@ -720,7 +720,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
      */
     private function format_examples($examples, $resultcolumns) {
         $table = new html_table();
-        $table->attributes['class'] = 'coderunnerexamples';
+        $table->attributes['class'] = 'table coderunnerexamples';
 
         // Record counts of non-empty cells in each column so empty columns are suppressed.
         // But always show the 'expected' column (renaming it to 'result').
