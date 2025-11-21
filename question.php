@@ -353,6 +353,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         if ($prototype !== null && !is_array($prototype) &&  $this->prototypetype == 0) {
             // Merge with prototype parameters (unless this is a prototype or prototype is missing/multiple).
             $prototype->student = $this->student; // Supply this missing attribute.
+            $prototype->quiz = $this->quiz; // And this one.
             $prototypeparamsjson = $prototype->template_params_json($seed, $step, '_prototype__template_params');
             $paramsjson = qtype_coderunner_util::merge_json($prototypeparamsjson, $paramsjson);
         }
