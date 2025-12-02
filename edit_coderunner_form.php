@@ -1784,7 +1784,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
             try {
                 $qfromdb = question_bank::load_question($q->id);
                 $qfromdb->student = new qtype_coderunner_student($USER);
-                $seed = 1;
+
+                // Tricky bug fix follows. Using a fixed seed for the random
+                // number generator, and subsequently setting it with a call to
+                // mt_srand, could result in Moodle allocating the same draftitemid
+                // to two different file pickers in two simultaneously
+                // open questions. It's a Moodle core bug, but circumvented
+                // by never using a fixed seed in CodeRunner.
+                $seed = mt_rand(); // Don't care about randomisation here.
                 $qfromdb->evaluate_question_for_display($seed, null);
                 if ($qfromdb->mergeduiparameters) {
                     $json = json_encode($qfromdb->mergeduiparameters);
