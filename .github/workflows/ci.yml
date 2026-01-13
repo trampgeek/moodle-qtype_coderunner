@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - php: '8.3'
+          - php: '8.4'
             moodle-branch: 'MOODLE_500_STABLE'
             database: 'mariadb'
           - php: '8.3'
