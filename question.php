@@ -235,7 +235,7 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @param int $varant which variant of this question to start. Will be between
      *      1 and {@link get_num_variants()} inclusive.
      */
-    public function start_attempt(question_attempt_step $step = null, $variant = null) {
+    public function start_attempt(?question_attempt_step $step = null, $variant = null) {
         global $DB, $USER;
 
         $this->quiz = new qtype_coderunner_quiz(); // Will be meaningless if not running in a quiz.
