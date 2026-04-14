@@ -3419,7 +3419,6 @@ a course before attempting to run the scripts.
 The scripts are:
 
  1. *question browser*
-    [Coming soon to the Master branch]
     This script displays a list of all question banks and categories accessible to the
     currently logged in user.
     Each course/bank/category is displayed as a clickable link which takes the
