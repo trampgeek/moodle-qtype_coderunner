@@ -64,10 +64,9 @@ $courseid     = optional_param('courseid', 0, PARAM_INT);
 $quizid       = optional_param('quizid', 0, PARAM_INT);     // Quiz instance id.
 $studentid    = optional_param('studentid', 0, PARAM_INT);     // For trajectory mode.
 $gapminutes   = optional_param('gapminutes', 30, PARAM_INT);
+$attemptnum   = optional_param('attemptnum', 1, PARAM_INT);  // 1=first, -1=last, 0=best, n=nth attempt.
 $debug        = optional_param('debug', 0, PARAM_INT);     // 1 = dump raw step data.
 
-$starttime = 0;
-$endtime   = PHP_INT_MAX;
 $gapseconds = max(1, $gapminutes) * 60;
 
 // Helper: courses the current user may report on.
@@ -132,6 +131,61 @@ function get_enrolled_students($courseid) {
              WHERE u.deleted = 0
           ORDER BY u.lastname ASC, u.firstname ASC";
     return $DB->get_records_sql($sql, ['ctxlevel' => CONTEXT_COURSE, 'courseid' => $courseid]);
+}
+
+// Helper: return the highest attempt number taken by any student in a quiz.
+function get_quiz_max_attempts($quizid) {
+    global $DB;
+    return (int)$DB->get_field_sql(
+        "SELECT COALESCE(MAX(attempt), 1) FROM {quiz_attempts} WHERE quiz = :quizid",
+        ['quizid' => $quizid]
+    );
+}
+
+// Helper: return one quiz_attempts row for a student according to $attemptnum.
+// n > 0 = attempt number n exactly; -1 = last attempt; 0 = best (highest sumgrades).
+// Returns null if no matching attempt exists.
+function get_student_attempt($userid, $quizid, $attemptnum) {
+    global $DB;
+    if ($attemptnum > 0) {
+        $row = $DB->get_record(
+            'quiz_attempts',
+            ['quiz' => $quizid, 'userid' => $userid, 'attempt' => $attemptnum]
+        );
+        return $row ?: null;
+    }
+    if ($attemptnum === -1) {
+        $rows = $DB->get_records_sql(
+            "SELECT * FROM {quiz_attempts} WHERE quiz = :quizid AND userid = :userid
+             ORDER BY attempt DESC",
+            ['quizid' => $quizid, 'userid' => $userid],
+            0,
+            1
+        );
+    } else {
+        // Best attempt: highest sumgrades, ties broken by earliest attempt.
+        $rows = $DB->get_records_sql(
+            "SELECT * FROM {quiz_attempts} WHERE quiz = :quizid AND userid = :userid
+             ORDER BY sumgrades DESC, attempt ASC",
+            ['quizid' => $quizid, 'userid' => $userid],
+            0,
+            1
+        );
+    }
+    return $rows ? reset($rows) : null;
+}
+
+// Helper: human-readable label for an attempt number parameter.
+function attempt_label($attemptnum) {
+    if ($attemptnum === 0) {
+        return 'Best attempt';
+    }
+    if ($attemptnum === -1) {
+        return 'Last attempt';
+    }
+    $suffixes = [1 => 'st', 2 => 'nd', 3 => 'rd'];
+    $suffix = $suffixes[$attemptnum] ?? 'th';
+    return $attemptnum . $suffix . ' attempt';
 }
 
 // Helper: questions in a quiz, in slot order
@@ -266,19 +320,22 @@ function raw_to_cum($rawt, $firstraw, $gaps) {
 
 // Core: analyse one student's attempt on a quiz.
 //
+// $attempt is the quiz_attempts row to analyse (as returned by get_student_attempt).
+//
 // Returns an object with:
-// ->questions   : array indexed by slot (1-based) of objects:
-// slot, questionid, maxmark, bestmark, best_cum (seconds),
-// time_on_q (seconds, or null if never scored)
+// ->questions  : array indexed by slot (1-based); each object has slot, qnum,
+// maxmark, bestmark, best_cum (seconds), time_on_q (seconds, or null if unscored)
 // ->tstart      : cumulative time of quiz attempt start (seconds)
-// ->trajectory  : array of {cum_minutes, cummarks, qlabel} sorted by cum,
-// representing each mark-change event
+// ->trajectory  : array of {cum_minutes, cummarks, qlabel} sorted by cum
 // ->gaps        : array of gap intervals, each with rawstart, rawend, cumstart
 // ->firstraw    : raw Unix timestamp of the first log event
 //
 // Returns null if the student has no log events in the quiz context.
-function analyse_student($userid, $quizid, $cmid, $questions, $starttime, $endtime, $gapseconds) {
+function analyse_student($userid, $quizid, $cmid, $questions, $attempt, $gapseconds) {
     global $DB;
+
+    $starttime = (int)$attempt->timestart;
+    $endtime   = ($attempt->timefinish > 0) ? (int)$attempt->timefinish : PHP_INT_MAX;
 
     // Get the module context id for the quiz.
     $modcontext = context_module::instance($cmid);
@@ -286,35 +343,23 @@ function analyse_student($userid, $quizid, $cmid, $questions, $starttime, $endti
     // Scan log events to find idle gaps; the returned $firstraw anchors all
     // cumulative-time calculations.
     $gaps     = [];
-    $firstraw = build_gap_intervals($userid, $modcontext->id, $starttime, $endtime, $gapseconds, $gaps);
+    $firstraw = build_gap_intervals(
+        $userid,
+        $modcontext->id,
+        $starttime,
+        $endtime,
+        $gapseconds,
+        $gaps
+    );
 
     if ($firstraw === null) {
         return null;
     }
 
-    // T_start: use the earliest 'started' quiz attempt event in the log if
-    // available, otherwise fall back to the first log event in the quiz context.
-    $startraw = $DB->get_field_sql(
-        "SELECT MIN(timecreated)
-           FROM {logstore_standard_log}
-          WHERE userid    = :userid
-            AND contextid = :contextid
-            AND component = 'mod_quiz'
-            AND action    = 'started'
-            AND timecreated >= :starttime
-            AND timecreated <= :endtime",
-        ['userid' => $userid, 'contextid' => $modcontext->id,
-         'starttime' => $starttime, 'endtime' => $endtime]
-    );
-    if ($startraw) {
-        $tstart = raw_to_cum((int)$startraw, $firstraw, $gaps) ?? 0.0;
-    } else {
-        $tstart = 0.0; // First log event is time zero by construction.
-    }
+    // T_start: the attempt's recorded start time, converted to cumulative seconds.
+    $tstart = raw_to_cum($starttime, $firstraw, $gaps) ?? 0.0;
 
-    // Fetch all question_attempt_step rows for this student/quiz, across all
-    // their attempts (we take the best mark per question across all attempts).
-    // We join through quiz_attempts to scope to this quiz.
+    // Fetch all question_attempt_step rows for this specific quiz attempt.
     $sql = "SELECT qas.id,
                    qas.questionattemptid,
                    qas.timecreated,
@@ -323,19 +368,15 @@ function analyse_student($userid, $quizid, $cmid, $questions, $starttime, $endti
                    qa.maxmark
               FROM {question_attempt_steps} qas
               JOIN {question_attempts} qa ON qa.id = qas.questionattemptid
-              JOIN {quiz_attempts} quiza ON quiza.uniqueid = qa.questionusageid
-             WHERE quiza.quiz   = :quizid
-               AND quiza.userid = :userid
+             WHERE qa.questionusageid = :uniqueid
                AND qas.fraction IS NOT NULL
           ORDER BY qas.timecreated ASC";
 
-    $steps = $DB->get_records_sql($sql, ['quizid' => $quizid, 'userid' => $userid]);
+    $steps = $DB->get_records_sql($sql, ['uniqueid' => $attempt->uniqueid]);
     $rawsteps = $steps; // Keep a copy for debug output.
 
     // Build a map from question_attempt.id -> slot using the canonical slot
-    // numbers from quiz_slots (via $questions), to avoid any off-by-one
-    // discrepancy between quiz_slots.slot and question_attempts.slot.
-    // We key by questionattemptid so each step can be looked up directly.
+    // numbers from quiz_slots, to avoid any off-by-one discrepancy.
     $qaidtoslot = [];
     $slotbest = [];
     foreach ($questions as $q) {
@@ -346,15 +387,13 @@ function analyse_student($userid, $quizid, $cmid, $questions, $starttime, $endti
             'maxmark'  => (float)$q->maxmark,
         ];
     }
-    // Fetch the mapping from question_attempt id -> quiz_slots.slot for this quiz/user.
+    // Fetch the mapping from question_attempt id -> quiz_slots.slot for this attempt.
     $qaidrows = $DB->get_records_sql(
         "SELECT qa.id AS qaid, qs.slot
            FROM {question_attempts} qa
-           JOIN {quiz_attempts} quiza ON quiza.uniqueid = qa.questionusageid
-           JOIN {quiz_slots} qs ON qs.quizid = quiza.quiz AND qs.slot = qa.slot
-          WHERE quiza.quiz   = :quizid
-            AND quiza.userid = :userid",
-        ['quizid' => $quizid, 'userid' => $userid]
+           JOIN {quiz_slots} qs ON qs.quizid = :quizid AND qs.slot = qa.slot
+          WHERE qa.questionusageid = :uniqueid",
+        ['quizid' => $quizid, 'uniqueid' => $attempt->uniqueid]
     );
     foreach ($qaidrows as $row) {
         $qaidtoslot[(int)$row->qaid] = (int)$row->slot;
@@ -472,7 +511,10 @@ if ($mode === 'trajectory' && $quizid && $studentid && $quizcmid) {
     $student = $DB->get_record('user', ['id' => $studentid], 'id,firstname,lastname', MUST_EXIST);
     $quiz    = $DB->get_record('quiz', ['id' => $quizid], 'id,name', MUST_EXIST);
 
-    $data = analyse_student($studentid, $quizid, $quizcmid, $questions, $starttime, $endtime, $gapseconds);
+    $attempt = get_student_attempt($studentid, $quizid, $attemptnum);
+    $data    = $attempt
+        ? analyse_student($studentid, $quizid, $quizcmid, $questions, $attempt, $gapseconds)
+        : null;
 
     echo $OUTPUT->header();
 
@@ -481,12 +523,18 @@ if ($mode === 'trajectory' && $quizid && $studentid && $quizcmid) {
         'courseid'   => $courseid,
         'quizid'     => $quizid,
         'gapminutes' => $gapminutes,
+        'attemptnum' => $attemptnum,
     ]);
     echo html_writer::tag('p', html_writer::link($backurl, '&larr; Back to summary table'));
-    echo html_writer::tag('h2', 'Mark trajectory: ' . s(fullname($student)) . ' &mdash; ' . s($quiz->name));
+    $heading = 'Mark trajectory: ' . s(fullname($student)) . ' &mdash; ' . s($quiz->name) .
+        ' (' . attempt_label($attemptnum) . ')';
+    echo html_writer::tag('h2', $heading);
 
     if (!$data || count($data->trajectory) <= 1) {
-        echo $OUTPUT->notification('No mark data found for this student in the selected date range.', 'notifymessage');
+        $msg = $attempt
+            ? 'No mark data found for this student for the selected attempt.'
+            : 'No ' . attempt_label($attemptnum) . ' found for this student.';
+        echo $OUTPUT->notification($msg, 'notifymessage');
         echo $OUTPUT->footer();
         exit;
     }
@@ -717,6 +765,27 @@ if ($courseid) {
     echo html_writer::end_tag('tr');
 }
 
+// Attempt selector (only once quiz chosen).
+if ($quizid) {
+    $maxattempts = get_quiz_max_attempts($quizid);
+    $attemptopts = [];
+    for ($n = 1; $n <= $maxattempts; $n++) {
+        $attemptopts[$n] = attempt_label($n);
+    }
+    $attemptopts[-1] = 'Last attempt';
+    $attemptopts[0]  = 'Best attempt';
+    echo html_writer::start_tag('tr');
+    echo html_writer::tag('td', html_writer::tag('label', 'Attempt:', ['for' => 'id_attemptnum']));
+    echo html_writer::tag('td', html_writer::select(
+        $attemptopts,
+        'attemptnum',
+        $attemptnum,
+        false,
+        ['id' => 'id_attemptnum']
+    ));
+    echo html_writer::end_tag('tr');
+}
+
 // Gap threshold.
 echo html_writer::start_tag('tr');
 echo html_writer::tag('td', html_writer::tag('label', 'Idle-gap threshold (minutes):', ['for' => 'gapminutes']));
@@ -752,9 +821,10 @@ document.addEventListener("DOMContentLoaded", function() {
 if ($courseid && $quizid && $quizcmid) {
     $quiz = $DB->get_record('quiz', ['id' => $quizid], 'id,name', MUST_EXIST);
     echo html_writer::tag(
-        'p',
-        "Quiz: <strong>" . s($quiz->name) . "</strong> &mdash; " .
-        "idle gap: <strong>{$gapminutes} min</strong>"
+        'h3',
+        s($quiz->name) . ' &mdash; ' . attempt_label($attemptnum) .
+        ' &mdash; idle gap: ' . $gapminutes . ' min',
+        ['style' => 'margin-top: 2em']
     );
 
     if (empty($questions)) {
@@ -775,7 +845,10 @@ if ($courseid && $quizid && $quizcmid) {
     $colcounts = array_fill(0, $nquestions, 0);
 
     foreach ($students as $uid => $student) {
-        $data = analyse_student($uid, $quizid, $quizcmid, $questions, $starttime, $endtime, $gapseconds);
+        $attempt = get_student_attempt($uid, $quizid, $attemptnum);
+        $data = $attempt
+            ? analyse_student($uid, $quizid, $quizcmid, $questions, $attempt, $gapseconds)
+            : null;
         $alldata[$uid] = $data;
         if ($data) {
             $i = 0;
@@ -790,12 +863,19 @@ if ($courseid && $quizid && $quizcmid) {
         }
     }
 
+    // Attempt counts per student (for display in the name column).
+    $attemptcounts = $DB->get_records_sql_menu(
+        "SELECT userid, COUNT(*) FROM {quiz_attempts} WHERE quiz = :quizid GROUP BY userid",
+        ['quizid' => $quizid]
+    );
+
     // Base URL for trajectory links.
     $trajbase = new moodle_url('/question/type/coderunner/scripts/quiztrajectory.php', [
         'mode'       => 'trajectory',
         'courseid'   => $courseid,
         'quizid'     => $quizid,
         'gapminutes' => $gapminutes,
+        'attemptnum' => $attemptnum,
     ]);
 
     // Sticky header + sticky first column.
@@ -843,9 +923,11 @@ if ($courseid && $quizid && $quizcmid) {
 
     foreach ($students as $uid => $student) {
         $data = $alldata[$uid];
+        $n = (int)($attemptcounts[$uid] ?? 0);
+        $attemptstr = $n > 0 ? ' (' . $n . ' ' . ($n === 1 ? 'attempt' : 'attempts') . ')' : '';
         $name = s($student->lastname . ', ' . $student->firstname);
         $trajurl = new moodle_url($trajbase, ['studentid' => $uid]);
-        $namelink = html_writer::link($trajurl, $name);
+        $namelink = html_writer::link($trajurl, $name) . html_writer::tag('small', $attemptstr);
 
         $row   = [$namelink];
         $total = 0.0;
@@ -948,6 +1030,7 @@ if ($courseid && $quizid && $quizcmid) {
         'courseid'    => $courseid,
         'quizid'      => $quizid,
         'gapminutes'  => $gapminutes,
+        'attemptnum'  => $attemptnum,
         'csvdownload' => 1,
     ]);
     echo html_writer::tag(
@@ -955,6 +1038,11 @@ if ($courseid && $quizid && $quizcmid) {
         html_writer::link($csvurl, 'Download as CSV', ['class' => 'btn btn-sm btn-secondary'])
     );
 
+    echo html_writer::tag(
+        'p',
+        'Times are cumulative active minutes spent on each question. ' .
+        'Click a student\'s name to view their mark trajectory.'
+    );
     echo html_writer::table($table);
 }
 
