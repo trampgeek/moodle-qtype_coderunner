@@ -489,6 +489,24 @@ function analyse_student($userid, $quizid, $cmid, $questions, $attempt, $gapseco
         ];
     }
 
+    // Extend the trajectory to the quiz finish time so the graph doesn't cut
+    // off at the last correct submission.  The final point has no label so no
+    // marker is drawn; the stepped line simply continues horizontally to the end.
+    if ($attempt->timefinish > 0) {
+        $endcum = raw_to_cum((int)$attempt->timefinish, $firstraw, $gaps);
+        if ($endcum !== null) {
+            $endmins = round(($endcum - $tstart) / 60, 4);
+            $lastpt  = end($result->trajectory);
+            if ($endmins > $lastpt->cum_minutes) {
+                $result->trajectory[] = (object)[
+                    'cum_minutes' => $endmins,
+                    'cummarks'    => round($cummarks, 4),
+                    'qlabel'      => '',
+                ];
+            }
+        }
+    }
+
     return $result;
 }
 
