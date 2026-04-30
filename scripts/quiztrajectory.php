@@ -372,8 +372,11 @@ function analyse_student($userid, $quizid, $cmid, $questions, $attempt, $gapseco
                AND qas.fraction IS NOT NULL
           ORDER BY qas.timecreated ASC";
 
-    $steps = $DB->get_records_sql($sql, ['uniqueid' => $attempt->uniqueid]);
-    $rawsteps = $steps; // Keep a copy for debug output.
+    $rawsteps = $DB->get_records_sql($sql, ['uniqueid' => $attempt->uniqueid]); // Keep a copy for debug output.
+    // Discard steps created after the attempt closed (e.g. teacher mark overrides).
+    $steps = ($attempt->timefinish > 0)
+        ? array_filter($rawsteps, fn($s) => (int)$s->timecreated <= (int)$attempt->timefinish)
+        : $rawsteps;
 
     // Build a map from question_attempt.id -> slot using the canonical slot
     // numbers from quiz_slots, to avoid any off-by-one discrepancy.
