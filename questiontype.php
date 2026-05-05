@@ -620,7 +620,8 @@ class qtype_coderunner extends question_type {
                 $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$courseid], [], $allcaps);
                 $privatebanks = question_bank_helper::get_activity_instances_with_private_questions([$courseid], [], $allcaps);
                 foreach (array_merge($sharedbanks, $privatebanks) as $bank) {
-                    $contextids[] = $bank->contextid;
+                    // Moodle < 5.2 returns stdClass with contextid; 5.2+ returns formatted_bank with cminfo.
+                    $contextids[] = $bank->contextid ?? $bank->cminfo->context->id;
                 }
             }
         } else {
