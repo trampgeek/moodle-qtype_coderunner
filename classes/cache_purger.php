@@ -235,7 +235,7 @@ class cache_purger {
             $allbanks = array_merge($sharedbanks, $privatebanks);
             if (count($allbanks) > 0) {
                 foreach ($allbanks as $bank) {
-                    $contextid = $bank->contextid;
+                    $contextid = $bank->contextid ?? $bank->cminfo->context->id;  // Need difft code for Moodle 5.2+
                     $contextidtocoursecontextid[$contextid] = $coursecontext->id;
                 }
             }

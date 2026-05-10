@@ -143,7 +143,7 @@ class qtype_coderunner_util {
             if (count($allbanks) > 0) {
                 echo \html_writer::start_tag('ul');
                 foreach ($allbanks as $bank) {
-                    $contextid = $bank->contextid;
+                    $contextid = $bank->contextid ?? $bank->cminfo->context->id;  // Need difft code for Moodle 5.2+.
                     if (array_key_exists($contextid, $availablequestionsbycontext)) {
                         $contextdata = $availablequestionsbycontext[$contextid];
                         $name = $contextdata['name'];

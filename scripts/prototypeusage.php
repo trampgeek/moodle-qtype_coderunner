@@ -185,7 +185,7 @@ if ($courseid && $contextid) {
                 if (count($allbanks) > 0) {
                     echo html_writer::start_tag('ul');
                     foreach ($allbanks as $bank) {
-                        $contextid = $bank->contextid;
+                        $contextid = $bank->contextid ?? $bank->cminfo->context->id;  // Need difft code for Moodle 5.2+.
                         if (array_key_exists($contextid, $availablequestionsbycontext)) {
                             if (!$headerdisplayed) {
                                 display_course_header($coursecontext->id, $course->name);
