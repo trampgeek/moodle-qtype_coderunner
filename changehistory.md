@@ -1,5 +1,9 @@
 # CHANGE HISTORY
 
+### 10 May 2026, 5.9.2
+
+Update for Moodle 5.2 compatibility.
+
 ### 13 April 2026, 5.9.1
 
 Add the two analytics scripts (studenttimeanalysis and quiztrajectory) to the management page.
