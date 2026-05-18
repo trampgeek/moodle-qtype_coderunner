@@ -31,7 +31,10 @@ jobs:
       matrix:
         include:
           - php: '8.4'
-            moodle-branch: 'MOODLE_500_STABLE'
+            moodle-branch: 'MOODLE_502_STABLE'
+            database: 'mariadb'
+          - php: '8.4'
+            moodle-branch: 'MOODLE_501_STABLE'
             database: 'mariadb'
           - php: '8.3'
             moodle-branch: 'MOODLE_405_STABLE'
