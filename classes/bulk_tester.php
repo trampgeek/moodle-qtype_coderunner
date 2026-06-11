@@ -719,7 +719,7 @@ class bulk_tester {
             $buttonstyle = 'font-size: large; border:2px solid rgb(230, 211, 195);';
             $buttonstyle .= 'background-color:rgb(240, 240, 233);padding: 2px 2px 0px 2px;';
             $retestallurl = new moodle_url(
-                '/question/type/coderunner/bulktest.php',
+                '/question/type/coderunner/scripts/bulktest.php',
                 ['contextid' => $this->context->id,
                 'randomseed' => $this->randomseed,
                 'repeatrandomonly' => $this->repeatrandomonly,
