@@ -1247,8 +1247,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $this->formquestion->templateparamsevald = '{}';
         }
 
-        if (!$templateerrors && isset($data['uiparameters']) && $data['uiparameters']) {
-            $uiparametererrors = $this->validate_ui_parameters($data['uiparameters']);
+        $uiparameters = $this->get_and_twigify_maybe($data, 'uiparameters');
+        if (!$templateerrors && $uiparameters) {
+            $uiparametererrors = $this->validate_ui_parameters($uiparameters);
             if ($uiparametererrors) {
                 $errors['uiparametergroup'] = $uiparametererrors;
             }
@@ -1409,6 +1410,22 @@ class qtype_coderunner_edit_form extends question_edit_form {
         return [$errormessage, $json];
     }
 
+
+    // Extract the specified field from the data, and if twigall is set,
+    // pass it through twig. Must only be called after the template parameters
+    // have been evaluated, as it uses $question->templatparamsevald.
+    private function get_and_twigify_maybe($data, $field) {
+        $value = trim($data[$field] ?? '');
+        if ($value && $data['twigall']) {
+            $question = $this->formquestion;
+            $jsonparams = $question->templateparamsevald;
+            $parameters = json_decode($jsonparams, true);
+            $value = $this->twig_render($value, $parameters, true);
+        }
+        return $value;
+    }
+
+
     // Check that the uiparameters field, if present and non-empty, is valid.
     // Return an error message string if not valid, else an empty string.
     private function validate_ui_parameters($uiparameters) {
@@ -1464,17 +1481,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // Check the penalty regime and return an error string or an empty string if OK.
         $errorstring = '';
         $expectedpr = '/[0-9]+(\.[0-9]*)?%?([, ] *[0-9]+(\.[0-9]*)?%?)*([, ] *...)?/';
-        $penaltyregime = trim($data['penaltyregime'] ?? '');
-
-        // If twigall on, we should Twig expand the penalty regime
-        // before attempting to validate it.
-        if ($penaltyregime && $data['twigall']) {
-            $question = $this->formquestion;
-            $jsonparams = $question->templateparamsevald;
-            $parameters = json_decode($jsonparams, true);
-            $penaltyregime = $this->twig_render($penaltyregime, $parameters, true);
-        }
-
+        $penaltyregime = $this->get_and_twigify_maybe($data, 'penaltyregime');
         if ($penaltyregime == '') {
             $errorstring = get_string('emptypenaltyregime', 'qtype_coderunner');
         } else if (!preg_match($expectedpr, $penaltyregime)) {
