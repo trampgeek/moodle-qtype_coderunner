@@ -29,10 +29,12 @@
  */
 
 define('AJAX_SCRIPT', true);
-defined('MOODLE_INTERNAL') || die();
-global $USER;
-
+// DO NOT add "defined('MOODLE_INTERNAL') || die()" here. This file is fetched
+// directly via HTTP (not included), so MOODLE_INTERNAL is not yet defined when
+// this line runs, causing an immediate silent die(). See git log for history.
 require_once(__DIR__ . '/../../../config.php');
+
+global $USER;
 
 require_once($CFG->dirroot . '/question/engine/lib.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
