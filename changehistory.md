@@ -1,5 +1,14 @@
 # CHANGE HISTORY
 
+
+### 23 June 2025, 5.9.3
+
+ * Bug fix (workaround for Moodle core bug): the Ace UI "full screen" mode could result in an unusable Ace window after restoring to normal size. Clicking in the Ace window would repeatedly move focus to the right hand Block Drawer.
+ * Bug fix: UI parameter field could not be twigged.
+ * Bug fix: remote loading of program contest problem specs via the in-question link wasn't working (rarely used functionality except by UC).
+ * Bug fix (regression): "Rerun failed tests" button in the bulk tester was not working.
+ * Miscellaneous test-suite updates
+
 ### 10 May 2026, 5.9.2
 
 Update for Moodle 5.2 compatibility.
