@@ -99,12 +99,11 @@ if ($courseid && $contextid) {
     $bulktester = new bulk_tester();
 
     echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string('prototypeusage', 'qtype_coderunner', $name));
-
     $coursecontext = context::instance_by_id($contextid);
     if (!has_capability('moodle/question:editall', $coursecontext)) {
         echo html_writer::tag('p', get_string('unauthorisedbulktest', 'qtype_coderunner'));
     } else {
+        echo $OUTPUT->heading(get_string('prototypeusage', 'qtype_coderunner', s($name)));
         $questions = $bulktester->get_all_coderunner_questions_in_context($contextid, true);
         $prototypequestions = qtype_coderunner::get_all_prototypes($courseid);
         $prototypes = [];
