@@ -57,7 +57,10 @@ function echo_cache_purge_header() {
 function link_url_button(int $contextid, int $usettl): string {
     $buttonstyle = $usettl ? GREENY : ORANGY;
     $buttontext = $usettl ? OLDBUTTONTEXT : ALLBUTTONTEXT;
-    $url = new moodle_url('/question/type/coderunner/scripts/cachepurge.php', ['contextid' => $contextid, 'usettl' => $usettl]);
+    $url = new moodle_url(
+        '/question/type/coderunner/scripts/cachepurge.php',
+        ['contextid' => $contextid, 'usettl' => $usettl, 'sesskey' => sesskey()]
+    );
     $link = html_writer::link(
         $url,
         $buttontext,
@@ -102,7 +105,8 @@ if ($contextid > 0) {
 require_login();
 
 if ($contextid > 0 && $usettl >= 0) {
-    // Worker mode: purge cache for the specified context.
+    // Require sesskey to prevent CSRF-forged purge requests.
+    require_sesskey();
     $usettlbool = $usettl === 1; // 1 for use TTL, 0 for don't use.
     require_capability('moodle/question:editall', $context);
     $PAGE->set_url('/question/type/coderunner/scripts/cachepurge.php', ['contextid' => $context->id, 'useTTL' => $usettl]);

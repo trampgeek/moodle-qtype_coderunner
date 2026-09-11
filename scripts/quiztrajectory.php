@@ -521,6 +521,10 @@ if (empty($allowedcourses)) {
 if ($courseid && !isset($allowedcourses[$courseid])) {
     throw new \moodle_exception('accessdenied', 'admin');
 }
+// Trajectory mode must be scoped to an authorised course.
+if ($mode === 'trajectory' && !$courseid) {
+    throw new \moodle_exception('accessdenied', 'admin');
+}
 
 $quizzes    = $courseid ? get_course_quizzes($courseid) : [];
 $questions  = ($quizid) ? get_quiz_questions($quizid) : [];
@@ -529,6 +533,14 @@ $quizcmid   = $quizid ? get_cmid_for_quiz($quizid) : 0;
 
 // Trajectory mode.
 if ($mode === 'trajectory' && $quizid && $studentid && $quizcmid) {
+    // Verify the requested quiz and student actually belong to the authorised course before loading any data.
+    if (!isset($quizzes[$quizid])) {
+        throw new \moodle_exception('accessdenied', 'admin');
+    }
+    if (!isset($students[$studentid])) {
+        throw new \moodle_exception('accessdenied', 'admin');
+    }
+
     $student = $DB->get_record('user', ['id' => $studentid], 'id,firstname,lastname', MUST_EXIST);
     $quiz    = $DB->get_record('quiz', ['id' => $quizid], 'id,name', MUST_EXIST);
 
