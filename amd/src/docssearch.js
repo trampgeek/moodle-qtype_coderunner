@@ -156,12 +156,57 @@ define([], function() {
     if (!overlay || !trigger) {
       return;
     }
+    // The palette is a modal rendered inside the page content. Move it to be a
+    // direct child of <body> so the rest of the page can be marked inert while
+    // it is open (its ancestors would otherwise be un-inertable). The CSS is
+    // scoped under the body id, so it still applies. Idempotent across re-init.
+    if (overlay.parentNode !== document.body) {
+      document.body.appendChild(overlay);
+    }
     var input = overlay.querySelector('.docs-search-input');
     var resultsEl = overlay.querySelector('.docs-search-results');
     var statusEl = overlay.querySelector('.docs-search-status');
     var current = [];
     var selected = -1;
     var debounce = null;
+    // Direct children of <body> hidden from AT / made inert while the palette
+    // is open, so focus and the screen-reader cursor stay within the dialog.
+    var inerted = [];
+
+    /**
+     * Mark everything behind the palette inert (or restore it).
+     * @param {Boolean} on true to inert the background, false to restore.
+     */
+    function setBackgroundInert(on) {
+      if (on) {
+        inerted = [];
+        Array.prototype.forEach.call(document.body.children, function(el) {
+          if (el === overlay || el.tagName === 'SCRIPT' || el.tagName === 'NOSCRIPT') {
+            return;
+          }
+          el.setAttribute('aria-hidden', 'true');
+          el.inert = true;
+          inerted.push(el);
+        });
+      } else {
+        inerted.forEach(function(el) {
+          el.removeAttribute('aria-hidden');
+          el.inert = false;
+        });
+        inerted = [];
+      }
+    }
+
+    /**
+     * @return {Array} the focusable elements inside the palette, in order.
+     */
+    function focusable() {
+      return Array.prototype.slice.call(
+        overlay.querySelectorAll('input, a[href], button, [tabindex]:not([tabindex="-1"])')
+      ).filter(function(el) {
+        return el.offsetParent !== null;
+      });
+    }
 
     /**
      * Build the link a result points at.
@@ -181,6 +226,7 @@ define([], function() {
         statusEl.textContent = '';
       }
       input.setAttribute('aria-expanded', 'false');
+      input.removeAttribute('aria-activedescendant');
       current = [];
       selected = -1;
     }
@@ -204,6 +250,7 @@ define([], function() {
       clearResults();
       overlay.classList.add('open');
       overlay.setAttribute('aria-hidden', 'false');
+      setBackgroundInert(true);
       input.focus();
       loadIndex(indexUrl);
     }
@@ -217,6 +264,7 @@ define([], function() {
       }
       overlay.classList.remove('open');
       overlay.setAttribute('aria-hidden', 'true');
+      setBackgroundInert(false);
       clearResults();
       trigger.focus();
     }
@@ -246,6 +294,13 @@ define([], function() {
           option.removeAttribute('aria-selected');
         }
       });
+      // Point the combobox at the active option (or clear it) so screen
+      // readers announce the highlighted result without moving DOM focus.
+      if (selected >= 0 && options[selected]) {
+        input.setAttribute('aria-activedescendant', options[selected].id);
+      } else {
+        input.removeAttribute('aria-activedescendant');
+      }
     }
 
     /**
@@ -335,6 +390,29 @@ define([], function() {
       var i = parseInt(link.id.replace('docs-search-opt-', ''), 10);
       if (current[i]) {
         go(current[i]);
+      }
+    });
+
+    // Trap Tab within the palette so keyboard focus cannot escape to the
+    // (inert) page behind it while the modal is open.
+    overlay.addEventListener('keydown', function(e) {
+      if (e.key !== 'Tab') {
+        return;
+      }
+      var items = focusable();
+      if (!items.length) {
+        e.preventDefault();
+        input.focus();
+        return;
+      }
+      var first = items[0];
+      var last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
     });
 
