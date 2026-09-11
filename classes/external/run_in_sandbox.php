@@ -181,6 +181,8 @@ class run_in_sandbox extends external_api {
             } else {
                 $paramsarray['cputime'] = $maxcputime;
             }
+            // Prevent students from redirecting sandbox requests to an arbitrary host.
+            unset($paramsarray['jobeserver'], $paramsarray['jobeapikey']);
             $jobehostws = trim(get_config('qtype_coderunner', 'wsjobeserver') ?? '');
             if ($jobehostws !== '') {
                 $paramsarray['jobeserver'] = $jobehostws;
