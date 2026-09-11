@@ -80,7 +80,12 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         $divid = "qtype_coderunner_problemspec$qid";
         $params = $question->parameters;
-        $qtext = '';
+        $queid = $qa->get_outer_question_div_unique_id();
+        // The DOM id above is per-attempt (it embeds the question usage id) and
+        // changes on every preview reload, so persist the info-panel state keyed
+        // by the stable question id instead.
+        $this->page->requires->js_call_amd('qtype_coderunner/infopanel', 'init', [$queid, $qid]);
+        $qtext = $this->info_prepaint_script($queid, $qid);
         if (isset($question->initialisationerrormessage) && $question->initialisationerrormessage) {
             $qtext .= "<div class='initialisationerror'>{$question->initialisationerrormessage}</div>";
         }
@@ -253,6 +258,44 @@ class qtype_coderunner_renderer extends qtype_renderer {
         return $qtext;
     }
 
+
+    /**
+     * Inject a small inline script that applies the remembered "info panel
+     * collapsed" state before the page finishes painting, so the collapse is
+     * seamless with no visible flash of the expanded panel.
+     *
+     * @param string $queid the id of the outer .que.coderunner div.
+     * @param int $qid the stable question id used as the sessionStorage key.
+     * @return string HTML fragment containing the inline script.
+     */
+    protected function info_prepaint_script($queid, $qid) {
+        $queidjs = json_encode($queid);
+        $storagekeyjs = json_encode((string) $qid);
+        $js = <<<JS
+(function() {
+    try {
+        var obj = JSON.parse(sessionStorage.getItem('coderunner_layout') || '{}');
+        var entry = obj[$storagekeyjs];
+        if (typeof entry === 'string') {
+            entry = {layout: entry};
+        }
+        if (entry && entry.infoCollapsed) {
+            var que = document.getElementById($queidjs);
+            if (que) {
+                que.classList.add('info-collapsed');
+                var topofscroll = document.getElementById('topofscroll');
+                if (topofscroll) {
+                    topofscroll.classList.add('topofscroll-collapsed');
+                }
+            }
+        }
+    } catch (e) {
+        // sessionStorage may be unavailable; fall back to the expanded panel.
+    }
+})();
+JS;
+        return html_writer::script($js);
+    }
 
     /**
      * Override the base class method to allow CodeRunner questions to force
