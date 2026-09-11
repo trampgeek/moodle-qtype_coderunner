@@ -538,6 +538,128 @@ li.bulktest.coderunner.context.quiz {
     outline-color: rgba(0, 0, 0, 0.5);
 }
 
+/* Michal S changes */
+
+.que.coderunner .divider {
+  cursor: col-resize;
+  user-select: none;
+  border-left: 1px solid #bbb;
+  -webkit-user-select: none;
+  align-self: stretch;
+  display:none;
+}
+
+/* Flex only in split mode; stacked keeps block flow so Ace/Scratchpad render as upstream. */
+.que.coderunner.layout-split .formulation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.que.coderunner .question_box {
+    flex: 0 0 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.que.coderunner .answer-box {
+    flex: 0 0 100%;
+    min-width: 0;
+}
+
+.que.coderunner .im-controls {
+    flex: 0 0 100%;
+}
+
+.que.coderunner .coderunner-layout-controls {
+    flex: 0 0 100%;
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.que.coderunner .coderunner-layout-btn {
+    background: #fff;
+    border: 1px solid #6c757d;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 2px 6px;
+    color: #495057;
+    opacity: 0.85;
+}
+
+.que.coderunner .coderunner-layout-btn:hover {
+    opacity: 1;
+    border-color: #343a40;
+}
+
+.que.coderunner .coderunner-layout-btn.active {
+    opacity: 1;
+    border-color: #212529;
+    border-width: 2px;
+    background: #e9ecef;
+    color: #212529;
+}
+
+.que.coderunner.layout-split .divider {
+  display:block;
+}
+.que.coderunner.layout-split .question_box,
+.que.coderunner.layout-split .answer-box {
+    flex: 1 1 0;
+}
+
+.que.coderunner .info-toggle-btn {
+  display: block;
+  width: 2.em;
+  height: 1.4em;
+  line-height: 1;
+  padding: 0;
+  padding-left: 0.1rem;
+  margin-bottom: 0.5em;
+  padding-right: 0.1rem;
+  border-radius: 4px;
+  border: 1px solid var(--blue);
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85em;
+  opacity: 0.6;
+  color: black;
+}
+
+.que.coderunner .info-toggle-btn:hover {
+    opacity: 1;
+}
+
+.que.coderunner.info-collapsed .info {
+    float: none;
+    width: auto;
+
+}
+.que.coderunner.info-collapsed .content {
+  margin-left: 0;
+}
+#topofscroll.topofscroll-collapsed {
+  max-width:1200px !important;
+}
+
+
+/* Bootstrap referenced */
+@media (max-width: 767.98px) {
+    /* Disappear the button when mobile */
+    .que.coderunner .info-toggle-btn  {
+        display:none;
+    }
+    .que.coderunner .question_box,
+    .que.coderunner .answer-box {
+        flex: 0 0 100%;
+    }
+}
+/* end of Michal S changes */
+
 /* stylelint-disable declaration-no-important  */
 
 body#page-question-type-coderunner div[id^=fitem_id_testcode]:first-of-type {

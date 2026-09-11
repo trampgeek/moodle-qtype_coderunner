@@ -351,7 +351,28 @@ class qtype_coderunner_util {
      */
     public static function make_html_para($lines) {
         if (count($lines) > 0) {
-            $para = html_writer::start_tag('p');
+            $para = html_writer::start_tag('p', ['id' => 'results_message']);
+            $para .= $lines[0];
+            $n = count($lines);
+            for ($i = 1; $i < $n; $i++) {
+                $para .= html_writer::empty_tag('br') . $lines[$i];
+                ;
+            }
+            $para .= html_writer::end_tag('p');
+        } else {
+            $para = '';
+        }
+        return $para;
+    }
+
+    /**
+     * Convert a given list of lines to an HTML <p> element.
+     * @param type $lines
+     * @param type $id
+     */
+    public static function make_html_para_with($id, $lines) {
+        if (count($lines) > 0) {
+            $para = html_writer::start_tag('p', ['id' => $id]);
             $para .= $lines[0];
             $n = count($lines);
             for ($i = 1; $i < $n; $i++) {
