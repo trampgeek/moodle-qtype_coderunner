@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<question type="coderunner">
+    <name>
+      <text>Chess!</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style="text-align: left;"></p><h3>Challenge: Simple Chess</h3><p></p><p>In this exercise, you need to write a C program, called&nbsp;<strong>simplechess.c</strong>.&nbsp; In this exercise, you will be implementing the game of Chess, capable of playing at 'grandmaster' level.&nbsp; Not really.&nbsp; You just need to create a 2D char array to hold the state of the board.&nbsp; The initial position should look like this:</p><pre>8 rnbqkbnr<br>7 pppppppp<br>6 &nbsp;       <br>5         <br>4         <br>3         <br>2 PPPPPPPP<br>1 RNBQKBNR<br>  ABCDEFGH</pre><p>You need to prompt the user for moves.&nbsp; The first prompt is for the piece to move using the coordinate system.&nbsp; You should then prompt for the position to move the piece to.&nbsp; Don't worry about the rules of chess, just be sure that the coordinates are within the bounds of the game board.</p><pre>Select piece: D2<br>Choose position: D4</pre><pre>8 rnbqkbnr<br>7 pppppppp<br>6 &nbsp;       <br>5         <br>4    P    <br>3         <br>2 PPP PPPP<br>1 RNBQKBNR<br>  ABCDEFGH</pre><p></p><p>Continue prompting until the user enters&nbsp;'q'.</p><br><p></p><p></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_program</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 0, 0, 0, 0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>RegexGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>Nothing!</text>
+      </testcode>
+      <stdin>
+                <text>q
+q
+q
+q
+q
+q
+q
+</text>
+      </stdin>
+      <expected>
+                <text>.*</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>

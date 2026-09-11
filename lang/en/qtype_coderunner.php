@@ -22,6 +22,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['docslinktext'] = 'CodeRunner Documentation';
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['ace_aria_label'] = 'Code editor - Enter your code here.';
 $string['ace_gapfillerui_ui_source_descr'] = '"globalextra" to take the code to display from the globalextra field or "test0" to take it from the testcode field of the first test';

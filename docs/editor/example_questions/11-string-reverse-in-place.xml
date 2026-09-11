@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<question type="coderunner">
+    <name>
+      <text>str_rev (credit 2)</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style="text-align: left;">If you're attempting the bonus mark for not using an array, please re-enter your code here. It will need to pass all the same tests as the first credit, plus an additional one.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>2.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_function</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdbool.h>
+#include <math.h>
+#include <regex.h> 
+#define SEPARATOR "#<ab@17943918#@>#"
+
+char* input = "{{ STUDENT_ANSWER | e("c") }}";
+
+int str_len(char* str){
+	int i;
+	for (i = 0; str[i] != '\0'; i++);
+	return i;
+}
+
+{{ STUDENT_ANSWER }}
+
+int main() {
+{% for TEST in TESTCASES %}
+   {
+    {{ TEST.testcode }};
+   }
+    {% if not loop.last %}printf("%s\n", SEPARATOR);{% endif %}
+{% endfor %}
+    return 0;
+}]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[char *str_rev(char src[]){
+	char *s = src, *e = src;
+	while(*++e != '\0'); // iterate e until null
+	while(--e > s){ 
+		// spooky scary swap op
+		*s ^= *e;
+		*e ^= *s;
+		*s++ ^= *e;
+	}
+	
+	return src;
+}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="0.5000000" >
+      <testcode>
+                <text><![CDATA[char str[] = "Reverse";
+printf("%s\n", str_rev(str));
+printf("%s\n", str);]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>esreveR
+esreveR
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="0.5000000" >
+      <testcode>
+                <text><![CDATA[char str[] = "Another test";
+printf("%s\n", str_rev(str));
+printf("%s\n", str);]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>tset rehtonA
+tset rehtonA</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[regex_t regex;
+int reti;
+reti = regcomp(&regex, "[[:space:]]*char[[:space:]]+[[:alpha:]]+\\[[[:alnum:]]*\\][^\n]*;", REG_EXTENDED | REG_NOSUB);
+reti = regexec(&regex, input, 0, NULL, 0);
+if (!reti) {
+    printf("Array detected! If you see this and didn't use an array, show your code to Andrew.\n");
+}
+else if (reti == REG_NOMATCH) {
+    printf("No array detected!\n");
+}
+regfree(&regex);]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No array detected!
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="2.0000000" >
+      <testcode>
+                <text><![CDATA[regex_t regex;
+int reti;
+reti = regcomp(&regex, "(<string[.]h>|strlen)", REG_EXTENDED | REG_NOSUB);
+reti = regexec(&regex, input, 0, NULL, 0);
+if (!reti) {
+    printf("Nice Try, but you can't use string.h!\n");
+}
+else if (reti == REG_NOMATCH) {
+    printf("Okay");
+}
+regfree(&regex);]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>Okay</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>

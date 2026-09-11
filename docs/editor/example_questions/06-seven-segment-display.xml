@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<question type="coderunner">
+    <name>
+      <text>Seven-segment Display</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style="text-align: left;"></p>
+<h3> </h3>
+<h3>Exercise 6: Seven-segment display</h3>
+<p>Some calculator and digital clocks use seven-segment display blocks to show numbers.  We can get something approximating this using ASCII characters:</p>
+<pre><strong><strong> —        —    —         —    —    —    —    —<br>| |   |    |    |  | |  |    |      |  | |  | |<br>          —    —    —    —    —         —    —<br>| |   |  |      |    |    |  | |    |  | |    |<br> —        —    —         —    —         —</strong></strong></pre>
+<p>If we think of each of the seven segments as being on or off, we can store each digit as an array of 1s and 0s.  The digit 0 only has the middle segment off, so its array could be this:</p>
+<pre>{1, 1, 1, 0, 1, 1, 1}</pre>
+<p>The digit 1 only has two segments on, so its array could be this:</p>
+<pre>{0, 0, 1, 0, 0, 1, 0}</pre>
+<p>The ordering of the segments is not too important, but you must be consistent.  I've gone with left-to-right and top-to-bottom order.</p>
+<p>Your first task in this assignment is to declare and populate the two-dimensional array of integers, called digits.  This should be declared as a global <strong>constant</strong>.</p>
+<p></p>
+<pre>static const int digits[10][7] ...</pre>
+<p>You should use the following function to actually print your output - you don't really need to understand how it works (ternary operators are ugly and you probably shouldn't use them), the main thing is that it takes an integer input between 0 and 9 and will print the right digit, so copy it in your file and don't modify it.</p>
+<pre>void print_digit(int digit) {</pre>
+<pre>    printf("\n %c \n",  (digits[digit][0]) ? '-' : ' ');<br>    printf("%c %c\n", (digits[digit][1]) ? '|' : ' ', (digits[digit][2]) ? '|' : ' ');<br>    printf(" %c \n",  (digits[digit][3]) ? '-' : ' ');<br>    printf("%c %c\n", (digits[digit][4]) ? '|' : ' ', (digits[digit][5]) ? '|' : ' ');<br>    printf(" %c \n",  (digits[digit][6]) ? '-' : ' ');<br>}</pre>
+<p>In your main() function, you should prompt the user to enter a single digit.  Validate the input.  If it is a valid digit, print the corresponding seven-segment display.  If the input is not valid (it is not a digit or 'q', it is longer than 1 character, it is less than 1 character), print an error message.  Continue doing this until the user enters the character 'q' to quit.</p>
+<p>Save your work as <strong>exercise6.c.</strong></p>
+<p></p>
+<p>Attempt the quiz when your code is working to receive your mark</p>
+<p>If you think this quiz is behaving incorrectly, speak to Andrew or email him (andrew.fagan@strath.ac.uk)</p>
+<p></p>
+<p></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_program</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 0, 0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[#include <stdio.h>
+
+static const int digits[10][7] = {
+	{1, 1, 1, 0, 1, 1, 1},
+	{0, 0, 1, 0, 0, 1, 0},
+	{1, 0, 1, 1, 1, 0, 1},
+	{1, 0, 1, 1, 0, 1, 1},
+	{0, 1, 1, 1, 0, 1, 0},
+	{1, 1, 0, 1, 0, 1, 1},
+	{1, 1, 0, 1, 1, 1, 1},
+	{1, 0, 1, 0, 0, 1, 0},
+	{1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 0, 1, 0}
+};
+
+void print_digit(int digit);
+
+int main(){
+	char in;
+	while(1){
+		printf("Enter a digit from 0-9, or q to quit: ");
+		scanf(" %c", &in);
+		if(in == 'q' || in == 'Q'){
+			printf("Quitting\n");
+			break;
+		}
+		if(in >= '0' && in <= '9'){
+			print_digit(in - '0');
+		}
+		else{
+			printf("Error: '%c' is out of range.\n", in);
+		}
+	}
+	return 1;
+	
+}
+
+
+void print_digit(int digit) {
+    printf("\n %c \n",  (digits[digit][0]) ? '-' : ' ');
+    printf("%c %c\n", (digits[digit][1]) ? '|' : ' ', (digits[digit][2]) ? '|' : ' ');
+    printf(" %c \n",  (digits[digit][3]) ? '-' : ' ');
+    printf("%c %c\n", (digits[digit][4]) ? '|' : ' ', (digits[digit][5]) ? '|' : ' ');
+    printf(" %c \n",  (digits[digit][6]) ? '-' : ' ');
+}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>RegexGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>q</text>
+      </stdin>
+      <expected>
+                <text></text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>1
+q</text>
+      </stdin>
+      <expected>
+                <text>   \n  \|\n   \n  \|\n   \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>2
+q</text>
+      </stdin>
+      <expected>
+                <text> \- \n  \|\n \- \n\|  \n \- \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>3
+q</text>
+      </stdin>
+      <expected>
+                <text> \- \n  \|\n \- \n  \|\n \- \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>4
+q</text>
+      </stdin>
+      <expected>
+                <text>   \n\| \|\n \- \n  \|\n   \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>5
+q</text>
+      </stdin>
+      <expected>
+                <text> \- \n\|  \n \- \n  \|\n \- \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>6
+q</text>
+      </stdin>
+      <expected>
+                <text> \- \n\|  \n \- \n\| \|\n \- \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>7
+q</text>
+      </stdin>
+      <expected>
+                <text> \- \n  \|\n   \n  \|\n   \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>8
+q</text>
+      </stdin>
+      <expected>
+                <text> \- \n\| \|\n \- \n\| \|\n \- \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>9
+q</text>
+      </stdin>
+      <expected>
+                <text> \- \n\| \|\n \- \n  \|\n   \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>0
+q</text>
+      </stdin>
+      <expected>
+                <text> \- \n\| \|\n   \n\| \|\n \- \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>1
+2
+q</text>
+      </stdin>
+      <expected>
+                <text>   \n  \|\n   \n  \|\n   \n[\s\S]*? \- \n  \|\n \- \n\|  \n \- \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>a
+q</text>
+      </stdin>
+      <expected>
+                <text>([Ee]rror|[Ii]nvalid)</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text>1
+a
+2
+q</text>
+      </stdin>
+      <expected>
+                <text>   \n  \|\n   \n  \|\n   \n[\s\S]*?([Ee]rror|[Ii]nvalid)[\s\S]*? \- \n  \|\n \- \n\|  \n \- \n</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>

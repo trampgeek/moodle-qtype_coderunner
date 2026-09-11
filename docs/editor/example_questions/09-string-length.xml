@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<question type="coderunner">
+    <name>
+      <text>String Length</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style="">Write a function&nbsp;<span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">int str_len(char *str)</span><span class="" style="font-family: Arial, Helvetica, sans-serif;">,</span> which takes in a pointer to the first character in a string, and returns the length of that string.<br></p><span style="font-size: 12.25px;"><p></p></span>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>2.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_function</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>0</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdbool.h>
+#include <math.h>
+#include <regex.h> 
+#define SEPARATOR "#<ab@17943918#@>#"
+
+char* input = "{{ STUDENT_ANSWER | e("c") }}";
+
+
+{{ STUDENT_ANSWER }}
+
+int main() {
+{% for TEST in TESTCASES %}
+   {
+    {{ TEST.testcode }};
+   }
+    {% if not loop.last %}printf("%s\n", SEPARATOR);{% endif %}
+{% endfor %}
+    return 0;
+}]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer>int str_len(char* str){
+	int out = 0;
+	while(*str++) out++;
+	return out;
+}</answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[regex_t regex;
+int reti;
+reti = regcomp(&regex, "(<string[.]h>|strlen)", REG_EXTENDED | REG_NOSUB);
+reti = regexec(&regex, input, 0, NULL, 0);
+if (!reti) {
+    printf("Nice Try, but you can't use string.h!\n");
+}
+else if (reti == REG_NOMATCH) {
+    printf("Okay");
+}
+regfree(&regex);]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>Okay</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="0.5000000" >
+      <testcode>
+                <text><![CDATA[char* str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	
+printf("%s is %d characters long!\n", str, str_len(str));]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>ABCDEFGHIJKLMNOPQRSTUVWXYZ is 26 characters long!
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="0.5000000" >
+      <testcode>
+                <text><![CDATA[regex_t regex;
+int reti;
+reti = regcomp(&regex, "(\\[|\\])", REG_EXTENDED | REG_NOSUB);
+reti = regexec(&regex, input, 0, NULL, 0);
+if (!reti) {
+    printf("Square bracket detected! If you see this and didn't use any, show your code to Andrew.\n");
+}
+else if (reti == REG_NOMATCH) {
+    printf("No square brackets detected!\n");
+}
+regfree(&regex);]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No square brackets detected!
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[char* str = "Hello, World!";
+	
+printf("%s is %d characters long!\n", str, str_len(str));]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>Hello, World! is 13 characters long!</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[char* str = "\"Okay you probably pass\"";
+	
+printf("%s is %d characters long!\n", str, str_len(str));]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text><![CDATA["Okay you probably pass" is 24 characters long!]]></text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>
