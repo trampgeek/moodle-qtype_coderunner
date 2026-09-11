@@ -612,47 +612,9 @@ li.bulktest.coderunner.context.quiz {
     flex: 1 1 0;
 }
 
-.que.coderunner .info-toggle-btn {
-  display: block;
-  width: 2.em;
-  height: 1.4em;
-  line-height: 1;
-  padding: 0;
-  padding-left: 0.1rem;
-  margin-bottom: 0.5em;
-  padding-right: 0.1rem;
-  border-radius: 4px;
-  border: 1px solid var(--blue);
-  background: #fff;
-  cursor: pointer;
-  font-size: 0.85em;
-  opacity: 0.6;
-  color: black;
-}
-
-.que.coderunner .info-toggle-btn:hover {
-    opacity: 1;
-}
-
-.que.coderunner.info-collapsed .info {
-    float: none;
-    width: auto;
-
-}
-.que.coderunner.info-collapsed .content {
-  margin-left: 0;
-}
-#topofscroll.topofscroll-collapsed {
-  max-width:1200px !important;
-}
-
 
 /* Bootstrap referenced */
 @media (max-width: 767.98px) {
-    /* Disappear the button when mobile */
-    .que.coderunner .info-toggle-btn  {
-        display:none;
-    }
     .que.coderunner .question_box,
     .que.coderunner .answer-box {
         flex: 0 0 100%;

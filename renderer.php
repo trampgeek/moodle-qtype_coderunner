@@ -293,13 +293,6 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 if (entry.layout === 'split') {
                     que.classList.add('layout-split');
                 }
-                if (entry.infoCollapsed) {
-                    que.classList.add('info-collapsed');
-                    var topofscroll = document.getElementById('topofscroll');
-                    if (topofscroll) {
-                        topofscroll.classList.add('topofscroll-collapsed');
-                    }
-                }
             }
         }
     } catch (e) {

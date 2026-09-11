@@ -21,14 +21,6 @@ define([], function () {
   // pixels, so the divider can't collapse a box to nothing (or invert it).
   const MIN_BOX_WIDTH = 150;
 
-  // Tracks, across every CodeRunner question on the page, which ones currently
-  // have their info panel collapsed. #topofscroll expands (reclaims margin
-  // space) the instant the first panel is collapsed, and only reverts back
-  // once every question's panel has been reopened (this set is empty again)
-  // - so the page doesn't shrink back while some other question on the page
-  // is still relying on the extra width.
-  const collapsedInfoQuestions = new Set();
-
   /**
    * Inject the layout toggle controls and wire up handlers.
    * @param {string} questionId The id attribute of the .que.coderunner element.
@@ -51,34 +43,6 @@ define([], function () {
     const divider = que.querySelector('.formulation .divider');
     if (!divider || !answerBox || !questionBox || !formulation) {
       return;
-    }
-
-    const infoDiv = que.querySelector('.info');
-    if (infoDiv) {
-      const infoToggleBtn = document.createElement('button');
-      infoToggleBtn.className = 'info-toggle-btn';
-      infoToggleBtn.type = 'button';
-      infoDiv.prepend(infoToggleBtn);
-
-      const applyInfoCollapse = collapsed => {
-        que.classList.toggle('info-collapsed', collapsed);
-        if (collapsed) {
-          collapsedInfoQuestions.add(questionId);
-        } else {
-          collapsedInfoQuestions.delete(questionId);
-        }
-        applyPageExpand(collapsedInfoQuestions.size > 0);
-        infoToggleBtn.innerHTML = collapsed ? 'Show' : 'Hide';
-        infoToggleBtn.title = collapsed ? 'Show question info' : 'Hide question info';
-        infoToggleBtn.ariaLabel = infoToggleBtn.title;
-        saveQuestionState(storageKey, { infoCollapsed: collapsed });
-      };
-
-      infoToggleBtn.addEventListener('click', () => {
-        applyInfoCollapse(!que.classList.contains('info-collapsed'));
-      });
-
-      applyInfoCollapse(getQuestionState(storageKey).infoCollapsed);
     }
 
     let dragStartX = 0;
@@ -166,28 +130,11 @@ define([], function () {
   }
 
   /**
-   * Boost (and derivatives) wrap the page content in a #topofscroll element
-   * whose side margins reserve space for the nav/block drawers. Collapsing
-   * the info panel frees up horizontal room, so mirror that state onto
-   * #topofscroll too, if present. This is a theme-specific enhancement, not
-   * a requirement: on any theme that doesn't use this markup, this is a
-   * silent no-op and the info panel still collapses normally.
-   * @param {boolean} collapsed
-   */
-  function applyPageExpand(collapsed) {
-    const topofscroll = document.querySelector('#topofscroll');
-    if (!topofscroll) {
-      return;
-    }
-    topofscroll.classList.toggle('topofscroll-collapsed', collapsed);
-  }
-
-  /**
    *
    * @returns {object} The sessionStorage object using the STORAGE_KEY
    */
   function getObj() {
-    // type QuestionState = {layout: string, infoCollapsed: boolean};
+    // type QuestionState = {layout: string};
     // type QuestionID = string;
     // type QuestionStateTracker = Hashmap(QuestionID, QuestionState);
     try {
@@ -213,7 +160,6 @@ define([], function () {
     entry = entry || {};
     return {
       layout: entry.layout === 'split' ? 'split' : 'stacked',
-      infoCollapsed: !!entry.infoCollapsed,
     };
   }
   /**
