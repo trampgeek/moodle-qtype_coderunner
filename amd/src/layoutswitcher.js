@@ -13,9 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-define([], function () {
-
-  const STORAGE_KEY = 'coderunner_layout';
+define(['qtype_coderunner/questionstate'], function (state) {
 
   // Neither side of the split layout can be dragged narrower than this, in
   // pixels, so the divider can't collapse a box to nothing (or invert it).
@@ -120,63 +118,13 @@ define([], function () {
         splitBtn.classList.remove('active');
 
       }
-      saveQuestionState(storageKey, { layout: mode });
+      state.saveState(storageKey, { layout: mode });
     }
 
     splitBtn.addEventListener('click', () => applyLayout('split'));
     stackBtn.addEventListener('click', () => applyLayout('stacked'));
 
-    applyLayout(getQuestionState(storageKey).layout);
-  }
-
-  /**
-   *
-   * @returns {object} The sessionStorage object using the STORAGE_KEY
-   */
-  function getObj() {
-    // type QuestionState = {layout: string};
-    // type QuestionID = string;
-    // type QuestionStateTracker = Hashmap(QuestionID, QuestionState);
-    try {
-      let text = sessionStorage.getItem(STORAGE_KEY);
-      if (text === null) {
-        return {};
-      }
-      return JSON.parse(text);
-    } catch (e) { return null; }
-  }
-  /**
-   *
-   * @param {*} questionId The questionId used to get the last remembered state
-   * @returns {object} The state of the question last remembered, defaulted for anything missing.
-   */
-  function getQuestionState(questionId) {
-    let obj = getObj() || {};
-    let entry = obj[questionId];
-    if (typeof entry === 'string') {
-      // Legacy format: the whole entry used to just be the layout string.
-      entry = { layout: entry };
-    }
-    entry = entry || {};
-    return {
-      layout: entry.layout === 'split' ? 'split' : 'stacked',
-    };
-  }
-  /**
-   *
-   * @param {string} questionId The question to save state for
-   * @param {object} patch Partial state to merge into what's already remembered
-   * @returns {void}
-   */
-  function saveQuestionState(questionId, patch) {
-    let obj = getObj() || {};
-    obj[questionId] = Object.assign({}, getQuestionState(questionId), patch);
-
-    let text = JSON.stringify(obj);
-    try { sessionStorage.setItem(STORAGE_KEY, text); } catch (e) {
-      // sessionStorage may be unavailable.
-      return null;
-    }
+    applyLayout(state.getState(storageKey).layout === 'split' ? 'split' : 'stacked');
   }
 
   return { layoutSwitcher };
