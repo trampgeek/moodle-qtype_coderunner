@@ -685,7 +685,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             'select',
             'coderunnertype',
             null,
-            $expandedtypes
+            $expandedtypes,
+            'aria-labelledby="fgroup_id_coderunner_type_group_label"'
         );
         $prototypelangstring = get_string('prototypeexists', 'qtype_coderunner');
         $typeselectorelements[] = $mform->createElement(
@@ -787,7 +788,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 constants::GIVEUP_ALWAYS => get_string('giveup_always', 'qtype_coderunner'),
         ];
 
-        $giveupelements[] = $mform->createElement('select', 'giveupallowed', null, $giveupvalues);
+        $giveupelements[] = $mform->createElement(
+            'select',
+            'giveupallowed',
+            null,
+            $giveupvalues,
+            'aria-labelledby="fgroup_id_coderunner_giveup_group_label"'
+        );
         $mform->addElement(
             'group',
             'coderunner_giveup_group',
@@ -807,7 +814,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
             constants::FEEDBACK_HIDE => get_string('feedback_hide', 'qtype_coderunner'),
         ];
 
-        $feedbackelements[] = $mform->createElement('select', 'displayfeedback', null, $feedbackvalues);
+        $feedbackelements[] = $mform->createElement(
+            'select',
+            'displayfeedback',
+            null,
+            $feedbackvalues,
+            'aria-labelledby="fgroup_id_coderunner_feedback_group_label"'
+        );
         $mform->addElement(
             'group',
             'coderunner_feedback_group',
