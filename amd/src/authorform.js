@@ -677,6 +677,18 @@ define(['qtype_coderunner/userinterfacewrapper', 'core/str'], function(ui, str) 
 
         precheck.addEventListener('change', set_testtype_visibilities);
 
+        // Ask for confirmation when a delete test case button is clicked,
+        // before the form is submitted for redisplay with the row removed.
+        str.get_string('deletetestcaseconfirm', 'qtype_coderunner').then(function(s) {
+            document.querySelectorAll('input[name^="deletetestcase["]').forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    if (!window.confirm(s)) {
+                        event.preventDefault();
+                    }
+                });
+            });
+        });
+
         // Displays and hides the reason for the question type to be disabled.
         // Also hides/shows the test cases section if prototype/not prototype.
         prototypeType.addEventListener('change', function () {

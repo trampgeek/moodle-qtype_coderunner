@@ -1323,6 +1323,8 @@ overload it. Caveat Emptor!';
 $string['testalltitle'] = 'Test all questions in this context';
 $string['testallincategory'] = 'Test all questions in this category';
 $string['testcase'] = 'Test case {$a}';
+$string['deletetestcase'] = 'Delete this test case';
+$string['deletetestcaseconfirm'] = 'Delete this test case? The deletion becomes permanent only when the question is saved.';
 $string['testcasecontrols'] = 'Test properties:';
 $string['testcasecontrols_help'] = 'If \'Use as example\' is checked, this test will be automatically included in the
 question\'s \'For example:\' results table.

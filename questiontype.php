@@ -213,12 +213,14 @@ class qtype_coderunner extends question_type {
     private function copy_testcases_from_form(&$question, $validation) {
         $testcases = [];
         if (empty($question->testcode)) {
-            $numtests = 0;  // Must be a combinator template grader with no tests.
+            $testindices = [];  // Must be a combinator template grader with no tests.
         } else {
-            $numtests = count($question->testcode);
-            assert(count($question->expected) == $numtests);
+            // Iterate by key, as indices may be non-contiguous after test
+            // case deletions in the edit form.
+            $testindices = array_keys($question->testcode);
+            assert(count($question->expected) == count($testindices));
         }
-        for ($i = 0; $i < $numtests; $i++) {
+        foreach ($testindices as $i) {
             $testcode = $this->filter_crs($question->testcode[$i]);
             $stdin = $this->filter_crs($question->stdin[$i]);
             $expected = $this->filter_crs($question->expected[$i]);
