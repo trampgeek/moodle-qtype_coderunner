@@ -544,9 +544,21 @@ body#page-question-type-coderunner div[id^=fitem_id_testcode]:first-of-type {
     border-top: 1px solid #ccc !important;
 }
 
+body#page-question-type-coderunner div[id^=id_testcasehdrcontainer] {
+    /* Center the test case section within the layout margins. */
+    margin-left: 18px;
+    margin-right: 18px;
+}
+
+body#page-question-type-coderunner div[id^=fitem_id_testcode] {
+    /* Pad and round the top of each test case box. */
+    padding-top: 18px !important;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
 /* The delete test case button is the last element of each test case, so it
-   carries the box's closing border; the controls above it lose their margin
-   so the button sits flush at the bottom of the box. */
+   carries the box's closing border and rounds off the bottom; the controls
+   above it lose their margin so the button sits flush at the bottom. */
 body#page-question-type-coderunner div[id^=fitem_id_testtype_],
 body#page-question-type-coderunner div[id^=fgroup_id_testcasecontrols_] {
     margin-bottom: 0 !important;
@@ -554,6 +566,7 @@ body#page-question-type-coderunner div[id^=fgroup_id_testcasecontrols_] {
 
 body#page-question-type-coderunner div[id^=fitem_id_deletetestcase_] {
     border-bottom: 1px solid #ccc !important;
+    border-radius: 0 0 0.5rem 0.5rem;
     padding-bottom: 8px !important;
 }
 
