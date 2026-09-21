@@ -526,6 +526,20 @@ li.bulktest.coderunner.context.quiz {
 }
 
 /* Ace gapfiller ui */
+
+/* Grey panel so the gaps stand out. Scoped to the default (textmate) light theme,
+   since a dark theme's light text would be unreadable on it. */
+.ace-gapfiller.ace-tm {
+    background-color: rgb(230, 230, 230);
+}
+
+/* A little more line spacing than the 18px used for other CodeRunner Ace editors.
+   Ace measures this and sizes the gap markers to match, so gaps get taller too. */
+.que.coderunner .ace-gapfiller.ace_editor,
+body#page-question-type-coderunner .ace-gapfiller.ace_editor {
+    line-height: 22px;
+}
+
 .ace-gap-background {
     position: absolute;
     background-color: SeaShell;
@@ -535,7 +549,36 @@ li.bulktest.coderunner.context.quiz {
 .ace-gap-outline {
     position: absolute;
     outline: 1px solid;
-    outline-color: rgba(0, 0, 0, 0.5);
+    outline-color: rgba(0, 0, 0, 0.25);
+}
+
+/* A multi-row gap is drawn as one row per line of the box, each with its own
+   marker (so its shared width can grow/shrink independently of neighbouring
+   gaps). These three classes make the stack read as a single combined box:
+   only the outer perimeter is bordered/rounded, with no border on the seams
+   between rows. outline (above) is unused here since it can't be removed on
+   just one side; box-sizing keeps the bordered box the same size outline gave it. */
+.ace-gap-outline-top {
+    position: absolute;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+}
+
+.ace-gap-outline-middle {
+    position: absolute;
+    box-sizing: border-box;
+    border-left: 1px solid rgba(0, 0, 0, 0.25);
+    border-right: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.ace-gap-outline-bottom {
+    position: absolute;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
 }
 
 /* stylelint-disable declaration-no-important  */

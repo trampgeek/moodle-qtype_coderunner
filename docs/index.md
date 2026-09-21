@@ -2415,8 +2415,7 @@ of the other settings displayed by CTRL + ',' are persisted in this way.
 
 ### Ace-gapfiller UI
 A UI that presents the user with an Ace editor window containing code with some
-gaps in it. The user is expected to fill in the gaps. Only simple gaps at most
-one line in length are supported.
+gaps in it. The user is expected to fill in the gaps.
 
 The text to be displayed in the editor window is by default the contents of the
 globalextra field in the question author form, but can alternatively be set
@@ -2427,8 +2426,24 @@ gap specifier of the form
     {[20-40]}
 
 where the two numbers are the default field width and maximum field width
-respectively. It the second number (and the preceding '-') is omitted,
+respectively. If the second number (and the preceding '-') is omitted,
 the field width can expand arbitrarily.
+
+A gap can also span multiple lines, using a specifier of the form
+
+    {[3-8, 20-40]}
+
+where the first pair of numbers gives the initial and maximum number of lines
+in the gap and the second gives the initial and maximum width of each line, on
+exactly the same "N" or "N-M" basis as the single-line form above (so, for
+example, `{[3, 20]}` is a fixed-at-3-lines gap that can grow arbitrarily wide,
+and `{[3-8, 20]}` is a 3-to-8-line gap of fixed 20-character lines). Whatever
+literal text precedes and follows the specifier on its source line is
+reproduced, unchanged, on every line the student adds to the gap. This is what
+lets a multi-line gap stay indented in an indentation-sensitive language such
+as Python: put the gap specifier after some leading spaces and every line the
+student types into it starts with those same spaces. All lines of a given gap
+share a common width, which grows and shrinks together as the student types.
 
 For example (a case in which the source is test0):
 
@@ -2462,9 +2477,9 @@ gaps, or an empty string if all the gaps are left empty.
 ### Gap Filler UI
 
 This plugin is an older version of the Ace gapfiller UI and has largely been
-superseded by it. It does have one advantage over the Ace gapfiller: it
-allows for multiline HTML text area gaps as well as single line HTML input
-elements. But the program is displayed as simple non-syntax-coloured text.
+superseded by it, now that the Ace gapfiller also supports multiline gaps.
+The program is displayed as simple non-syntax-coloured text, whereas the
+Ace gapfiller uses a full syntax-coloured Ace editor window.
 
 This UI replaces the usual textarea answer box with a div
 consisting of pre-formatted text supplied by the question author in either the

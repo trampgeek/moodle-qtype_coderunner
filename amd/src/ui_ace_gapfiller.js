@@ -28,19 +28,35 @@
  * The locations within the globalextra text at which the gaps are
  * to be inserted are denoted by "tags" of the form
  *
- *     {[ size ]}
+ *     {[ cols ]}
  *
  * or
  *
- *     {[ size-maxSize ]}
+ *     {[ cols-maxCols ]}
  *
- * where size and maxSize are integer literals. These respectively inject a "gap" into
- * the editor of the specified size and maxSize. If maxSize is not specified then the
- * "gap" has no maximum size and can grow without bound.
+ * where cols and maxCols are integer literals. These respectively inject a single-line
+ * "gap" into the editor of the specified width and maximum width. If maxCols is not
+ * specified then the gap width can grow without bound.
+ *
+ * A gap can also span multiple lines, using a tag of the form
+ *
+ *     {[ rows, cols ]}
+ *
+ * where each of rows and cols is, just as above, either a plain integer or a
+ * "min-max" range, e.g. {[ 3-8, 20-60 ]}. This defines a gap of (initially) 'rows'
+ * lines, each of width 'cols', that the student can grow (by pressing Enter to add a
+ * new line, or by typing/pasting beyond the current width) up to the given maxima, if
+ * any. Whatever literal text precedes and follows the tag on its source line is
+ * reproduced, unchanged, on every line of the gap - this is how, for example, a
+ * multi-line gap can be kept indented (by preceding the tag with spaces) without the
+ * UI needing to know anything about the language being edited. All lines of a given
+ * gap share the same width, which grows and shrinks in lockstep across every line as
+ * the student types.
  *
  * The serialisation of the answer box contents, i.e. the text that
  * copied back into the textarea for submissions
  * as the answer, is simply a list of all the field values (strings), in order.
+ * The value of a multi-line gap is its lines joined with newline characters.
  *
  * As a special case of the serialisation, if the value list is empty, the
  * serialisation itself is the empty string.
@@ -49,7 +65,7 @@
  * ']}'.
  *
  * @module qtype_coderunner/ui_ace_gapfiller
- * @copyright  Richard Lobb, 2019, The University of Canterbury
+ * @copyright  Richard Lobb, 2019, 2026 The University of Canterbury
  * @copyright  Matthew Toohey, 2021, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -100,7 +116,7 @@ define(['jquery'], function($) {
             this.capturingTab = false;
             this.clickInProgress = false;
 
-            this.editNode = $("<div></div>"); // Ace editor manages this
+            this.editNode = $("<div class='ace-gapfiller'></div>"); // Ace editor manages this
             this.editNode.css({
                 resize: 'none',
                 height: h,
@@ -117,6 +133,11 @@ define(['jquery'], function($) {
                 dragEnabled: false,
                 enableBasicAutocompletion: true,
                 newLineMode: "unix",
+                // Force off regardless of the user's global Ace wrap preference
+                // (persisted in localStorage and otherwise inherited here): gap
+                // markers are positioned by document column, and soft-wrapping a
+                // row onto more than one screen line breaks that box geometry.
+                wrap: false,
             });
             this.editor.$blockScrolling = Infinity;
 
@@ -165,9 +186,11 @@ define(['jquery'], function($) {
                 let gap = t.findCursorGap(cursor);
 
                 if (commandName.startsWith("go")) {  // If command just moves the cursor then do nothing.
-                    if (gap !== null && commandName === "gotoright" && cursor.column === gap.range.start.column+gap.textSize) {
+                    let r = gap !== null ? gap.rowIndexAt(cursor.row) : -1;
+                    if (gap !== null && commandName === "gotoright" && r !== -1 &&
+                            cursor.column === gap.startCol + gap.textSizes[r]) {
                         // In this case we jump out of gap over the empty space that contains nothing that the user has entered.
-                        t.editor.moveCursorTo(cursor.row, gap.range.end.column+1);
+                        t.editor.moveCursorTo(cursor.row, gap.startCol + gap.getWidth() + 1);
                     } else {
                         return;
                     }
@@ -182,61 +205,77 @@ define(['jquery'], function($) {
                 } else if (commandName === "indent") {
                     // Instead of indenting, move to next gap.
                     let nextGap = t.gaps[(gap.index+1) % t.gaps.length];
-                    t.editor.moveCursorTo(nextGap.range.start.row, nextGap.range.start.column+nextGap.textSize);
+                    t.editor.moveCursorTo(nextGap.rowRanges[0].start.row, nextGap.startCol + nextGap.textSizes[0]);
                     t.editor.selection.clearSelection(); // Clear selection.
 
                 } else if (commandName === "selectall") {
-                    // Select all text in a gap if we are in a gap.
-                    t.editor.selection.setSelectionRange(new Range(gap.range.start.row,
-                                                         gap.range.start.column,
-                                                         gap.range.start.row,
-                                                         gap.range.end.column), false);
+                    // Select all text on the current line of the gap (a gap can span several lines).
+                    t.editor.selection.setSelectionRange(new Range(cursor.row, gap.startCol,
+                                                         cursor.row, gap.startCol + gap.getWidth()), false);
 
                 } else if (t.editor.selection.isEmpty()) {
                     // User is not selecting multiple characters.
+                    let r = gap.rowIndexAt(cursor.row);
                     if (commandName === "insertstring") {
                         let char = e.args;
-                        // Only allow user to insert 'valid' chars.
-                        if (validChars.test(char)) {
+                        if (char === "\n") {
+                            // Enter within a gap: split this line of the gap in two, if the gap
+                            // isn't already at its maximum number of lines.
+                            let newCursor = gap.splitRowAt(t.gaps, cursor);
+                            if (newCursor !== null) {
+                                t.editor.moveCursorTo(newCursor.row, newCursor.column);
+                            }
+                        } else if (validChars.test(char)) {
+                            // Only allow user to insert 'valid' chars.
                             gap.insertChar(t.gaps, cursor, char);
                         }
                     } else if (commandName === "backspace") {
-                        // Only delete chars that are actually in the gap.
-                        if (cursor.column > gap.range.start.column && gap.textSize > 0) {
+                        if (cursor.column > gap.startCol && gap.textSizes[r] > 0) {
+                            // Only delete chars that are actually in the gap.
                             gap.deleteChar(t.gaps, {row: cursor.row, column: cursor.column-1});
+                        } else if (cursor.column === gap.startCol && r > 0) {
+                            // At the start of a line other than the gap's first: join with the line above.
+                            let newCursor = gap.joinRows(t.gaps, r-1);
+                            t.editor.moveCursorTo(newCursor.row, newCursor.column);
                         }
                     } else if (commandName === "del") {
-                        // Only delete chars that are actually in the gap.
-                        if (cursor.column < gap.range.start.column + gap.textSize && gap.textSize > 0) {
+                        if (cursor.column < gap.startCol + gap.textSizes[r]) {
+                            // Only delete chars that are actually in the gap.
                             gap.deleteChar(t.gaps, cursor);
+                        } else if (cursor.column === gap.startCol + gap.textSizes[r] && r < gap.numRows() - 1) {
+                            // At the end of a line other than the gap's last: join with the line below.
+                            let newCursor = gap.joinRows(t.gaps, r);
+                            t.editor.moveCursorTo(newCursor.row, newCursor.column);
                         }
                     }
                     t.editor.selection.clearSelection(); // Keep selection clear.
 
                 } else if (!t.editor.selection.isEmpty() && gap.cursorInGap(selectionRange.start)
-                           && gap.cursorInGap(selectionRange.end)) {
-                    // User is selecting multiple characters and is in a gap.
+                           && gap.cursorInGap(selectionRange.end) && selectionRange.start.row === selectionRange.end.row) {
+                    // User is selecting multiple characters, all on one line of the gap.
 
                     // These are the commands that remove the selected text.
                     if (commandName === "insertstring" || commandName === "backspace"
                         || commandName === "del" || commandName === "paste"
                         || commandName === "cut") {
 
-                        gap.deleteRange(t.gaps, selectionRange.start.column, selectionRange.end.column);
+                        gap.deleteRange(t.gaps, selectionRange.start.row, selectionRange.start.column, selectionRange.end.column);
                         t.editor.selection.clearSelection(); // Clear selection.
                     }
 
                     if (commandName === "insertstring") {
                         let char = e.args;
-                        if (validChars.test(char)) {
+                        if (char !== "\n" && validChars.test(char)) {
                             gap.insertChar(t.gaps, selectionRange.start, char);
                         }
                     }
                 }
 
-                // Paste text into gap.
+                // Paste text into gap. Any newlines in the pasted text split the gap's
+                // current line, exactly as if the user had pressed Enter at that point.
                 if (gap !== null && commandName === "paste") {
-                    gap.insertText(t.gaps, selectionRange.start.column, e.args.text);
+                    let newCursor = gap.insertText(t.gaps, selectionRange.start, e.args.text);
+                    t.editor.moveCursorTo(newCursor.row, newCursor.column);
                 }
 
                 e.preventDefault();
@@ -248,24 +287,25 @@ define(['jquery'], function($) {
                 let cursor = t.editor.selection.getCursor();
                 let gap = t.findCursorGap(cursor);
                 if (gap !== null) {
-                    if (cursor.column > gap.range.start.column+gap.textSize) {
-                        t.editor.moveCursorTo(gap.range.start.row, gap.range.start.column+gap.textSize);
+                    let r = gap.rowIndexAt(cursor.row);
+                    if (r !== -1 && cursor.column > gap.startCol + gap.textSizes[r]) {
+                        t.editor.moveCursorTo(cursor.row, gap.startCol + gap.textSizes[r]);
                     }
                 }
             });
 
             this.gapToSelect = null;    // Stores gap that has been selected with triple click.
+            this.rowToSelect = null;    // The row (within gapToSelect) that was triple-clicked.
 
-            // Select all text in gap on triple click within gap.
+            // Select all text on the clicked line of the gap on triple click within a gap.
             this.editor.on("tripleclick", function(e) {
                 let cursor = t.editor.selection.getCursor();
                 let gap = t.findCursorGap(cursor);
                 if (gap !== null) {
-                    t.editor.selection.setSelectionRange(new Range(gap.range.start.row,
-                                                                   gap.range.start.column,
-                                                                   gap.range.start.row,
-                                                                   gap.range.end.column), false);
+                    t.editor.selection.setSelectionRange(new Range(cursor.row, gap.startCol,
+                                                                   cursor.row, gap.startCol + gap.getWidth()), false);
                     t.gapToSelect = gap;
+                    t.rowToSelect = cursor.row;
                     e.preventDefault();
                     e.stopPropagation();
                 }
@@ -274,8 +314,10 @@ define(['jquery'], function($) {
             // Annoying hack to ensure the tripple click thing works.
             this.editor.on("click", function(e) {
                 if (t.gapToSelect) {
-                    t.editor.moveCursorTo(t.gapToSelect.range.start.row, t.gapToSelect.range.start.column+t.gapToSelect.textSize);
+                    let r = t.gapToSelect.rowIndexAt(t.rowToSelect);
+                    t.editor.moveCursorTo(t.rowToSelect, t.gapToSelect.startCol + (r === -1 ? 0 : t.gapToSelect.textSizes[r]));
                     t.gapToSelect = null;
+                    t.rowToSelect = null;
                     e.preventDefault();
                     e.stopPropagation();
                 }
@@ -287,6 +329,41 @@ define(['jquery'], function($) {
         catch(err) {
             // Something ugly happened. Probably ace editor hasn't been loaded
             this.fail = true;
+        }
+    }
+
+    /**
+     * Parse the contents of a single gap tag dimension, which is either a plain
+     * integer (e.g. "20") or a min-max range (e.g. "20-40").
+     * @param {string} spec The dimension text to parse.
+     * @returns {object} An object {min: int, max: int}. If no max was given, max is Infinity.
+     */
+    function parseDimension(spec) {
+        let parts = spec.split('-');
+        return {
+            min: parseInt(parts[0], 10),
+            max: parts.length > 1 ? parseInt(parts[1], 10) : Infinity
+        };
+    }
+
+    /**
+     * Shift the row number of every row of every gap that lies strictly after
+     * afterRow, by delta. Used to keep all gaps' bookkeeping in sync whenever a
+     * line is physically inserted into, or removed from, the document by one gap
+     * growing or shrinking its number of rows.
+     * @param {Array} gaps The full list of gaps in the editor.
+     * @param {int} afterRow Only rows after this document row are shifted.
+     * @param {int} delta The amount (+1 or -1) to shift by.
+     */
+    function shiftRowsAfter(gaps, afterRow, delta) {
+        for (let i = 0; i < gaps.length; i++) {
+            let rowRanges = gaps[i].rowRanges;
+            for (let r = 0; r < rowRanges.length; r++) {
+                if (rowRanges[r].start.row > afterRow) {
+                    rowRanges[r].start.row += delta;
+                    rowRanges[r].end.row += delta;
+                }
+            }
         }
     }
 
@@ -321,39 +398,49 @@ define(['jquery'], function($) {
 
         let sepLeft = reEscape('{[');
         let sepRight = reEscape(']}');
-        let splitter = new RegExp(sepLeft + ' *((?:\\d+)|(?:\\d+- *\\d+)) *' + sepRight);
+        let dim = '\\d+(?: *- *\\d+)?';
+        let splitter = new RegExp(sepLeft + ' *(' + dim + '(?: *, *' + dim + ')?) *' + sepRight);
 
-        let editorContent = "";
+        let outputLines = [];  // The lines of the editor content, built up as we go.
+
         for (let i = 0; i < lines.length; i++) {
             let bits = lines[i].split(splitter);
-            editorContent += bits[0];
+            let prefix = bits[0];
+            let currentLine = prefix;
 
-            let columnPos = bits[0].length;
             for (let j = 1; j < bits.length; j += 2) {
-                let values = bits[j].split('-');
-                let minWidth = parseInt(values[0]);
-                let maxWidth = (values.length > 1 ? parseInt(values[1]) : Infinity);
+                let dims = bits[j].split(',').map(s => s.trim());
+                let suffix = (j + 1 < bits.length) ? bits[j + 1] : '';
+                let rowsSpec = dims.length > 1 ? parseDimension(dims[0]) : {min: 1, max: 1};
+                let colsSpec = parseDimension(dims[dims.length - 1]);
 
-                // Create new gap.
-                let gap = new Gap(this.editor, i, columnPos, minWidth, maxWidth);
+                let gap = new Gap(this.editor, outputLines.length, currentLine.length, rowsSpec, colsSpec, prefix, suffix);
                 gap.index = this.nextGapIndex;
                 this.nextGapIndex += 1;
                 this.gaps.push(gap);
 
-                columnPos += minWidth;
-                editorContent += ' '.repeat(minWidth);
-                if (j + 1 < bits.length) {
-                    editorContent += bits[j+1];
-                    columnPos += bits[j+1].length;
+                currentLine += ' '.repeat(colsSpec.min);
+
+                if (gap.numRows() > 1) {
+                    // Multi-row gap: emit all but its last line now, each reproducing
+                    // the prefix/suffix. Its last line is left in currentLine, both so
+                    // it gets pushed exactly once, below, by the same code path used
+                    // for every other line, and so that anything else on the same
+                    // source line after this tag (not a combination we specially
+                    // support) attaches to that last line rather than being lost.
+                    currentLine += suffix;
+                    outputLines.push(currentLine);
+                    for (let r = 1; r < gap.numRows() - 1; r++) {
+                        outputLines.push(prefix + ' '.repeat(colsSpec.min) + suffix);
+                    }
+                    currentLine = prefix + ' '.repeat(colsSpec.min) + suffix;
+                } else {
+                    currentLine += suffix;
                 }
-
             }
-
-            if (i < lines.length-1) {
-                editorContent += '\n';
-            }
+            outputLines.push(currentLine);
         }
-        this.editor.session.setValue(editorContent);
+        this.editor.session.setValue(outputLines.join('\n'));
     };
 
     /**
@@ -418,7 +505,8 @@ define(['jquery'], function($) {
                 let values = JSON.parse(content);
                 for (let i = 0; i < this.gaps.length; i++) {
                     let value = i < values.length ? values[i]: '???';
-                    this.gaps[i].insertText(this.gaps, this.gaps[i].range.start.column, value);
+                    let gap = this.gaps[i];
+                    gap.insertText(this.gaps, {row: gap.rowRanges[0].start.row, column: gap.startCol}, value);
                 }
             } catch(e) {
                 // Just ignore errors
@@ -572,47 +660,181 @@ define(['jquery'], function($) {
 
     /**
      * Constructor for the Gap object that represents a gap in the source code
-     * that the user is expected to fill.
+     * that the user is expected to fill. A gap has one or more lines (rows),
+     * all of which share the same, currently-common, width - i.e. the gap is
+     * always a rectangle, though the box can grow taller (more rows) or wider
+     * (more columns) as the student types, within the given bounds.
      * @param {object} editor The Ace Editor object.
-     * @param {int} row The row within the text of the gap.
+     * @param {int} row The initial row within the text of the first line of the gap.
      * @param {int} column The column within the text of the gap.
-     * @param {int} minWidth The minimum width (in characters) of the gap.
-     * @param {int} maxWidth The maximum width (in characters) of the gap.
+     * @param {object} rowsSpec {min, max} number of rows in the gap.
+     * @param {object} colsSpec {min, max} width, in columns, of each row of the gap.
+     * @param {string} prefix The text (if any) preceding the tag on its source line.
+     *  Reproduced literally on every row of the gap beyond the first.
+     * @param {string} suffix The text (if any) following the tag on its source line.
+     *  Reproduced literally on every row of the gap beyond the first.
      */
-    function Gap(editor, row, column, minWidth, maxWidth=Infinity) {
+    function Gap(editor, row, column, rowsSpec, colsSpec, prefix, suffix) {
         this.editor = editor;
 
-        this.minWidth = minWidth;
-        this.maxWidth = maxWidth;
+        // A gap always needs at least one row to give the cursor somewhere to go,
+        // unlike a zero-width single-line gap, which still has a valid column.
+        this.minRows = Math.max(1, rowsSpec.min);
+        this.maxRows = Math.max(this.minRows, rowsSpec.max);
+        this.minCols = colsSpec.min;
+        this.maxCols = colsSpec.max;
+        this.prefix = prefix;
+        this.suffix = suffix;
+        this.startCol = column;
 
-        this.range = new Range(row, column, row, column+minWidth);
-        this.textSize = 0;
+        this.rowRanges = [];
+        this.outlineIds = [];
+        this.backgroundIds = [];
+        this.textSizes = [];
 
-        // Create markers
-        this.editor.session.addMarker(this.range, "ace-gap-outline", "text", true);
-        this.editor.session.addMarker(this.range, "ace-gap-background", "text", false);
-        const startPosition = this.range.start;
-        this.editor.session.insert(startPosition, "<!-- BEGIN CODE GAP -->");
+        for (let r = 0; r < this.minRows; r++) {
+            this.addRowMarkers(row + r, this.minCols);
+            this.textSizes.push(0);
+        }
+        // Every row was provisionally styled as a middle row (see addRowMarkers) -
+        // now that the final row count is known, fix up the true top and bottom.
+        this.restyleRowMarker(0);
+        if (this.minRows > 1) {
+            this.restyleRowMarker(this.minRows - 1);
+        }
     }
 
+    /**
+     * Create the outline/background markers for one new row of the gap and
+     * record them (and the row's Range) in this gap's bookkeeping arrays.
+     * Does not touch the document itself, nor this.textSizes. The outline is
+     * provisionally styled as a middle row; callers that change which row is
+     * first or last must fix up styling via restyleRowMarker.
+     * @param {int} absRow The absolute document row of the new gap row.
+     * @param {int} width The current width (number of columns) of the gap.
+     */
+    Gap.prototype.addRowMarkers = function(absRow, width) {
+        let range = new Range(absRow, this.startCol, absRow, this.startCol + width);
+        this.rowRanges.push(range);
+        this.backgroundIds.push(this.editor.session.addMarker(range, "ace-gap-background", "text", false));
+        this.outlineIds.push(this.editor.session.addMarker(range, "ace-gap-outline-middle", "text", true));
+    };
+
+    Gap.prototype.numRows = function() {
+        return this.rowRanges.length;
+    };
+
+    /**
+     * The outline CSS class appropriate to row r (0-based), given the gap's
+     * current number of rows: a single-row gap keeps the original all-round
+     * outline; a multi-row gap gets a class per row that only borders the
+     * sides that should be visible, so the rows read as one combined box
+     * rather than as separate stacked rectangles.
+     * @param {int} r A row index within this gap.
+     * @returns {string} The CSS class to use for that row's outline marker.
+     */
+    Gap.prototype.outlineClassFor = function(r) {
+        if (this.numRows() === 1) {
+            return "ace-gap-outline";
+        } else if (r === 0) {
+            return "ace-gap-outline-top";
+        } else if (r === this.numRows() - 1) {
+            return "ace-gap-outline-bottom";
+        }
+        return "ace-gap-outline-middle";
+    };
+
+    /**
+     * Recreate row r's outline marker using the class appropriate to its
+     * current position. Needed whenever a row is added or removed at either
+     * end of the gap, since that can change whether row 0 or the last row
+     * counts as "top"/"bottom"/"single" (interior rows are never affected).
+     * @param {int} r A row index within this gap.
+     */
+    Gap.prototype.restyleRowMarker = function(r) {
+        this.editor.session.removeMarker(this.outlineIds[r]);
+        this.outlineIds[r] = this.editor.session.addMarker(this.rowRanges[r], this.outlineClassFor(r), "text", true);
+    };
+
+    /**
+     * @param {int} absRow An absolute document row number.
+     * @returns {int} The index, within this gap, of the row at absRow, or -1
+     * if this gap has no row there.
+     */
+    Gap.prototype.rowIndexAt = function(absRow) {
+        for (let r = 0; r < this.rowRanges.length; r++) {
+            if (this.rowRanges[r].start.row === absRow) {
+                return r;
+            }
+        }
+        return -1;
+    };
+
     Gap.prototype.cursorInGap = function(cursor) {
-        return (cursor.row >= this.range.start.row && cursor.column >= this.range.start.column &&
-                cursor.row <= this.range.end.row && cursor.column <= this.range.end.column);
+        let r = this.rowIndexAt(cursor.row);
+        return r !== -1 && cursor.column >= this.startCol && cursor.column <= this.startCol + this.getWidth();
     };
 
+    // The current width (number of columns), shared by every row of the gap.
     Gap.prototype.getWidth = function() {
-        return (this.range.end.column-this.range.start.column);
+        return this.rowRanges[0].end.column - this.rowRanges[0].start.column;
     };
 
-    Gap.prototype.changeWidth = function(gaps, delta) {
-        this.range.end.column += delta;
+    // The most text the student has typed into any one row of the gap.
+    Gap.prototype.maxTextSize = function() {
+        return Math.max(...this.textSizes);
+    };
 
-        // Update any gaps that come after this one on the same line
-        for (let i=0; i < gaps.length; i++) {
+    /**
+     * Change the width of every row of this gap by delta, keeping the box a
+     * rectangle, and shift every other gap that shares a row with this one
+     * (and sits to its right) by the same amount, so as to stay aligned with it.
+     * editedRow is the row the caller is itself about to insert/remove a real
+     * character on - every OTHER row must have its actual document line
+     * padded or trimmed here to keep pace, since Ace clips a marker's column
+     * back down to the line's real length whenever it would otherwise extend
+     * past it (ace.js's $clipPositionToDocument, used by toScreenRange before
+     * every marker is drawn).
+     * @param {Array} gaps The full list of gaps in the editor.
+     * @param {int} delta The change (+1 or -1) in width.
+     * @param {int} editedRow The absolute document row the caller is handling itself.
+     */
+    Gap.prototype.changeWidth = function(gaps, delta, editedRow) {
+        for (let r = 0; r < this.rowRanges.length; r++) {
+            let range = this.rowRanges[r];
+            if (range.start.row !== editedRow) {
+                if (delta > 0) {
+                    this.editor.session.insert({row: range.start.row, column: range.end.column}, fillChar.repeat(delta));
+                } else {
+                    let end = range.end.column;
+                    this.editor.session.remove(new Range(range.start.row, end + delta, range.start.row, end));
+                }
+            }
+            range.end.column += delta;
+        }
+
+        for (let i = 0; i < gaps.length; i++) {
             let other = gaps[i];
-            if (other.range.start.row === this.range.start.row && other.range.start.column > this.range.start.column) {
-                other.range.start.column += delta;
-                other.range.end.column += delta;
+            if (other === this) {
+                continue;
+            }
+            let needsShift = false;
+            for (let r = 0; r < this.rowRanges.length && !needsShift; r++) {
+                let myRow = this.rowRanges[r].start.row;
+                for (let s = 0; s < other.rowRanges.length; s++) {
+                    if (other.rowRanges[s].start.row === myRow &&
+                            other.rowRanges[s].start.column > this.rowRanges[r].start.column) {
+                        needsShift = true;
+                        break;
+                    }
+                }
+            }
+            if (needsShift) {
+                other.startCol += delta;
+                for (let s = 0; s < other.rowRanges.length; s++) {
+                    other.rowRanges[s].start.column += delta;
+                    other.rowRanges[s].end.column += delta;
+                }
             }
         }
 
@@ -621,49 +843,214 @@ define(['jquery'], function($) {
     };
 
     Gap.prototype.insertChar = function(gaps, pos, char) {
-        if (this.textSize === this.getWidth() && this.getWidth() < this.maxWidth) {    // Grow the size of gap and insert char.
-            this.changeWidth(gaps, 1);
-            this.textSize += 1;  // Important to record that texSize has increased before insertion.
+        let r = this.rowIndexAt(pos.row);
+        if (r === -1) {
+            return;
+        }
+        if (this.textSizes[r] === this.getWidth() && this.getWidth() < this.maxCols) {    // Grow the size of gap and insert char.
+            this.changeWidth(gaps, 1, pos.row);
+            this.textSizes[r] += 1;  // Important to record that texSize has increased before insertion.
             this.editor.session.insert(pos, char);
-        } else if (this.textSize < this.maxWidth) {   // Insert char.
-            this.editor.session.remove(new Range(pos.row, this.range.end.column-1, pos.row, this.range.end.column));
-            this.textSize += 1;  // Important to record that texSize has increased before insertion.
+        } else if (this.textSizes[r] < this.maxCols) {   // Insert char.
+            let end = this.startCol + this.getWidth();
+            this.editor.session.remove(new Range(pos.row, end - 1, pos.row, end));
+            this.textSizes[r] += 1;  // Important to record that texSize has increased before insertion.
             this.editor.session.insert(pos, char);
         }
     };
 
     Gap.prototype.deleteChar = function(gaps, pos) {
-        this.textSize -= 1;
+        let r = this.rowIndexAt(pos.row);
+        if (r === -1) {
+            return;
+        }
+        this.textSizes[r] -= 1;
         this.editor.session.remove(new Range(pos.row, pos.column, pos.row, pos.column+1));
 
-        if (this.textSize >= this.minWidth) {
-            this.changeWidth(gaps, -1);  // Shrink the size of the gap.
+        // Only shrink the shared box once no row still needs the current width.
+        if (this.maxTextSize() < this.getWidth() && this.getWidth() > this.minCols) {
+            this.changeWidth(gaps, -1, pos.row);  // Shrink the size of the gap.
         } else {
             // Put new space at end so everything is shifted across.
-            this.editor.session.insert({row: pos.row, column: this.range.end.column-1}, fillChar);
+            this.editor.session.insert({row: pos.row, column: this.startCol + this.getWidth() - 1}, fillChar);
         }
     };
 
-    Gap.prototype.deleteRange = function(gaps, start, end) {
+    Gap.prototype.deleteRange = function(gaps, row, start, end) {
         for (let i = start; i < end; i++) {
-            if (start < this.range.start.column+this.textSize) {
-                this.deleteChar(gaps, {row: this.range.start.row, column: start});
+            let r = this.rowIndexAt(row);
+            if (start < this.startCol + this.textSizes[r]) {
+                this.deleteChar(gaps, {row: row, column: start});
             }
         }
     };
 
-    Gap.prototype.insertText = function(gaps, start, text) {
+    // Return the text the student has typed into row r (0-based, within this gap).
+    Gap.prototype.getRowText = function(r) {
+        let row = this.rowRanges[r].start.row;
+        return this.editor.session.getTextRange(new Range(row, this.startCol, row, this.startCol + this.textSizes[r]));
+    };
+
+    // Replace the text of row r (0-based, within this gap) with the given text,
+    // truncated to maxCols if necessary.
+    Gap.prototype.setRowText = function(gaps, r, text) {
+        let row = this.rowRanges[r].start.row;
+        while (this.textSizes[r] > 0) {
+            this.deleteChar(gaps, {row: row, column: this.startCol + this.textSizes[r] - 1});
+        }
+        for (let i = 0; i < text.length && i < this.maxCols; i++) {
+            this.insertChar(gaps, {row: row, column: this.startCol + this.textSizes[r]}, text[i]);
+        }
+    };
+
+    /**
+     * Handle Enter being pressed at the given cursor position within this gap,
+     * splitting the row's text there. If a next row already exists - as it
+     * will, up to minRows, from the moment the gap is created - the trailing
+     * text simply moves into it (mirroring the way typing into a single-line
+     * gap fills its existing width before growing it), with no change to the
+     * number of rows. Only once the cursor is in the last existing row does
+     * this actually grow the gap by a row, and then only up to maxRows.
+     * @param {Array} gaps The full list of gaps in the editor.
+     * @param {object} cursor The current cursor position.
+     * @returns {object} The new cursor position, or null if nothing happened
+     *  (cursor not in this gap, or already at the last row and at maxRows).
+     */
+    Gap.prototype.splitRowAt = function(gaps, cursor) {
+        let r = this.rowIndexAt(cursor.row);
+        if (r === -1) {
+            return null;
+        }
+        let colInRow = cursor.column - this.startCol;
+        let rowText = this.getRowText(r);
+        let before = rowText.slice(0, colInRow);
+        let after = rowText.slice(colInRow);
+
+        if (r < this.numRows() - 1) {
+            // A next row already exists: move the trailing text into it
+            // rather than creating a whole new row.
+            let nextRowText = this.getRowText(r + 1);
+            this.setRowText(gaps, r, before);
+            this.setRowText(gaps, r + 1, after + nextRowText);
+            return {row: this.rowRanges[r + 1].start.row, column: this.startCol};
+        }
+
+        if (this.numRows() >= this.maxRows) {
+            return null;
+        }
+
+        // In the last existing row and still below the maximum: grow a new row.
+        let absRow = cursor.row;
+        let width = this.getWidth();
+        let lineLen = this.editor.session.getLine(absRow).length;
+
+        this.editor.session.insert({row: absRow, column: lineLen}, '\n' + this.prefix + ' '.repeat(width) + this.suffix);
+        shiftRowsAfter(gaps, absRow, 1);
+
+        let newRange = new Range(absRow + 1, this.startCol, absRow + 1, this.startCol + width);
+        this.rowRanges.splice(r + 1, 0, newRange);
+        this.backgroundIds.splice(r + 1, 0, this.editor.session.addMarker(newRange, "ace-gap-background", "text", false));
+        // The new row is always the new last row, so it's always styled as "bottom".
+        this.outlineIds.splice(r + 1, 0, this.editor.session.addMarker(newRange, "ace-gap-outline-bottom", "text", true));
+        this.textSizes.splice(r + 1, 0, 0);
+        // The old last row is no longer last - restyle it as "top" or "middle".
+        this.restyleRowMarker(r);
+
+        this.setRowText(gaps, r, before);
+        this.setRowText(gaps, r + 1, after);
+
+        this.editor.$onChangeBackMarker();
+        this.editor.$onChangeFrontMarker();
+
+        return {row: absRow + 1, column: this.startCol};
+    };
+
+    /**
+     * Handle Backspace/Delete merging row r+1 of this gap into row r, as if
+     * the student had deleted the line break between them. Above minRows this
+     * removes row r+1 from the document entirely, exactly reversing the row
+     * growth done by splitRowAt. At minRows the row itself can't go away (just
+     * as a column at the minimum width can't either), so only the content
+     * moves up, leaving row r+1 in place but empty.
+     * @param {Array} gaps The full list of gaps in the editor.
+     * @param {int} r The (0-based) row, within this gap, to merge its successor into.
+     * @returns {object} The resulting cursor position (end of row r's original text).
+     */
+    Gap.prototype.joinRows = function(gaps, r) {
+        let merged = (this.getRowText(r) + this.getRowText(r + 1)).slice(0, this.maxCols);
+        let cursor = {row: this.rowRanges[r].start.row, column: this.startCol + this.textSizes[r]};
+
+        if (this.numRows() > this.minRows) {
+            let upperAbsRow = this.rowRanges[r].start.row;
+            let lowerAbsRow = this.rowRanges[r + 1].start.row;
+            let upperLineLen = this.editor.session.getLine(upperAbsRow).length;
+            let lowerLineLen = this.editor.session.getLine(lowerAbsRow).length;
+
+            this.editor.session.removeMarker(this.outlineIds[r + 1]);
+            this.editor.session.removeMarker(this.backgroundIds[r + 1]);
+            this.outlineIds.splice(r + 1, 1);
+            this.backgroundIds.splice(r + 1, 1);
+            this.rowRanges.splice(r + 1, 1);
+            this.textSizes.splice(r + 1, 1);
+
+            this.editor.session.remove(new Range(upperAbsRow, upperLineLen, lowerAbsRow, lowerLineLen));
+            shiftRowsAfter(gaps, lowerAbsRow, -1);
+
+            // If row r+1 was the last row, row r has taken over that role
+            // (or become the sole row) and needs restyling to match.
+            if (r === this.numRows() - 1) {
+                this.restyleRowMarker(r);
+            }
+        } else {
+            // At the floor: clear row r+1's content but keep the row itself.
+            this.setRowText(gaps, r + 1, '');
+        }
+
+        this.setRowText(gaps, r, merged);
+
+        this.editor.$onChangeBackMarker();
+        this.editor.$onChangeFrontMarker();
+        return cursor;
+    };
+
+    /**
+     * Insert text at the given position within this gap. Any newline in the
+     * text splits the current row, exactly as if the student had pressed
+     * Enter there (subject to the gap's maximum number of rows - once that's
+     * reached, further newlines in the text are simply dropped and the rest
+     * of the text carries on filling the last row).
+     * @param {Array} gaps The full list of gaps in the editor.
+     * @param {object} pos The starting {row, column} position.
+     * @param {string} text The text to insert.
+     * @returns {object} The resulting cursor position.
+     */
+    Gap.prototype.insertText = function(gaps, pos, text) {
+        let cursor = {row: pos.row, column: pos.column};
         for (let i = 0; i < text.length; i++) {
-            if (start+i < this.range.start.column+this.maxWidth) {
-                this.insertChar(gaps, {row: this.range.start.row, column: start+i}, text[i]);
+            let char = text[i];
+            if (char === "\n") {
+                let newCursor = this.splitRowAt(gaps, cursor);
+                if (newCursor !== null) {
+                    cursor = newCursor;
+                }
+                // Else: already at maxRows - drop this newline and keep going.
+            } else {
+                let r = this.rowIndexAt(cursor.row);
+                if (r !== -1 && this.textSizes[r] < this.maxCols) {
+                    this.insertChar(gaps, cursor, char);
+                    cursor = {row: cursor.row, column: cursor.column + 1};
+                }
             }
         }
+        return cursor;
     };
 
     Gap.prototype.getText = function() {
-        return this.editor.session.getTextRange(new Range(this.range.start.row, this.range.start.column,
-                                                this.range.end.row, this.range.start.column+this.textSize));
-
+        let parts = [];
+        for (let r = 0; r < this.numRows(); r++) {
+            parts.push(this.getRowText(r));
+        }
+        return parts.join('\n');
     };
 
     return {

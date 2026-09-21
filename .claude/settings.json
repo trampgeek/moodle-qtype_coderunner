@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//var/www/moodle/public/theme/boost/scss/preset/**)",
+      "Read(//var/www/moodle/public/theme/boost/**)",
+      "Bash(xargs grep -ln '$primary')",
+      "Bash(node /tmp/claude-1000/-var-www-moodle-public-question-type-coderunner/33c77c7e-69f4-49a8-b19a-31e79b8ee66a/scratchpad/tick_logic_test.mjs)",
+      "Bash(grep -rn \"rightanswer\" /var/www/moodle/public/question/engine/renderer.php /var/www/moodle/public/question/type/rendererbase.php 2>/dev/null | head -30)",
+      "Read(//var/www/moodle/public/question/engine/**)",
+      "Read(//var/www/moodle/public/question/type/**)",
+      "Read(//var/www/moodle/public/lib/**)",
+      "Read(//var/www/moodle/public/**)",
+      "Read(//var/www/moodle/public/lib/requirejs/**)",
+      "Bash(grep -rn \"requires->jquery\\\\|noConflict\" /var/www/moodle/public/question/type/coderunner/ /var/www/moodle/public/lib/outputrequirementslib.php 2>/dev/null | head -20)",
+      "Bash(grep -n \"function jquery\" -A 40 /var/www/moodle/public/lib/outputrequirementslib.php | head -60)",
+      "Bash(grep -rn \"function jquery\\\\b\" /var/www/moodle/public/lib/*.php)"
+    ]
+  }
+}
