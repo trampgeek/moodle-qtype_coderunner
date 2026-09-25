@@ -284,7 +284,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="coderunner">CodeRunner</h1>
-<p>Version: 5.10.2 15 September, 2026. Requires <strong>MOODLE V4.3 or later + PHP &gt;=8.1</strong>. Earlier versions
+<p>Version: 5.10.4 24 September, 2026. Requires <strong>MOODLE V4.3 or later + PHP &gt;=8.1</strong>. Earlier versions
 of Moodle must use CodeRunner V4.</p>
 <p>Authors: Richard Lobb, University of Canterbury, New Zealand.
          Paul McKeown, University of Canterbury, New Zealand.
@@ -2474,8 +2474,7 @@ in all Ace editor windows within that browser until changed back. However, none
 of the other settings displayed by CTRL + ',' are persisted in this way.</p>
 <h3 id="ace-gapfiller-ui">Ace-gapfiller UI</h3>
 <p>A UI that presents the user with an Ace editor window containing code with some
-gaps in it. The user is expected to fill in the gaps. Only simple gaps at most
-one line in length are supported.</p>
+gaps in it. The user is expected to fill in the gaps.</p>
 <p>The text to be displayed in the editor window is by default the contents of the
 globalextra field in the question author form, but can alternatively be set
 from the code in the first test case (see the ui_source UI parameter below).
@@ -2484,8 +2483,23 @@ gap specifier of the form</p>
 <pre><code>{[20-40]}
 </code></pre>
 <p>where the two numbers are the default field width and maximum field width
-respectively. It the second number (and the preceding '-') is omitted,
+respectively. If the second number (and the preceding '-') is omitted,
 the field width can expand arbitrarily.</p>
+<p>A gap can also span multiple lines (from version 5.10.4 onwards; earlier versions
+support only the single-line form above), using a specifier of the form</p>
+<pre><code>{[3-8, 20-40]}
+</code></pre>
+<p>where the first pair of numbers gives the initial and maximum number of lines
+in the gap and the second gives the initial and maximum width of each line, on
+exactly the same "N" or "N-M" basis as the single-line form above (so, for
+example, <code>{[3, 20]}</code> is a fixed-at-3-lines gap that can grow arbitrarily wide,
+and <code>{[3-8, 20]}</code> is a 3-to-8-line gap of fixed 20-character lines). Whatever
+literal text precedes and follows the specifier on its source line is
+reproduced, unchanged, on every line the student adds to the gap. This is what
+lets a multi-line gap stay indented in an indentation-sensitive language such
+as Python: put the gap specifier after some leading spaces and every line the
+student types into it starts with those same spaces. All lines of a given gap
+share a common width, which grows and shrinks together as the student types.</p>
 <p>For example (a case in which the source is test0):</p>
 <p><img src="https://coderunner.org.nz/pluginfile.php/56/mod_page/content/31/Screenshot%20from%202023-08-29%2016-50-18.png" /></p>
 <p>Since the STUDENT_ANSWER with this UI is just a list of the strings the student entered into
@@ -2513,9 +2527,9 @@ gaps, or an empty string if all the gaps are left empty.</p>
 </ul>
 <h3 id="gap-filler-ui">Gap Filler UI</h3>
 <p>This plugin is an older version of the Ace gapfiller UI and has largely been
-superseded by it. It does have one advantage over the Ace gapfiller: it
-allows for multiline HTML text area gaps as well as single line HTML input
-elements. But the program is displayed as simple non-syntax-coloured text.</p>
+superseded by it, now that the Ace gapfiller also supports multiline gaps.
+The program is displayed as simple non-syntax-coloured text, whereas the
+Ace gapfiller uses a full syntax-coloured Ace editor window.</p>
 <p>This UI replaces the usual textarea answer box with a div
 consisting of pre-formatted text supplied by the question author in either the
 "globalextra" field or the testcode field of the first test case, according
@@ -3853,5 +3867,5 @@ needs to make on each question.</p>
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2026-09-15 02:51:14.882130+00:00
+Build Date UTC : 2026-09-25 22:26:03.932773+00:00
 -->
