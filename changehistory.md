@@ -1,5 +1,14 @@
 # CHANGE HISTORY
 
+### September 24 2026, 5.10.4
+ * Ace-gapfiller UI: gaps can now span multiple lines (`{[rows, cols]}`, each dimension growable
+   up to a given maximum), rendered as a single combined box rather than one per line.
+
+### September 24 2026, 5.10.3
+ * Security hardening: restrict unserialize() of cached test outcomes and of the STUDENT/QUIZ
+   step data to their expected classes, to prevent PHP object-injection via crafted serialised
+   data (e.g. planted in a restored backup).
+
 ### September 15 2026, 5.10.2
  * Security fixes (cherry-picked from #296):
    - Scope quiztrajectory.php reporting to the caller's authorised course.

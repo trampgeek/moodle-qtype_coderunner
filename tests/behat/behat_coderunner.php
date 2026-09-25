@@ -190,6 +190,42 @@ class behat_coderunner extends behat_base {
         $this->i_set_ace_field($elname, $pystring->getRaw());
     }
 
+    /**
+     * Click at the centre of the given element via a synthetic mouse event,
+     * dispatched to whichever element is actually topmost there.
+     *
+     * Needed for clicking into an Ace gapfiller gap: its marker divs are
+     * valid click targets as far as Mink/WebDriver locators are concerned,
+     * but Ace's own text layer sits visually above them, so a plain "I click
+     * on ... css_element" is rejected by the browser with
+     * ElementClickInterceptedException even though the point is really
+     * clickable (Ace itself handles the click via that text layer, computing
+     * the row/column from where the click actually landed).
+     *
+     * @When /^I click at the centre of "(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)"$/
+     * @param string $element Element we look for
+     * @param string $selectortype The type of what we look for
+     */
+    public function i_click_at_the_centre_of($element, $selectortype) {
+        $node = $this->get_selected_node($selectortype, $element);
+        $xpath = $node->getXpath();
+        $javascript = "const el = document.evaluate("
+            . "`$xpath`,"
+            . "document,"
+            . "null,"
+            . "XPathResult.ANY_TYPE,null,"
+            . ").iterateNext();"
+            . "const rect = el.getBoundingClientRect();"
+            . "const x = rect.left + rect.width / 2;"
+            . "const y = rect.top + rect.height / 2;"
+            . "const target = document.elementFromPoint(x, y) || el;"
+            . "for (const type of ['mousedown', 'mouseup', 'click']) {"
+            . "    target.dispatchEvent(new MouseEvent(type, "
+            . "        {bubbles: true, cancelable: true, view: window, clientX: x, clientY: y, button: 0}));"
+            . "}";
+        $this->getSession()->executeScript($javascript);
+    }
+
 
     /**
      * Checks that a given string appears within a visible ins or del element

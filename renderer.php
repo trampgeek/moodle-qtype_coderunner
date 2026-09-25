@@ -304,7 +304,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
 
         $q = $qa->get_question();
-        $outcome = @unserialize($toserialised);
+        $outcome = $q->unserialize_outcome($toserialised);
         if ($outcome === false) {
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
             $outcome->set_status(qtype_coderunner_testing_outcome::STATUS_UNSERIALIZE_FAILED);

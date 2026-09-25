@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.10.2 15 September, 2026. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
+Version: 5.10.4 24 September, 2026. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
@@ -2429,7 +2429,8 @@ where the two numbers are the default field width and maximum field width
 respectively. If the second number (and the preceding '-') is omitted,
 the field width can expand arbitrarily.
 
-A gap can also span multiple lines, using a specifier of the form
+A gap can also span multiple lines (from version 5.10.4 onwards; earlier versions
+support only the single-line form above), using a specifier of the form
 
     {[3-8, 20-40]}
 

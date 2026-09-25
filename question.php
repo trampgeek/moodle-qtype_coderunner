@@ -31,6 +31,7 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 use qtype_coderunner\constants;
 use qtype_coderunner\coderunner_files;
+use core_table\output\html_table;
 
 /*
  * Represents a 'CodeRunner' question.
@@ -261,11 +262,15 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Also twig expand the rest of the question fields if $this->twigall is true.
     public function apply_attempt_state(question_attempt_step $step) {
         parent::apply_attempt_state($step);
-        $this->student = unserialize($step->get_qt_var('_STUDENT'));
+        $this->student = unserialize($step->get_qt_var('_STUDENT'), [
+            'allowed_classes' => [qtype_coderunner_student::class],
+        ]);
         $quiz = $step->get_qt_var('_QUIZ');
 
         // If the saved attempt did not have a quiz variable, create a dummy (empty) one.
-        $this->quiz = $quiz ? unserialize($quiz) : new qtype_coderunner_quiz();
+        $this->quiz = $quiz ? unserialize($quiz, [
+            'allowed_classes' => [qtype_coderunner_quiz::class],
+        ]) : new qtype_coderunner_quiz();
 
         // Ensure any randomisation is always the same.
         $seed = $step->get_qt_var('_mtrandseed');
@@ -867,6 +872,27 @@ class qtype_coderunner_question extends question_graded_automatically {
 
 
     /**
+     * Safely unserialize a serialised testing outcome, such as is cached in the
+     * '_testoutcome' question-attempt variable. This restricts the classes that
+     * unserialize() is allowed to instantiate to just those that legitimately
+     * occur within a serialised testing outcome, preventing PHP object-injection
+     * attacks via crafted serialised data (e.g. planted in a restored backup).
+     * @param string $serialised The serialised testing outcome.
+     * @return qtype_coderunner_testing_outcome|false The unserialised outcome, or
+     * false if unserialisation fails.
+     */
+    public function unserialize_outcome($serialised) {
+        return @unserialize($serialised, ['allowed_classes' => [
+            qtype_coderunner_testing_outcome::class,
+            qtype_coderunner_combinator_grader_outcome::class,
+            qtype_coderunner_test_result::class,
+            qtype_coderunner_html_wrapper::class,
+            html_table::class,
+        ]]);
+    }
+
+
+    /**
      * Grade the given student's response.
      * This implementation assumes a modified behaviour that will accept a
      * third array element in its response, containing data to be cached and
@@ -902,7 +928,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // This should be even quicker than the file cache.
         if (!empty($response['_testoutcome'])) {
             $testoutcomeserial = $response['_testoutcome'];
-            $testoutcome = unserialize($testoutcomeserial);
+            $testoutcome = $this->unserialize_outcome($testoutcomeserial);
             if (
                 $testoutcome instanceof qtype_coderunner_testing_outcome  // Ignore legacy-format outcomes.
                     && $testoutcome->isprecheck == $isprecheck
