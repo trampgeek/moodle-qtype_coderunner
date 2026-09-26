@@ -53,53 +53,70 @@
  * of the form ui_name.js which must define a class nameInstance with
  * the following functionality:
  *
+ * REQUIRED METHODS
+ *
  * 1. A constructor SomeUiName(textareaId, width, height, params) that
- *    builds an HTML component of the given width and height. textareaId is the
- *    ID of the textArea from which the UI element should obtain its initial
- *    serialisation and to which it should write the serialisation when its save
- *    or destroy methods are called. params is a JavaScript object,
- *    decoded from the JSON uiParams defined by the question plus any
- *    additional data required, such as the 'lang' in the case of Ace.
+ *    performs only synchronous, lightweight setup: recording parameters and
+ *    reading the textarea's current value. It must NOT attempt to access
+ *    window.ace or perform any async work (e.g. template rendering).
+ *    textareaId is the ID of the textArea from which the UI element should
+ *    obtain its initial serialisation and to which it should write the
+ *    serialisation when its sync() or destroy() methods are called. params is
+ *    a JavaScript object decoded from the JSON uiParams defined by the question
+ *    plus any additional data required, such as 'lang' for the Ace editors.
  *
- * 2. A getElement() method that returns the HTML element that the
- *    InterfaceWrapper is to insert into the document tree.
+ * 2. A failed() method that returns true if the constructor detected an error
+ *    (e.g. could not de-serialise the textarea's contents). When failed()
+ *    returns true the wrapper calls destroy() and aborts UI loading; the
+ *    textarea gets the uiloadfailed class and a visible error message.
  *
- * 3. A method failed() that should return true unless the constructor
- *    failed (e.g. because it was not able to de-serialise the text area's
- *    contents). The wrapper will call destroy() on the object if failed()
- *    returns true and abort the use of the UI element. The text area will
- *    have the uiloadfailed class added, which CSS will display in some
- *    error mode (e.g. a red border).
+ * 3. A failMessage() method returning a CodeRunner language-string key
+ *    describing the error. Only called when failed() returns true.
  *
- * 4. A method failMessage() that will be called only when failed() returns
- *    True. It should be a defined CodeRunner language string key.
+ * 4. A getElement() method that returns the HTML element to be inserted into
+ *    the document tree. Called only after ready() has resolved, so the element
+ *    is guaranteed to exist by then.
  *
- * 5. A sync() method that copies the serialised represention of the UI plugin's
- *    data to the related TextArea. This is used when submit is clicked.
+ * 5. A sync() method that copies the serialised representation of the UI
+ *    plugin's data to the related textarea. Called periodically and on submit.
  *
- * 6. A destroy() method that should sync the contents to the text area then
- *    destroy any HTML elements or other created content. This method is called
- *    when CTRL-ALT-M is typed by the user to turn off all UI plugins
+ * 6. A destroy() method that syncs contents to the textarea then removes any
+ *    HTML elements or other created content. Called when Ctrl-Alt-M toggles
+ *    the UI off or when the UI is replaced.
  *
- * 7. A resize(width, height) method that should resize the entire UI element
- *    to the given dimensions.
+ * 7. A resize(width, height) method that resizes the entire UI element to the
+ *    given dimensions.
  *
- * 8. A hasFocus() method that returns true if the UI element has focus.
+ * 8. A hasFocus() method that returns true if the UI element currently has
+ *    keyboard focus.
  *
- * 9. A syncIntervalSecs() method that returns the time interval between
- *    calls to the sync() method. 0 for no sync calls. The userinterfacewrapper
- *    provides all instances with a generic (base-class) version that returns
- *    the value of a UI parameter sync_interval_secs if given else uses the
- *    UI interface wrapper default (currently 5).
+ * OPTIONAL METHODS
  *
- * 10. An allowFullScreen() method that returns True if the UI supports
- *    use of the full-screen button in the bottom right of the UI wrapper.
- *    Defaults to False if not implemented.
+ * 9. A ready() method returning a Promise that resolves when the UI element
+ *    returned by getElement() is fully built and ready to be inserted into the
+ *    DOM. If absent, the wrapper behaves as if ready() returns Promise.resolve().
+ *    Use this for any async initialisation: waiting for window.ace to appear,
+ *    rendering Mustache templates, etc. Reject the promise (or throw) to signal
+ *    failure; the wrapper will then show the same error UI as a failed()
+ *    constructor.
  *
- * 11. A setAllowFullScreen(allow) method that takes a boolean parameter that
- *    allows or disallows the use of full screening. This overrides the setting
- *    from the allowFullScreen() method and is provided to allow parent UIs
- *    such as Scratchpad to override the default settings of a child UI.
+ * 10. A postInsert(wrapperNode) method called immediately after the element
+ *    returned by getElement() has been appended to wrapperNode in the live DOM.
+ *    Use this for work that requires DOM presence: finding child elements by ID,
+ *    creating nested InterfaceWrapper instances (e.g. sub-Ace editors), wiring
+ *    event listeners that need real layout. If absent, nothing extra is done.
+ *
+ * 11. A syncIntervalSecs() method that returns the time interval in seconds
+ *    between automatic calls to sync(). Return 0 to disable. The wrapper
+ *    provides a default that returns the sync_interval_secs UI parameter when
+ *    present, or DEFAULT_SYNC_INTERVAL_SECS otherwise.
+ *
+ * 12. An allowFullScreen() method that returns true if the UI supports the
+ *    full-screen toggle button. Defaults to false if not implemented.
+ *
+ * 13. A setAllowFullScreen(allow) method (boolean) that overrides the value
+ *    returned by allowFullScreen(). Provided so that a parent UI (e.g.
+ *    Scratchpad) can control the full-screen behaviour of a child UI.
  *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
@@ -475,7 +492,7 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
             if (this.retries > MAX_RETRIES) {
                 alert(errPart1 + uiname + errPart2);
                 this.retries = 0;
-                this.loading = 0;
+                this.isLoading = false;
             } else {
                 setTimeout(function() {
                     t.loadUi(uiname, params);
@@ -514,59 +531,72 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
                         loadFailDiv.className = 'uiloadfailed';
                         t.textArea.parentNode.insertBefore(loadFailDiv, t.textArea);
                         setLoadFailMessage(uiInstance.failMessage(), loadFailDiv);  // Insert error by AJAX
+                        t.isLoading = false;
                     } else {
-                        t.textArea.style.display = 'none';
-                        t.wrapperNode.style.display = '';
-                        let elementToAdd = uiInstance.getElement();
-                        if (elementToAdd && elementToAdd.jquery) { // Check if the UI instance returned a jQuery object.
-                            elementToAdd = elementToAdd[0];
-                        }
-
-                        if (elementToAdd) {
-                            // Some naughty (?) UIs, such as scratchpad UI, return null, and then
-                            // plug themselves into the wrapper asynchronously. [Necessary when using mustache templates].
-                            // So fingers crossed they know what they're doing.
-
+                        // Wait for the UI to signal readiness (e.g. Ace loaded, Mustache rendered),
+                        // then append its element and call postInsert for work requiring DOM presence.
+                        const readyPromise = typeof uiInstance.ready === 'function'
+                            ? uiInstance.ready()
+                            : Promise.resolve();
+                        readyPromise.then(function() {
+                            t.textArea.style.display = 'none';
+                            t.wrapperNode.style.display = '';
+                            let elementToAdd = uiInstance.getElement();
+                            if (elementToAdd && elementToAdd.jquery) {
+                                elementToAdd = elementToAdd[0];
+                            }
                             t.wrapperNode.appendChild(elementToAdd);
 
                             // With jQuery, any embedded <script> elements will have been executed.
                             // But not with pure JavaScript. We have to pull them out and append them to
                             // the head to trigger their execution.
-                            const scriptNodes = elementToAdd.querySelectorAll('script'); // Find all script tags in the node
+                            const scriptNodes = elementToAdd.querySelectorAll('script');
                             scriptNodes.forEach(oldScript => {
                                 const newScript = document.createElement('script');
                                 if (oldScript.src) {
-                                    // External script
                                     newScript.src = oldScript.src;
                                 } else {
-                                    // Inline script
                                     newScript.textContent = oldScript.textContent;
                                 }
-                                document.head.appendChild(newScript); // Append to the head (triggers execution)
-                                document.head.removeChild(newScript); // Remove the script again.
+                                document.head.appendChild(newScript);
+                                document.head.removeChild(newScript);
                             });
-                        }
-                        t.uiInstance = uiInstance;
-                        t.loadFailed = false;
-                        t.checkForResize();
 
+                            if (typeof uiInstance.postInsert === 'function') {
+                                uiInstance.postInsert(t.wrapperNode);
+                            }
 
-                        let canDoFullScreen = t.isFullScreenEnable !== null ?
-                            t.isFullScreenEnable : uiInstance.allowFullScreen?.();
-                        if (canDoFullScreen) {
-                            t.initFullScreenToggle(t.taId);
-                        } else {
-                            t.removeFullScreenButton(t.taId);
-                        }
-                        /*
-                        * Set a default syncIntervalSecs method if uiInstance lacks one.
-                        */
-                        let uiInstancePrototype = Object.getPrototypeOf(uiInstance);
-                        uiInstancePrototype.syncIntervalSecs = uiInstancePrototype.syncIntervalSecs || syncIntervalSecsBase;
-                        t.startSyncTimer(uiInstance);
-                        t.startSyncTimerForAnswerWrapper(t.textareaId);
+                            t.uiInstance = uiInstance;
+                            t.loadFailed = false;
+                            t.checkForResize();
+
+                            let canDoFullScreen = t.isFullScreenEnable !== null ?
+                                t.isFullScreenEnable : uiInstance.allowFullScreen?.();
+                            if (canDoFullScreen) {
+                                t.initFullScreenToggle(t.taId);
+                            } else {
+                                t.removeFullScreenButton(t.taId);
+                            }
+                            let uiInstancePrototype = Object.getPrototypeOf(uiInstance);
+                            uiInstancePrototype.syncIntervalSecs = uiInstancePrototype.syncIntervalSecs || syncIntervalSecsBase;
+                            t.startSyncTimer(uiInstance);
+                            t.startSyncTimerForAnswerWrapper(t.textareaId);
+                        }).catch(function() {
+                            t.loadFailed = true;
+                            t.wrapperNode.style.display = 'none';
+                            t.textArea.style.display = '';
+                            uiInstance.destroy();
+                            t.uiInstance = null;
+                            t.textArea.classList.add('uiloadfailed');
+                            const loadFailDiv = document.createElement('div');
+                            loadFailDiv.id = t.loadFailId;
+                            loadFailDiv.className = 'uiloadfailed';
+                            t.textArea.parentNode.insertBefore(loadFailDiv, t.textArea);
+                            setLoadFailMessage(uiInstance.failMessage(), loadFailDiv);
+                        }).finally(function() {
+                            t.isLoading = false;
+                        });
                     }
-                    t.isLoading = false;
                 });
         }
     };

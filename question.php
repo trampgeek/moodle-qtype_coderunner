@@ -313,7 +313,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $this->mergeduiparameters = $this->evaluate_merged_ui_parameters();
         } catch (Exception $e) {
             $error = $e->getMessage();
-            $this->parameters = ["initerror" => "' . $error . '"];
+            $this->parameters = (object) ["initerror" => $error];
             $this->templateparamsjson = json_encode($this->parameters);
             $erroroninit = get_string('erroroninit', 'qtype_coderunner', ['error' => $error]);
             $this->initialisationerrormessage = $erroroninit;
@@ -692,6 +692,19 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return string the message.
      */
     public function get_validation_error(array $response) {
+        // The $invalid question state is also used (by our custom behaviour)
+        // when a response was complete and gradable but grading itself
+        // failed, e.g. because the sandbox was unreachable. That's a
+        // different problem from an incomplete/empty response, so check for
+        // it first rather than letting validate_response() below wrongly
+        // conclude (from a step that only has _testoutcome, not answer) that
+        // no answer was given.
+        if (!empty($response['_testoutcome'])) {
+            $testoutcome = @unserialize($response['_testoutcome']);
+            if ($testoutcome instanceof qtype_coderunner_testing_outcome && $testoutcome->run_failed()) {
+                return get_string('unknownerror', 'qtype_coderunner');
+            }
+        }
         $error = $this->validate_response($response);
         if ($error) {
             return $error;

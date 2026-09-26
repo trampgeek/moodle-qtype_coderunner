@@ -1,15 +1,15 @@
 # CHANGE HISTORY
 
-### September 24 2026, 5.10.4
+### September 24 2026, 5.10.6
  * Ace-gapfiller UI: gaps can now span multiple lines (`{[rows, cols]}`, each dimension growable
    up to a given maximum), rendered as a single combined box rather than one per line.
 
-### September 24 2026, 5.10.3
+### September 24 2026, 5.10.5
  * Security hardening: restrict unserialize() of cached test outcomes and of the STUDENT/QUIZ
    step data to their expected classes, to prevent PHP object-injection via crafted serialised
    data (e.g. planted in a restored backup).
 
-### September 15 2026, 5.10.2
+### September 15 2026, 5.10.4
  * Security fixes (cherry-picked from #296):
    - Scope quiztrajectory.php reporting to the caller's authorised course.
    - Escape prototype name and gate output in prototypeusage.php.
@@ -20,6 +20,26 @@
    where any authenticated user could redirect run_in_sandbox requests to a host of their own
    choosing; Flexible allows specific pre-approved alternate servers, each with its own
    admin-configured API key that a caller can never supply themselves.
+
+### August 10 2026, 5.10.3
+ * Improve the error message shown when a Jobe sandbox HTTP request fails outright (e.g. a
+   network problem, misconfiguration, or Jobe crashing mid-request). The generic
+   "HTTP response from Jobe was 0: null" is now followed by curl's own diagnostic detail
+   (e.g. connection refused, timed out, connection reset), making it far easier to tell a
+   configuration problem from a transient failure or a sandbox-side crash.
+ * Bug fix: if grading failed because the sandbox itself was unreachable or crashed (rather
+   than because the student gave an empty answer), the student review page could wrongly
+   show "Please provide a non-empty answer" for a real, non-empty submission. It now
+   correctly reports that an unexpected sandbox error occurred.
+ * Bump dependency on the coderunner behaviour plugin to pick up a related fix: the same
+   sandbox-failure condition was also being misreported as "Incorrect" in the question's
+   status line, when no grading had actually completed.
+
+### August 3 2026, 5.10.2
+ * Refactor interface to UI plugins to allow asynchronous loading.
+ * Fix possible race problem in Ace editor loading that might theoretically result in wrongly laid-out text.
+ * Tweaks to improve robustess in the event of unexpected errors when loading prototypes.
+ * Tweak management script to remove redundant 'use' statements that might upset some style checkers.
 
 ### July 22 2026, 5.10.1
  * Bump dependency in version.php in order to trigger update to the coderunner behaviour code,

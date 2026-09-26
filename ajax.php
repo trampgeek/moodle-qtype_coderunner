@@ -54,7 +54,7 @@ if ($qtype) {
         $questionprototype = $questiontype;
         $questiontype = new stdClass();
         $questiontype->success = false;
-        if ($questiontype === null) {
+        if ($questionprototype === null) {
             $questiontype->error = json_encode(["error" => "missingprototype",
                 "alert" => "prototype_missing_alert", "extras" => ""]);
         } else {

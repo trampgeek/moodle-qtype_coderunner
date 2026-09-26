@@ -1518,3 +1518,5 @@ $string['bulktestusecachelabel'] = 'Use grading cache: ';
 $string['bulktestusecacheexplanation'] = 'Whether or not to use the Coderunner grading cache. Turning it off means that questions will always be run on the
 jobe server. When doing multiple runs, this setting will help show issues with individual jobe servers when you are using a list of servers or a jobe proxy that is load sharing to multiple jobes. Deafult: true';
 $string['bulktestallcachenotclearedmessage'] = '<b>Note:</b> Grading cache not cleared -- do it from admin-plugins-cache if you really want to clear the cache for all courses!';
+$string['errorprocessingqbanksforcourse'] = 'Error processing qbanks for {$a}.';
+$string['exceptionwas'] = 'Exception was: {$a}.';

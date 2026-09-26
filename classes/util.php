@@ -337,10 +337,10 @@ class qtype_coderunner_util {
         } else {
             $message = "Errors in HTML\n<br />";
             foreach (libxml_get_errors() as $error) {
-                $message .= "Line {$error->line} column {$error->line}: {$error->code}\n<br />";
+                $message .= "Line {$error->line} column {$error->column}: {$error->code}\n<br />";
             }
             libxml_clear_errors();
-            $message .= "\n<br />" + $html;
+            $message .= "\n<br />" . $html;
             return $message;
         }
     }

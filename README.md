@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.10.2 September 15, 2026. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
+Version: 5.10.6 September 26, 2026. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 CodeRunner is a Moodle question type that allows teachers to run a program in

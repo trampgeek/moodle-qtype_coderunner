@@ -25,10 +25,6 @@
 
 require_once(__DIR__ . '/../../../config.php');
 
-use context_system;
-use html_writer;
-use moodle_url;
-
 // Login and check permissions.
 // When reached via the course navigation link, courseid is provided and the
 // capability is checked in that course context (so editing teachers pass).

@@ -443,7 +443,7 @@ class qtype_coderunner_testing_outcome {
             if (
                 !property_exists($obj, $field) ||
                 (!is_null($obj->$field) && !is_string($obj->$field)) ||
-                (is_string($obj->$field) && trim($obj->$field !== ''))
+                (is_string($obj->$field) && (trim($obj->$field) !== ''))
             ) {
                 $n++;
             }

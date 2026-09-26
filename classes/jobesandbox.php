@@ -308,6 +308,12 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $this->currentjobid = null;
                 $runresult['error'] = $errorcode;
                 $runresult['stderr'] = "HTTP response from Jobe was $httpcode: " . json_encode($this->response);
+                // If curl itself failed (e.g. no HTTP response was ever received), curl's own
+                // error message is far more informative than the bare httpcode/response above,
+                // so tack it on when available.
+                if (!empty($curl->error)) {
+                    $runresult['stderr'] .= " (curl error {$curl->errno}: {$curl->error})";
+                }
             } else if ($this->response->outcome == self::RESULT_SERVER_OVERLOAD) {
                 $runresult['error'] = self::SERVER_OVERLOAD;
             } else {
@@ -526,10 +532,12 @@ class qtype_coderunner_jobesandbox extends qtype_coderunner_sandbox {
                 $returncode = $curl->info['http_code'];
                 $responsebody = $response === '' ? '' : json_decode($response);
             } else {
-                // Various weird stuff lands here, such as URL blocked.
-                // Hopefully the value of $response is useful.
+                // Various weird stuff lands here, such as a blocked URL. The
+                // reason (e.g. from Moodle's own curl security helper) ends up
+                // in $curl->error, which the caller already appends to the
+                // stderr message, so there's nothing useful to add here.
                 $returncode = -1;
-                $responsebody = json_encode($response);
+                $responsebody = '';
             }
         } else {
             // Request failed.

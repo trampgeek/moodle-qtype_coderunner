@@ -128,7 +128,7 @@ class cache_purger {
         }
         $definition = self::get_coderunner_cache_definition();
         $stores = self::get_all_stores($definition);
-        if (count($stores < 0)) {
+        if (count($stores) > 0) {
             $store = $stores[0];  // Use first store as all should have same contents.
             $keys = $store->find_all();
             $pattern = '/___contextid_(\d+)___/';

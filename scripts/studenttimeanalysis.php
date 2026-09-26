@@ -504,8 +504,15 @@ if ($courseid && !$dateerror && $download) {
 // HTML output.
 echo $OUTPUT->header();
 
-$defaultstart = $startdatestr ?: date('Y-m-d', strtotime('-4 weeks'));
-$defaultend   = $enddatestr ?: date('Y-m-d');
+if ($startdatestr !== '') {
+    $defaultstart = $startdatestr;
+} else if ($courseid) {
+    $coursestartdate = $DB->get_field('course', 'startdate', ['id' => $courseid]);
+    $defaultstart = $coursestartdate ? date('Y-m-d', $coursestartdate) : date('Y-m-d', strtotime('-4 weeks'));
+} else {
+    $defaultstart = date('Y-m-d', strtotime('-4 weeks'));
+}
+$defaultend = $enddatestr ?: date('Y-m-d');
 
 // If the Analyse button was clicked, render the form non-interactive immediately so
 // the user sees a locked form and "Computing data..." before the server starts work.

@@ -33,122 +33,152 @@
 // Thanks to Ulrich Dangel for the initial implementation of Ace within
 // CodeRunner.
 
-// WARNING: The ace editor must have already been loaded before this
-// module is used, as it assumes window.ace exists.
-
-define(['jquery'], function($) {
+define([], function() {
     const GLOBAL_THEME_KEY = 'qtype_coderunner.ace.theme';
     const ACE_DARK_THEME = 'ace/theme/tomorrow_night';
     const ACE_LIGHT_THEME = 'ace/theme/textmate';
     /**
      * Constructor for the Ace interface object.
+     * Stores parameters only; actual Ace initialisation happens in ready().
      * @param {string} textareaId The ID of the HTML textarea element to be wrapped.
      * @param {int} w The width in pixels of the textarea.
      * @param {int} h The height in pixels of the textarea.
      * @param {object} params The UI parameter object.
      */
     function AceWrapper(textareaId, w, h, params) {
-        var textarea = $(document.getElementById(textareaId)),
-            wrapper = $(document.getElementById(textareaId + '_wrapper')),
-            focused = textarea[0] === document.activeElement,
-            lang = params.lang,
-            session,
-            code,
-            t = this;  // For embedded callbacks.
-
-        try {
-            window.ace.require("ace/ext/language_tools");
-            this.modelist = window.ace.require('ace/ext/modelist');
-            this.textareaId = textareaId;
-            this.textarea = textarea;
-            this.enabled = false;
-            this.contents_changed = false;
-            this.capturingTab = false;
-            this.clickInProgress = false;
-
-            this.editNode = $("<div></div>"); // Ace editor manages this
-            this.editNode.css({
-                resize: 'none',
-                height: h,
-                width: "100%"
-            });
-
-            this.editor = window.ace.edit(this.editNode.get(0));
-            if (textarea.prop('readonly')) {
-                this.editor.setReadOnly(true);
-            }
-
-            this.editor.setOptions({
-                enableBasicAutocompletion: true,
-                enableLiveAutocompletion: params.live_autocompletion,
-                fontSize: params.font_size ? params.font_size : "14px",
-                newLineMode: "unix",
-            });
-
-            this.editor.$blockScrolling = Infinity;
-
-            session = this.editor.getSession();
-            code = this.textarea.val();
-            if (params.import_from_scratchpad === undefined || params.import_from_scratchpad) {
-                code = this.extract_from_json_maybe(code);
-            }
-            session.setValue(code);
-
-            // If there's a user-defined theme in local storage, use that.
-            // Otherwise use the 'prefers-color-scheme' option if given or
-            // the question/system defaults if not.
-            const userTheme = window.localStorage.getItem(GLOBAL_THEME_KEY);
-            const consider_prefers = params.auto_switch_light_dark && window.matchMedia;
-            if (userTheme !== null) {
-                this.editor.setTheme(userTheme);
-            } else if (consider_prefers && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                this.editor.setTheme(ACE_DARK_THEME);
-            } else if (consider_prefers && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                this.editor.setTheme(ACE_LIGHT_THEME);
-            }  else if (params.theme) {
-                this.editor.setTheme("ace/theme/" + params.theme);
-            } else {
-                this.editor.setTheme(ACE_LIGHT_THEME);
-            }
-            this.currentTheme = this.editor.getTheme();
-
-            this.fixSlowLoad();
-
-            this.setLanguage(lang);
-
-            this.setEventHandlers(textarea);
-            this.set_ace_aria_label(this.editor.container);
-            this.captureTab();
-
-            // Try to tell Moodle about parts of the editor with z-index.
-            // It is hard to be sure if this is complete. ACE adds all its CSS using JavaScript.
-            // Here, we just deal with things that are known to cause a problem.
-            // Can't do these operations until editor has rendered. So ...
-            this.editor.renderer.on('afterRender', function() {
-                var gutter =  wrapper.find('.ace_gutter');
-                if (gutter.hasClass('moodle-has-zindex')) {
-                    return;  // So we only do what follows once.
-                }
-                gutter.addClass('moodle-has-zindex');
-
-                if (focused) {
-                    t.editor.focus();
-                    t.editor.navigateFileEnd();
-                }
-                t.aceLabel = wrapper.find('.answerprompt');
-                t.aceLabel.attr('for', 'ace_' + textareaId);
-
-                t.aceTextarea = wrapper.find('.ace_text-input');
-                t.aceTextarea.attr('id', 'ace_' + textareaId);
-            });
-
-            this.fail = false;
-        }
-        catch(err) {
-            // Something ugly happened. Probably ace editor hasn't been loaded
-            this.fail = true;
-        }
+        this.textareaId = textareaId;
+        this.textarea = document.getElementById(textareaId);
+        this.wrapper = document.getElementById(textareaId + '_wrapper');
+        this.focused = this.textarea === document.activeElement;
+        this.lang = params.lang;
+        this.params = params;
+        this.w = w;
+        this.h = h;
+        this.enabled = false;
+        this.contents_changed = false;
+        this.capturingTab = false;
+        this.clickInProgress = false;
+        this.editNode = null;
+        this.editor = null;
+        this.fail = false;
     }
+
+    /**
+     * Initialise the Ace editor, polling until window.ace is available.
+     * Resolves when the editor is ready; rejects (after 3 s) if Ace never loads.
+     * On rejection the caller falls back to showing the raw textarea with an error.
+     * @returns {Promise}
+     */
+    AceWrapper.prototype.ready = function() {
+        const t = this;
+        const MAX_WAIT_MS = 3000;
+        const POLL_MS = 50;
+        return new Promise(function(resolve, reject) {
+            var elapsed = 0;
+            /**
+             * Poll until window.ace is available, then initialise the editor.
+             */
+            function tryInit() {
+                if (!window.ace) {
+                    elapsed += POLL_MS;
+                    if (elapsed >= MAX_WAIT_MS) {
+                        t.fail = true;
+                        reject(new Error('Ace editor not available'));
+                        return;
+                    }
+                    setTimeout(tryInit, POLL_MS);
+                    return;
+                }
+                // window.ace is available; wait for fonts before Ace measures character metrics.
+                document.fonts.ready.then(function() {
+                try {
+                    const textarea = t.textarea;
+                    const wrapper = t.wrapper;
+                    const focused = t.focused;
+                    const params = t.params;
+                    const lang = t.lang;
+
+                    window.ace.require("ace/ext/language_tools");
+                    t.modelist = window.ace.require('ace/ext/modelist');
+
+                    t.editNode = document.createElement('div');
+                    t.editNode.style.resize = 'none';
+                    t.editNode.style.height = t.h + 'px';
+                    t.editNode.style.width = '100%';
+
+                    t.editor = window.ace.edit(t.editNode);
+                    if (textarea.readOnly) {
+                        t.editor.setReadOnly(true);
+                    }
+
+                    t.editor.setOptions({
+                        enableBasicAutocompletion: true,
+                        enableLiveAutocompletion: params.live_autocompletion,
+                        fontSize: params.font_size ? params.font_size : "14px",
+                        newLineMode: "unix",
+                    });
+
+                    t.editor.$blockScrolling = Infinity;
+
+                    const session = t.editor.getSession();
+                    let code = textarea.value;
+                    if (params.import_from_scratchpad === undefined || params.import_from_scratchpad) {
+                        code = t.extract_from_json_maybe(code);
+                    }
+                    session.setValue(code);
+
+                    const userTheme = window.localStorage.getItem(GLOBAL_THEME_KEY);
+                    const consider_prefers = params.auto_switch_light_dark && window.matchMedia;
+                    if (userTheme !== null) {
+                        t.editor.setTheme(userTheme);
+                    } else if (consider_prefers && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        t.editor.setTheme(ACE_DARK_THEME);
+                    } else if (consider_prefers && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                        t.editor.setTheme(ACE_LIGHT_THEME);
+                    } else if (params.theme) {
+                        t.editor.setTheme("ace/theme/" + params.theme);
+                    } else {
+                        t.editor.setTheme(ACE_LIGHT_THEME);
+                    }
+                    t.currentTheme = t.editor.getTheme();
+
+                    t.fixSlowLoad();
+                    t.setLanguage(lang);
+                    t.setEventHandlers(textarea);
+                    t.set_ace_aria_label(t.editor.container);
+                    t.captureTab();
+
+                    // Try to tell Moodle about parts of the editor with z-index.
+                    // It is hard to be sure if this is complete. ACE adds all its CSS using JavaScript.
+                    // Here, we just deal with things that are known to cause a problem.
+                    // Can't do these operations until editor has rendered. So ...
+                    t.editor.renderer.on('afterRender', function() {
+                        const gutter = wrapper.querySelector('.ace_gutter');
+                        if (!gutter || gutter.classList.contains('moodle-has-zindex')) {
+                            return;
+                        }
+                        gutter.classList.add('moodle-has-zindex');
+                        if (focused) {
+                            t.editor.focus();
+                            t.editor.navigateFileEnd();
+                        }
+                        t.aceLabel = wrapper.querySelector('.answerprompt');
+                        t.aceLabel?.setAttribute('for', 'ace_' + t.textareaId);
+                        t.aceTextarea = wrapper.querySelector('.ace_text-input');
+                        t.aceTextarea?.setAttribute('id', 'ace_' + t.textareaId);
+                    });
+
+                    t.fail = false;
+                    resolve();
+                } catch(err) {
+                    t.fail = true;
+                    reject(err);
+                }
+                });
+            }
+            tryInit();
+        });
+    };
 
     AceWrapper.prototype.set_ace_aria_label = function(editor_container) {
         // Set the aria-label for the given Ace editor container to the
@@ -197,13 +227,11 @@ define(['jquery'], function($) {
             // other editor instances can switch to it.
             this.currentTheme = thisThemeNow;
             window.localStorage.setItem(GLOBAL_THEME_KEY, thisThemeNow);
-            // console.log(`Menu theme change. Global theme now ${thisThemeNow}`);
         } else if (globalTheme && thisThemeNow != globalTheme) {
             // Another window has set the theme (since if there had been a
             // global theme when we started, we'd have used it.
             this.editor.setTheme(globalTheme);
             this.currentTheme = globalTheme;
-            // console.log(`Global theme change found: ${globalTheme}`);
         }
     };
 
@@ -234,29 +262,28 @@ define(['jquery'], function($) {
     };
 
     // Sometimes Ace editors do not load until the mouse is moved. To fix this,
-    // 'move' the mouse using JQuery when the editor div enters the viewport.
+    // synthesise a mousemove event when the editor div enters the viewport.
     AceWrapper.prototype.fixSlowLoad = function () {
-        const observer = new IntersectionObserver( () => {
-            $(document).trigger('mousemove');
+        const observer = new IntersectionObserver(() => {
+            document.dispatchEvent(new MouseEvent('mousemove'));
         });
-        const editNode = this.editNode.get(0); // Non-JQuerry node.
-        observer.observe(editNode);
+        observer.observe(this.editNode);
     };
 
-    AceWrapper.prototype.setEventHandlers = function () {
+    AceWrapper.prototype.setEventHandlers = function (textarea) {
         var TAB = 9,
             ESC = 27,
             KEY_M = 77,
             t = this;
 
         this.editor.getSession().on('change', function() {
-            t.textarea.val(t.editor.getSession().getValue());
+            textarea.value = t.editor.getSession().getValue();
             t.contents_changed = true;
         });
 
         this.editor.on('blur', function() {
             if (t.contents_changed) {
-                t.textarea.trigger('change');
+                textarea.dispatchEvent(new Event('change'));
             }
         });
 
@@ -300,16 +327,14 @@ define(['jquery'], function($) {
     };
 
     AceWrapper.prototype.destroy = function () {
-        var focused;
-        if (!this.fail) {
-            // Proceed only if this wrapper was correctly constructed
-            focused = this.editor.isFocused();
-            this.textarea.val(this.editor.getSession().getValue()); // Copy data back
+        if (this.editor) {
+            const focused = this.editor.isFocused();
+            this.textarea.value = this.editor.getSession().getValue();
             this.editor.destroy();
-            $(this.editNode).remove();
+            this.editNode.remove();
             if (focused) {
                 this.textarea.focus();
-                this.textarea[0].selectionStart = this.textarea[0].value.length;
+                this.textarea.selectionStart = this.textarea.value.length;
             }
         }
     };
@@ -354,7 +379,7 @@ define(['jquery'], function($) {
     };
 
     AceWrapper.prototype.resize = function(w, h) {
-        this.editNode.outerHeight(h);
+        this.editNode.style.height = h + 'px';
         this.editor.resize();
     };
 
@@ -367,7 +392,7 @@ define(['jquery'], function($) {
         return true;
     };
 
-     return {
+    return {
         Constructor: AceWrapper
     };
 });

@@ -199,7 +199,6 @@ class ScratchpadUi {
             return;
         }
         this.updateContext(preload);
-        this.reload(); // Draw my beautiful blobs.
     }
 
     getRunWrapper() {
@@ -222,6 +221,13 @@ class ScratchpadUi {
 
     failMessage() {
         return this.failString;
+    }
+
+    async ready() {
+        await this.reload();
+        if (this.fail) {
+            throw new Error(this.failString);
+        }
     }
 
     sync() {
@@ -378,14 +384,6 @@ class ScratchpadUi {
         try {
             const {html} = await Templates.renderForPromise('qtype_coderunner/scratchpad_ui', this.context);
             this.drawUi(html);
-            this.addAceUis();
-            this.outputDisplay = new OutputDisplayArea(
-                this.context.output_display.id,
-                this.uiParams.output_display_mode,
-                this.uiParams.run_lang,
-                this.uiParams.params
-            );
-            this.addEventListeners();
         } catch (e) {
             this.fail = true;
             this.failString = "scratchpad_ui_templateloadfail";
@@ -393,12 +391,24 @@ class ScratchpadUi {
     }
 
     drawUi(html) {
-        const wrapperDiv = document.getElementById(this.textareaId).nextSibling;
-        wrapperDiv.innerHTML = html;
-        this.outerDiv = wrapperDiv.firstChild;
-        // No resizing the outer wrapper. Instead, resize the two sub UIs,
-        // they will expand accordingly.
-        wrapperDiv.style.resize = 'none';
+        // Build the UI tree in a detached container so getElement() can return it
+        // before it is inserted into the DOM. postInsert() wires up sub-UIs afterward.
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        this.outerDiv = container.firstChild;
+    }
+
+    postInsert(wrapperNode) {
+        // No resizing the outer wrapper. Instead, resize the two sub UIs.
+        wrapperNode.style.resize = 'none';
+        this.outputDisplay = new OutputDisplayArea(
+            this.context.output_display.id,
+            this.uiParams.output_display_mode,
+            this.uiParams.run_lang,
+            this.uiParams.params
+        );
+        this.addAceUis();
+        this.addEventListeners();
     }
 
     addAceUis() {
