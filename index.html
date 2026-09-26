@@ -284,7 +284,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="coderunner">CodeRunner</h1>
-<p>Version: 5.10.4 24 September, 2026. Requires <strong>MOODLE V4.3 or later + PHP &gt;=8.1</strong>. Earlier versions
+<p>Version: 5.10.6 26 September, 2026. Requires <strong>MOODLE V4.3 or later + PHP &gt;=8.1</strong>. Earlier versions
 of Moodle must use CodeRunner V4.</p>
 <p>Authors: Richard Lobb, University of Canterbury, New Zealand.
          Paul McKeown, University of Canterbury, New Zealand.
@@ -2698,13 +2698,22 @@ faint-of-heart. </p>
 either the <code>globalextra</code> field  or the <code>prototypeextra</code> field (see UI parameters
 below) in the question authoring form.</p>
 <p>The CodeRunner-relevant HTML elements are required to have a name and the class
-'coderunner-ui-element'. They also need to support a call to the jquery <em>val()</em>
-method to get their values. HTML <em>input</em>, <em>select</em> and <em>textarea</em> elements are
-the most commonly used. If an element lacks a <em>val</em> method,
-jquery <em>valHooks</em> can be used to define one.</p>
+'coderunner-ui-element'. They also need to expose their value as a native
+JavaScript <em>value</em> property, which is what is read (and written, when
+reloading a previous answer) to get and set their values. HTML <em>input</em>,
+<em>select</em> and <em>textarea</em> elements are the most commonly used and already have
+a <em>value</em> property built in. A custom element (e.g. a hand-built widget) can
+be made compatible simply by keeping its own <code>.value</code> property up to date;
+a <code>value="..."</code> HTML <em>attribute</em> alone is not enough for anything other than
+the standard form elements, since it is the live JavaScript property, not
+the attribute, that is read and written.</p>
 <p>Care must be taken when using the HTML UI to avoid using field names that conflict
 with any other named HTML elements in the page. It is recommended that a prefix
-of some sort, such as <code>crui_</code> (for "CodeRunner UI"), be used with all names.</p>
+of some sort, such as <code>crui_</code> (for "CodeRunner UI"), be used with all names.
+(Radio buttons are an exception to this: their <em>name</em> attribute is
+automatically namespaced per answer box internally, precisely to avoid the
+conflict described below under "The textareaId macro" — see that section for
+why this is necessary and why it doesn't apply to other element types.)</p>
 <p>Although very powerful, and capable of implementing almost any custom user interface,
 the mechanism is complex and there are several pitfalls. Caveat
 emptor!</p>
@@ -2736,7 +2745,9 @@ CodeRunner-relevant elements
 within the HTML. Since multiple HTML
 elements can have the same name, the <em>value</em> of each named attribute
 is a <em>list</em> of strings, not a single string. The strings are in DOM
-order. Each individual value is extracted using the jquery <em>val()</em> method.</p>
+order. Each individual value is extracted from the element's <em>value</em>
+property (or, for a checkbox or radio button, the empty string when
+unchecked).</p>
 <p>As a trivial example, if the HTML supplied by the question author in the
 globalextra field were simply:</p>
 <pre><code>&lt;input type="text" name="crui_input" class="coderunner-ui-element"
@@ -2773,9 +2784,11 @@ have been added.</p>
 <p>When the serialisation is reloaded back into the HTML all such leftover values
 from the serialisation are assigned to the <code>data['leftovers']</code>
 attribute of the outer html div, as a sub-object of the original object.
-This outer div can be located as the 'closest' (in a jQuery sense)
-<code>div.qtype-coderunner-html-outer-div</code>. The author-supplied HTML must include
-JavaScript to make use of the 'leftovers'.</p>
+This outer div can be located as the closest ancestor matching
+<code>div.qtype-coderunner-html-outer-div</code> (e.g. via the native <code>Element.closest()</code>
+method, or jQuery's <code>.closest()</code> if you're using jQuery within your own
+embedded script). The author-supplied HTML must include JavaScript to make
+use of the 'leftovers'.</p>
 <p>As a special case of the serialisation, if all values in the serialisation
 are either empty strings or a list of empty strings, the serialisation is
 itself the empty string.</p>
@@ -2796,9 +2809,27 @@ start and end of the macro string.</p>
 <p>When the Html UI inserts the global extra
 html into the question,
 that macro is replaced everywhere by the actual ID of the answer box's text-area, which is
-different for the student and author answers. This technique can also be used
-to ensure that the names given to elements like radio buttons are different
-in the two answers.</p>
+different for the student and author answers. This technique should also be used
+to ensure that the names given to elements such as checkboxes, text inputs,
+textareas and selects are different in the two answers, for the same reason.</p>
+<p>Radio buttons are the one exception, and do <em>not</em> need the <code>___textareaId___</code>
+macro added to their names by the author. Unlike other elements, a browser
+enforces "only one checked radio button per name" <em>across the whole page</em>
+(or nearest enclosing form), not just within one answer box. If the
+student's own answer and a revealed sample answer both use the HTML UI with
+the same radio button names, the second one inserted into the page will
+silently steal the checked state from the first, even though both remain
+visible — and unlike an id clash, this requires no special action by the
+author to trigger, and produces no JavaScript error, so it can go unnoticed
+for a long time. To prevent this, the Html UI automatically renames every
+radio button's live DOM <code>name</code> attribute by prepending the answer box's
+text-area id and three underscores (e.g. <code>id_q123:4_answer___myfieldname</code>).
+This is unrelated to, and independent of, the author-facing
+<code>___textareaId___</code> macro described above: it is applied internally to the
+<code>name</code> attribute only, not to the HTML text, happens automatically with no
+action required, and only ever affects radio buttons. It is also fully
+transparent to the JSON serialisation, which always uses your original,
+unprefixed radio names, so existing recorded answers are unaffected.</p>
 <h4 id="including-other-coderunner-uis-in-an-html-ui-page">Including other CodeRunner UIs in an HTML UI page</h4>
 <p>Using the <code>___textareaId___</code> macro, it is also possible to embed other 
 CodeRunner UI elements within the HTML page. For example, you might
@@ -3867,5 +3898,5 @@ needs to make on each question.</p>
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2026-09-25 22:26:03.932773+00:00
+Build Date UTC : 2026-09-26 00:03:28.854613+00:00
 -->
