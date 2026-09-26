@@ -542,7 +542,7 @@ body#page-question-type-coderunner .ace-gapfiller.ace_editor {
 
 .ace-gap-background {
     position: absolute;
-    background-color: SeaShell;
+    background-color: white;
     border-radius: 0;
 }
 
