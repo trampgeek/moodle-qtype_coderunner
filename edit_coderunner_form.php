@@ -34,7 +34,7 @@ use qtype_coderunner\constants;
  * CodeRunner editing form definition.
  */
 class qtype_coderunner_edit_form extends question_edit_form {
-    const NUM_TESTCASES_START = 5;  // Num empty test cases with new questions.
+    const NUM_TESTCASES_START = 3;  // Num empty test cases with new questions.
     const NUM_TESTCASES_ADD = 3;    // Extra empty test cases to add.
     const DEFAULT_NUM_ROWS = 18;    // Answer box rows.
     const DEFAULT_NUM_COLS = 100;   // Answer box columns.
@@ -329,8 +329,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * @param $label the label to use for each option.
      * @param $gradeoptions the possible grades for each answer.
      * @param $minoptions the minimum number of testcase blanks to display.
-     *      Default QUESTION_NUMANS_START.
-     * @param $addoptions the number of testcase blanks to add. Default QUESTION_NUMANS_ADD.
+     *      Default NUM_TESTCASES_ADD.
+     * @param $addoptions the number of testcase blanks to add. Default NUM_TESTCASES_ADD.
      */
     protected function add_per_testcase_fields($mform, $label, $numtestcases) {
         $mform->addElement(
@@ -342,18 +342,27 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setExpanded('testcasehdr', 1);
         $repeatedoptions = [];
         $repeated = $this->get_per_testcase_fields($mform, $label, $repeatedoptions);
-        $this->repeat_elements(
+        $numrows = $this->repeat_elements(
             $repeated,
             $numtestcases,
             $repeatedoptions,
             'numtestcases',
             'addanswers',
-            QUESTION_NUMANS_ADD,
+            self::NUM_TESTCASES_ADD,
             $this->get_more_choices_string(),
-            true
+            true,
+            'deletetestcase'
         );
-        $n = $numtestcases + QUESTION_NUMANS_ADD;
-        for ($i = 0; $i < $n; $i++) {
+        // Add the help buttons and the disabledIfs here rather than via
+        // $repeatedoptions, as repeat_elements would try to apply them to
+        // rows that have been removed by their delete test case button.
+        for ($i = 0; $i < $numrows; $i++) {
+            if (!$mform->elementExists("testcode[$i]")) {
+                continue; // Row deleted by its delete test case button.
+            }
+            foreach (['testcode', 'stdin', 'expected', 'extra', 'testcasecontrols', 'testtype'] as $field) {
+                $mform->addHelpButton("{$field}[$i]", $field, 'qtype_coderunner');
+            }
             $mform->disabledIf("mark[$i]", 'allornothing', 'checked');
         }
     }
@@ -389,6 +398,22 @@ class qtype_coderunner_edit_form extends question_edit_form {
             get_string('extra', 'qtype_coderunner'),
             ['rows' => 3, 'class' => 'testcaseresult edit_code']
         );
+
+        $typevalues = [
+            constants::TESTTYPE_NORMAL   => get_string('testtype_normal', 'qtype_coderunner'),
+            constants::TESTTYPE_PRECHECK => get_string('testtype_precheck', 'qtype_coderunner'),
+            constants::TESTTYPE_BOTH     => get_string('testtype_both', 'qtype_coderunner'),
+        ];
+
+        // Reordering this to here to simplify margin space.
+        $repeated[] = $mform->createElement(
+            'select',
+            'testtype',
+            get_string('testtype', 'qtype_coderunner'),
+            $typevalues,
+            ['class' => 'testtype']
+        );
+
         $group[] = $mform->createElement(
             'advcheckbox',
             'useasexample',
@@ -435,18 +460,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
             false
         );
 
-        $typevalues = [
-            constants::TESTTYPE_NORMAL   => get_string('testtype_normal', 'qtype_coderunner'),
-            constants::TESTTYPE_PRECHECK => get_string('testtype_precheck', 'qtype_coderunner'),
-            constants::TESTTYPE_BOTH     => get_string('testtype_both', 'qtype_coderunner'),
-        ];
-
         $repeated[] = $mform->createElement(
-            'select',
-            'testtype',
-            get_string('testtype', 'qtype_coderunner'),
-            $typevalues,
-            ['class' => 'testtype']
+            'submit',
+            'deletetestcase',
+            get_string('deletetestcase', 'qtype_coderunner'),
+            ['class' => 'testcasedelete'],
+            false,
+            ['customclassoverride' => 'btn-outline-danger']
         );
 
         $repeatedoptions['expected']['type'] = PARAM_RAW;
@@ -457,9 +477,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $repeatedoptions['ordering']['type'] = PARAM_INT;
         $repeatedoptions['testtype']['type'] = PARAM_RAW;
 
-        foreach (['testcode', 'stdin', 'expected', 'extra', 'testcasecontrols', 'testtype'] as $field) {
-            $repeatedoptions[$field]['helpbutton'] = [$field, 'qtype_coderunner'];
-        }
+        // Help buttons are added in add_per_testcase_fields, after the call
+        // to repeat_elements, so that rows removed by their delete test case
+        // button can be skipped.
 
         // Here I expected to be able to use: $repeatedoptions['mark']['default'] = 1.000
         // but it doesn't work. See "Confusion alert" in definition_inner.
@@ -665,7 +685,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
             'select',
             'coderunnertype',
             null,
-            $expandedtypes
+            $expandedtypes,
+            'aria-labelledby="fgroup_id_coderunner_type_group_label"'
         );
         $prototypelangstring = get_string('prototypeexists', 'qtype_coderunner');
         $typeselectorelements[] = $mform->createElement(
@@ -767,7 +788,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 constants::GIVEUP_ALWAYS => get_string('giveup_always', 'qtype_coderunner'),
         ];
 
-        $giveupelements[] = $mform->createElement('select', 'giveupallowed', null, $giveupvalues);
+        $giveupelements[] = $mform->createElement(
+            'select',
+            'giveupallowed',
+            null,
+            $giveupvalues,
+            'aria-labelledby="fgroup_id_coderunner_giveup_group_label"'
+        );
         $mform->addElement(
             'group',
             'coderunner_giveup_group',
@@ -787,7 +814,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
             constants::FEEDBACK_HIDE => get_string('feedback_hide', 'qtype_coderunner'),
         ];
 
-        $feedbackelements[] = $mform->createElement('select', 'displayfeedback', null, $feedbackvalues);
+        $feedbackelements[] = $mform->createElement(
+            'select',
+            'displayfeedback',
+            null,
+            $feedbackvalues,
+            'aria-labelledby="fgroup_id_coderunner_feedback_group_label"'
+        );
         $mform->addElement(
             'group',
             'coderunner_feedback_group',
@@ -1543,19 +1576,12 @@ class qtype_coderunner_edit_form extends question_edit_form {
             }
         }
 
-        // Now all test cases.
+        // Now all test cases. Iterate by key, as indices may be
+        // non-contiguous after test case deletions in the form.
         if (!empty($question->testcode)) {
-            $num = max(
-                count($question->testcode),
-                count($question->stdin),
-                count($question->expected),
-                count($question->extra)
-            );
-
             foreach (['testcode', 'stdin', 'expected', 'extra'] as $fieldname) {
                 $fields = $question->$fieldname;
-                for ($i = 0; $i < $num; $i++) {
-                    $text = $fields[$i];
+                foreach ($fields as $i => $text) {
                     try {
                         $this->twig_render($text, $parameters, true);
                     } catch (Exception $ex) {
@@ -1581,8 +1607,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $marks = $data['mark'];
         $count = 0;
         $numnonemptytests = 0;
-        $num = max(count($testcodes), count($stdins), count($expecteds));
-        for ($i = 0; $i < $num; $i++) {
+        // Iterate by key, as indices may be non-contiguous after test case
+        // deletions in the form.
+        $indices = array_keys($testcodes + $stdins + $expecteds);
+        foreach ($indices as $i) {
             $testcode = trim($testcodes[$i] ?? '');
             if ($testcode != '') {
                 $numnonemptytests++;
