@@ -16,12 +16,19 @@ use Twig\Error\SyntaxError;
 
 class TempNameExpression extends AbstractExpression
 {
+    // 4.0: re-evaluate "varargs" here once the implicit macro varargs bucket is removed
+    // (see MacroNode::VARARGS_NAME); the other names map to compiled variables ($context,
+    // $macros, $blocks, $this) and must stay.
     public const RESERVED_NAMES = ['varargs', 'context', 'macros', 'blocks', 'this'];
+
+    // Prefix applied to reserved names so their compiled PHP variables cannot clash
+    // with the internal ones ($varargs, $context, $macros, $blocks, $this)
+    public const RESERVED_NAME_PREFIX = "\u{035C}";
 
     public function __construct(string|int|null $name, int $lineno)
     {
         // All names supported by ExpressionParser::parsePrimaryExpression() should be excluded
-        if ($name && \in_array(strtolower($name), ['true', 'false', 'none', 'null'])) {
+        if ($name && \in_array(strtolower($name), ['true', 'false', 'none', 'null'], true)) {
             throw new SyntaxError(\sprintf('You cannot assign a value to "%s".', $name), $lineno);
         }
 
@@ -31,8 +38,8 @@ class TempNameExpression extends AbstractExpression
 
         if (null !== $name && (\is_int($name) || ctype_digit($name))) {
             $name = (int) $name;
-        } elseif (\in_array($name, self::RESERVED_NAMES)) {
-            $name = "\u{035C}".$name;
+        } elseif (\in_array($name, self::RESERVED_NAMES, true)) {
+            $name = self::RESERVED_NAME_PREFIX.$name;
         }
 
         parent::__construct([], ['name' => $name], $lineno);

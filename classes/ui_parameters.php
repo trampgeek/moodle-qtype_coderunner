@@ -223,6 +223,15 @@ class qtype_coderunner_ui_parameters {
      * Return an array of all those parameters that have been updated since
      * the initial load from the json file (i.e. those parameters that have
      * been defined within the prototype or the question itself).
+     * 
+     * Excludes parameters that still have the json file's declared default
+     * value. The assumption is that the default value is that used in the
+     * source code so does not need to propagated into the HTML. However,
+     * the equivalence of the JSON default value and that in the source code
+     * needs to managed manually - the two are not kept in sync automatically.
+     * 
+     * Note that the full set of ui parameters is available to Twig as
+     * QUESTION.uiparameters.
      */
     public function updated_params() {
         $paramsarray = [];

@@ -76,6 +76,11 @@ define([], function() {
     const fillChar = " ";
     const validChars = /[ !"#$%&'()*+,`\-./0-9\p{L}:;<=>?@\[\]\\^_{}|~]/u;
     const ACE_LIGHT_THEME = 'ace/theme/textmate';
+    // Extra pixels below the last line, so a gap on it isn't drawn tight against the
+    // bottom edge. Reported to the wrapper as part of requiredHeight rather than added
+    // to the editor here, so that it makes the wrapper taller instead of eating into
+    // the gutter the wrapper keeps below us for the full-screen button and drag handle.
+    const BREATHING_SPACE = 10;
 
     /**
      * Constructor for the Ace interface object.
@@ -158,6 +163,28 @@ define([], function() {
                     t.editNode.style.resize = 'none';
                     t.editNode.style.height = t.h + 'px';
                     t.editNode.style.width = '100%';
+                    if (uiParams.line_height) {
+                        // Apply the author's chosen line spacing before Ace is created, so
+                        // Ace's own font-metric measurement picks it up from the outset and
+                        // uses it for its internal sizing too. The same value is what
+                        // userinterfacewrapper.js used to size the box this editor sits in,
+                        // so the two can't disagree. Left unset, the editor renders at
+                        // whatever line-height the standard CodeRunner Ace CSS gives it.
+                        t.editNode.style.lineHeight = uiParams.line_height + 'px';
+
+                        // Ace sizes each gap marker to the full line height, as an inline
+                        // style, so a taller line just gives a taller box - no help when
+                        // gaps on adjacent lines would otherwise collide. Hand the CSS the
+                        // numbers Ace won't: the height the text itself needs, and the
+                        // spare space to centre it in.
+                        const naturalHeight = t.textArea.current_ui_wrapper.DEFAULT_LINE_HEIGHT;
+                        if (uiParams.line_height > naturalHeight) {
+                            t.editNode.classList.add('ace-gapfiller-spaced');
+                            t.editNode.style.setProperty('--gap-height', naturalHeight + 'px');
+                            t.editNode.style.setProperty('--gap-inset',
+                                    (uiParams.line_height - naturalHeight) / 2 + 'px');
+                        }
+                    }
 
                     t.editor = window.ace.edit(t.editNode);
                     if (t.textArea.readOnly) {
@@ -211,6 +238,13 @@ define([], function() {
                     });
 
                     t.createGaps(code);
+
+                    // Growing or shrinking an expandable gap changes how many rows
+                    // there are to show, so the wrapper has to be asked to re-read
+                    // our requiredHeight whenever the document changes.
+                    t.editor.session.on('change', function() {
+                        t.textArea.current_ui_wrapper?.updateHeight();
+                    });
 
                     // Intercept commands sent to ace.
                     t.editor.commands.on("exec", function(e) {
@@ -567,6 +601,28 @@ define([], function() {
         return this.editNode;
     };
 
+    /**
+     * Called once the editor is in the live DOM. Ace measures its font
+     * asynchronously and can't measure at all while detached, so renderer
+     * .lineHeight is still 0 at this point; ask for the measurement now rather
+     * than waiting for Ace's observer, since the wrapper is about to call
+     * requiredHeight, which depends on it.
+     */
+    AceGapfillerUi.prototype.postInsert = function() {
+        this.editor.renderer.updateFontSize();
+    };
+
+    /**
+     * The height needed for every row of the document, which grows and shrinks
+     * as the student adds lines to, or deletes them from, an expandable
+     * multiline gap, plus a little space below the last line so that a gap on
+     * it isn't drawn tight against the bottom edge.
+     * @returns {int} The required height of the editor, in pixels.
+     */
+    AceGapfillerUi.prototype.requiredHeight = function() {
+        return this.editor.session.getLength() * this.editor.renderer.lineHeight + BREATHING_SPACE;
+    };
+
     AceGapfillerUi.prototype.captureTab = function () {
         this.capturingTab = true;
         this.editor.commands.bindKeys({'Tab': 'indent', 'Shift-Tab': 'outdent'});
@@ -784,15 +840,30 @@ define([], function() {
     };
 
     /**
-     * Recreate row r's outline marker using the class appropriate to its
-     * current position. Needed whenever a row is added or removed at either
-     * end of the gap, since that can change whether row 0 or the last row
-     * counts as "top"/"bottom"/"single" (interior rows are never affected).
+     * The background CSS class appropriate to this gap, which differs only in
+     * that a single-row gap's fill can be shortened to match its outline when
+     * a custom line_height leaves room to do so. The rows of a multi-row gap
+     * have to stay flush, or the fill would show seams between them.
+     * @returns {string} The CSS class to use for a row's background marker.
+     */
+    Gap.prototype.backgroundClassFor = function() {
+        return this.numRows() === 1 ? "ace-gap-background-single" : "ace-gap-background";
+    };
+
+    /**
+     * Recreate row r's outline and background markers using the classes
+     * appropriate to its current position. Needed whenever a row is added or
+     * removed at either end of the gap, since that can change whether row 0 or
+     * the last row counts as "top"/"bottom"/"single" (interior rows are never
+     * affected).
      * @param {int} r A row index within this gap.
      */
     Gap.prototype.restyleRowMarker = function(r) {
         this.editor.session.removeMarker(this.outlineIds[r]);
         this.outlineIds[r] = this.editor.session.addMarker(this.rowRanges[r], this.outlineClassFor(r), "text", true);
+        this.editor.session.removeMarker(this.backgroundIds[r]);
+        this.backgroundIds[r] = this.editor.session.addMarker(
+                this.rowRanges[r], this.backgroundClassFor(), "text", false);
     };
 
     /**

@@ -1,6 +1,6 @@
 # CodeRunner
 
-Version: 5.10.6 26 September, 2026. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
+Version: 5.10.6 27 September, 2026. Requires **MOODLE V4.3 or later + PHP >=8.1**. Earlier versions
 of Moodle must use CodeRunner V4.
 
 
@@ -2474,6 +2474,12 @@ gaps, or an empty string if all the gaps are left empty.
        student's gap fillers into all tests. In this mode, you can't use the "Use as example"
        feature because the test code isn't defined until the student has
        filled in the gaps.
+
+ * line_height. The line spacing, in pixels, used by the editor; it also
+       determines the height of the answer box, in conjunction with the box's
+       "rows" setting. The default value (19) is that used by the Ace editor
+       normally, but a larger value, e.g. 28, produces a less cramped
+       appearance.
 
 ### Gap Filler UI
 

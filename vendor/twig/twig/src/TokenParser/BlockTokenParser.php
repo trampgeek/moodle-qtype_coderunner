@@ -39,6 +39,7 @@ final class BlockTokenParser extends AbstractTokenParser
         $stream = $this->parser->getStream();
         $name = $stream->expect(Token::NAME_TYPE)->getValue();
         $this->parser->setBlock($name, $block = new BlockNode($name, new EmptyNode(), $lineno));
+        $this->parser->setDocumentationTarget($block);
         $this->parser->pushLocalScope();
         $this->parser->pushBlockStack($name);
 
@@ -53,7 +54,7 @@ final class BlockTokenParser extends AbstractTokenParser
             }
         } else {
             $body = new Nodes([
-                new PrintNode($this->parser->getExpressionParser()->parseExpression(), $lineno),
+                new PrintNode($this->parser->parseExpression(), $lineno),
             ]);
         }
         $stream->expect(Token::BLOCK_END_TYPE);

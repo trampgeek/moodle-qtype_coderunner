@@ -42,7 +42,7 @@ class DefaultFilter extends FilterExpression
     public function __construct(Node $node, TwigFilter|ConstantExpression $filter, Node $arguments, int $lineno)
     {
         if (!$node instanceof AbstractExpression) {
-            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "node" argument of "%s" is deprecated ("%s" given).', AbstractExpression::class, static::class, \get_class($node));
+            trigger_deprecation('twig/twig', '3.15', 'Not passing a "%s" instance to the "node" argument of "%s" is deprecated ("%s" given).', AbstractExpression::class, static::class, $node::class);
         }
 
         if ($filter instanceof TwigFilter) {
@@ -54,8 +54,8 @@ class DefaultFilter extends FilterExpression
         }
 
         if ('default' === $name && ($node instanceof ContextVariable || $node instanceof GetAttrExpression)) {
-            $test = new DefinedTest(clone $node, new TwigTest('defined'), new EmptyNode(), $node->getTemplateLine());
-            $false = \count($arguments) ? $arguments->getNode('0') : new ConstantExpression('', $node->getTemplateLine());
+            $test = new DefinedTest(clone $node, new TwigTest('defined', null, ['always_allowed_in_sandbox' => true]), new EmptyNode(), $node->getTemplateLine());
+            $false = \count($arguments) ? clone $arguments->getNode('0') : new ConstantExpression('', $node->getTemplateLine());
 
             $node = new ConditionalTernary($test, $default, $false, $node->getTemplateLine());
         } else {

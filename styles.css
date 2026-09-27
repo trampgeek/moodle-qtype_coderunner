@@ -533,14 +533,9 @@ li.bulktest.coderunner.context.quiz {
     background-color: rgb(230, 230, 230);
 }
 
-/* A little more line spacing than the 18px used for other CodeRunner Ace editors.
-   Ace measures this and sizes the gap markers to match, so gaps get taller too. */
-.que.coderunner .ace-gapfiller.ace_editor,
-body#page-question-type-coderunner .ace-gapfiller.ace_editor {
-    line-height: 22px;
-}
 
-.ace-gap-background {
+.ace-gap-background,
+.ace-gap-background-single {
     position: absolute;
     background-color: white;
     border-radius: 0;
@@ -550,6 +545,19 @@ body#page-question-type-coderunner .ace-gapfiller.ace_editor {
     position: absolute;
     outline: 1px solid;
     outline-color: rgba(0, 0, 0, 0.25);
+}
+
+/* Where a custom line_height gives a line more height than its text needs, shrink
+   a single-row gap's box back to the text height and centre it, so the spare space
+   separates gaps on adjacent lines instead of padding out their boxes until they
+   collide. Ace writes each marker's height inline, from its own line height, hence
+   the !important. Both properties come from the UI (see ui_ace_gapfiller.js), which
+   only adds the enclosing class when there is in fact space to give. Multi-row gaps
+   are deliberately excluded: their rows must stay flush to read as one box. */
+.ace-gapfiller-spaced .ace-gap-outline,
+.ace-gapfiller-spaced .ace-gap-background-single {
+    height: var(--gap-height) !important;
+    margin-top: var(--gap-inset);
 }
 
 /* A multi-row gap is drawn as one row per line of the box, each with its own

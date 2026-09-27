@@ -1,5 +1,10 @@
 # CHANGE HISTORY
 
+### September 27 2025, 5.10.11
+ * Update Twig to latest version, which has several security patches.
+ * Add line_height UI parameter to Ace-gapfiller UI, plus verious CSS patches, to allow for a
+   less cramped look and feel.
+
 ### September 24 2026, 5.10.6
  * Ace-gapfiller UI: gaps can now span multiple lines (`{[rows, cols]}`, each dimension growable
    up to a given maximum), rendered as a single combined box rather than one per line.

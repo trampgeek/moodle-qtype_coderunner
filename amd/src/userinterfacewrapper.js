@@ -118,6 +118,18 @@
  *    returned by allowFullScreen(). Provided so that a parent UI (e.g.
  *    Scratchpad) can control the full-screen behaviour of a child UI.
  *
+ * 14. A requiredHeight() method returning the height, in pixels, that the UI's
+ *    contents need. This is the UI's own say in how big it is, as against the
+ *    wrapper's initial guess from the question's "rows" setting; the wrapper
+ *    adds its own gutter and makes that the wrapper's minimum height. Return
+ *    nothing to leave the sizing entirely to the wrapper, as UIs that don't
+ *    implement this at all do. The wrapper asks once when the UI is first
+ *    inserted; after that it's up to the UI to call the wrapper's
+ *    updateHeight() whenever its needs change (a UI can reach its wrapper via
+ *    the textarea's current_ui_wrapper). The value returned must depend only
+ *    on the UI's contents and never on its current size, which would make the
+ *    two ratchet each other larger on every resize.
+ *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
  *
@@ -299,9 +311,9 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
 
         this.GUTTER = 16;  // Size of gutter at base of wrapper Node (pixels)
         this.DEFAULT_SYNC_INTERVAL_SECS = 5;
+        this.DEFAULT_LINE_HEIGHT = 19;
 
         this.uniqueId = Math.random();
-        const PIXELS_PER_ROW = 19;  // For estimating height of textareas.
         const MAX_GROWN_ROWS = 50;  // Upper limit to artifically grown textarea rows.
         const MIN_WRAPPER_HEIGHT = 50;
         this.isFullScreenEnable = null;
@@ -334,7 +346,12 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
             // Allow reloaded text areas with lots of text to grow bigger, within limits.
             rows = Math.min(content_lines, MAX_GROWN_ROWS);
         }
-        h = Math.max(h, rows * PIXELS_PER_ROW, MIN_WRAPPER_HEIGHT);
+        // A UI plugin can declare a line_height parameter (in its .json file) that a
+        // question author can set to change that UI's line spacing; the UI applies it
+        // as a real CSS line-height, so the same value sizes the box here. The default
+        // matches the line-height the CodeRunner Ace editors normally render at.
+        const lineHeight = this.uiParams.line_height || this.DEFAULT_LINE_HEIGHT;
+        h = Math.max(h, rows * lineHeight, MIN_WRAPPER_HEIGHT);
         this.textArea.style.height = h + 'px';
         /**
          * Construct a hidden empty wrapper div, inserted directly after the
@@ -568,6 +585,7 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
 
                             t.uiInstance = uiInstance;
                             t.loadFailed = false;
+                            t.updateHeight();  // Before the resize check, so it sizes to the result.
                             t.checkForResize();
 
                             let canDoFullScreen = t.isFullScreenEnable !== null ?
@@ -784,6 +802,24 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
         }
     };
 
+
+    /**
+     * Ask the UI how much height its contents need and, if it has a view on
+     * that, make room for it plus the gutter. Called once when the UI is first
+     * inserted, and thereafter by the UI itself whenever its contents change
+     * (see requiredHeight in the notes at the head of this file).
+     *
+     * Setting a minimum, rather than a height, leaves a wrapper the user has
+     * dragged taller at the size they chose, while still letting a UI that has
+     * outgrown it force the wrapper open.
+     */
+    InterfaceWrapper.prototype.updateHeight = function() {
+        const required = this.uiInstance && this.uiInstance.requiredHeight ?
+            this.uiInstance.requiredHeight() : null;
+        if (required) {
+            this.wrapperNode.style.minHeight = (required + this.GUTTER) + 'px';
+        }
+    };
 
     /**
      * Check for wrapper resize - propagate to ui element.

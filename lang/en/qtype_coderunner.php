@@ -24,6 +24,7 @@
 
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['ace_aria_label'] = 'Code editor - Enter your code here.';
+$string['ace_gapfillerui_line_height_descr'] = 'The line spacing, in pixels, used by the editor; it also determines the height of the answer box, in conjunction with the box\'s "rows" setting. The default value is that used by the Ace editor normally, but a larger value, e.g. 22, can be used to give a less cramped appearance.';
 $string['ace_gapfillerui_ui_source_descr'] = '"globalextra" to take the code to display from the globalextra field or "test0" to take it from the testcode field of the first test';
 $string['ace_ui_notready'] = 'Ace editor not ready. Perhaps reload page?';
 $string['aceui_auto_switch_light_dark_descr'] = 'Allow a browser or OS preference for dark themes to override a preset Ace light theme.';
