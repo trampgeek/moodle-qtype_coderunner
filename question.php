@@ -31,7 +31,6 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 use qtype_coderunner\constants;
 use qtype_coderunner\coderunner_files;
-use core_table\output\html_table;
 
 /*
  * Represents a 'CodeRunner' question.
@@ -700,7 +699,7 @@ class qtype_coderunner_question extends question_graded_automatically {
         // conclude (from a step that only has _testoutcome, not answer) that
         // no answer was given.
         if (!empty($response['_testoutcome'])) {
-            $testoutcome = @unserialize($response['_testoutcome']);
+            $testoutcome = $this->unserialize_outcome($response['_testoutcome']);
             if ($testoutcome instanceof qtype_coderunner_testing_outcome && $testoutcome->run_failed()) {
                 return get_string('unknownerror', 'qtype_coderunner');
             }
@@ -900,7 +899,14 @@ class qtype_coderunner_question extends question_graded_automatically {
             qtype_coderunner_combinator_grader_outcome::class,
             qtype_coderunner_test_result::class,
             qtype_coderunner_html_wrapper::class,
-            html_table::class,
+            // The failures table within an outcome is an html_table. That class moved
+            // into the core_table\output namespace in Moodle 4.5, so an outcome
+            // serialised by Moodle 4.4 or earlier names it 'html_table' whereas one
+            // serialised by Moodle 4.5 or later names it 'core_table\output\html_table'.
+            // Both spellings must be allowed, because allowed_classes is matched against
+            // the class name recorded in the serialised data.
+            'html_table',
+            'core_table\\output\\html_table',
         ]]);
     }
 

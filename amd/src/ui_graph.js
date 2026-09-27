@@ -165,6 +165,7 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.DEFAULT_TEXT_OFFSET = 5;   // Link label tweak. UI params can override.
         this.DEFAULT_LINK_LABEL_REL_DIST = 0.5;  // Relative distance along link to place labels
         this.MAX_VERSIONS = 30;  // Maximum number of versions saved for undo/redo
+        this.NODE_BOTTOM_MARGIN = 6;  // Pixels left clear below the lowest node. See requiredHeight.
 
         this.canvasId = 'graphcanvas_' + textareaId;
         this.textArea = $(document.getElementById(textareaId));
@@ -504,6 +505,20 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.draw();
     };
 
+    /**
+     * The height needed to show every node, so that a node dragged below the
+     * bottom of the canvas makes room for itself rather than disappearing.
+     * Nearly always less than the height the question author's "rows" setting
+     * already allocated, in which case the wrapper ignores it and nothing
+     * changes.
+     * @returns {int} The required height of the graph canvas, in pixels.
+     */
+    Graph.prototype.requiredHeight = function() {
+        const radius = this.nodeRadius();
+        return this.nodes.reduce(
+            (lowest, node) => Math.max(lowest, node.y + radius + this.NODE_BOTTOM_MARGIN), 0);
+    };
+
     Graph.prototype.mousemove = function(e) {
         var mouse = util.crossBrowserRelativeMousePos(e),
             closestPoint;
@@ -573,6 +588,12 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
         this.movingObject = false;
         this.movingGraph = false;
         this.movingText = false;
+
+        // A node may have been dragged below the bottom of the canvas, in which
+        // case the wrapper needs to make room for it. Left until the drag ends
+        // rather than done as the node moves, so the canvas isn't resized, and
+        // the whole graph redrawn, on every mouse move.
+        this.textArea[0].current_ui_wrapper?.updateHeight();
 
         if(this.currentLink !== null) {
             if(!(this.currentLink instanceof elements.TemporaryLink)) {
@@ -705,6 +726,10 @@ define(['jquery', 'qtype_coderunner/graphutil', 'qtype_coderunner/graphelements'
                 this.failString = 'graph_ui_invalidserialisation';
             }
         }
+        // The node set has been rebuilt, so what we need to show it may have
+        // changed - as it will have when undo or redo brings us here. Does
+        // nothing during construction, when there is not yet a wrapper to ask.
+        this.textArea[0].current_ui_wrapper?.updateHeight();
     };
 
     Graph.prototype.save = function() {

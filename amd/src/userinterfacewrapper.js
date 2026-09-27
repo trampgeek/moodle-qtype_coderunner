@@ -128,7 +128,9 @@
  *    updateHeight() whenever its needs change (a UI can reach its wrapper via
  *    the textarea's current_ui_wrapper). The value returned must depend only
  *    on the UI's contents and never on its current size, which would make the
- *    two ratchet each other larger on every resize.
+ *    two ratchet each other larger on every resize. Asking for less than the
+ *    question author's "rows" setting allocated has no effect, so a UI whose
+ *    contents are smaller than the space given them can simply say so.
  *
  * The return value from the module define is a record with a single field
  * 'Constructor' that references the constructor (e.g. Graph, AceWrapper etc)
@@ -817,7 +819,12 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
         const required = this.uiInstance && this.uiInstance.requiredHeight ?
             this.uiInstance.requiredHeight() : null;
         if (required) {
-            this.wrapperNode.style.minHeight = (required + this.GUTTER) + 'px';
+            // Never below what the question author's "rows" setting allocated. The
+            // wrapper has no height of its own beyond this minimum, so lowering it
+            // would actually shrink the box: a UI whose contents happen to need
+            // less room than was allocated for them must not take the rest away.
+            const allocated = parseFloat(this.textArea.style.height);
+            this.wrapperNode.style.minHeight = Math.max(allocated, required + this.GUTTER) + 'px';
         }
     };
 
