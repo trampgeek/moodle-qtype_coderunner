@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\output\html_writer;
 use qtype_coderunner\constants;
 
 /**
@@ -80,7 +81,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
         }
         $divid = "qtype_coderunner_problemspec$qid";
         $params = $question->parameters;
-        $qtext = '';
+        $queid = $qa->get_outer_question_div_unique_id();
+        // The DOM id above is per-attempt (it embeds the question usage id),
+        // so it changes every time a question preview is reloaded (each
+        // reload starts a fresh usage) even though it's still "the same"
+        // question to the user. Persist the layout choice keyed by the
+        // stable question id instead, so it survives that.
+        $this->page->requires->js_call_amd('qtype_coderunner/layoutswitcher', 'layoutSwitcher', [$queid, $qid]);
+
+        $qtext = $this->layout_prepaint_script($queid, $qid);
+        $qtext .= html_writer::start_tag('div', ['class' => 'question_box']);
         if (isset($question->initialisationerrormessage) && $question->initialisationerrormessage) {
             $qtext .= "<div class='initialisationerror'>{$question->initialisationerrormessage}</div>";
         }
@@ -105,6 +115,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
             $qtext .= html_writer::end_tag('div');
         }
 
+        $qtext .= html_writer::end_tag('div'); // question-box
+        $qtext .= html_writer::tag('div', html_writer::tag('p', '&nbsp;'), ['class' => 'divider']);
+        $qtext .= html_writer::start_tag('div', ['class' => 'answer-box']);
         $qtext .= html_writer::start_tag('div', ['class' => 'prompt']);
 
         $responsefieldname = $qa->get_qt_field_name('answer');
@@ -137,7 +150,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
         }
 
-        $qtext .= html_writer::end_tag('div');
+        $qtext .= html_writer::end_tag('div'); // answerprompt
 
         $preload = isset($question->answerpreload) ? $question->answerpreload : '';
         if ($preload) {  // Add a reset button if preloaded text is non-empty.
@@ -249,10 +262,46 @@ class qtype_coderunner_renderer extends qtype_renderer {
                 [$responsefieldid]
             );
         }
-
+        $qtext .= html_writer::end_tag('div'); // answer_box;
         return $qtext;
     }
 
+
+    /**
+     * This block of code injects JS before the page fully loads which allows the
+     * layout to be set prior to being rendered, making the layout switch automatic
+     * and seamless.
+     *
+     * @param string $queid the id of the outer .que.coderunner div for this question.
+     * @param int $qid the stable question id used as the sessionStorage key.
+     * @return string HTML fragment containing the inline script.
+     */
+    protected function layout_prepaint_script($queid, $qid) {
+        $queidjs = json_encode($queid);
+        $storagekeyjs = json_encode((string) $qid);
+        $js = <<<JS
+(function() {
+    try {
+        var obj = JSON.parse(sessionStorage.getItem('coderunner_layout') || '{}');
+        var entry = obj[$storagekeyjs];
+        if (typeof entry === 'string') {
+            entry = {layout: entry};
+        }
+        if (entry) {
+            var que = document.getElementById($queidjs);
+            if (que) {
+                if (entry.layout === 'split') {
+                    que.classList.add('layout-split');
+                }
+            }
+        }
+    } catch (e) {
+        // sessionStorage may be unavailable; fall back to the defaults.
+    }
+})();
+JS;
+        return html_writer::script($js);
+    }
 
     /**
      * Override the base class method to allow CodeRunner questions to force
@@ -551,7 +600,7 @@ class qtype_coderunner_renderer extends qtype_renderer {
             }
         }
 
-        return qtype_coderunner_util::make_html_para($lines);
+        return qtype_coderunner_util::make_html_para_with('results_message', $lines);
     }
 
 
