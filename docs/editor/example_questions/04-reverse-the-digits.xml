@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<question type="coderunner">
+    <name>
+      <text>Reverse the digits</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style="text-align: left;"></p>
+<h3>Exercise 4: Reverse the Digits</h3>
+<p>Write a C program that prompts the user to enter a two-digit positive integer, then prints the number with its digits reversed.  E.g.</p>
+<p></p>
+<pre>Enter a two-digit positive integer: 35 <br>The reversal is: 53</pre>
+<p>This can be achieved using either a char array and swapping the values, or it can be done by reading the user input as an integer using "%d" and then using arithmetic (modulo and divide) to get the desired result. if the input is not exactly a two-digit positive integer, your program should print "<span class="" style="font-family: 'Courier New', Courier, mono;">Invalid input!</span>" and a newline, and exit.</p>
+<p>Save your work as <strong>exercise04.c</strong> and ensure that it compiles and runs without error:</p>
+<pre>gcc exercise04.c -pedantic -Wall -o exercise04<br>./exercise04</pre>
+<p></p>
+<p></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_program</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[#include <stdio.h>
+
+int main(){
+
+  int input;
+  int ninput;
+
+  printf("Enter a two-digit positive integer: ");
+  ninput = scanf("%d", &input);
+  if (ninput == 1 && input > 0 && input < 100)
+  {
+    int tens = input/10;
+    int ones = input%10;
+    printf("The reversal is: %d%d\n", ones, tens);
+  }
+  else
+  {
+	printf("Invalid input!\n");
+  }
+
+  return 0;
+}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>RegexGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>Good test 1</text>
+      </testcode>
+      <stdin>
+                <text>35</text>
+      </stdin>
+      <expected>
+                <text>Enter a two-digit positive integer: The reversal is: 53</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>Good test 2</text>
+      </testcode>
+      <stdin>
+                <text>67</text>
+      </stdin>
+      <expected>
+                <text>Enter a two-digit positive integer: The reversal is: 76</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>Good test 3</text>
+      </testcode>
+      <stdin>
+                <text>18</text>
+      </stdin>
+      <expected>
+                <text>Enter a two-digit positive integer: The reversal is: 81</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>Good edge test 4</text>
+      </testcode>
+      <stdin>
+                <text>10</text>
+      </stdin>
+      <expected>
+                <text>Enter a two-digit positive integer: The reversal is: 01</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>Good edge test 5</text>
+      </testcode>
+      <stdin>
+                <text>99</text>
+      </stdin>
+      <expected>
+                <text>Enter a two-digit positive integer: The reversal is: 99
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>Bad no number</text>
+      </testcode>
+      <stdin>
+                <text>John</text>
+      </stdin>
+      <expected>
+                <text>Enter a two-digit positive integer: Invalid input!
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>Bad negative number</text>
+      </testcode>
+      <stdin>
+                <text>-3</text>
+      </stdin>
+      <expected>
+                <text>Enter a two-digit positive integer: Invalid input!
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text>Bad too big number</text>
+      </testcode>
+      <stdin>
+                <text>156</text>
+      </stdin>
+      <expected>
+                <text>Enter a two-digit positive integer: Invalid input!
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>

@@ -74,6 +74,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         if (!empty($this->question->options->acelang)) {
             $this->acelang = $this->question->options->acelang;
         }
+        $this->make_docs_link($mform);
         $this->make_error_div($mform);
         $this->make_questiontype_panel($mform);
         $this->make_questiontype_help_panel($mform);
@@ -626,6 +627,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     // Create 2 empty divs with id id__qtype_coderunner_warning_div, id_qtype_coderunner_error_div for use by
     // JavaScript error handling code.
+    // Add to the supplied $mform a link to the plugin's own documentation
+    // (docs.php). Added before any header element so it renders above the form.
+    private function make_docs_link($mform) {
+        $mform->addElement('html', html_writer::div(
+            html_writer::link(
+                new moodle_url('/question/type/coderunner/docs.php?page=index.md'),
+                get_string('docslinktext', 'qtype_coderunner'),
+                ['target' => '_blank', 'rel' => 'noopener']
+            ),
+            'coderunner-docs-link'
+        ));
+    }
+
     private function make_error_div($mform) {
         $mform->addElement('html', "<div id='id_qtype_coderunner_warning_div' class='qtype_coderunner_warning_message'></div>");
         $mform->addElement('html', "<div id='id_qtype_coderunner_error_div' class='qtype_coderunner_error_message'></div>");

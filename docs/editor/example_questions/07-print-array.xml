@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<question type="coderunner">
+    <name>
+      <text>Print Array</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style=""></p><p dir="ltr"></p><p dir="ltr">For this question, you need to create a function&nbsp;void <span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">print_array(int *ptr, int len)</span>&nbsp;which takes a pointer to an array of integers and prints each of them separated by commas and spaces. To help with this, it also takes in the length of the array as a parameter named&nbsp;<span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">len</span>. I know it seems easy (I was going to set a harder challenge but Fred said I wasn't allowed to).&nbsp;</p><p dir="ltr">There is a twist though! We had a word with IT, and it turns out they're running very low on square brackets. In order to make sure there's enough for you to use in your other classes, we've decided to&nbsp;<strong>ban&nbsp;</strong>them from all the&nbsp;<strong>functions&nbsp;</strong>you write in this exercise, so you'll have to do everything with just pointers. You can still use them in any main functions you write to test your functions, so long as you use them responsibly. (Don't worry though, some more are due to be delivered next week).&nbsp;</p><p dir="ltr">Say we have an array, and we call the function on it like so:</p><p dir="ltr"><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">int completely_random_nums[14] = {99, 97, 114, 97, 109, 101, 108, 32, 119, 97, 102, 101, 114, 0}</span><br></p><p dir="ltr"><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">print_array(nums, 14);</span></p><p dir="ltr">Will result in the following output:</p><p dir="ltr"><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">99, 97, 114, 97, 109, 101, 108, 32, 119, 97, 102, 101, 114, 0</span></p><p dir="ltr">Paste in your function when you think it's working</p><p dir="ltr" style=""></p><span style="font-size: 12.25px;"><p></p></span>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>2.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_function</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>0</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
+#include <math.h>
+#include <regex.h> 
+#define SEPARATOR "#<ab@17943918#@>#"
+
+char* input = "{{ STUDENT_ANSWER | e("c") }}";
+
+
+{{ STUDENT_ANSWER }}
+
+int main() {
+{% for TEST in TESTCASES %}
+   {
+    {{ TEST.testcode }};
+   }
+    {% if not loop.last %}printf("%s\n", SEPARATOR);{% endif %}
+{% endfor %}
+    return 0;
+}]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[void print_array(int* ptr, int len){
+	while(len--){
+		printf("%d%s", *(ptr++), len ? ", " : "\n");
+	}
+}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="0.5000000" >
+      <testcode>
+                <text>int arr[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+print_array(arr, 10);</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1, 2, 3, 4, 5, 6, 7, 8, 9, 10</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="0.5000000" >
+      <testcode>
+                <text><![CDATA[regex_t regex;
+int reti;
+reti = regcomp(&regex, "(\\[|\\])", REG_EXTENDED | REG_NOSUB);
+reti = regexec(&regex, input, 0, NULL, 0);
+if (!reti) {
+    printf("Square bracket detected! If you see this and didn't use any, show your code to Andrew.\n");
+}
+else if (reti == REG_NOMATCH) {
+    printf("No square brackets detected!\n");
+}
+regfree(&regex);]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No square brackets detected!
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>int arr[50] = {5, 6, 7, 8, 9, 10, 11};
+print_array(arr, 7);</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>5, 6, 7, 8, 9, 10, 11</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>int arr[50] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29};
+print_array(arr, 15);</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>

@@ -607,3 +607,18 @@ body#page-question-type-coderunner div[id^=fitem_id_extra_] {
 }
 
 /* stylelint-enable declaration-no-important  */
+
+/* Documentation page (docs.php) and author-form documentation link. */
+body#page-question-type-coderunner-docs #topofscroll {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+body#page-question-type-coderunner .coderunner-docs-link {
+  text-align: right;
+}
+@media (max-width: 767.98px) {
+  body#page-question-type-coderunner-docs #topofscroll {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

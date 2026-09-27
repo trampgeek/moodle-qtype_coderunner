@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<question type="coderunner">
+    <name>
+      <text>Employee.h</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style="text-align: left;">Please enter the complete code for your employee.h file</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>2.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[import subprocess, sys
+
+# Write the student code to a file prog.c
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+with open("employee.h", "w") as src:
+    print(student_answer, file=src)
+
+# Compile
+{% if QUESTION.parameters.cflags is defined %}
+cflags = """{{ QUESTION.parameters.cflags | e('py') }}"""
+{% else %}
+cflags = "-std=c99 -Wall -Werror"
+{% endif %}
+return_code = subprocess.call("gcc {0} -o prog Exercise10.c employee.c".format(cflags).split())
+if return_code != 0:
+    print("** Compilation failed. Testing aborted **", file=sys.stderr)
+
+# If compile succeeded, run the code. Since this is a per-test template,
+# stdin is already set up for the stdin text specified in the test case,
+# so we can run the compiled program directly.
+if return_code == 0:
+    try:
+        output = subprocess.check_output(["./prog"], universal_newlines=True)
+        print(output)
+    except subprocess.CalledProcessError as e:
+        if e.returncode > 0:
+            # Ignore non-zero positive return codes
+            if e.output:
+                print(e.output)
+        else:
+            # But negative return codes are signals - abort
+            if e.output:
+                print(e.output, file=sys.stderr)
+            if e.returncode < 0:
+                print("Task failed with signal", -e.returncode, file=sys.stderr)
+            print("** Further testing aborted **", file=sys.stderr)]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer>#define STRLEN 50
+
+struct EMPLOYEE {
+	int employee_number;
+	char first_name[STRLEN];
+	char last_name[STRLEN];
+	char job_title[STRLEN];
+	float salary;
+};
+
+typedef struct EMPLOYEE Employee;
+
+Employee *new_employee_array(int n);
+
+void delete_employee_array(Employee **arr);
+
+void enter_details(Employee *emp);
+
+void print_details(Employee *emp);
+
+Employee *get_highest_paid(Employee employees[], int length);
+
+</answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang>C</acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>David Bowman</text>
+      </testcode>
+      <stdin>
+                <text>1
+David Bowman Astronaut 104898.99</text>
+      </stdin>
+      <expected>
+                <text>How many employees? Enter details of employee 1:
+This is the highest paid employee:
+----------------------------------
+Employee Record
+----------------------------------
+Employee number: 1
+Name:            Bowman, David
+Job Title:       Astronaut
+Salary:          104898.99
+----------------------------------
+
+Employee array deleted!</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+<file name="employee.c" path="/" encoding="base64">I2luY2x1ZGUgImVtcGxveWVlLmgiDQoNCiNpbmNsdWRlIDxzdGRpby5oPg0KI2luY2x1ZGUgPHN0ZGxpYi5oPg0KDQpFbXBsb3llZSAqbmV3X2VtcGxveWVlX2FycmF5KGludCBuKXsNCglFbXBsb3llZSAqbmV3ID0gbWFsbG9jKG4gKiBzaXplb2YoRW1wbG95ZWUpKTsNCglyZXR1cm4gbmV3Ow0KfQ0KDQp2b2lkIGRlbGV0ZV9lbXBsb3llZV9hcnJheShFbXBsb3llZSAqKmFycikgew0KCWZyZWUoKmFycik7DQoJKmFyciA9IE5VTEw7DQoJfQ0KDQp2b2lkIGVudGVyX2RldGFpbHMoRW1wbG95ZWUgKmVtcCl7DQoJcHJpbnRmKCJFbnRlciBkZXRhaWxzIG9mIGVtcGxveWVlICVkOiAiLCBlbXAtPmVtcGxveWVlX251bWJlcik7DQoJc2NhbmYoIiAlcyAlcyAlcyAlZiIsIA0KCWVtcC0+Zmlyc3RfbmFtZSwgZW1wLT5sYXN0X25hbWUsIGVtcC0+am9iX3RpdGxlLCAmKGVtcC0+c2FsYXJ5KSk7DQp9DQoNCkVtcGxveWVlICpnZXRfaGlnaGVzdF9wYWlkKEVtcGxveWVlIGVtcGxveWVlc1tdLCBpbnQgbGVuZ3RoKXsNCglFbXBsb3llZSAqZSA9ICZlbXBsb3llZXNbMF07DQoJZm9yKGludCBpID0gMTsgaSA8IGxlbmd0aDsgaSsrKXsNCgkJaWYgKGUtPnNhbGFyeSA8IGVtcGxveWVlc1tpXS5zYWxhcnkpew0KCQkJZSA9ICZlbXBsb3llZXNbaV07DQoJCX0NCgl9DQoJcmV0dXJuIGU7DQp9DQoNCnZvaWQgcHJpbnRfZGV0YWlscyhFbXBsb3llZSAqZW1wKXsNCglwcmludGYoIi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS1cbiIpOw0KCXByaW50ZigiRW1wbG95ZWUgUmVjb3JkXG4iKTsNCglwcmludGYoIi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS1cbiIpOw0KCXByaW50ZigiRW1wbG95ZWUgbnVtYmVyOiAlZFxuIiwgZW1wLT5lbXBsb3llZV9udW1iZXIpOw0KCXByaW50ZigiTmFtZTogICAgICAgICAgICAlcywgJXNcbiIsIGVtcC0+bGFzdF9uYW1lLCBlbXAtPmZpcnN0X25hbWUpOw0KCXByaW50ZigiSm9iIFRpdGxlOiAgICAgICAlc1xuIiwgZW1wLT5qb2JfdGl0bGUpOw0KCXByaW50ZigiU2FsYXJ5OiAgICAgICAgICAlLjJmXG4iLCBlbXAtPnNhbGFyeSk7DQoJcHJpbnRmKCItLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG4iKTsNCn0=</file>
+<file name="Exercise10.c" path="/" encoding="base64">I2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSAiZW1wbG95ZWUuaCINCg0KaW50IG1haW4odm9pZCkgew0KCUVtcGxveWVlICplbXBsb3llZXM7DQoJaW50IG5fZW1wbG95ZWVzOw0KCQ0KCWRvIHsNCglwcmludGYoIkhvdyBtYW55IGVtcGxveWVlcz8gIik7DQoJfQ0KCXdoaWxlKCFzY2FuZigiICVkIiwgJm5fZW1wbG95ZWVzKSAmJiBuX2VtcGxveWVlcyA+IDApOw0KCQ0KCWVtcGxveWVlcyA9IG5ld19lbXBsb3llZV9hcnJheShuX2VtcGxveWVlcyk7DQogIA0KCWZvcihpbnQgaSA9IDA7IGkgPCBuX2VtcGxveWVlczsgaSsrKXsNCgkJZW1wbG95ZWVzW2ldLmVtcGxveWVlX251bWJlciA9IGkrMTsNCgkJZW50ZXJfZGV0YWlscyhlbXBsb3llZXMraSk7DQoJfQ0KCQkNCglwcmludGYoIlxuVGhpcyBpcyB0aGUgaGlnaGVzdCBwYWlkIGVtcGxveWVlOlxuIik7DQoJDQoJRW1wbG95ZWUgKmhpZ2hlc3QgPSBnZXRfaGlnaGVzdF9wYWlkKGVtcGxveWVlcywgbl9lbXBsb3llZXMpOw0KCQ0KCXByaW50X2RldGFpbHMoaGlnaGVzdCk7DQoJDQoJZGVsZXRlX2VtcGxveWVlX2FycmF5KCZlbXBsb3llZXMpOw0KCQ0KCWlmKCFlbXBsb3llZXMpIHsNCgkJcHJpbnRmKCJcbkVtcGxveWVlIGFycmF5IGRlbGV0ZWQhXG4iKTsNCgl9IGVsc2Ugew0KCQlwcmludGYoIlxuRW1wbG95ZWUgYXJyYXkgbm90IGRlbGV0ZWQhIDooXG4iKTsNCgl9DQogIA0KICByZXR1cm4gMDsNCn0NCg0K</file>
+    </testcases>
+  </question>
+
+<question type="coderunner">
+    <name>
+      <text>Employee.c</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style="text-align: left;">Please enter the complete code for your employee.c file</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>2.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>python3</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[import subprocess, sys
+
+# Write the student code to a file prog.c
+student_answer = """{{ STUDENT_ANSWER | e('py') }}"""
+with open("employee.c", "w") as src:
+    print(student_answer, file=src)
+
+# Compile
+{% if QUESTION.parameters.cflags is defined %}
+cflags = """{{ QUESTION.parameters.cflags | e('py') }}"""
+{% else %}
+cflags = "-std=c99 -Wall -Werror"
+{% endif %}
+return_code = subprocess.call("gcc {0} -o prog Exercise10.c employee.c".format(cflags).split())
+if return_code != 0:
+    print("** Compilation failed. Testing aborted **", file=sys.stderr)
+
+# If compile succeeded, run the code. Since this is a per-test template,
+# stdin is already set up for the stdin text specified in the test case,
+# so we can run the compiled program directly.
+if return_code == 0:
+    try:
+        output = subprocess.check_output(["./prog"], universal_newlines=True)
+        print(output)
+    except subprocess.CalledProcessError as e:
+        if e.returncode > 0:
+            # Ignore non-zero positive return codes
+            if e.output:
+                print(e.output)
+        else:
+            # But negative return codes are signals - abort
+            if e.output:
+                print(e.output, file=sys.stderr)
+            if e.returncode < 0:
+                print("Task failed with signal", -e.returncode, file=sys.stderr)
+            print("** Further testing aborted **", file=sys.stderr)]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[#include "employee.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
+Employee *new_employee_array(int n){
+	Employee *new = malloc(n * sizeof(Employee));
+	return new;
+}
+
+void delete_employee_array(Employee **arr) {
+	free(*arr);
+	*arr = NULL;
+	}
+
+void enter_details(Employee *emp){
+	printf("Enter details of employee %d: ", emp->employee_number);
+	scanf(" %s %s %s %f", 
+	emp->first_name, emp->last_name, emp->job_title, &(emp->salary));
+}
+
+Employee *get_highest_paid(Employee employees[], int length){
+	Employee *e = &employees[0];
+	for(int i = 1; i < length; i++){
+		if (e->salary < employees[i].salary){
+			e = &employees[i];
+		}
+	}
+	return e;
+}
+
+void print_details(Employee *emp){
+	printf("----------------------------------\n");
+	printf("Employee Record\n");
+	printf("----------------------------------\n");
+	printf("Employee number: %d\n", emp->employee_number);
+	printf("Name:            %s, %s\n", emp->last_name, emp->first_name);
+	printf("Job Title:       %s\n", emp->job_title);
+	printf("Salary:          %.2f\n", emp->salary);
+	printf("----------------------------------\n");
+}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang>C</acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>David Bowman</text>
+      </testcode>
+      <stdin>
+                <text>1
+David Bowman Astronaut 104898.99</text>
+      </stdin>
+      <expected>
+                <text>How many employees? Enter details of employee 1:
+This is the highest paid employee:
+----------------------------------
+Employee Record
+----------------------------------
+Employee number: 1
+Name:            Bowman, David
+Job Title:       Astronaut
+Salary:          104898.99
+----------------------------------
+
+Employee array deleted!</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>CS210 Teaching Team</text>
+      </testcode>
+      <stdin>
+                <text>3
+Andrew Fagan TeachingAssistant 0.99
+John Levine BanterMerchant 999999
+Fred NordvallForsberg SpaceCadet 29.99</text>
+      </stdin>
+      <expected>
+                <text>How many employees? Enter details of employee 1: Enter details of employee 2: Enter details of employee 3:
+This is the highest paid employee:
+----------------------------------
+Employee Record
+----------------------------------
+Employee number: 2
+Name:            Levine, John
+Job Title:       BanterMerchant
+Salary:          999999.00
+----------------------------------
+
+Employee array deleted!</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>The Office</text>
+      </testcode>
+      <stdin>
+                <text>13
+Jim Halpert SalesRepresentative 14.99
+Dwight Schrute AssistantToTheRegionalManager 15.01
+Michael Scott RegionalManager 0.00
+Pam Beesly Receptionist 10.50
+Ryan Howard Temp 0.99
+Stanley Hudson SalesRepresentative 20.00
+Kevin Malone Accountant 19.99
+Oscar Martinez Accountant 19.99
+Angela Martin Accountant 19.99
+Phyllis Lapin SalesRepresentative 14.99
+Kelly Kapoor CustomerServiceRepresentative 14.99
+Toby Flenderson HRRepresentative 10.99
+Creed Bratton Unknown 0.99</text>
+      </stdin>
+      <expected>
+                <text>How many employees? Enter details of employee 1: Enter details of employee 2: Enter details of employee 3: Enter details of employee 4: Enter details of employee 5: Enter details of employee 6: Enter details of employee 7: Enter details of employee 8: Enter details of employee 9: Enter details of employee 10: Enter details of employee 11: Enter details of employee 12: Enter details of employee 13:
+This is the highest paid employee:
+----------------------------------
+Employee Record
+----------------------------------
+Employee number: 6
+Name:            Hudson, Stanley
+Job Title:       SalesRepresentative
+Salary:          20.00
+----------------------------------
+
+Employee array deleted!</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+<file name="employee.h" path="/" encoding="base64">I2RlZmluZSBTVFJMRU4gNTANCg0Kc3RydWN0IEVNUExPWUVFIHsNCglpbnQgZW1wbG95ZWVfbnVtYmVyOw0KCWNoYXIgZmlyc3RfbmFtZVtTVFJMRU5dOw0KCWNoYXIgbGFzdF9uYW1lW1NUUkxFTl07DQoJY2hhciBqb2JfdGl0bGVbU1RSTEVOXTsNCglmbG9hdCBzYWxhcnk7DQp9Ow0KDQp0eXBlZGVmIHN0cnVjdCBFTVBMT1lFRSBFbXBsb3llZTsNCg0KRW1wbG95ZWUgKm5ld19lbXBsb3llZV9hcnJheShpbnQgbik7DQoNCnZvaWQgZGVsZXRlX2VtcGxveWVlX2FycmF5KEVtcGxveWVlICoqYXJyKTsNCg0Kdm9pZCBlbnRlcl9kZXRhaWxzKEVtcGxveWVlICplbXApOw0KDQp2b2lkIHByaW50X2RldGFpbHMoRW1wbG95ZWUgKmVtcCk7DQoNCkVtcGxveWVlICpnZXRfaGlnaGVzdF9wYWlkKEVtcGxveWVlIGVtcGxveWVlc1tdLCBpbnQgbGVuZ3RoKTsNCg0K</file>
+<file name="Exercise10.c" path="/" encoding="base64">I2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSAiZW1wbG95ZWUuaCINCg0KaW50IG1haW4odm9pZCkgew0KCUVtcGxveWVlICplbXBsb3llZXM7DQoJaW50IG5fZW1wbG95ZWVzOw0KCQ0KCWRvIHsNCglwcmludGYoIkhvdyBtYW55IGVtcGxveWVlcz8gIik7DQoJfQ0KCXdoaWxlKCFzY2FuZigiICVkIiwgJm5fZW1wbG95ZWVzKSAmJiBuX2VtcGxveWVlcyA+IDApOw0KCQ0KCWVtcGxveWVlcyA9IG5ld19lbXBsb3llZV9hcnJheShuX2VtcGxveWVlcyk7DQogIA0KCWZvcihpbnQgaSA9IDA7IGkgPCBuX2VtcGxveWVlczsgaSsrKXsNCgkJZW1wbG95ZWVzW2ldLmVtcGxveWVlX251bWJlciA9IGkrMTsNCgkJZW50ZXJfZGV0YWlscyhlbXBsb3llZXMraSk7DQoJfQ0KCQkNCglwcmludGYoIlxuVGhpcyBpcyB0aGUgaGlnaGVzdCBwYWlkIGVtcGxveWVlOlxuIik7DQoJDQoJRW1wbG95ZWUgKmhpZ2hlc3QgPSBnZXRfaGlnaGVzdF9wYWlkKGVtcGxveWVlcywgbl9lbXBsb3llZXMpOw0KCQ0KCXByaW50X2RldGFpbHMoaGlnaGVzdCk7DQoJDQoJZGVsZXRlX2VtcGxveWVlX2FycmF5KCZlbXBsb3llZXMpOw0KCQ0KCWlmKCFlbXBsb3llZXMpIHsNCgkJcHJpbnRmKCJcbkVtcGxveWVlIGFycmF5IGRlbGV0ZWQhXG4iKTsNCgl9IGVsc2Ugew0KCQlwcmludGYoIlxuRW1wbG95ZWUgYXJyYXkgbm90IGRlbGV0ZWQhIDooXG4iKTsNCgl9DQogIA0KICByZXR1cm4gMDsNCn0NCg0K</file>
+    </testcases>
+  </question>
+
+</quiz>

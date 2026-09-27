@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<question type="coderunner">
+    <name>
+      <text>Print 2D Array</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style="">Now you'll have to make a slightly more complicated function:&nbsp;<span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">void print_2d_array(char* ptr, int ylen, int xlen)</span>, which will take a pointer to the first element in an array of arrays. <span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">ylen</span> and <span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">xlen</span> are probably what you think they are. You want to separate rows by new lines and columns by commas and spaces, so then we do:<br><br><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">char somestuff[3][4] = {</span><br><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">&nbsp; &nbsp; {'F', 'I', 'Z', 'Z'},</span><br><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">&nbsp; &nbsp; {'B', 'U', 'Z', 'Z'},</span><br><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">&nbsp; &nbsp; {'B', 'A', 'Z', 'Z'}</span><br><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">};</span><br><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">print_2d_array(*somestuff, 3, 4);</span><br><br>Which should result in:<br><br><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">F, I, Z, Z</span><br><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">B, U, Z, Z</span><br><span class="" style="font-family: &quot;Courier New&quot;, Courier, mono;">B, A, Z, Z</span><br></p><p dir="ltr" style=""><span>Paste your function in here when you're finished.</span></p><span style="font-size: 12.25px;"><p></p></span>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>2.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_function</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>0</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
+#include <math.h>
+#include <regex.h> 
+#define SEPARATOR "#<ab@17943918#@>#"
+
+char* input = "{{ STUDENT_ANSWER | e("c") }}";
+
+void print_array(int* ptr, int len){
+	while(len--){
+		printf("%d%s", *(ptr++), len ? ", " : "\n");
+	}
+}
+
+{{ STUDENT_ANSWER }}
+
+int main() {
+{% for TEST in TESTCASES %}
+   {
+    {{ TEST.testcode }};
+   }
+    {% if not loop.last %}printf("%s\n", SEPARATOR);{% endif %}
+{% endfor %}
+    return 0;
+}]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[void print_2d_array(char* ptr, int ylen, int xlen){
+	for(int y = 0; y<ylen; y++){
+		for(int x = 0; x < xlen; x++){
+			printf("%c%s", *(ptr++), x < xlen-1 ? ", " : "\n");
+		}
+	}
+}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>1</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="0.5000000" >
+      <testcode>
+                <text>char arr2[5][5] = {
+		{'A', 'B', 'C', 'D', 'E'},
+		{'F', 'G', 'H', 'I', 'J'},
+		{'K', 'L', 'M', 'N', 'O'},
+		{'P', 'Q', 'R', 'S', 'T'},
+		{'U', 'V', 'W', 'X', 'Y'}
+	};
+	
+	print_2d_array(*arr2, 5, 5);</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>A, B, C, D, E
+F, G, H, I, J
+K, L, M, N, O
+P, Q, R, S, T
+U, V, W, X, Y
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="0.5000000" >
+      <testcode>
+                <text><![CDATA[regex_t regex;
+int reti;
+reti = regcomp(&regex, "(\\[|\\])", REG_EXTENDED | REG_NOSUB);
+reti = regexec(&regex, input, 0, NULL, 0);
+if (!reti) {
+    printf("Square bracket detected! If you see this and didn't use any, show your code to Andrew.\n");
+}
+else if (reti == REG_NOMATCH) {
+    printf("No square brackets detected!\n");
+}
+regfree(&regex);]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>No square brackets detected!
+</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text>char somestuff[3][4] = {
+    {'F', 'I', 'Z', 'Z'},
+    {'B', 'U', 'Z', 'Z'},
+    {'B', 'A', 'Z', 'Z'}
+};
+print_2d_array(*somestuff, 3, 4);
+</text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>F, I, Z, Z
+B, U, Z, Z
+B, A, Z, Z</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>

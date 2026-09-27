@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<question type="coderunner">
+    <name>
+      <text>str_cmp</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style="text-align: left;"><span class="" style="font-family: 'Courier New', Courier, mono;">int str_cmp(char *str1, char *str2)</span> should return the "lexicographical ordering" of the strings <span class="" style="font-family: 'Courier New', Courier, mono;">str1<span class="" style="font-family: Arial, Helvetica, sans-serif;"> </span></span>and <span class="" style="font-family: 'Courier New', Courier, mono;">str2</span>. Starting at the beginning of both strings, it returns 1 if the 0th character of str1 is greater than the 0th character of str2, or -1 if it's less. If they're equal, it looks at the 1st characters and does the same test, and so on. If it gets all the way to the end and the strings are identical throughout, it returns a 0. If the strings are identical at first, but then one string ends while the other doesn't, then the shorter string should be considered smaller (that is, you should return -1 if the first string is shorter, and 1 if the second one is).</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_function</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdbool.h>
+#include <math.h>
+
+#include <regex.h> 
+#define SEPARATOR "#<ab@17943918#@>#"
+
+char* input = "{{ STUDENT_ANSWER | e("c") }}";
+
+int str_len(char* str){
+	int out = 0;
+	while(*str++) out++;
+	return out;
+}
+
+{{ STUDENT_ANSWER }}
+
+int main() {
+{% for TEST in TESTCASES %}
+   {
+    {{ TEST.testcode }};
+   }
+    {% if not loop.last %}printf("%s\n", SEPARATOR);{% endif %}
+{% endfor %}
+    return 0;
+}]]></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[int str_cmp(char* str1, char* str2){
+	if (*str1 != *str2 || *str1 == '\0' || *str2 == '\0'){
+		if(*str1 < *str2) return -1;
+		if(*str1 > *str2) return 1;
+		return 0;
+	}
+	return str_cmp(str1 + 1, str2 + 1);
+	
+}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>0</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="1" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[regex_t regex;
+int reti;
+reti = regcomp(&regex, "(<string[.]h>|strlen)", REG_EXTENDED | REG_NOSUB);
+reti = regexec(&regex, input, 0, NULL, 0);
+if (!reti) {
+    printf("Nice Try, but you can't use string.h!\n");
+}
+else if (reti == REG_NOMATCH) {
+    printf("Okay");
+}
+regfree(&regex);]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>Okay</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>HIDE_IF_SUCCEED</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[printf("%d", str_cmp("hello", "HELLO"));]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[printf("%d", str_cmp("hello, world", "hello"));]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>1</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[printf("%d", str_cmp("the same", "the same"));]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>0</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text><![CDATA[printf("%d", str_cmp("Goodbye", "goodbye"));]]></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>-1</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>

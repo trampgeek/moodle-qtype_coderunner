@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+
+<question type="coderunner">
+    <name>
+      <text><![CDATA[Primitive Types & Arrays]]></text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p dir="ltr" style="text-align: left;"></p>
+<h3> </h3>
+<h3>Exercise 3: Primitive Types &amp; Arrays</h3>
+<p>Write a C program that, in the main() function, declares variables with the following names, of the following types and assigns the following values to those variables.  </p>
+<table>
+<thead>
+<tr>
+<th scope="col">name</th>
+<th scope="col">type</th>
+<th scope="col">value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>c</td>
+<td>char</td>
+<td>'b'</td>
+</tr>
+<tr>
+<td>s</td>
+<td>short</td>
+<td>10</td>
+</tr>
+<tr>
+<td>i</td>
+<td>int</td>
+<td>100</td>
+</tr>
+<tr>
+<td>l</td>
+<td>long</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>f</td>
+<td>float</td>
+<td>1.1</td>
+</tr>
+<tr>
+<td>d</td>
+<td>double</td>
+<td>2.2</td>
+</tr>
+<tr>
+<td>arr</td>
+<td>array of int (size 10)</td>
+<td>increasing integers from 1 to 10</td>
+</tr>
+<tr>
+<td>str</td>
+<td>string of size 6</td>
+<td>"Hello"</td>
+</tr>
+</tbody>
+</table>
+<p><br><span style="color: #212529; font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 12.25px;">printf("%c, %d, %d, %ld, %f, %lf, %d, %s\n", c, s, i, l, f, d, arr[4], str);</span></p>
+<p></p>
+<p>If you have done everything correctly, the output to the console, when the code is compiled and executed, will be:</p>
+<pre>b, 10, 100, 1000, 1.100000, 2.200000, 5, Hello</pre>
+<p>To understand what is happening in the printf() function, and what all the %d things are, you can look at this webpage:</p>
+<pre><a href="https://www.tutorialspoint.com/format-specifiers-in-c">https://www.tutorialspoint.com/format-specifiers-in-c<br></a></pre>
+<p>Attempt the quiz when your code is working to receive your mark</p>
+<p></p>
+<p>If you think this quiz is behaving incorrectly, speak to Andrew or email him (<a href="mailto:andrew.fagan@strath.ac.uk">andrew.fagan@strath.ac.uk</a>)</p>
+<p></p>
+<p></p>
+<p></p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_program</coderunnertype>
+    <prototypetype>0</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>0, 0, 0, 0, 0</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace></useace>
+    <resultcolumns></resultcolumns>
+    <template></template>
+    <iscombinatortemplate></iscombinatortemplate>
+    <allowmultiplestdins></allowmultiplestdins>
+    <answer><![CDATA[#include <stdio.h>
+
+int main(){
+	char c = 'b';
+	
+	short s = 10;
+	int i = 100;
+	long l = 1000;
+	float f = 1.1;
+	double d = 2.2;
+	
+	int arr[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+	
+	char str[] = "Hello"; 
+	
+	
+	printf("%c, %d, %d, %ld, %f, %lf, %d, %s\n", c, s, i, l, f, d, arr[4], str);
+	
+}]]></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre></testsplitterre>
+    <language></language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader></grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald>{}</templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin></uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <testcases>
+      <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
+      <testcode>
+                <text></text>
+      </testcode>
+      <stdin>
+                <text></text>
+      </stdin>
+      <expected>
+                <text>b, 10, 100, 1000, 1.100000, 2.200000, 5, Hello</text>
+      </expected>
+      <extra>
+                <text></text>
+      </extra>
+      <display>
+                <text>SHOW</text>
+      </display>
+    </testcase>
+    </testcases>
+  </question>
+
+</quiz>

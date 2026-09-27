@@ -22,6 +22,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['docslinktext'] = 'CodeRunner Documentation';
 $string['aborted'] = 'Testing was aborted due to error.';
 $string['ace_aria_label'] = 'Code editor - Enter your code here.';
 $string['ace_gapfillerui_line_height_descr'] = 'The line spacing, in pixels, used by the editor; it also determines the height of the answer box, in conjunction with the box\'s "rows" setting. The default value is that used by the Ace editor normally, but a larger value, e.g. 22, can be used to give a less cramped appearance.';
