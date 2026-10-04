@@ -508,7 +508,7 @@ define(['qtype_coderunner/userinterfacewrapper', 'core/str'], function(ui, str) 
         function set_testtype_visibilities() {
             if (precheck.value === '3') { // Show only for case of 'Selected'.
                 testtypedivs.forEach(div => {
-                    div.style.display = 'block';
+                    div.style.display = 'flex';
                 });
             } else {
                 testtypedivs.forEach(div => {
