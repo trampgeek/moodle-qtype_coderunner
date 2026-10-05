@@ -388,6 +388,33 @@ class behat_coderunner extends behat_base {
     }
 
     /**
+     * Checks that the page text matches the given PCRE regular expression
+     * (including its delimiters, e.g. "/foo.*bar/"). Useful where the exact
+     * wording of a message can legitimately vary, e.g. compiler error text
+     * that differs between toolchain versions, and a literal "I should see"
+     * substring match would be too brittle.
+     *
+     * @Then /^I should see text matching "(?P<pattern>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $pattern A PCRE regular expression, including delimiters
+     */
+    public function i_should_see_text_matching($pattern) {
+        $this->assertSession()->pageTextMatches($pattern);
+    }
+
+    /**
+     * Checks that the page text does not match the given PCRE regular
+     * expression (including its delimiters, e.g. "/foo.*bar/").
+     *
+     * @Then /^I should not see text matching "(?P<pattern>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $pattern A PCRE regular expression, including delimiters
+     */
+    public function i_should_not_see_text_matching($pattern) {
+        $this->assertSession()->pageTextNotMatches($pattern);
+    }
+
+    /**
      * Skips scenario if the given language is not installed on the Jobe server
      *
      * @Given /^the Jobe server supports "(?P<lang>[^"]+)"$/

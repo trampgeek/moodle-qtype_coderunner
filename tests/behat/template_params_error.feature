@@ -56,10 +56,10 @@ Feature: template_params_error
     And I set the field "id_templateparamslang" to "c"
     And I set the following fields to these values:
       | id_templateparams      | #include <stdio |
-    And I should not see "missing terminating > character"
+    And I should not see text matching "/missing terminating ‘?>’? character/u"
     And I press "id_submitbutton"
     And I should see "Template parameters must evaluate to blank or a valid JSON record"
-    Then I should see "error: missing terminating > character"
+    Then I should see text matching "/error: missing terminating ‘?>’? character/u"
 
   Scenario: As a teacher, I should be given an informative Java error
     Given the Jobe server supports "java"
