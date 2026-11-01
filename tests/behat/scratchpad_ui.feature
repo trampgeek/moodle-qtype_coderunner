@@ -291,6 +291,7 @@ Feature: Test the Scratchpad UI
     {"answer_code":["print('hello world')"]}
     """
     And I press the CTRL + ALT M key
+    And I wait "2" seconds
     Then I should see "print('hello world')"
 
     When I press the CTRL + ALT M key
@@ -319,6 +320,7 @@ Feature: Test the Scratchpad UI
     print('hello world')
     """
     And I press the CTRL + ALT M key
+    And I wait "2" seconds
     Then I should see "print('hello world')"
 
     When I press the CTRL + ALT M key
