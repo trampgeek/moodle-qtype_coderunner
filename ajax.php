@@ -48,6 +48,7 @@ $uiplugin = strtolower(optional_param('uiplugin', '', PARAM_RAW_TRIMMED));
 header('Content-type: application/json; charset=utf-8');
 
 $coursecontext = context_course::instance($courseid);
+require_capability('moodle/question:add', $coursecontext);
 if ($qtype) {
     $questiontype = qtype_coderunner::get_prototype($qtype, $coursecontext);
     if ($questiontype === null || is_array($questiontype)) {

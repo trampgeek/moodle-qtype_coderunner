@@ -1,6 +1,14 @@
 # CHANGE HISTORY
 
-### September 27 2025, 5.10.11
+### November 2 2026, 5.10.8
+ * Security fix: ajax.php (used by the question-authoring form to load prototype and UI-plugin
+   details) checked login and sesskey but not the caller's capability to edit questions,
+   allowing any authenticated user who could guess a prototype's name to retrieve its full
+   question object, including template code. Now requires moodle/question:add
+   on the course context, matching the capability already required to reach the form that is
+   ajax.php's only caller. Reported by Simon, Catalyst IT Europe.
+
+### September 27 2026, 5.10.11
  * Update Twig to latest version, which has several security patches.
  * Add line_height UI parameter to Ace-gapfiller UI, plus verious CSS patches, to allow for a
    less cramped look and feel.
