@@ -1,5 +1,21 @@
 # CHANGE HISTORY
 
+### November 2 2026, 5.10.9
+ * Bug fix: get_prototype (and get_all_prototypes) counted hidden question versions, so
+   deleting a duplicate prototype in the question bank did not cure the resulting
+   "Duplicate <type> prototypes exist. Can only load one." error: deleting a question that
+   is in use merely hides its version rather than removing the row. Hidden versions are now
+   excluded, both when selecting the most recent version of a prototype and when matching
+   it, so a prototype whose latest version has been deleted falls back to its most recent
+   non-hidden version rather than disappearing. Note that a prototype all of whose versions
+   are hidden is now reported as missing by its child questions, where previously it was
+   still loaded.
+ * Bug fix: editing or deleting a prototype with a very large number of child questions
+   could exhaust memory or time out, because every child was loaded in full and uncached
+   one at a time. The children are now counted first, and if there are more than
+   constants::BULK_CACHE_PURGE_THRESHOLD (10000) of them the whole question cache is
+   purged in a single operation instead.
+
 ### November 2 2026, 5.10.8
  * Security fix: ajax.php (used by the question-authoring form to load prototype and UI-plugin
    details) checked login and sesskey but not the caller's capability to edit questions,

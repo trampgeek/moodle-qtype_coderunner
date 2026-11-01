@@ -47,8 +47,10 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/engine/bank.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
 
+use qtype_coderunner\constants;
 use core_question\local\bank\question_bank_helper;
 use core_question\local\bank\question_edit_contexts;
+use core_question\local\bank\question_version_status;
 
 /**
  * qtype_coderunner extends the base question_type to coderunner-specific functionality.
@@ -529,8 +531,11 @@ class qtype_coderunner extends question_type {
         global $DB;
         $coursecontext = context_course::instance($courseid);
         $contextids = self::prototype_contexts($coursecontext);
-        [$contextcondition, $params] = $DB->get_in_or_equal($contextids);
+        [$contextcondition, $params] = $DB->get_in_or_equal($contextids, SQL_PARAMS_NAMED, 'ctx');
+        $params['hidden'] = question_version_status::QUESTION_STATUS_HIDDEN;
+        $params['hidden2'] = question_version_status::QUESTION_STATUS_HIDDEN;
 
+        // Hidden versions are excluded, to match get_prototype.
         $rows = $DB->get_records_sql("
                 SELECT qco.coderunnertype, count(qco.coderunnertype) as count
                   FROM {question_coderunner_options} qco
@@ -541,8 +546,10 @@ class qtype_coderunner extends question_type {
                   WHERE (qv.version = (SELECT MAX(v.version)
                                         FROM {question_versions} v
                                         JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
-                                       WHERE be.id = qbe.id)
+                                       WHERE be.id = qbe.id
+                                         AND v.status <> :hidden)
                                      )
+                        AND qv.status <> :hidden2
                         AND prototypetype != 0
                         AND qc.contextid $contextcondition
                   GROUP BY qco.coderunnertype", $params);
@@ -569,9 +576,16 @@ class qtype_coderunner extends question_type {
     public static function get_prototype($coderunnertype, $context, $checkexistenceonly = false) {
         global $DB;
         $contextids = self::prototype_contexts($context);
-        [$contextcondition, $params] = $DB->get_in_or_equal($contextids);
-        $params[] = $coderunnertype;
+        [$contextcondition, $params] = $DB->get_in_or_equal($contextids, SQL_PARAMS_NAMED, 'ctx');
+        $params['coderunnertype'] = $coderunnertype;
+        $params['hidden'] = question_version_status::QUESTION_STATUS_HIDDEN;
+        $params['hidden2'] = question_version_status::QUESTION_STATUS_HIDDEN;
 
+        // Hidden versions are excluded, both when finding the most recent
+        // version of each prototype and when matching it, so that a prototype
+        // deleted from the question bank (which merely hides it, if it is in
+        // use) no longer counts as a duplicate. The redundant outer check
+        // guards against sites with duplicate question_versions rows.
         $sql = "SELECT q.id, q.name, qc.name as category
                   FROM {question_coderunner_options} qco
                   JOIN {question} q ON qco.questionid = q.id
@@ -581,11 +595,13 @@ class qtype_coderunner extends question_type {
                  WHERE (qv.version = (SELECT MAX(v.version)
                                         FROM {question_versions} v
                                         JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
-                                       WHERE be.id = qbe.id)
+                                       WHERE be.id = qbe.id
+                                         AND v.status <> :hidden)
                                      )
+                   AND qv.status <> :hidden2
                    AND qco.prototypetype != 0
                    AND qc.contextid $contextcondition
-                   AND qco.coderunnertype = ?";
+                   AND qco.coderunnertype = :coderunnertype";
 
         $validprotoids = $DB->get_records_sql($sql, $params);
         if (count($validprotoids) !== 1) {
@@ -733,14 +749,25 @@ class qtype_coderunner extends question_type {
             return;  // If caching is off, nothing to do.
         }
         if ($question->prototypetype != 0) {
-            $typename = $question->coderunnertype;
-            $children = $DB->get_records(
-                'question_coderunner_options',
-                ['prototypetype' => 0,
-                          'coderunnertype' => $typename]
-            );
-            foreach ($children as $child) {
-                question_bank::notify_question_edited($child->questionid);
+            $select = 'prototypetype = 0 AND coderunnertype = ?';
+            $params = [$question->coderunnertype];
+            $childcount = $DB->count_records_select('question_coderunner_options', $select, $params);
+            if ($childcount > constants::BULK_CACHE_PURGE_THRESHOLD) {
+                // Too many children to uncache one at a time (loading and
+                // iterating them all can exhaust memory or time out), so just
+                // purge the whole question cache instead. Purging more than is
+                // strictly necessary is safe, as the cache is reloaded on demand.
+                cache_helper::purge_by_definition('core', 'questiondata');
+            } else {
+                $childids = $DB->get_fieldset_select(
+                    'question_coderunner_options',
+                    'questionid',
+                    $select,
+                    $params
+                );
+                foreach ($childids as $childid) {
+                    question_bank::notify_question_edited($childid);
+                }
             }
         }
     }
