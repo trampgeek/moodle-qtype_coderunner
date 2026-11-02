@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Editing prototype cosc131_scratchpad (mockup)</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/359044b1ad979ab6c85ba1260b9cb7e1">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#fff}
+a{color:#0f6cbf}a:hover{color:#0c589c}
+.mk-code{font-family:courier,monospace;font-size:.9rem}
+.mk-inh{display:block;width:100%;text-align:left;background:#f5f5f5;color:#495057;border:1px dashed #b5b9bd;border-radius:.5rem;padding:.375rem .75rem;cursor:pointer;white-space:pre-wrap}
+.mk-inh:hover{background:#eef2f6;border-color:#0f6cbf}
+.mk-src{font-size:.8125rem;color:#495057}
+.mk-chg{font-size:.75rem;background:#e7f1fa;color:#0c589c;border-radius:.25rem;padding:.1rem .4rem;font-weight:600}
+.mk-tok{color:#495057}
+.mk-help{background:#fff;border:1px solid #dee2e6;box-shadow:0 .25rem .75rem rgba(0,0,0,.12);border-radius:.5rem;padding:.5rem .75rem;font-size:.875rem;max-width:620px;color:#1d2125}
+.mk-hb{display:inline-flex;align-items:center;margin-left:6px;vertical-align:middle;line-height:1}
+.mk-tab{background:none;border:0;border-bottom:3px solid transparent;padding:.5rem 1rem;color:#0f6cbf;cursor:pointer}
+.mk-tab-on{border-bottom-color:#0f6cbf;color:#1d2125;font-weight:600}
+</style>
+</helmet>
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #1d2125; background: #fff; min-height: 100vh;">
+<nav class="navbar bg-body navbar-expand border-bottom" aria-label="Site navigation" style="height: 60px; padding: 0 1rem;">
+<div class="container-fluid" style="display: flex; align-items: center; gap: 24px;">
+<a href="#" class="navbar-brand d-flex align-items-center m-0 p-0">Moodle</a>
+<ul class="nav navbar-nav" style="display: flex; gap: 4px; flex-wrap: wrap;">
+<li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+<li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
+<li class="nav-item"><a class="nav-link" href="#">My courses</a></li>
+<li class="nav-item"><a class="nav-link" href="#">Site administration</a></li>
+</ul>
+<div class="ms-auto"><span style="display: inline-flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; background: #e9ecef; font-size: .85rem;">RL</span></div>
+</div>
+</nav>
+<div style="max-width: 1180px; margin: 0 auto; padding: 24px 24px 64px;">
+<nav aria-label="Breadcrumb"><ol class="breadcrumb" style="flex-wrap: wrap;">
+<li class="breadcrumb-item"><a href="#">COSC131-26S2</a></li>
+<li class="breadcrumb-item"><a href="#">CodeRunner management</a></li>
+<li class="breadcrumb-item"><a href="#">Prototypes</a></li>
+<li class="breadcrumb-item"><span>cosc131_scratchpad</span></li>
+</ol></nav>
+<div class="alert alert-info" role="note" style="margin: 8px 0 24px;">
+<strong>Mockup: proposed CodeRunner 6 prototype editor.</strong> Editing the course prototype <code>cosc131_scratchpad</code>, a child of <code>python3_scratchpad</code>. Changes are saved as a draft; questions see them only once the draft is tested and published. Counts shown as N are placeholders. <strong>Illustrative only: not every field is shown.</strong>
+</div>
+
+<div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 8px;">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+<h2 style="margin: 0;">cosc131_scratchpad</h2>
+<span class="badge bg-secondary" style="font-weight: 500;">Course prototype</span>
+<sc-if value="{{dirty}}" hint-placeholder-val="{{ false }}"><span class="badge bg-warning text-dark" style="font-weight: 500;">Draft: unpublished changes</span></sc-if>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .9375rem;">
+<span class="text-muted">Parent:</span>
+<code>python3</code><span class="text-muted">›</span><code>python3_scratchpad</code>
+<button type="button" class="btn btn-link btn-sm p-0" style="margin-left: 6px;">Change parent</button>
+</div>
+<div class="text-muted" style="font-size: .875rem;">Version 7, published 14 Oct 2026 by Richard Lobb · scope: course COSC131-26S2</div>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+<button type="button" class="btn btn-secondary" onClick="{{saveDraft}}">Save draft</button>
+<button type="button" class="btn btn-primary" onClick="{{openPublish}}">Test and publish…</button>
+</div>
+</div>
+
+<div class="card" style="margin: 16px 0 20px;"><div class="card-body" style="display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between;">
+<div style="display: flex; flex-wrap: wrap; gap: 28px;">
+<div><div style="font-size: 1.25rem; font-weight: 600;">N</div><div class="mk-src">questions use it</div></div>
+<div><div style="font-size: 1.25rem; font-weight: 600;">N</div><div class="mk-src">courses</div></div>
+<div><div style="font-size: 1.25rem; font-weight: 600;">2</div><div class="mk-src">child prototypes</div></div>
+<div><div style="font-size: 1.25rem; font-weight: 600;">N</div><div class="mk-src">quizzes with attempts on version 7</div></div>
+</div>
+<a href="#">Open usage report</a>
+</div></div>
+
+<sc-if value="{{publishOpen}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="margin-bottom: 20px; border-color: #0f6cbf;"><div class="card-body" style="display: flex; flex-direction: column; gap: 12px;">
+<h3 style="margin: 0; font-size: 1.171875rem;">Test and publish version 8</h3>
+<p style="margin: 0;">Changes in this draft: <strong>{{changeSummary}}</strong>.</p>
+<p style="margin: 0;">Before publishing, run the bulk tester over every question that uses <code>cosc131_scratchpad</code>, directly or through its 2 child prototypes, using the draft.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+<button type="button" class="btn btn-secondary" onClick="{{runTests}}">Run bulk tester on N questions</button>
+<span class="mk-src">{{testStatus}}</span>
+</div>
+<div class="form-check"><input id="mk-notify" class="form-check-input" type="checkbox" checked="{{yes}}" onChange="{{noop}}"><label class="form-check-label" for="mk-notify">After publishing, list the quizzes whose attempts started on version 7, as candidates for a regrade</label></div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+<button type="button" class="btn btn-primary" disabled="{{cannotPublish}}" onClick="{{publish}}">Publish version 8</button>
+<button type="button" class="btn btn-secondary" onClick="{{closePublish}}">Cancel</button>
+</div>
+</div></div>
+</sc-if>
+
+<div role="tablist" aria-label="Prototype editor" style="display: flex; flex-wrap: wrap; border-bottom: 1px solid #dee2e6; margin-bottom: 20px;">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="6"><button type="button" role="tab" aria-selected="{{t.on}}" class="mk-tab {{t.cls}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for>
+</div>
+
+<sc-if value="{{tab.settings}}" hint-placeholder-val="{{ true }}">
+<div>
+<p class="text-muted" style="margin: 0 0 16px;">The same sections as the question form. Values inherited from <code>python3_scratchpad</code> or above are greyed; this prototype overrides {{overrideCount}}.</p>
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="5">
+<fieldset class="clearfix fitem collapsible" style="margin-bottom: 8px; border-top: 1px solid #dee2e6; padding-top: 8px;">
+<legend class="visually-hidden">{{s.title}}</legend>
+<div class="d-flex align-items-center mb-2">
+<div class="position-relative d-flex ftoggler align-items-center me-1">
+<button type="button" class="btn btn-icon me-3 icons-collapse-expand fheader" aria-expanded="{{s.open}}" aria-label="{{s.title}}" onClick="{{s.toggle}}" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+<sc-if value="{{s.open}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#0f6cbf" stroke-width="2"></path></svg></sc-if>
+<sc-if value="{{s.closed}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="#0f6cbf" stroke-width="2"></path></svg></sc-if>
+</button>
+<h3 class="d-flex align-self-stretch align-items-center mb-0" style="font-size: 1.171875rem;">{{s.title}}</h3>
+<sc-if value="{{s.hasChanges}}" hint-placeholder-val="{{ false }}"><span class="mk-chg" style="margin-left: 10px;">{{s.countLabel}}</span></sc-if>
+</div>
+</div>
+<sc-if value="{{s.open}}" hint-placeholder-val="{{ false }}">
+<div class="fcontainer">
+<sc-for list="{{s.fields}}" as="f" hint-placeholder-count="3">
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+<span style="display: inline-flex; align-items: center;"><label class="d-inline word-break" for="{{f.domid}}">{{f.label}}</label><sc-if value="{{f.hasHelp}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-link p-0 mk-hb" aria-label="Help with {{f.label}}" onClick="{{f.toggleHelp}}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="#008196"></circle><text x="8" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">?</text></svg></button></sc-if></span>
+<sc-if value="{{f.isParam}}" hint-placeholder-val="{{ false }}"><span class="mk-src" style="font-size: .78rem;">template parameter</span></sc-if>
+</div>
+<div class="col-md-9 felement" style="display: flex; flex-direction: column; gap: 4px;">
+<sc-if value="{{f.helpOpen}}" hint-placeholder-val="{{ false }}"><div class="mk-help">{{f.help}}</div></sc-if>
+<sc-if value="{{f.inherited}}" hint-placeholder-val="{{ true }}">
+<button type="button" id="{{f.domid}}" class="mk-inh {{f.codeClass}}" title="Inherited: click to override" onClick="{{f.override}}">{{f.display}}</button>
+<span class="mk-src">from <code class="mk-tok">{{f.src}}</code> · click to override</span>
+</sc-if>
+<sc-if value="{{f.overridden}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{f.isText}}" hint-placeholder-val="{{ true }}"><input id="{{f.domid}}" type="text" class="form-control {{f.codeClass}}" style="max-width: 520px;" value="{{f.value}}" onChange="{{f.change}}"></sc-if>
+<sc-if value="{{f.isNumber}}" hint-placeholder-val="{{ false }}"><input id="{{f.domid}}" type="number" class="form-control" style="max-width: 140px;" value="{{f.value}}" onChange="{{f.change}}"></sc-if>
+<sc-if value="{{f.isArea}}" hint-placeholder-val="{{ false }}"><textarea id="{{f.domid}}" class="form-control mk-code" rows="{{f.rows}}" value="{{f.value}}" onChange="{{f.change}}"></textarea></sc-if>
+<sc-if value="{{f.isSelect}}" hint-placeholder-val="{{ false }}"><select id="{{f.domid}}" class="form-select" style="max-width: 360px;" value="{{f.value}}" onChange="{{f.change}}"><sc-for list="{{f.options}}" as="o" hint-placeholder-count="3"><option value="{{o.v}}">{{o.v}}</option></sc-for></select></sc-if>
+<sc-if value="{{f.isCheck}}" hint-placeholder-val="{{ false }}"><div class="form-check form-switch" style="padding-top: 6px;"><input id="{{f.domid}}" class="form-check-input" type="checkbox" checked="{{f.checked}}" onChange="{{f.toggleCheck}}"><label class="form-check-label" for="{{f.domid}}">{{f.checkLabel}}</label></div></sc-if>
+<div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"><span class="mk-chg">Set by this prototype</span><span class="mk-src">parent's value: <code class="mk-tok">{{f.inhShort}}</code> from <code class="mk-tok">{{f.src}}</code></span><button type="button" class="btn btn-link btn-sm p-0" onClick="{{f.revert}}">Revert to inherited</button></div>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</fieldset>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{tab.docs}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label class="d-inline word-break" for="mk-summary">Summary</label></div>
+<div class="col-md-9 felement" style="display: flex; flex-direction: column; gap: 4px;"><input id="mk-summary" type="text" class="form-control" value="COSC131 version of python3_scratchpad: course penalty regime, style checks off."><span class="mk-src">One sentence, shown beside the name in the question form's prototype picker.</span></div>
+</div>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label class="d-inline word-break" for="mk-doc">Documentation</label></div>
+<div class="col-md-9 felement" style="display: flex; flex-direction: column; gap: 4px;">
+<div style="border: 1px solid #8f959e; border-radius: .5rem; overflow: hidden;">
+<div style="display: flex; gap: 16px; padding: 6px 10px; border-bottom: 1px solid #dee2e6; font-size: .875rem; color: #495057; flex-wrap: wrap;"><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Table</span><span>Help</span></div>
+<textarea id="mk-doc" class="form-control" rows="7" style="border: 0; border-radius: 0;">The COSC131 house version of python3_scratchpad: the same template, grader and scratchpad UI, with the course penalty regime and the style checks turned off.
+
+Write a function question by giving the function's name in the question text and testing it in each test case. For a program question, set isfunction to false.</textarea>
+</div>
+<span class="mk-src">Shown to question authors in the question form, collapsed, once this prototype is chosen. Replaces today's practice of writing prototype documentation as question text.</span>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{tab.params}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<p style="margin: 0;">Definitions turn template parameters into labelled controls in the question form. This prototype inherits the definitions of <code>python3_scratchpad</code>; it can change a default, hide a parameter from question authors, or add new parameters. Without definitions, parameters are edited as raw JSON, as now.</p>
+<div style="overflow-x: auto;">
+<table class="generaltable table table-hover" style="min-width: 760px; width: 100%;">
+<thead><tr><th scope="col">Parameter</th><th scope="col">Type</th><th scope="col">Default</th><th scope="col">Description</th><th scope="col">Defined in</th><th scope="col">Actions</th></tr></thead>
+<tbody>
+<sc-for list="{{defs}}" as="d" hint-placeholder-count="6">
+<tr>
+<td><code style="color: #1d2125;">{{d.name}}</code></td>
+<td>{{d.type}}</td>
+<td><code class="mk-tok">{{d.def}}</code><sc-if value="{{d.changed}}" hint-placeholder-val="{{ false }}"><span class="mk-chg" style="margin-left: 6px;">changed here</span></sc-if></td>
+<td style="max-width: 320px;">{{d.desc}}</td>
+<td><span class="mk-src">{{d.from}}</span></td>
+<td style="white-space: nowrap;"><button type="button" class="btn btn-link btn-sm p-0">Edit</button> <span class="text-muted">·</span> <button type="button" class="btn btn-link btn-sm p-0">{{d.hideLabel}}</button></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;"><button type="button" class="btn btn-secondary">Add parameter</button><span class="mk-src">The mockup shows a few of the definitions.</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{tab.files}}" hint-placeholder-val="{{ false }}">
+<div>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span>Inherited files</span></div>
+<div class="col-md-9 felement">
+<div style="border: 1px solid #dee2e6; border-radius: .5rem; padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; background: #f5f5f5;">
+<sc-for list="{{files}}" as="fl" hint-placeholder-count="4"><div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;"><code class="mk-tok">{{fl.name}}</code><span class="mk-src">{{fl.size}} · from <code class="mk-tok">python3_scratchpad</code></span></div></sc-for>
+</div>
+<span class="mk-src">A file added here with the same name replaces the parent's for this prototype and everything below it.</span>
+</div>
+</div>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span>This prototype's files</span></div>
+<div class="col-md-9 felement"><div style="border: 2px dashed #b5b9bd; border-radius: .5rem; padding: 20px; text-align: center; color: #495057;">You can drag and drop files here to add them.</div></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{tab.history}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<p style="margin: 0;">Every save is recorded automatically as a version. Attempts keep the versions they started with until they are regraded, so old versions are kept.</p>
+<div style="overflow-x: auto;">
+<table class="generaltable table" style="min-width: 760px; width: 100%;">
+<thead><tr><th scope="col">Version</th><th scope="col">Saved</th><th scope="col">By</th><th scope="col">Changes</th><th scope="col">Actions</th></tr></thead>
+<tbody>
+<sc-for list="{{history}}" as="h" hint-placeholder-count="4">
+<tr>
+<td><strong>{{h.ver}}</strong><sc-if value="{{h.current}}" hint-placeholder-val="{{ false }}"><span class="badge bg-success" style="margin-left: 6px; font-weight: 500;">current</span></sc-if></td>
+<td>{{h.when}}</td>
+<td>{{h.who}}</td>
+<td>{{h.what}}</td>
+<td style="white-space: nowrap;"><button type="button" class="btn btn-link btn-sm p-0">View</button> <span class="text-muted">·</span> <button type="button" class="btn btn-link btn-sm p-0">Compare with current</button><sc-if value="{{h.restorable}}" hint-placeholder-val="{{ true }}"> <span class="text-muted">·</span> <button type="button" class="btn btn-link btn-sm p-0">Restore</button></sc-if></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{tab.resolved}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<p style="margin: 0;">What a question using this prototype gets if it overrides nothing, and the layer each value comes from.</p>
+<div style="overflow-x: auto;">
+<table class="generaltable table" style="min-width: 640px; width: 100%;">
+<thead><tr><th scope="col">Field</th><th scope="col">Effective value</th><th scope="col">Comes from</th></tr></thead>
+<tbody>
+<sc-for list="{{resolved}}" as="r" hint-placeholder-count="8">
+<tr><td>{{r.field}}</td><td><code class="mk-tok">{{r.value}}</code></td><td><span class="mk-src">{{r.from}}</span></td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2400}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tab: 'settings',
+      open: { testfields: true, grading: true, params: true, template: false, sandbox: false, ui: false },
+      ov: { penaltyregime: '0, 10, 20, ...', p_nostylechecks: true, tf_stdin: false, tf_extra: false },
+      saved: { penaltyregime: '0, 10, 20, ...', p_nostylechecks: true, tf_stdin: false, tf_extra: false },
+      publishOpen: false,
+      tested: false,
+      helpOpen: null
+    };
+  }
+
+  renderVals() {
+    var self = this;
+    var HELP = {"penaltyregime": "The mandatory penalty regime is a comma-separated list of penalties (each a percent) to apply to successive submissions. These are absolute, not cumulative. As a special case the last penalty can be '...' to mean \"extend the previous two penalties as an arithmetic progression up to 100\".", "allornothing": "If 'All-or-nothing' is checked, all test cases must be satisfied for the submission to earn any marks. Otherwise, the mark is obtained by summing the marks for all the test cases that pass and expressing this as a fraction of the maximum possible mark.", "precheck": "Set what button are available for students to submit answers. Usually at least a Check button is shown but this can be hidden (e.g. for use in Deferred Feedback contexts) if Hide check is checked. If Precheck is enabled, students will have an extra button to the left of the usual check button to give them a penalty-free run to check their code against a subset of the question test cases.", "hidecheck": "Usually at least a Check button is shown but this can be hidden (e.g. for use in Deferred Feedback contexts) if Hide check is checked.", "giveupallowed": "If this option is enabled, students will see a button to stop interacting with the question, and instead display the general feedback. The 'Stop and read final feedback' can be shown from the start, or only once the student can no longer improve their mark, due to the penalty regime.", "answerboxlines": "Set the number of rows to allocate for the answer box. This sets the minimum height of the User Interface element (e.g. Ace) that controls the answer box. The width is set to fit the window. If the answer overflows the box vertically or horizontally, scrollbars will appear.", "uiplugin": "Select the User Interface controllers for the student answer and the question author's template. The Student Answer dropdown displays a list of available plugins. For coding questions, the Ace editor is usually used.", "uiparameters": "A JSON string defining any User Interface parameter values that are either required by the UI plugin or which override the default values. For example, to draw larger nodes when using the GraphUI: '{\"noderadius\": 30}'", "template": "The template defines the program(s) that run in the sandbox for a given student answer and test(s).", "iscombinatortemplate": "Checking the 'Is combinator' checkbox specifies that the template is a combinator template, which combines (or attempts to combine) the student answer plus all test cases into a single run.", "grader": "The default 'exact match' grader awards marks only if the output from the run exactly matches the expected value defined by the testcase. Trailing white space is stripped from all lines, and any trailing blank lines are deleted, before the equality test is made.", "resultcolumns": "By default the result table displays the testcode, stdin, expected and got columns, provided the columns are not empty. You can change the default, and/or the column headers by entering a value for the resultcolumns (leave blank for the default behaviour).", "sandbox": "All jobs are run on the Jobe sandbox, which imposes constraints on memory, CPU time, file output etc.", "cputimelimitsecs": "'TimeLimit (secs)' sets the maximum CPU time in seconds allowed for each sandbox run and 'MemLimit (MB)' sets the maximum memory the run can use.", "memlimitmb": "'TimeLimit (secs)' sets the maximum CPU time in seconds allowed for each sandbox run and 'MemLimit (MB)' sets the maximum memory the run can use.", "sandboxparams": "The 'Parameters' entry is used to pass further sandbox-specific data, such as compile options and API-keys. It should generally be left blank but if non-blank it must be a valid JSON record.", "language": "The sandbox language is the computer language used to run the submission. This should not usually need altering from the value in the parent template; tweak it at your peril.", "acelang": "Ace-language is the language used by the Ace code editor (if enabled) for the student's answer. By default this is the same as the sandbox language; enter a different value here only if the template language is different from the language that the student is expected to write (e.g. if a Python template is used to preprocess a student's C program and then execute it in a subprocess).", "globalextra": "A field of text for general-purpose use by template authors, like the extra field of each test case, but global to all tests. Available to the template author as {{ QUESTION.globalextra }}.", "prototypeextra": "A field of text for general-purpose use by question type authors, like global extra, but part of the prototype state. Available to the template author as {{ QUESTION.prototypeextra }}.", "tf_code": "Whether the tests of questions using this prototype use the test code field. Fields that are not used are hidden in the question form.", "tf_expected": "Whether the tests use the expected output field. A combinator grader that computes its own results may not need it.", "tf_stdin": "Whether the tests use the standard input field.", "tf_extra": "Whether the tests use the extra template data field.", "proto": "Select the prototype, which sets the programming language, question type and every setting this question does not override. Its documentation can be shown below.", "answer": "A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script. The correctness of a non-empty answer is checked when saving unless 'Validate on save' is unchecked", "preload": "Text supplied here will be preloaded into the student's answer box.", "testcode": "The code for the test, seen by the template as {{TEST.testcode}}", "stdin": "The standard input to the test, seen by the template as {{TEST.stdin}}", "expected": "The expected output from the test. Seen by the template as {{TEST.expected}}.", "extra": "A sometimes-useful extra text field for use by the template, accessed as {{TEST.extra}}"};
+    var st = this.state;
+    var SECTIONS = [
+      { id: 'params', title: 'Template parameters', fields: [
+        { id: 'p_nostylechecks', label: 'nostylechecks', param: true, kind: 'check', inh: false, src: 'python3_scratchpad', checkLabel: 'Skip the style checkers (ruff or pylint)' },
+        { id: 'p_maxfunctionlength', label: 'maxfunctionlength', param: true, kind: 'number', inh: '30', src: 'python3_scratchpad' },
+        { id: 'p_timeout', label: 'timeout', param: true, kind: 'number', inh: '5', src: 'python3_scratchpad' },
+        { id: 'p_precheckers', label: 'precheckers', param: true, kind: 'text', inh: '["ruff"]', src: 'python3_scratchpad', code: true }
+      ]},
+      { id: 'testfields', title: 'Test case fields', fields: [
+        { id: 'tf_code', label: 'Test code', kind: 'check', inh: true, src: 'python3_scratchpad', checkLabel: 'Tests use the test code field' },
+        { id: 'tf_expected', label: 'Expected output', kind: 'check', inh: true, src: 'python3_scratchpad', checkLabel: 'Tests use the expected output field' },
+        { id: 'tf_stdin', label: 'Standard input', kind: 'check', inh: true, src: 'python3_scratchpad', checkLabel: 'Tests use standard input' },
+        { id: 'tf_extra', label: 'Extra template data', kind: 'check', inh: true, src: 'python3_scratchpad', checkLabel: 'Tests use extra template data' }
+      ]},
+      { id: 'grading', title: 'Grading and penalties', fields: [
+        { id: 'penaltyregime', label: 'Penalty regime', kind: 'text', inh: '0', src: 'python3_scratchpad' },
+        { id: 'allornothing', label: 'All-or-nothing grading', kind: 'check', inh: true, src: 'python3_scratchpad', checkLabel: 'All tests must pass for any marks' },
+        { id: 'precheck', label: 'Precheck', kind: 'select', inh: 'Disabled', src: 'Site defaults', options: ['Disabled', 'Empty', 'Examples', 'Selected', 'All'] }
+      ]},
+      { id: 'ui', title: 'User interface', fields: [
+        { id: 'uiplugin', label: 'Student answer UI', kind: 'select', inh: 'scratchpad', src: 'python3_scratchpad', options: ['ace', 'scratchpad', 'gapfiller', 'graph', 'html', 'table'] }
+      ]},
+      { id: 'template', title: 'Template and grader', fields: [
+        { id: 'template', label: 'Template', kind: 'area', rows: 8, inh: 'import locale\nimport json\nimport os\nimport re\nimport html\n\nfrom pytester import PyTester\n...  (500 lines)', src: 'python3_scratchpad', code: true },
+        { id: 'grader', label: 'Grading', kind: 'select', inh: 'Template does grading', src: 'python3_scratchpad', options: ['Exact match', 'Nearly exact match', 'Regular expression', 'Template does grading'] }
+      ]},
+      { id: 'sandbox', title: 'Sandbox, languages and limits', fields: [
+        { id: 'cputimelimitsecs', label: 'CPU time limit (secs)', kind: 'number', inh: '50', src: 'python3_scratchpad' },
+        { id: 'memlimitmb', label: 'Memory limit (MB)', kind: 'number', inh: '1500', src: 'python3_scratchpad' },
+        { id: 'language', label: 'Sandbox language', kind: 'text', inh: 'python3', src: 'python3' }
+      ]}
+      ,{ id: 'extras', title: 'Extras', fields: [
+        { id: 'globalextra', label: 'Global extra', kind: 'area', rows: 3, inh: '', src: 'Site defaults', code: true },
+        { id: 'prototypeextra', label: 'Prototype extra', kind: 'area', rows: 6, inh: 'import ast, traceback, sys, io, subprocess, base64, os, ast, traceback, json, re\nMAX_OUTPUT_CHARS = 30000\n...  (about 4.9 KB)', src: 'python3_scratchpad', code: true }
+      ]}
+    ];
+    function short(v) { var s = String(v); if (s === '') return '(empty)'; s = s.split('\n')[0]; return s.length > 40 ? s.slice(0, 40) + '…' : s; }
+    function setOv(id, v) { var o = Object.assign({}, self.state.ov); o[id] = v; self.setState({ ov: o, tested: false }); }
+    function delOv(id) { var o = Object.assign({}, self.state.ov); delete o[id]; self.setState({ ov: o, tested: false }); }
+    var labels = {};
+    var count = 0;
+    var sections = SECTIONS.map(function (s) {
+      var fields = s.fields.map(function (f) {
+        labels[f.id] = f.label;
+        var isOv = Object.prototype.hasOwnProperty.call(st.ov, f.id);
+        var val = isOv ? st.ov[f.id] : f.inh;
+        var disp = f.kind === 'check' ? (val ? 'Yes' : 'No') : (val === '' ? '(empty)' : String(val));
+        return {
+          domid: 'mk-f-' + f.id, label: f.label, src: f.src, isParam: !!f.param,
+          inherited: !isOv, overridden: isOv, display: disp,
+          inhShort: f.kind === 'check' ? (f.inh ? 'Yes' : 'No') : short(f.inh),
+          value: f.kind === 'check' ? '' : String(val), checked: !!val, checkLabel: f.checkLabel || '',
+          rows: f.rows || 3, hasHelp: !!HELP[f.id], help: HELP[f.id] || '', helpOpen: st.helpOpen === f.id,
+          toggleHelp: function () { self.setState({ helpOpen: self.state.helpOpen === f.id ? null : f.id }); }, codeClass: (f.code || f.kind === 'area') ? 'mk-code' : '',
+          isText: f.kind === 'text', isNumber: f.kind === 'number', isArea: f.kind === 'area', isSelect: f.kind === 'select', isCheck: f.kind === 'check',
+          options: (f.options || []).map(function (o) { return { v: o }; }),
+          override: function () { setOv(f.id, f.inh); },
+          revert: function () { delOv(f.id); },
+          change: function (e) { setOv(f.id, e.target.value); },
+          toggleCheck: function (e) { setOv(f.id, e.target.checked); }
+        };
+      });
+      var n = fields.filter(function (f) { return f.overridden; }).length;
+      count += n;
+      return { title: s.title, open: !!st.open[s.id], closed: !st.open[s.id], fields: fields, hasChanges: n > 0, countLabel: n + ' set here',
+        toggle: function () { var o = Object.assign({}, self.state.open); o[s.id] = !o[s.id]; self.setState({ open: o }); } };
+    });
+
+    var changed = [];
+    var keys = {};
+    Object.keys(st.ov).concat(Object.keys(st.saved)).forEach(function (k) { keys[k] = true; });
+    Object.keys(keys).forEach(function (k) {
+      if (JSON.stringify(st.ov[k]) !== JSON.stringify(st.saved[k])) changed.push(labels[k] || k);
+    });
+    var dirty = changed.length > 0;
+
+    var TABS = [['settings', 'Settings'], ['docs', 'Documentation'], ['params', 'Parameter definitions'], ['files', 'Support files'], ['history', 'Change history'], ['resolved', 'Resolved']];
+    var tab = {};
+    TABS.forEach(function (t) { tab[t[0]] = st.tab === t[0]; });
+
+    return {
+      yes: true,
+      noop: function () {},
+      dirty: dirty,
+      tab: tab,
+      tabs: TABS.map(function (t) { return { label: t[1], on: st.tab === t[0], cls: st.tab === t[0] ? 'mk-tab-on' : '', pick: function () { self.setState({ tab: t[0] }); } }; }),
+      sections: sections,
+      overrideCount: count === 1 ? '1 setting' : count + ' settings',
+      saveDraft: function () {},
+      publishOpen: st.publishOpen,
+      openPublish: function () { self.setState({ publishOpen: true }); },
+      closePublish: function () { self.setState({ publishOpen: false }); },
+      changeSummary: dirty ? changed.join(', ') : 'none yet (override or revert a setting to make one)',
+      runTests: function () { self.setState({ tested: true }); },
+      testStatus: st.tested ? 'Bulk test finished: N passed, 0 failed (illustrative).' : 'Not yet run on this draft.',
+      cannotPublish: !(st.tested && dirty),
+      publish: function () { self.setState({ saved: Object.assign({}, self.state.ov), publishOpen: false, tested: false }); },
+      defs: [
+        { name: 'isfunction', type: 'yes/no', def: 'true', desc: 'The answer is a function, called by each test, rather than a whole program.', from: 'python3_scratchpad', changed: false, hideLabel: 'Hide' },
+        { name: 'nostylechecks', type: 'yes/no', def: 'true', desc: 'Skip the style checkers (ruff or pylint).', from: 'python3_scratchpad', changed: true, hideLabel: 'Hide' },
+        { name: 'maxfunctionlength', type: 'number', def: '30', desc: 'Longest function allowed, in lines.', from: 'python3_scratchpad', changed: false, hideLabel: 'Hide' },
+        { name: 'proscribedsubstrings', type: 'list', def: '[]', desc: 'Strings the answer must not contain.', from: 'python3_scratchpad', changed: false, hideLabel: 'Hide' },
+        { name: 'aifeedbackmodel', type: 'text', def: '"gemini3.1f"', desc: 'Model used for AI feedback.', from: 'python3_scratchpad', changed: false, hideLabel: 'Unhide' },
+        { name: 'precheckers', type: 'list', def: '["ruff"]', desc: 'Style checkers to run before testing.', from: 'python3_scratchpad', changed: false, hideLabel: 'Hide' }
+      ],
+      files: [
+        { name: '__pystylechecker.py', size: '31 KB' },
+        { name: '__resulttable.py', size: '14 KB' },
+        { name: '__tester.py', size: '17 KB' },
+        { name: '__plottools.py', size: '17 KB' },
+        { name: 'pytester.py', size: '14 KB' }
+      ],
+      history: [
+        { ver: 'Version 7', current: true, restorable: false, when: '14 Oct 2026, 10:12', who: 'Richard Lobb', what: 'Penalty regime' },
+        { ver: 'Version 6', current: false, restorable: true, when: '2 Oct 2026, 16:40', who: 'Richard Lobb', what: 'Restored version 4' },
+        { ver: 'Version 5', current: false, restorable: true, when: '1 Oct 2026, 09:05', who: 'Richard Lobb', what: 'Template parameters: timeout' },
+        { ver: 'Version 4', current: false, restorable: true, when: '20 Jul 2026, 14:22', who: 'Richard Lobb', what: 'Template parameters: nostylechecks; documentation' }
+      ],
+      resolved: [
+        { field: 'Template', value: 'import locale … (500 lines)', from: 'python3_scratchpad' },
+        { field: 'Grading', value: 'Template does grading', from: 'python3_scratchpad' },
+        { field: 'Penalty regime', value: String(st.ov.penaltyregime !== undefined ? st.ov.penaltyregime : '0'), from: st.ov.penaltyregime !== undefined ? 'cosc131_scratchpad (this prototype)' : 'python3_scratchpad' },
+        { field: 'Student answer UI', value: 'scratchpad', from: 'python3_scratchpad' },
+        { field: 'Sandbox language', value: 'python3', from: 'python3' },
+        { field: 'CPU time limit (secs)', value: '50', from: 'python3_scratchpad' },
+        { field: 'Precheck', value: 'Disabled', from: 'Site defaults' },
+        { field: 'Template parameters', value: 'merged key by key', from: 'python3_scratchpad, then this prototype' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
