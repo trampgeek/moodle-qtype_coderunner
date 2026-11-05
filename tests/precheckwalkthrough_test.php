@@ -16,7 +16,6 @@
 
 /**
  * Walkthrough testing of the precheck capability of the CodeRunner plugin.
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -37,8 +36,10 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/walkthrough_testba
 use qtype_coderunner\constants;
 
 /**
- * @coversNothing
+ * Walkthrough testing of the precheck capability of the CodeRunner plugin.
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class precheckwalkthrough_test extends walkthrough_testbase {
     protected function setUp(): void {
         parent::setUp();

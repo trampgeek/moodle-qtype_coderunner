@@ -25,7 +25,6 @@
  * be run correctly once an hour, unless the limits table in the Jobe DB
  * is cleared between tests.
  *
- * @group qtype_coderunner
  * @package    qtype_coderunner
  * @copyright  2013, 2014, 2015 Richard Lobb, University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -39,8 +38,10 @@ global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
- * @coversNothing
+ * Unit tests for coderunner's jobe sandbox class.
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class jobesandbox_test extends \qtype_coderunner_testcase {
     public function test_fail_with_bad_key(): void {
         $this->check_sandbox_enabled('jobesandbox');

@@ -16,7 +16,6 @@
 
 /**
  * Unit tests for coderunner C++ questions.
- * @group qtype_coderunner
  * Assumed to be run after python and C questions have been tested, so focuses
  * only on C++-specific aspects.
  *
@@ -36,8 +35,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for coderunner C++ questions
- * @coversNothing
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class cpp_questions_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();

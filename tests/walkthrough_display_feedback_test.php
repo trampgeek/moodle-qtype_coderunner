@@ -26,13 +26,13 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/walkthrough_testba
 
 /**
  * Use a walkthrough test to validate the new (2019) display-feedback options.
- * @group qtype_coderunner
- * @coversNothing
  * @package    qtype
  * @subpackage coderunner
  * @copyright  2019 Richard Lobb, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class walkthrough_display_feedback_test extends walkthrough_testbase {
     protected function setUp(): void {
         parent::setUp();

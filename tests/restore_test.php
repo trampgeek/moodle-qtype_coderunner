@@ -16,7 +16,6 @@
 
 /**
  * Unit tests for CodeRunner restore code.
- * @group qtype_coderunner
  *
  * @package    qtype_coderunner
  * @copyright  2016 The Open University
@@ -36,10 +35,11 @@ require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 /**
  * Unit tests for CodeRunner restore code.
  *
- * @coversNothing
  * @copyright  2016 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class restore_test extends \advanced_testcase {
     /**
      * @var stdClass generated question category to restore into.

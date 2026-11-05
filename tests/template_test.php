@@ -16,7 +16,6 @@
 
 /**
  * Testing the templating mechanism.
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -35,8 +34,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/classes/twigmacros.php')
 
 /**
  * Unit tests for the behaviour of coderunner question templates.
- * @coversNothing
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class template_test extends \qtype_coderunner_testcase {
     public function test_template_engine(): void {
         // Check if the template engine is installed and working OK.

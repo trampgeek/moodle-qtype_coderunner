@@ -32,13 +32,13 @@ define('PRELOAD_TEST', "# TEST COMMENT TO CHECK PRELOAD IS WORKING\n");
  * Further walkthrough tests for the CodeRunner plugin, testing recently
  * added features like the 'extra' field for use by the template and the
  * relabelling of output columns.
- * @group qtype_coderunner
- * @coversNothing
  * @package    qtype
  * @subpackage coderunner
  * @copyright  2012, 2014 Richard Lobb, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class walkthrough_extras_test extends walkthrough_testbase {
     protected function setUp(): void {
         parent::setUp();

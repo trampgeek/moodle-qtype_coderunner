@@ -33,7 +33,7 @@
         <FIELD NAME="templateparams" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A json-encoded record of extra parameters to pass to the template engine when building the source code to be executed."/>
         <FIELD NAME="templateparamslang" TYPE="char" LENGTH="50" NOTNULL="false" DEFAULT="twig" SEQUENCE="false" COMMENT="The language in which the template parameters are defined."/>
         <FIELD NAME="templateparamsevalpertry" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Set true to re-evaluate the template parameters every time on every new question attempt. Essential for randomisation or if the Student variable is used. Not relevant if templateparamslang is None (no evaluation) or Twig (runs on Moodle and re-evaluates)"/>
-        <FIELD NAME="templateparamsevald" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The evaluated template parameters (JSON) if templateparamslang is neither None nor Twig and templateparamsevaleverytry is false."/>
+        <FIELD NAME="templateparamsevald" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The evaluated template parameters (JSON). Written on every save, whatever the preprocessor language. It is only read at run time when templateparamslang is neither None nor Twig and templateparamsevalpertry is false; None needs no evaluation and Twig is re-evaluated on each page load."/>
         <FIELD NAME="hoisttemplateparams" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to hoist templateparams into Twig global namespace."/>
         <FIELD NAME="extractcodefromjson" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="True to accept JSON from UIs like scratchpad, and extract the answer_code field as the student answer."/>
         <FIELD NAME="twigall" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="True to apply Twig macro expansion to question text and testcases."/>
@@ -54,6 +54,8 @@
         <FIELD NAME="displayfeedback" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="0 to allow display of specific feedback to be controlled by quiz, 1 to force display, 2 to force hide"/>
         <FIELD NAME="giveupallowed" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="When enabled, students see a button to stop interacting with the question, and instead see the general feedback. 0 = Off. 1 = button shows once best possible score cannot be improved. 2 = Always available."/>
         <FIELD NAME="prototypeextra" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="An extra text field available for use by prototype or customised code."/>
+        <FIELD NAME="prototypeid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The CodeRunner 6 prototype this question derives from, in local_coderunner_manager_prototypes. Null means the question has no resolvable prototype and is broken, which is how a question with a missing or duplicated prototype presents in CodeRunner 5 too."/>
+        <FIELD NAME="overrides" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="A JSON document of the field values this question sets, overriding what it inherits from its prototype chain. A field absent from the document is inherited; a field present with any value, including an empty string, is an override. Null means the question has not yet been migrated, which is distinct from an empty document."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -62,6 +64,7 @@
       <INDEXES>
         <INDEX NAME="coderunnertype" UNIQUE="false" FIELDS="coderunnertype"/>
         <INDEX NAME="prototypetype" UNIQUE="false" FIELDS="prototypetype"/>
+        <INDEX NAME="prototypeid" UNIQUE="false" FIELDS="prototypeid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="question_coderunner_tests" COMMENT="Contains tests (usually called 'testcases') to perform on a student's code answer; should output the given output. A test case is regarded as an extension of an 'answer' in Moodle parlance.">

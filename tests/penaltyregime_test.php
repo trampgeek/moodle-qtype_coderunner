@@ -16,7 +16,6 @@
 
 /**
  * This is a walkthrough test for the CodeRunner plugin
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -36,11 +35,12 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/walkthrough_testba
 /**
  * More extensive testing of penalty regime.
  *
- * @coversNothing
  * @copyright  2011 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class penaltyregime_test extends walkthrough_testbase {
     protected function setUp(): void {
         parent::setUp();

@@ -22,8 +22,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2026110201;
-$plugin->requires = 2023100900; // Moodle 4.3.0 or later.
+$plugin->version  = 2026110600;
+$plugin->requires = 2025041400; // Moodle 5.0.0 or later.
 $plugin->cron = 0;
 $plugin->component = 'qtype_coderunner';
 $plugin->maturity = MATURITY_STABLE;
@@ -31,4 +31,6 @@ $plugin->release = '5.10.9';
 
 $plugin->dependencies = [
     'qbehaviour_adaptive_adapted_for_coderunner' => 2026081000,
+    // The prototype manager owns prototype storage; CodeRunner 6 cannot run without it.
+    'local_coderunner_manager' => ANY_VERSION,
 ];

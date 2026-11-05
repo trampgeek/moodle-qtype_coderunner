@@ -16,7 +16,6 @@
 
 /**
  * Unit tests for various UI parameter-handling classes and functionality.
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -34,8 +33,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for UI parameters
- * @coversNothing
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class ui_parameters_test extends \qtype_coderunner_testcase {
     // Test that the json specifier for the graph_ui class can be loaded.
     public function test_params(): void {

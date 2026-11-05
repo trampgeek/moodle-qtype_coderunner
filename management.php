@@ -215,6 +215,14 @@ display_tool_card(
     'primary'
 );
 
+display_tool_card(
+    get_string('mgmt_tool_prototypehealth_title', 'qtype_coderunner'),
+    get_string('mgmt_tool_prototypehealth_desc', 'qtype_coderunner'),
+    '/question/type/coderunner/scripts/prototypehealth.php',
+    'fa fa-stethoscope',
+    'warning'
+);
+
 echo html_writer::end_tag('div'); // Row.
 
 // Analytics.

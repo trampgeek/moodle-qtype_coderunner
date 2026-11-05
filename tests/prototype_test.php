@@ -16,7 +16,6 @@
 
 /**
  * Unit tests for the coderunner question prototype capability
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -39,8 +38,10 @@ require_once($CFG->dirroot . '/lib/questionlib.php');
 use core_question\local\bank\question_bank_helper;
 
 /**
- * @coversNothing
+ * Unit tests for the coderunner question prototype capability.
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class prototype_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();

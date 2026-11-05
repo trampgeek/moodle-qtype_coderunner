@@ -465,6 +465,37 @@ function xmldb_qtype_coderunner_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026091501, 'qtype', 'coderunner');
     }
 
+    if ($oldversion < 2026110600) {
+        // CodeRunner 6 stores a question's prototype by id rather than by name,
+        // and the field values it overrides as a JSON document. The columns are
+        // added here and filled by the prototype manager's adhoc task: the
+        // question banks that prototype resolution has to search do not exist
+        // when this step runs, because mod_qbank is installed after question
+        // types are.
+        //
+        // Nothing is dropped. The old columns stay until a later release, so
+        // the migration can be verified against them and re-run if a fault is
+        // found later.
+        $table = new xmldb_table('question_coderunner_options');
+
+        $field = new xmldb_field('prototypeid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'prototypeextra');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('overrides', XMLDB_TYPE_TEXT, null, null, null, null, null, 'prototypeid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $index = new xmldb_index('prototypeid', XMLDB_INDEX_NOTUNIQUE, ['prototypeid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        upgrade_plugin_savepoint(true, 2026110600, 'qtype', 'coderunner');
+    }
+
     require_once(__DIR__ . '/upgradelib.php');
     update_question_types();
 

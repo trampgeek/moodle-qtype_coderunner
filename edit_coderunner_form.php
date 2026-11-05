@@ -547,8 +547,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 }
             }
         } else {
-            // This is a new question.
-            $question->penaltyregime = get_config('qtype_coderunner', 'default_penalty_regime');
+            // This is a new question. Its penalty regime default comes from the
+            // Site defaults prototype, which is where every question-field
+            // default now lives, rather than from an admin setting that would
+            // be a second place for the same value to be configured.
+            $question->penaltyregime = qtype_coderunner_util::default_penalty_regime();
         }
 
         foreach (

@@ -27,13 +27,13 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/walkthrough_testba
 /**
  * Further walkthrough tests for the CodeRunner plugin, testing the
  * randomisation mechanisem.
- * @group qtype_coderunner
- * @coversNothing
  * @package    qtype
  * @subpackage coderunner
  * @copyright  2018 Richard Lobb, The University of Canterbury
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class walkthrough_randomisation_test extends walkthrough_testbase {
     protected function setUp(): void {
         parent::setUp();

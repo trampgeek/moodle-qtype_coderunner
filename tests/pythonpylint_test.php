@@ -16,7 +16,6 @@
 
 /**
  * Unit tests for the python pylint questions (if installed).
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -33,8 +32,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for the coderunner question definition class.
- * @coversNothing
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class pythonpylint_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();

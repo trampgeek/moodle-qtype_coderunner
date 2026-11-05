@@ -16,7 +16,6 @@
 
 /**
  * Walkthrough base for the coderunner question type.
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -35,10 +34,11 @@ require_once($CFG->dirroot . '/question/type/coderunner/db/upgradelib.php');
 /**
  * Walkthrough base for the coderunner question type.
  *
- * @coversNothing
  * @copyright  2011, 2020 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class walkthrough_testbase extends \qbehaviour_walkthrough_test_base {
     protected static bool $prototypesinstalled = false;
 

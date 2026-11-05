@@ -16,7 +16,6 @@
 
 /**
  * Unit tests for coderunner octave questions.
- * @group qtype_coderunner
  * Assumed to be run after python questions have been tested, so focuses
  * only on octave-specific aspects.
  *
@@ -36,8 +35,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 /**
  * Unit tests for coderunner octave questions.
- * @coversNothing
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class octave_question_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();

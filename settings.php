@@ -36,19 +36,26 @@ $settings->add(new admin_setting_heading(
     )
 ));
 
+// Where the defaults for question fields now live. Everything on this page is
+// infrastructure -- sandbox hosts and keys, caching, the web service. The
+// default values of question fields themselves, such as the penalty regime,
+// the answer box size and the attachment settings, are properties of the Site
+// defaults prototype and are edited through the prototype manager, so that a
+// default has exactly one place it comes from.
+$settings->add(new admin_setting_heading(
+    'questionfielddefaults',
+    get_string('questionfielddefaults', 'qtype_coderunner'),
+    get_string(
+        'questionfielddefaults_desc',
+        'qtype_coderunner',
+        ['link' => (string) new moodle_url('/local/coderunner_manager/index.php')]
+    )
+));
+
 $settings->add(new admin_setting_heading(
     'codeRunnersettings',
     get_string('coderunnersettings', 'qtype_coderunner'),
     ''
-));$ttl =
-
-$settings->add(new admin_setting_configtext(
-    "qtype_coderunner/default_penalty_regime",
-    get_string('default_penalty_regime', 'qtype_coderunner'),
-    get_string('default_penalty_regime_desc', 'qtype_coderunner'),
-    '10, 20, ...',
-    PARAM_RAW,
-    20
 ));
 
 $sandboxes = qtype_coderunner_sandbox::available_sandboxes();

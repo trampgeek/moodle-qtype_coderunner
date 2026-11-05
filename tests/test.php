@@ -31,8 +31,9 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 require_once($CFG->dirroot . '/question/type/coderunner/db/upgradelib.php');
 /**
- * @coversNothing
+ * Base testcase for coderunner tests.
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 abstract class qtype_coderunner_testcase extends advanced_testcase {
     protected $hasfailed = false; // Set to true when a test fails.
 

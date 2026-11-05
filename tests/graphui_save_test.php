@@ -17,7 +17,6 @@
 /**
  * A simple test that the graph_ui info is saved correctly.
  * Refactored from questiontype_test.php where it used to reside.
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -34,8 +33,10 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
 /**
- * @coversNothing
+ * A simple test that the graph_ui info is saved correctly.
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class graphui_save_test extends \qtype_coderunner_testcase {
     protected $qtype;
 

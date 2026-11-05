@@ -19,7 +19,6 @@
  * Need full internet connectivity to run this as it needs to
  * send jobs to ideone.com.
  *
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -34,8 +33,10 @@ global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
- * @coversNothing
+ * Unit tests for coderunner's ideone sandbox class.
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class ideonesandbox_test extends \qtype_coderunner_testcase {
     public function test_testfunction(): void {
         $this->check_sandbox_enabled('ideonesandbox');

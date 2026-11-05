@@ -19,7 +19,6 @@
 
 /**
  * Unit tests for various CodeRunner graders.
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -37,8 +36,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for various CodeRunner graders.
- * @coversNothing
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class grader_test extends \qtype_coderunner_testcase {
     public function test_regex_grader(): void {
         // Check using a question that reads stdin and writes to stdout.

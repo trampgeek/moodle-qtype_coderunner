@@ -70,6 +70,37 @@ class qtype_coderunner_util {
 
 
     /**
+     * The penalty regime a new question starts with.
+     *
+     * This is a property of the Site defaults prototype, which sits at the root
+     * of every prototype chain, so that a question-field default has exactly
+     * one place it is configured. It used to be the
+     * qtype_coderunner/default_penalty_regime admin setting; keeping both would
+     * have meant two places claiming the same value, disagreeing silently.
+     *
+     * The registry default is used if the prototype manager has not yet
+     * populated its tables, which is the case between an upgrade finishing and
+     * the install task running on cron.
+     *
+     * @return string the default penalty regime.
+     */
+    public static function default_penalty_regime() {
+        $field = \qtype_coderunner\v6\field_registry::get('penaltyregime');
+
+        if (class_exists('\\local_coderunner_manager\\prototype_repository')) {
+            $defaults = (new \local_coderunner_manager\prototype_repository())->site_defaults();
+            if ($defaults !== null && $defaults->currentversion !== null) {
+                $overrides = $defaults->currentversion->overrides;
+                if ($overrides->has('penaltyregime')) {
+                    return (string) $overrides->get('penaltyregime');
+                }
+            }
+        }
+        return (string) $field->default;
+    }
+
+
+    /**
      * Display contexts for all course-level contexts (Moodle 4 style).
      * $availablequestionsbycontext maps from contextid to [name, numquestions] associative arrays.
      * $displaycallback is a function that takes ($contextid, $name, $numquestions).

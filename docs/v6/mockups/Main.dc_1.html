@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Editing a CodeRunner question (mockup)</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/359044b1ad979ab6c85ba1260b9cb7e1">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#fff}
+a{color:#0f6cbf}a:hover{color:#0c589c}
+.mk-code{font-family:courier,monospace;font-size:.9rem}
+.mk-inh{display:block;width:100%;text-align:left;background:#f5f5f5;color:#495057;border:1px dashed #b5b9bd;border-radius:.5rem;padding:.375rem .75rem;cursor:pointer;white-space:pre-wrap}
+.mk-inh:hover{background:#eef2f6;border-color:#0f6cbf}
+.mk-src{font-size:.8125rem;color:#495057}
+.mk-chg{font-size:.75rem;background:#e7f1fa;color:#0c589c;border-radius:.25rem;padding:.1rem .4rem;font-weight:600}
+.mk-tok{color:#495057}
+.mk-help{background:#fff;border:1px solid #dee2e6;box-shadow:0 .25rem .75rem rgba(0,0,0,.12);border-radius:.5rem;padding:.5rem .75rem;font-size:.875rem;max-width:620px;color:#1d2125}
+.mk-hb{display:inline-flex;align-items:center;margin-left:6px;vertical-align:middle;line-height:1}
+</style>
+</helmet>
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #1d2125; background: #fff; min-height: 100vh;">
+<nav class="navbar bg-body navbar-expand border-bottom" aria-label="Site navigation" style="height: 60px; padding: 0 1rem;">
+<div class="container-fluid" style="display: flex; align-items: center; gap: 24px;">
+<a href="#" class="navbar-brand d-flex align-items-center m-0 p-0">Moodle</a>
+<ul class="nav navbar-nav" style="display: flex; gap: 4px; flex-wrap: wrap;">
+<li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+<li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
+<li class="nav-item"><a class="nav-link" href="#">My courses</a></li>
+<li class="nav-item"><a class="nav-link" href="#">Site administration</a></li>
+</ul>
+<div class="ms-auto"><span class="userinitials size-35" style="display: inline-flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; background: #e9ecef; font-size: .85rem;">RL</span></div>
+</div>
+</nav>
+<div style="max-width: 1180px; margin: 0 auto; padding: 24px 24px 64px;">
+<nav aria-label="Breadcrumb"><ol class="breadcrumb" style="flex-wrap: wrap;">
+<li class="breadcrumb-item"><a href="#">COSC131-26S2</a></li>
+<li class="breadcrumb-item"><a href="#">Question bank</a></li>
+<li class="breadcrumb-item"><a href="#">Questions</a></li>
+<li class="breadcrumb-item"><span>Editing a CodeRunner question</span></li>
+</ol></nav>
+<div class="alert alert-info" role="note" style="margin: 8px 0 24px;">
+<strong>Mockup: proposed CodeRunner 6 question form.</strong> Greyed fields with a dashed border are inherited from the prototype chain; click one to override it, and use <em>Revert to inherited</em> to undo. Section headers show how many overrides they hold. <strong>Illustrative only: not every field is shown.</strong>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+<h2 style="margin: 0;">Editing a CodeRunner question</h2>
+<button type="button" class="btn btn-link p-0" onClick="{{toggleAll}}">{{expandLabel}}</button>
+</div>
+
+<form class="mform" onSubmit="{{noSubmit}}">
+
+<fieldset class="clearfix fitem collapsible" style="margin-bottom: 16px;">
+<legend class="visually-hidden">Prototype</legend>
+<div class="d-flex align-items-center mb-2">
+<div class="position-relative d-flex ftoggler align-items-center me-1">
+<button type="button" class="btn btn-icon me-3 icons-collapse-expand fheader" aria-expanded="{{open.proto}}" aria-label="Prototype" onClick="{{tog.proto}}" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+<sc-if value="{{open.proto}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#0f6cbf" stroke-width="2"/></svg></sc-if>
+<sc-if value="{{closed.proto}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="#0f6cbf" stroke-width="2"/></svg></sc-if>
+</button>
+<h3 class="d-flex align-self-stretch align-items-center mb-0">Prototype</h3>
+</div>
+</div>
+<sc-if value="{{open.proto}}" hint-placeholder-val="{{ true }}">
+<div class="fcontainer">
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span style="display: inline-flex; align-items: center;"><label class="d-inline word-break" for="mk-proto">Prototype</label><button type="button" class="btn btn-link p-0 mk-hb" aria-label="Help with Prototype" onClick="{{h.proto.toggle}}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="#008196"></circle><text x="8" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">?</text></svg></button></span></div>
+<div class="col-md-9 felement" style="display: flex; flex-direction: column; gap: 6px;"><sc-if value="{{h.proto.open}}" hint-placeholder-val="{{ false }}"><div class="mk-help">{{h.proto.text}}</div></sc-if>
+<select id="mk-proto" class="form-select" style="max-width: 360px;" value="{{proto}}" onChange="{{pickProto}}">
+<optgroup label="This course (COSC131-26S2)">
+<option value="cosc131_scratchpad">cosc131_scratchpad</option>
+</optgroup>
+<optgroup label="Site">
+<option value="python3">python3</option>
+<option value="python3_scratchpad">python3_scratchpad</option>
+<option value="python3_scratchpad_function">python3_scratchpad_function</option>
+<option value="python3_scratchpad_program">python3_scratchpad_program</option>
+<option value="python3_files_program">python3_files_program</option>
+<option value="c_program">c_program</option>
+</optgroup>
+<optgroup label="Already used in this course, from other courses">
+<sc-for list="{{usedElsewhere}}" as="o" hint-placeholder-count="1"><option value="{{o.v}}">{{o.label}}</option></sc-for>
+</optgroup>
+<option value="__other">From another course…</option>
+</select>
+<sc-if value="{{pickerOpen}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="max-width: 760px;"><div class="card-body" style="display: flex; flex-direction: column; gap: 10px; font-size: .9375rem;">
+<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><label for="mk-oc" class="mb-0">Course</label>
+<select id="mk-oc" class="form-select" style="max-width: 320px;" value="{{otherCourse}}" onChange="{{pickCourse}}"><sc-for list="{{courses}}" as="c" hint-placeholder-count="3"><option value="{{c.id}}">{{c.label}}</option></sc-for></select></div>
+<div class="mk-src">Only courses where you can manage CodeRunner questions are listed. A question that uses another course's prototype depends on that course's care of it.</div>
+<sc-for list="{{coursePrototypes}}" as="p" hint-placeholder-count="2">
+<div style="display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; border-top: 1px solid #dee2e6; padding-top: 8px;">
+<div><code>{{p.name}}</code> <span class="text-muted" style="font-size: .875rem;">{{p.chainText}}</span><div style="font-size: .875rem;">{{p.summary}}</div></div>
+<button type="button" class="btn btn-secondary btn-sm" onClick="{{p.use}}">Use</button>
+</div>
+</sc-for>
+<div><button type="button" class="btn btn-link p-0" onClick="{{closePicker}}">Cancel</button></div>
+</div></div>
+</sc-if>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .875rem;">
+<span class="text-muted">Inherits from</span>
+<sc-for list="{{chain}}" as="c" hint-placeholder-count="3"><span><code>{{c.name}}</code><span class="text-muted">{{c.sep}}</span></span></sc-for>
+</div>
+<div style="font-size: .9375rem;">{{summary}}</div>
+<div><button type="button" class="btn btn-link p-0" onClick="{{toggleDoc}}">{{docLabel}}</button></div>
+<sc-if value="{{showDoc}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="max-width: 760px;"><div class="card-body" style="font-size: .9375rem; display: flex; flex-direction: column; gap: 8px;">
+<p style="margin: 0;"><strong>cosc131_scratchpad.</strong> The COSC131 house version of <code>python3_scratchpad</code>: the same template, grader and scratchpad UI, with the course penalty regime and the style checks turned off.</p>
+<p style="margin: 0;">Write a function question by giving the function's name in the question text and testing it in each test case. For a program question, set <code>isfunction</code> to false. All template parameters are listed under <em>Template parameters</em> below, with their descriptions; see <code>python3_scratchpad</code> for the full documentation.</p>
+</div></div>
+</sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+</fieldset>
+
+<fieldset class="clearfix fitem collapsible" style="margin-bottom: 16px;">
+<legend class="visually-hidden">General</legend>
+<div class="d-flex align-items-center mb-2">
+<div class="position-relative d-flex ftoggler align-items-center me-1">
+<button type="button" class="btn btn-icon me-3 icons-collapse-expand fheader" aria-expanded="{{open.general}}" aria-label="General" onClick="{{tog.general}}" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+<sc-if value="{{open.general}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#0f6cbf" stroke-width="2"/></svg></sc-if>
+<sc-if value="{{closed.general}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="#0f6cbf" stroke-width="2"/></svg></sc-if>
+</button>
+<h3 class="d-flex align-self-stretch align-items-center mb-0">General</h3>
+</div>
+</div>
+<sc-if value="{{open.general}}" hint-placeholder-val="{{ true }}">
+<div class="fcontainer">
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span>Current category</span></div>
+<div class="col-md-9 felement" style="padding-top: 6px;">LM4 - Lists and list operations (81)</div>
+</div>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label class="d-inline word-break" for="mk-name">Question name</label></div>
+<div class="col-md-9 felement"><input id="mk-name" type="text" class="form-control" style="max-width: 420px;" value="{{qname}}" onChange="{{setName}}"></div>
+</div>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label class="d-inline word-break" for="mk-qtext">Question text</label></div>
+<div class="col-md-9 felement">
+<div style="border: 1px solid #8f959e; border-radius: .5rem; overflow: hidden;">
+<div style="display: flex; gap: 16px; padding: 6px 10px; border-bottom: 1px solid #dee2e6; font-size: .875rem; color: #495057; flex-wrap: wrap;"><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Table</span><span>Help</span></div>
+<textarea id="mk-qtext" class="form-control" rows="5" style="border: 0; border-radius: 0;" value="{{qtext}}" onChange="{{setQtext}}"></textarea>
+</div>
+</div>
+</div>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label class="d-inline word-break" for="mk-mark">Default mark</label></div>
+<div class="col-md-9 felement"><input id="mk-mark" type="text" class="form-control" style="max-width: 120px;" value="1"></div>
+</div>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label class="d-inline word-break" for="mk-gfb">General feedback</label></div>
+<div class="col-md-9 felement"><textarea id="mk-gfb" class="form-control" rows="2"></textarea></div>
+</div>
+</div>
+</sc-if>
+</fieldset>
+
+<fieldset class="clearfix fitem collapsible" style="margin-bottom: 16px;">
+<legend class="visually-hidden">Answer</legend>
+<div class="d-flex align-items-center mb-2">
+<div class="position-relative d-flex ftoggler align-items-center me-1">
+<button type="button" class="btn btn-icon me-3 icons-collapse-expand fheader" aria-expanded="{{open.answer}}" aria-label="Answer" onClick="{{tog.answer}}" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+<sc-if value="{{open.answer}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#0f6cbf" stroke-width="2"/></svg></sc-if>
+<sc-if value="{{closed.answer}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="#0f6cbf" stroke-width="2"/></svg></sc-if>
+</button>
+<h3 class="d-flex align-self-stretch align-items-center mb-0">Answer</h3>
+</div>
+</div>
+<sc-if value="{{open.answer}}" hint-placeholder-val="{{ true }}">
+<div class="fcontainer">
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span style="display: inline-flex; align-items: center;"><label class="d-inline word-break" for="mk-answer">Sample answer</label><button type="button" class="btn btn-link p-0 mk-hb" aria-label="Help with Sample answer" onClick="{{h.answer.toggle}}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="#008196"></circle><text x="8" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">?</text></svg></button></span></div>
+<div class="col-md-9 felement"><sc-if value="{{h.answer.open}}" hint-placeholder-val="{{ false }}"><div class="mk-help">{{h.answer.text}}</div></sc-if><textarea id="mk-answer" class="form-control mk-code" rows="5" value="{{answer}}" onChange="{{setAnswer}}"></textarea></div>
+</div>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span style="display: inline-flex; align-items: center;"><label class="d-inline word-break" for="mk-preload">Answer box preload</label><button type="button" class="btn btn-link p-0 mk-hb" aria-label="Help with Answer box preload" onClick="{{h.preload.toggle}}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="#008196"></circle><text x="8" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">?</text></svg></button></span></div>
+<div class="col-md-9 felement" style="display: flex; flex-direction: column; gap: 4px;"><sc-if value="{{h.preload.open}}" hint-placeholder-val="{{ false }}"><div class="mk-help">{{h.preload.text}}</div></sc-if><textarea id="mk-preload" class="form-control mk-code" rows="3" value="{{preload}}" onChange="{{setPreload}}"></textarea><span class="mk-src">What the student's answer box starts with.</span></div>
+</div>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span>Validate on save</span></div>
+<div class="col-md-9 felement"><div class="form-check" style="padding-top: 6px;"><input id="mk-val" class="form-check-input" type="checkbox" checked="{{yes}}" onChange="{{noop}}"><label class="form-check-label" for="mk-val">Run the sample answer against the tests when saving</label></div></div>
+</div>
+</div>
+</sc-if>
+</fieldset>
+
+<fieldset class="clearfix fitem collapsible" style="margin-bottom: 16px;">
+<legend class="visually-hidden">Test cases</legend>
+<div class="d-flex align-items-center mb-2">
+<div class="position-relative d-flex ftoggler align-items-center me-1">
+<button type="button" class="btn btn-icon me-3 icons-collapse-expand fheader" aria-expanded="{{open.tests}}" aria-label="Test cases" onClick="{{tog.tests}}" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+<sc-if value="{{open.tests}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#0f6cbf" stroke-width="2"/></svg></sc-if>
+<sc-if value="{{closed.tests}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="#0f6cbf" stroke-width="2"/></svg></sc-if>
+</button>
+<h3 class="d-flex align-self-stretch align-items-center mb-0">Test cases</h3>
+</div>
+</div>
+<sc-if value="{{open.tests}}" hint-placeholder-val="{{ true }}">
+<div class="fcontainer">
+<sc-for list="{{tests}}" as="t" hint-placeholder-count="2">
+<div style="border-bottom: 1px solid #dee2e6; padding-bottom: 12px; margin-bottom: 16px;">
+<sc-if value="{{tf.code}}" hint-placeholder-val="{{ true }}"><div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span style="display: inline-flex; align-items: center;"><span>{{t.label}}</span><button type="button" class="btn btn-link p-0 mk-hb" aria-label="Help with test code" onClick="{{h.testcode.toggle}}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="#008196"></circle><text x="8" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">?</text></svg></button></span></div>
+<div class="col-md-9 felement"><sc-if value="{{h.testcode.open}}" hint-placeholder-val="{{ false }}"><div class="mk-help">{{h.testcode.text}}</div></sc-if><textarea class="form-control mk-code" rows="4" aria-label="{{t.label}}" value="{{t.code}}" onChange="{{t.setCode}}"></textarea></div>
+</div></sc-if>
+<sc-if value="{{tf.stdin}}" hint-placeholder-val="{{ false }}"><div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span style="display: inline-flex; align-items: center;"><span>Standard input</span><button type="button" class="btn btn-link p-0 mk-hb" aria-label="Help with Standard input" onClick="{{h.stdin.toggle}}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="#008196"></circle><text x="8" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">?</text></svg></button></span></div>
+<div class="col-md-9 felement"><sc-if value="{{h.stdin.open}}" hint-placeholder-val="{{ false }}"><div class="mk-help">{{h.stdin.text}}</div></sc-if><textarea class="form-control mk-code" rows="1" aria-label="Standard input" value="{{t.stdin}}" onChange="{{t.setStdin}}"></textarea></div>
+</div></sc-if>
+<sc-if value="{{tf.expected}}" hint-placeholder-val="{{ true }}"><div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span style="display: inline-flex; align-items: center;"><span>Expected output</span><button type="button" class="btn btn-link p-0 mk-hb" aria-label="Help with Expected output" onClick="{{h.expected.toggle}}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="#008196"></circle><text x="8" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">?</text></svg></button></span></div>
+<div class="col-md-9 felement"><sc-if value="{{h.expected.open}}" hint-placeholder-val="{{ false }}"><div class="mk-help">{{h.expected.text}}</div></sc-if><textarea class="form-control mk-code" rows="2" aria-label="Expected output" value="{{t.expected}}" onChange="{{t.setExpected}}"></textarea></div>
+</div></sc-if>
+<sc-if value="{{tf.extra}}" hint-placeholder-val="{{ false }}"><div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span style="display: inline-flex; align-items: center;"><span>Extra template data</span><button type="button" class="btn btn-link p-0 mk-hb" aria-label="Help with Extra template data" onClick="{{h.extra.toggle}}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="#008196"></circle><text x="8" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">?</text></svg></button></span></div>
+<div class="col-md-9 felement"><sc-if value="{{h.extra.open}}" hint-placeholder-val="{{ false }}"><div class="mk-help">{{h.extra.text}}</div></sc-if><textarea class="form-control mk-code" rows="1" aria-label="Extra template data" value="{{t.extra}}" onChange="{{t.setExtra}}"></textarea></div>
+</div></sc-if>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span>Test properties</span></div>
+<div class="col-md-9 felement" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
+<label style="display: flex; gap: 6px; align-items: center;">Display <select class="form-select form-select-sm" style="width: auto;" value="{{t.display}}" onChange="{{t.setDisplay}}"><option value="Show">Show</option><option value="Hide">Hide</option><option value="Hide if fail">Hide if fail</option><option value="Hide if succeed">Hide if succeed</option></select></label>
+<label style="display: flex; gap: 6px; align-items: center;">Mark <input type="text" class="form-control form-control-sm" style="width: 70px;" value="1.000"></label>
+<span class="form-check"><input class="form-check-input" type="checkbox" checked="{{t.example}}" onChange="{{noop}}" id="{{t.exid}}"><label class="form-check-label" for="{{t.exid}}">Use as example</label></span>
+<span class="form-check"><input class="form-check-input" type="checkbox" id="{{t.hrid}}" checked="{{t.hiderest}}" onChange="{{noop}}"><label class="form-check-label" for="{{t.hrid}}">Hide rest if fail</label></span>
+</div>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{tf.anyHidden}}" hint-placeholder-val="{{ true }}"><p class="mk-src" style="margin: 0 0 12px;">{{tf.hiddenNote}} <button type="button" class="btn btn-link btn-sm p-0" onClick="{{tf.reveal}}">Show them for this question</button></p></sc-if>
+<div><button type="button" class="btn btn-secondary">Blanks for 3 more test cases</button></div>
+</div>
+</sc-if>
+</fieldset>
+
+<div style="margin: 28px 0 12px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
+<h3 style="margin: 0; font-size: 1.25rem;">Settings from the prototype</h3>
+<span class="text-muted" style="font-size: .9375rem;">Closed by default. {{totalChanged}}</span>
+</div>
+
+<sc-for list="{{sections}}" as="s" hint-placeholder-count="7">
+<fieldset class="clearfix fitem collapsible" style="margin-bottom: 8px; border-top: 1px solid #dee2e6; padding-top: 8px;">
+<legend class="visually-hidden">{{s.title}}</legend>
+<div class="d-flex align-items-center mb-2">
+<div class="position-relative d-flex ftoggler align-items-center me-1" style="gap: 0;">
+<button type="button" class="btn btn-icon me-3 icons-collapse-expand fheader" aria-expanded="{{s.open}}" aria-label="{{s.title}}" onClick="{{s.toggle}}" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+<sc-if value="{{s.open}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="#0f6cbf" stroke-width="2"/></svg></sc-if>
+<sc-if value="{{s.closed}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="#0f6cbf" stroke-width="2"/></svg></sc-if>
+</button>
+<h3 class="d-flex align-self-stretch align-items-center mb-0" style="font-size: 1.171875rem;">{{s.title}}</h3>
+<sc-if value="{{s.hasChanges}}" hint-placeholder-val="{{ false }}"><span class="mk-chg" style="margin-left: 10px;">{{s.countLabel}}</span></sc-if>
+</div>
+</div>
+<sc-if value="{{s.open}}" hint-placeholder-val="{{ false }}">
+<div class="fcontainer">
+
+<sc-for list="{{s.fields}}" as="f" hint-placeholder-count="3">
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0" style="flex-direction: column; align-items: flex-start;">
+<span style="display: inline-flex; align-items: center;"><label class="d-inline word-break" for="{{f.domid}}">{{f.label}}</label><sc-if value="{{f.hasHelp}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-link p-0 mk-hb" aria-label="Help with {{f.label}}" onClick="{{f.toggleHelp}}"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="#008196"></circle><text x="8" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">?</text></svg></button></sc-if></span>
+</div>
+<div class="col-md-9 felement" style="display: flex; flex-direction: column; gap: 4px;">
+<sc-if value="{{f.helpOpen}}" hint-placeholder-val="{{ false }}"><div class="mk-help">{{f.help}}</div></sc-if>
+<sc-if value="{{f.inherited}}" hint-placeholder-val="{{ true }}">
+<button type="button" id="{{f.domid}}" class="mk-inh {{f.codeClass}}" title="Inherited: click to override" onClick="{{f.override}}">{{f.display}}</button>
+<span class="mk-src">from <code class="mk-tok">{{f.src}}</code> · click to override</span>
+</sc-if>
+<sc-if value="{{f.overridden}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{f.isText}}" hint-placeholder-val="{{ true }}"><input id="{{f.domid}}" type="text" class="form-control {{f.codeClass}}" style="max-width: 520px;" value="{{f.value}}" onChange="{{f.change}}"></sc-if>
+<sc-if value="{{f.isNumber}}" hint-placeholder-val="{{ false }}"><input id="{{f.domid}}" type="number" class="form-control" style="max-width: 140px;" value="{{f.value}}" onChange="{{f.change}}"></sc-if>
+<sc-if value="{{f.isArea}}" hint-placeholder-val="{{ false }}"><textarea id="{{f.domid}}" class="form-control mk-code" rows="{{f.rows}}" value="{{f.value}}" onChange="{{f.change}}"></textarea></sc-if>
+<sc-if value="{{f.isSelect}}" hint-placeholder-val="{{ false }}"><select id="{{f.domid}}" class="form-select" style="max-width: 360px;" value="{{f.value}}" onChange="{{f.change}}"><sc-for list="{{f.options}}" as="o" hint-placeholder-count="3"><option value="{{o.v}}">{{o.v}}</option></sc-for></select></sc-if>
+<sc-if value="{{f.isCheck}}" hint-placeholder-val="{{ false }}"><div class="form-check" style="padding-top: 6px;"><input id="{{f.domid}}" class="form-check-input" type="checkbox" checked="{{f.checked}}" onChange="{{f.toggleCheck}}"><label class="form-check-label" for="{{f.domid}}">{{f.checkLabel}}</label></div></sc-if>
+<div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"><span class="mk-chg">Overridden here</span><span class="mk-src">inherited value: <code class="mk-tok">{{f.inhShort}}</code> from <code class="mk-tok">{{f.src}}</code></span><button type="button" class="btn btn-link btn-sm p-0" onClick="{{f.revert}}">Revert to inherited</button></div>
+</sc-if>
+</div>
+</div>
+</sc-for>
+
+<sc-if value="{{s.isParams}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
+<button type="button" class="btn btn-secondary btn-sm" onClick="{{toggleAllParams}}">{{allParamsLabel}}</button>
+<div class="form-check form-switch"><input id="mk-json" class="form-check-input" type="checkbox" checked="{{showJson}}" onChange="{{toggleJson}}"><label class="form-check-label" for="mk-json">Show as JSON</label></div>
+<sc-if value="{{showAllParams}}" hint-placeholder-val="{{ false }}"><input type="search" class="form-control form-control-sm" style="max-width: 240px;" placeholder="Filter parameters" aria-label="Filter parameters" value="{{paramFilter}}" onChange="{{setFilter}}"></sc-if>
+</div>
+<sc-if value="{{showJson}}" hint-placeholder-val="{{ false }}">
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><label class="d-inline word-break" for="mk-jsonbox">Template params (this question)</label></div>
+<div class="col-md-9 felement" style="display: flex; flex-direction: column; gap: 4px;"><textarea id="mk-jsonbox" class="form-control mk-code" rows="4" readonly="{{yes}}" value="{{paramJson}}"></textarea><span class="mk-src">Only this question's overrides. At run time they are merged, key by key, over the parameters inherited from the prototype chain.</span></div>
+</div>
+</sc-if>
+<sc-if value="{{noParamsShown}}" hint-placeholder-val="{{ false }}"><p class="text-muted" style="margin: 0;">This question overrides no template parameters.</p></sc-if>
+<sc-for list="{{paramGroups}}" as="g" hint-placeholder-count="1">
+<div style="display: flex; flex-direction: column; gap: 0;">
+<sc-if value="{{g.showHeading}}" hint-placeholder-val="{{ false }}"><h4 style="font-size: 1rem; font-weight: 600; margin: 8px 0 8px; color: #495057;">{{g.name}}</h4></sc-if>
+<sc-for list="{{g.params}}" as="p" hint-placeholder-count="2">
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+<label class="d-inline word-break" for="{{p.domid}}"><code style="color: #1d2125;">{{p.name}}</code></label>
+<span class="mk-src" style="font-size: .78rem;">{{p.typeLabel}}</span>
+</div>
+<div class="col-md-9 felement" style="display: flex; flex-direction: column; gap: 4px;">
+<sc-if value="{{p.inherited}}" hint-placeholder-val="{{ true }}">
+<button type="button" id="{{p.domid}}" class="mk-inh mk-code" style="max-width: 520px;" title="Inherited: click to override" onClick="{{p.override}}">{{p.display}}</button>
+<span class="mk-src">{{p.desc}} · from <code class="mk-tok">{{p.src}}</code></span>
+</sc-if>
+<sc-if value="{{p.overridden}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{p.isBool}}" hint-placeholder-val="{{ false }}"><div class="form-check form-switch" style="padding-top: 6px;"><input id="{{p.domid}}" class="form-check-input" type="checkbox" checked="{{p.checked}}" onChange="{{p.toggleCheck}}"><label class="form-check-label" for="{{p.domid}}">{{p.boolLabel}}</label></div></sc-if>
+<sc-if value="{{p.isNum}}" hint-placeholder-val="{{ false }}"><input id="{{p.domid}}" type="number" class="form-control" style="max-width: 140px;" value="{{p.value}}" onChange="{{p.change}}"></sc-if>
+<sc-if value="{{p.isTextual}}" hint-placeholder-val="{{ true }}"><input id="{{p.domid}}" type="text" class="form-control mk-code" style="max-width: 520px;" value="{{p.value}}" onChange="{{p.change}}"></sc-if>
+<span class="mk-src">{{p.desc}}</span>
+<div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"><span class="mk-chg">Overridden here</span><span class="mk-src">inherited value: <code class="mk-tok">{{p.inhShort}}</code> from <code class="mk-tok">{{p.src}}</code></span><button type="button" class="btn btn-link btn-sm p-0" onClick="{{p.revert}}">Revert to inherited</button></div>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-for>
+<sc-if value="{{showAllParams}}" hint-placeholder-val="{{ false }}"><p class="mk-src" style="margin: 0;">This mockup lists {{paramCount}} of the parameters that <code class="mk-tok">python3_scratchpad</code> defines.</p></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{s.isFiles}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span>Inherited files</span></div>
+<div class="col-md-9 felement">
+<div style="border: 1px solid #dee2e6; border-radius: .5rem; padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; background: #f5f5f5;">
+<sc-for list="{{files}}" as="fl" hint-placeholder-count="4"><div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;"><code class="mk-tok">{{fl.name}}</code><span class="mk-src">{{fl.size}} · from <code class="mk-tok">python3_scratchpad</code></span></div></sc-for>
+</div>
+<span class="mk-src">A file uploaded here with the same name replaces the inherited one for this question.</span>
+</div>
+</div>
+<div class="mb-3 row fitem">
+<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0"><span>This question's files</span></div>
+<div class="col-md-9 felement"><div style="border: 2px dashed #b5b9bd; border-radius: .5rem; padding: 20px; text-align: center; color: #495057;">You can drag and drop files here to add them.</div></div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</sc-if>
+</fieldset>
+</sc-for>
+
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; padding-top: 16px; border-top: 1px solid #dee2e6;">
+<button type="button" class="btn btn-primary">Save changes and continue editing</button>
+<button type="button" class="btn btn-primary">Save changes</button>
+<button type="button" class="btn btn-secondary">Cancel</button>
+</div>
+</form>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":3000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: { proto: true, general: true, answer: true, tests: true, params: true, testfields: false, grading: false, ui: false, template: false, sandbox: false, extras: false, files: false },
+      ov: {},
+      pov: { maxfunctionlength: '10', proscribedsubstrings: '["while"]' },
+      qtext: 'Write a function print_squares(n) that prints the squares of the integers from 1 to n inclusive, one per line. Do not use a while loop.',
+      answer: 'def print_squares(n):\n    """Print the squares of 1 to n, one per line."""\n    for i in range(1, n + 1):\n        print(i * i)',
+      preload: 'def print_squares(n):\n    """Print the squares of 1 to n, one per line."""\n',
+      tests: [
+        { code: 'print_squares(3)', stdin: '', expected: '1\n4\n9', extra: '', display: 'Show', example: true, hiderest: false },
+        { code: 'print_squares(1)', stdin: '', expected: '1', extra: '', display: 'Show', example: true, hiderest: false },
+        { code: 'print_squares(6)', stdin: '', expected: '1\n4\n9\n16\n25\n36', extra: '', display: 'Show', example: false, hiderest: false },
+        { code: 'print_squares(0)', stdin: '', expected: '', extra: '', display: 'Hide if succeed', example: false, hiderest: false }
+      ],
+      proto: 'cosc131_scratchpad',
+      usedElsewhere: ['COSC122-26S1:cosc122_scratchpad'],
+      pickerOpen: false,
+      otherCourse: 'COSC122-26S1',
+      qname: 'print_squares',
+      showDoc: false,
+      showAllParams: false,
+      showJson: false,
+      paramFilter: '',
+      revealTf: false,
+      helpOpen: null
+    };
+  }
+
+  renderVals() {
+    var self = this;
+    var HELP = {"penaltyregime": "The mandatory penalty regime is a comma-separated list of penalties (each a percent) to apply to successive submissions. These are absolute, not cumulative. As a special case the last penalty can be '...' to mean \"extend the previous two penalties as an arithmetic progression up to 100\".", "allornothing": "If 'All-or-nothing' is checked, all test cases must be satisfied for the submission to earn any marks. Otherwise, the mark is obtained by summing the marks for all the test cases that pass and expressing this as a fraction of the maximum possible mark.", "precheck": "Set what button are available for students to submit answers. Usually at least a Check button is shown but this can be hidden (e.g. for use in Deferred Feedback contexts) if Hide check is checked. If Precheck is enabled, students will have an extra button to the left of the usual check button to give them a penalty-free run to check their code against a subset of the question test cases.", "hidecheck": "Usually at least a Check button is shown but this can be hidden (e.g. for use in Deferred Feedback contexts) if Hide check is checked.", "giveupallowed": "If this option is enabled, students will see a button to stop interacting with the question, and instead display the general feedback. The 'Stop and read final feedback' can be shown from the start, or only once the student can no longer improve their mark, due to the penalty regime.", "answerboxlines": "Set the number of rows to allocate for the answer box. This sets the minimum height of the User Interface element (e.g. Ace) that controls the answer box. The width is set to fit the window. If the answer overflows the box vertically or horizontally, scrollbars will appear.", "uiplugin": "Select the User Interface controllers for the student answer and the question author's template. The Student Answer dropdown displays a list of available plugins. For coding questions, the Ace editor is usually used.", "uiparameters": "A JSON string defining any User Interface parameter values that are either required by the UI plugin or which override the default values. For example, to draw larger nodes when using the GraphUI: '{\"noderadius\": 30}'", "template": "The template defines the program(s) that run in the sandbox for a given student answer and test(s).", "iscombinatortemplate": "Checking the 'Is combinator' checkbox specifies that the template is a combinator template, which combines (or attempts to combine) the student answer plus all test cases into a single run.", "grader": "The default 'exact match' grader awards marks only if the output from the run exactly matches the expected value defined by the testcase. Trailing white space is stripped from all lines, and any trailing blank lines are deleted, before the equality test is made.", "resultcolumns": "By default the result table displays the testcode, stdin, expected and got columns, provided the columns are not empty. You can change the default, and/or the column headers by entering a value for the resultcolumns (leave blank for the default behaviour).", "sandbox": "All jobs are run on the Jobe sandbox, which imposes constraints on memory, CPU time, file output etc.", "cputimelimitsecs": "'TimeLimit (secs)' sets the maximum CPU time in seconds allowed for each sandbox run and 'MemLimit (MB)' sets the maximum memory the run can use.", "memlimitmb": "'TimeLimit (secs)' sets the maximum CPU time in seconds allowed for each sandbox run and 'MemLimit (MB)' sets the maximum memory the run can use.", "sandboxparams": "The 'Parameters' entry is used to pass further sandbox-specific data, such as compile options and API-keys. It should generally be left blank but if non-blank it must be a valid JSON record.", "language": "The sandbox language is the computer language used to run the submission. This should not usually need altering from the value in the parent template; tweak it at your peril.", "acelang": "Ace-language is the language used by the Ace code editor (if enabled) for the student's answer. By default this is the same as the sandbox language; enter a different value here only if the template language is different from the language that the student is expected to write (e.g. if a Python template is used to preprocess a student's C program and then execute it in a subprocess).", "globalextra": "A field of text for general-purpose use by template authors, like the extra field of each test case, but global to all tests. Available to the template author as {{ QUESTION.globalextra }}.", "prototypeextra": "A field of text for general-purpose use by question type authors, like global extra, but part of the prototype state. Available to the template author as {{ QUESTION.prototypeextra }}.", "tf_code": "Whether the tests of questions using this prototype use the test code field. Fields that are not used are hidden in the question form.", "tf_expected": "Whether the tests use the expected output field. A combinator grader that computes its own results may not need it.", "tf_stdin": "Whether the tests use the standard input field.", "tf_extra": "Whether the tests use the extra template data field.", "proto": "Select the prototype, which sets the programming language, question type and every setting this question does not override. Its documentation can be shown below.", "answer": "A sample answer can be entered here and used for checking by the question author and optionally shown to students during review. It is also used by the bulk tester script. The correctness of a non-empty answer is checked when saving unless 'Validate on save' is unchecked", "preload": "Text supplied here will be preloaded into the student's answer box.", "testcode": "The code for the test, seen by the template as {{TEST.testcode}}", "stdin": "The standard input to the test, seen by the template as {{TEST.stdin}}", "expected": "The expected output from the test. Seen by the template as {{TEST.expected}}.", "extra": "A sometimes-useful extra text field for use by the template, accessed as {{TEST.extra}}"};
+    var st = this.state;
+    var CHAINS = {
+      python3: ['python3'],
+      python3_scratchpad: ['python3', 'python3_scratchpad'],
+      cosc131_scratchpad: ['python3', 'python3_scratchpad', 'cosc131_scratchpad'],
+      python3_scratchpad_function: ['python3', 'python3_scratchpad', 'python3_scratchpad_function'],
+      python3_scratchpad_program: ['python3', 'python3_scratchpad', 'python3_scratchpad_program'],
+      python3_files_program: ['python3', 'python3_scratchpad', 'python3_scratchpad_program', 'python3_files_program'],
+      c_program: ['c_program']
+    };
+    var SUMMARIES = {
+      python3: 'Python 3 question: a test per run, output compared exactly.',
+      python3_scratchpad: 'Python 3 function or program questions with style checks, a scratchpad for students and about 75 template parameters.',
+      cosc131_scratchpad: 'COSC131 version of python3_scratchpad: course penalty regime, style checks off.',
+      python3_scratchpad_function: 'Write-a-function questions: tests call the function; no standard input.',
+      python3_scratchpad_program: 'Write-a-program questions: tests give standard input; isfunction is false.',
+      python3_files_program: 'Write-a-program questions whose programs read and write files.',
+      c_program: 'C program question: compiled with gcc, tested with standard input.'
+    };
+    var OTHER = {
+      'COSC122-26S1': [
+        { name: 'cosc122_scratchpad', chain: ['python3', 'python3_scratchpad', 'cosc122_scratchpad'], summary: 'COSC122 version of python3_scratchpad: numpy allowed, 5 s CPU limit.' },
+        { name: 'cosc122_timing', chain: ['python3', 'cosc122_timing'], summary: 'Python 3 questions that time the answer against a reference solution.' }
+      ],
+      'COSC262-26S1': [
+        { name: 'cosc262_graphs', chain: ['python3', 'python3_scratchpad', 'cosc262_graphs'], summary: 'Graph algorithm questions with adjacency-list helpers in the support files.' }
+      ],
+      'ENCE260-26S2': [
+        { name: 'ence260_c_program', chain: ['c_program', 'ence260_c_program'], summary: 'C program questions compiled with the ENCE260 warning flags.' }
+      ]
+    };
+    Object.keys(OTHER).forEach(function (course) {
+      OTHER[course].forEach(function (p) {
+        var key = course + ':' + p.name;
+        var names = p.chain.slice();
+        names[names.length - 1] = p.name + ' (' + course + ')';
+        CHAINS[key] = names;
+        SUMMARIES[key] = p.summary;
+      });
+    });
+    var labelOf = function (key) { var i = key.indexOf(':'); return key.slice(i + 1) + ' (' + key.slice(0, i) + ')'; };
+    var usedElsewhere = st.usedElsewhere.map(function (k) { return { v: k, label: labelOf(k) }; });
+    var courses = Object.keys(OTHER).map(function (c) { return { id: c, label: c }; });
+    var coursePrototypes = (OTHER[st.otherCourse] || []).map(function (p) {
+      var key = st.otherCourse + ':' + p.name;
+      return {
+        name: p.name,
+        chainText: p.chain.join(' › '),
+        summary: p.summary,
+        use: function () {
+          var used = self.state.usedElsewhere.indexOf(key) >= 0 ? self.state.usedElsewhere : self.state.usedElsewhere.concat([key]);
+          self.setState({ proto: key, usedElsewhere: used, pickerOpen: false });
+        }
+      };
+    });
+    var chainNames = CHAINS[st.proto] || [st.proto];
+    var chain = chainNames.map(function (n, i) { return { name: n, sep: i < chainNames.length - 1 ? ' ›' : '' }; });
+
+    var SECTIONS = [
+      { id: 'params', title: 'Template parameters', fields: [], isParams: true },
+      { id: 'testfields', title: 'Test case fields', fields: [
+        { id: 'tf_code', label: 'Test code', kind: 'check', inh: true, src: 'python3_scratchpad', checkLabel: 'Tests use the test code field' },
+        { id: 'tf_expected', label: 'Expected output', kind: 'check', inh: true, src: 'python3_scratchpad', checkLabel: 'Tests use the expected output field' },
+        { id: 'tf_stdin', label: 'Standard input', kind: 'check', inh: false, src: 'cosc131_scratchpad', checkLabel: 'Tests use standard input' },
+        { id: 'tf_extra', label: 'Extra template data', kind: 'check', inh: false, src: 'cosc131_scratchpad', checkLabel: 'Tests use extra template data' }
+      ]},
+      { id: 'grading', title: 'Grading and penalties', fields: [
+        { id: 'penaltyregime', label: 'Penalty regime', kind: 'text', inh: '0, 10, 20, ...', src: 'cosc131_scratchpad' },
+        { id: 'allornothing', label: 'All-or-nothing grading', kind: 'check', inh: true, src: 'python3_scratchpad', checkLabel: 'All tests must pass for any marks' },
+        { id: 'precheck', label: 'Precheck', kind: 'select', inh: 'Disabled', src: 'Site defaults', options: ['Disabled', 'Empty', 'Examples', 'Selected', 'All'] },
+        { id: 'hidecheck', label: 'Hide check', kind: 'check', inh: false, src: 'Site defaults', checkLabel: 'Hide the Check button' },
+        { id: 'giveupallowed', label: 'Give up', kind: 'select', inh: 'Never', src: 'Site defaults', options: ['Never', 'After max marks lost', 'Always'] }
+      ]},
+      { id: 'ui', title: 'User interface', fields: [
+        { id: 'uiplugin', label: 'Student answer UI', kind: 'select', inh: 'scratchpad', src: 'python3_scratchpad', options: ['ace', 'scratchpad', 'gapfiller', 'graph', 'html', 'table'] },
+        { id: 'answerboxlines', label: 'Answer box rows', kind: 'number', inh: '60', src: 'python3_scratchpad' },
+        { id: 'uiparameters', label: 'UI parameters', kind: 'area', rows: 3, inh: '{"output_display": "json", "wrapper_src": "uiwrapper.py"}', src: 'python3_scratchpad', code: true }
+      ]},
+      { id: 'template', title: 'Template and grader', fields: [
+        { id: 'template', label: 'Template', kind: 'area', rows: 8, inh: 'import locale\nimport json\nimport os\nimport re\nimport html\n\nfrom pytester import PyTester\n...  (500 lines)', src: 'python3_scratchpad', code: true },
+        { id: 'iscombinatortemplate', label: 'Is combinator', kind: 'check', inh: true, src: 'python3_scratchpad', checkLabel: 'Template runs all tests in one go' },
+        { id: 'grader', label: 'Grading', kind: 'select', inh: 'Template does grading', src: 'python3_scratchpad', options: ['Exact match', 'Nearly exact match', 'Regular expression', 'Template does grading'] },
+        { id: 'resultcolumns', label: 'Result columns', kind: 'text', inh: '', src: 'Site defaults', code: true }
+      ]},
+      { id: 'sandbox', title: 'Sandbox, languages and limits', fields: [
+        { id: 'sandbox', label: 'Sandbox', kind: 'select', inh: 'jobesandbox', src: 'python3_scratchpad', options: ['DEFAULT', 'jobesandbox'] },
+        { id: 'cputimelimitsecs', label: 'CPU time limit (secs)', kind: 'number', inh: '50', src: 'python3_scratchpad' },
+        { id: 'memlimitmb', label: 'Memory limit (MB)', kind: 'number', inh: '1500', src: 'python3_scratchpad' },
+        { id: 'sandboxparams', label: 'Sandbox parameters', kind: 'text', inh: '', src: 'Site defaults', code: true },
+        { id: 'language', label: 'Sandbox language', kind: 'text', inh: 'python3', src: 'python3' },
+        { id: 'acelang', label: 'Ace language', kind: 'text', inh: 'python3', src: 'python3' }
+      ]},
+      { id: 'extras', title: 'Extras', fields: [
+        { id: 'globalextra', label: 'Global extra', kind: 'area', rows: 3, inh: '', src: 'Site defaults', code: true },
+        { id: 'prototypeextra', label: 'Prototype extra', kind: 'area', rows: 6, inh: 'import ast, traceback, sys, io, subprocess, base64, os, ast, traceback, json, re\nMAX_OUTPUT_CHARS = 30000\n...  (about 4.9 KB)', src: 'python3_scratchpad', code: true }
+      ]},
+      { id: 'files', title: 'Support files', fields: [], isFiles: true }
+    ];
+
+    var PARAMS = [
+      { id: 'isfunction', type: 'bool', group: 'Kind of question', inh: 'true', src: 'python3_scratchpad', desc: 'The answer is a function, called by each test, rather than a whole program.' },
+      { id: 'notest', type: 'bool', group: 'Kind of question', inh: 'false', src: 'python3_scratchpad', desc: 'Run the answer without any tests.' },
+      { id: 'usesmatplotlib', type: 'bool', group: 'Kind of question', inh: 'false', src: 'python3_scratchpad', desc: 'The answer draws graphs; capture figures as images.' },
+      { id: 'usesnumpy', type: 'bool', group: 'Kind of question', inh: 'false', src: 'python3_scratchpad', desc: 'Allow numpy in the answer.' },
+      { id: 'showfeedbackwhenright', type: 'bool', group: 'Output', inh: 'false', src: 'python3_scratchpad', desc: 'Show the result table even when the answer is right.' },
+      { id: 'maxfunctionlength', type: 'int', group: 'Code checks', inh: '30', src: 'python3_scratchpad', desc: 'Longest function allowed, in lines.' },
+      { id: 'maxnumconstants', type: 'int', group: 'Code checks', inh: '4', src: 'python3_scratchpad', desc: 'Most global constants allowed.' },
+      { id: 'allowglobals', type: 'bool', group: 'Code checks', inh: 'false', src: 'python3_scratchpad', desc: 'Allow global variables.' },
+      { id: 'proscribedsubstrings', type: 'list', group: 'Code checks', inh: '[]', src: 'python3_scratchpad', desc: 'Strings the answer must not contain.' },
+      { id: 'requiredsubstrings', type: 'list', group: 'Code checks', inh: '[]', src: 'python3_scratchpad', desc: 'Strings the answer must contain.' },
+      { id: 'proscribedbuiltins', type: 'list', group: 'Code checks', inh: '["exec", "eval"]', src: 'python3_scratchpad', desc: 'Built-in functions the answer must not call.' },
+      { id: 'requiredfunctioncalls', type: 'list', group: 'Code checks', inh: '[]', src: 'python3_scratchpad', desc: 'Functions the answer must call.' },
+      { id: 'nostylechecks', type: 'bool', group: 'Style checks', inh: 'true', src: 'cosc131_scratchpad', desc: 'Skip the style checkers (ruff or pylint).' },
+      { id: 'precheckers', type: 'list', group: 'Style checks', inh: '["ruff"]', src: 'python3_scratchpad', desc: 'Style checkers to run before testing.' },
+      { id: 'requiretypehints', type: 'bool', group: 'Style checks', inh: 'false', src: 'python3_scratchpad', desc: 'Require type hints on function definitions.' },
+      { id: 'timeout', type: 'int', group: 'Running', inh: '5', src: 'python3_scratchpad', desc: 'Time limit per test, in seconds.' },
+      { id: 'totaltimeout', type: 'int', group: 'Running', inh: '50', src: 'python3_scratchpad', desc: 'Time limit for all tests together, in seconds.' },
+      { id: 'abortonerror', type: 'bool', group: 'Running', inh: 'true', src: 'python3_scratchpad', desc: 'Stop testing at the first runtime error.' },
+      { id: 'maxoutputbytes', type: 'int', group: 'Output', inh: '10000', src: 'python3_scratchpad', desc: 'Most output kept from each test.' },
+      { id: 'strictwhitespace', type: 'bool', group: 'Output', inh: 'true', src: 'python3_scratchpad', desc: 'Whitespace in the output must match exactly.' },
+      { id: 'floattolerance', type: 'num', group: 'Output', inh: 'null', src: 'python3_scratchpad', desc: 'Compare numbers in the output to this tolerance.' },
+      { id: 'warnifpassiveoutput', type: 'bool', group: 'Output', inh: 'true', src: 'python3_scratchpad', desc: 'Warn if a function question prints at import time.' }
+    ];
+
+    var open = st.open;
+    var closed = {};
+    Object.keys(open).forEach(function (k) { closed[k] = !open[k]; });
+    var tog = {};
+    Object.keys(open).forEach(function (k) {
+      tog[k] = function () { var o = Object.assign({}, self.state.open); o[k] = !o[k]; self.setState({ open: o }); };
+    });
+
+    function short(v) { var s = String(v); if (s === '') return '(empty)'; s = s.split('\n')[0]; return s.length > 40 ? s.slice(0, 40) + '…' : s; }
+    function setOv(id, v) { var o = Object.assign({}, self.state.ov); o[id] = v; self.setState({ ov: o }); }
+    function delOv(id) { var o = Object.assign({}, self.state.ov); delete o[id]; self.setState({ ov: o }); }
+    function setPov(id, v) { var o = Object.assign({}, self.state.pov); o[id] = v; self.setState({ pov: o }); }
+    function delPov(id) { var o = Object.assign({}, self.state.pov); delete o[id]; self.setState({ pov: o }); }
+
+    var nParams = Object.keys(st.pov).length;
+    var total = 0;
+    var sections = SECTIONS.map(function (s) {
+      var fields = s.fields.map(function (f) {
+        var isOv = Object.prototype.hasOwnProperty.call(st.ov, f.id);
+        var val = isOv ? st.ov[f.id] : f.inh;
+        var disp = f.kind === 'check' ? (val ? 'Yes' : 'No') : (val === '' ? '(empty)' : String(val));
+        return {
+          domid: 'mk-f-' + f.id, label: f.label, src: f.src,
+          inherited: !isOv, overridden: isOv,
+          display: disp, inhShort: f.kind === 'check' ? (f.inh ? 'Yes' : 'No') : short(f.inh),
+          value: f.kind === 'check' ? '' : String(val), checked: !!val, checkLabel: f.checkLabel || '',
+          rows: f.rows || 3, hasHelp: !!HELP[f.id], help: HELP[f.id] || '', helpOpen: st.helpOpen === f.id,
+          toggleHelp: function () { self.setState({ helpOpen: self.state.helpOpen === f.id ? null : f.id }); },
+          codeClass: (f.code || f.kind === 'area') ? 'mk-code' : '',
+          isText: f.kind === 'text', isNumber: f.kind === 'number', isArea: f.kind === 'area', isSelect: f.kind === 'select', isCheck: f.kind === 'check',
+          options: (f.options || []).map(function (o) { return { v: o }; }),
+          override: function () { setOv(f.id, f.inh); },
+          revert: function () { delOv(f.id); },
+          change: function (e) { setOv(f.id, e.target.value); },
+          toggleCheck: function (e) { setOv(f.id, e.target.checked); }
+        };
+      });
+      var n = s.isParams ? nParams : fields.filter(function (f) { return f.overridden; }).length;
+      total += n;
+      return {
+        title: s.title, open: open[s.id], closed: !open[s.id], toggle: tog[s.id],
+        fields: fields, isParams: !!s.isParams, isFiles: !!s.isFiles,
+        hasChanges: n > 0, countLabel: n + ' changed'
+      };
+    });
+
+    var filt = st.paramFilter.trim().toLowerCase();
+    var shown = PARAMS.filter(function (p) {
+      var isOv = Object.prototype.hasOwnProperty.call(st.pov, p.id);
+      if (!st.showAllParams) return isOv;
+      return !filt || p.id.indexOf(filt) >= 0 || p.desc.toLowerCase().indexOf(filt) >= 0;
+    });
+    var groupNames = [];
+    shown.forEach(function (p) { if (groupNames.indexOf(p.group) < 0) groupNames.push(p.group); });
+    var TYPE_LABELS = { bool: 'yes/no', int: 'number', num: 'number', list: 'list (JSON)', text: 'text', twig: 'Twig expression' };
+    var paramGroups = groupNames.map(function (g) {
+      return {
+        name: g, showHeading: st.showAllParams,
+        params: shown.filter(function (p) { return p.group === g; }).map(function (p) {
+          var isOv = Object.prototype.hasOwnProperty.call(st.pov, p.id);
+          var val = isOv ? st.pov[p.id] : p.inh;
+          return {
+            domid: 'mk-p-' + p.id, name: p.id, desc: p.desc, src: p.src, typeLabel: TYPE_LABELS[p.type],
+            inherited: !isOv, overridden: isOv, display: String(p.inh), inhShort: String(p.inh), value: String(val),
+            isBool: p.type === 'bool', isNum: p.type === 'int' || p.type === 'num', isTextual: p.type === 'list' || p.type === 'text' || p.type === 'twig',
+            checked: String(val) === 'true', boolLabel: String(val) === 'true' ? 'true' : 'false',
+            override: function () { setPov(p.id, p.inh); },
+            revert: function () { delPov(p.id); },
+            change: function (e) { setPov(p.id, e.target.value); },
+            toggleCheck: function (e) { setPov(p.id, e.target.checked ? 'true' : 'false'); }
+          };
+        })
+      };
+    });
+
+    var jsonLines = Object.keys(st.pov).map(function (k) {
+      var raw = st.pov[k];
+      var isJson = true;
+      try { JSON.parse(raw); } catch (err) { isJson = false; }
+      var isTwig = /\{\{/.test(raw);
+      return '    ' + JSON.stringify(k) + ': ' + (isJson || isTwig ? raw : JSON.stringify(raw));
+    });
+
+    var allOpen = Object.keys(open).every(function (k) { return open[k]; });
+    function tfVal(id, inh) { return Object.prototype.hasOwnProperty.call(st.ov, id) ? !!st.ov[id] : inh; }
+    var tfCode = tfVal('tf_code', true), tfExp = tfVal('tf_expected', true), tfStdin = tfVal('tf_stdin', false), tfExtra = tfVal('tf_extra', false);
+    var hiddenNames = [];
+    if (!tfCode) hiddenNames.push('Test code');
+    if (!tfStdin) hiddenNames.push('Standard input');
+    if (!tfExp) hiddenNames.push('Expected output');
+    if (!tfExtra) hiddenNames.push('Extra template data');
+    var rv = st.revealTf;
+    var tf = {
+      code: tfCode || rv, expected: tfExp || rv, stdin: tfStdin || rv, extra: tfExtra || rv,
+      anyHidden: hiddenNames.length > 0 && !rv,
+      hiddenNote: (hiddenNames.length > 1 ? hiddenNames.slice(0, -1).join(', ') + ' and ' + hiddenNames[hiddenNames.length - 1] : hiddenNames[0]) + (hiddenNames.length === 1 ? ' is' : ' are') + ' not used by this prototype, so ' + (hiddenNames.length === 1 ? 'it is' : 'they are') + ' hidden.',
+      reveal: function () { self.setState({ revealTf: true }); }
+    };
+
+    return {
+      open: open, closed: closed, tog: tog, tf: tf, h: (function () {
+        var o = {};
+        ['proto', 'answer', 'preload', 'testcode', 'stdin', 'expected', 'extra'].forEach(function (k) {
+          o[k] = { open: st.helpOpen === 'h_' + k, text: HELP[k], toggle: function () { self.setState({ helpOpen: self.state.helpOpen === 'h_' + k ? null : 'h_' + k }); } };
+        });
+        return o;
+      })(),
+      yes: true,
+      noop: function () {},
+      noSubmit: function (e) { e.preventDefault(); },
+      expandLabel: allOpen ? 'Collapse all' : 'Expand all',
+      toggleAll: function () {
+        var o = {}; Object.keys(self.state.open).forEach(function (k) { o[k] = !allOpen; }); self.setState({ open: o });
+      },
+      proto: st.proto,
+      pickProto: function (e) { var v = e.target.value; if (v === '__other') { self.setState({ pickerOpen: true }); } else { self.setState({ proto: v, pickerOpen: false }); } },
+      usedElsewhere: usedElsewhere,
+      pickerOpen: st.pickerOpen,
+      otherCourse: st.otherCourse,
+      pickCourse: function (e) { self.setState({ otherCourse: e.target.value }); },
+      courses: courses,
+      coursePrototypes: coursePrototypes,
+      closePicker: function () { self.setState({ pickerOpen: false }); },
+      chain: chain,
+      summary: SUMMARIES[st.proto] || '',
+      showDoc: st.showDoc,
+      docLabel: st.showDoc ? 'Hide prototype documentation' : 'Show prototype documentation',
+      toggleDoc: function () { self.setState({ showDoc: !self.state.showDoc }); },
+      qname: st.qname,
+      setName: function (e) { self.setState({ qname: e.target.value }); },
+      tests: st.tests.map(function (t, i) {
+        function upd(key) { return function (e) { var ts = self.state.tests.slice(); ts[i] = Object.assign({}, ts[i]); ts[i][key] = e.target.value; self.setState({ tests: ts }); }; }
+        return { label: 'Test case ' + (i + 1), code: t.code, stdin: t.stdin, expected: t.expected, extra: t.extra, display: t.display,
+          example: t.example, hiderest: t.hiderest, exid: 'mk-ex' + i, hrid: 'mk-hr' + i,
+          setCode: upd('code'), setStdin: upd('stdin'), setExpected: upd('expected'), setExtra: upd('extra'), setDisplay: upd('display') };
+      }),
+      qtext: st.qtext, setQtext: function (e) { self.setState({ qtext: e.target.value }); },
+      answer: st.answer, setAnswer: function (e) { self.setState({ answer: e.target.value }); },
+      preload: st.preload, setPreload: function (e) { self.setState({ preload: e.target.value }); },
+      totalChanged: total === 0 ? 'This question overrides nothing.' : (total === 1 ? 'This question overrides 1 setting.' : 'This question overrides ' + total + ' settings.'),
+      sections: sections,
+      showAllParams: st.showAllParams,
+      allParamsLabel: st.showAllParams ? 'Show only overridden parameters' : 'Show all parameters',
+      toggleAllParams: function () { self.setState({ showAllParams: !self.state.showAllParams }); },
+      showJson: st.showJson,
+      toggleJson: function () { self.setState({ showJson: !self.state.showJson }); },
+      paramJson: '{\n' + jsonLines.join(',\n') + '\n}',
+      paramFilter: st.paramFilter,
+      setFilter: function (e) { self.setState({ paramFilter: e.target.value }); },
+      paramGroups: paramGroups,
+      noParamsShown: shown.length === 0 && !st.showAllParams,
+      paramCount: PARAMS.length,
+      files: [
+        { name: '__pystylechecker.py', size: '31 KB' },
+        { name: '__resulttable.py', size: '14 KB' },
+        { name: '__tester.py', size: '17 KB' },
+        { name: '__plottools.py', size: '17 KB' },
+        { name: 'pytester.py', size: '14 KB' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -16,7 +16,6 @@
 
 /**
  * Unit tests for coderunner C questions.
- * @group qtype_coderunner
  * Assumed to be run after python questions have been tested, so focuses
  * only on C-specific aspects.
  *
@@ -37,8 +36,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/question.php');
 
 /**
  * Unit tests for coderunner matlab questions
- * @coversNothing
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class matlab_question_test extends \qtype_coderunner_testcase {
     protected function setUp(): void {
         parent::setUp();

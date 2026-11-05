@@ -619,10 +619,14 @@ class qtype_coderunner extends question_type {
 
     /**
      * Return a list of the contexts in which accessible prototypes might exist.
+     *
+     * Public so that the prototype health report can search exactly the same
+     * set of contexts as prototype resolution does at run time.
+     *
      * @param context $context The context in which we're asking for prototypes.
-     * @return a list of contextids in which we'll look for prototypes.
+     * @return array a list of contextids in which we'll look for prototypes.
      */
-    private static function prototype_contexts($context) {
+    public static function prototype_contexts($context) {
         // Get the course in which the context is located.
         $contextids = [];
         if (qtype_coderunner_util::using_mod_qbank()) {

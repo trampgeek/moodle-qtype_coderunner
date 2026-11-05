@@ -16,7 +16,6 @@
 
 /**
  * Test attaching of datafiles to questions.
- * @group qtype_coderunner
  *
  * @package    qtype
  * @subpackage coderunner
@@ -33,8 +32,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 
 /**
  * Unit tests for attaching datafiles to questions.
- * @coversNothing
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 class datafile_test extends \qtype_coderunner_testcase {
     // Test loading of files in the jobe sandbox.
     public function test_datafile_jobesandbox(): void {
