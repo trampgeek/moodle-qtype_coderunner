@@ -622,6 +622,14 @@ This is the same three-way split core uses for questions themselves — `id` loc
 
     **Reverting a field to inherited drops the override immediately**, rather than keeping the value in case the author changes their mind. An overrides document that carries values which are not in effect is a second, invisible state, and the saving is only retyping; an author who wants to keep a value before reverting can copy it, and undo is undo.
 
+22. **The manager uses the question type's Ace editor, and that coupling cannot be declared.** Template code, template parameters and the other JSON fields are unreadable in a plain textarea, and the question type already ships Ace together with the machinery to attach it. The manager uses both: `qtype_coderunner_util::load_ace()`, which registers the scripts once per page, and the `qtype_coderunner/userinterfacewrapper` AMD module's `newUiWrapper`. Moodle's AMD loader is global, so a module of one plugin loads on another's page with nothing special done.
+
+    **The coupling runs the wrong way and cannot be written down.** Decision 12 has the question type declaring the manager and the manager declaring nothing, so that the manager installed alone is inert. Calling into the question type makes that false at run time, and the manager cannot declare the dependency back, because Moodle refuses a cycle in plugin dependencies. The coupling is therefore real, deliberate and invisible to the plugin system, which is why it is recorded here: `load_ace()` and `newUiWrapper` are API the question type does not get to break quietly, and the manager breaks if either moves.
+
+    It is safe in practice only because the question type declares the manager, so the two are always installed together, and the manager's pages are reached from CodeRunner's own management page. It would not be safe for a plugin that could be installed on its own.
+
+    **Two details worth keeping.** The route is `userinterfacewrapper`, not `textareas::setupAllTAs`: the latter selects `div.edit_code textarea`, while the question form puts the class on the textarea itself, so it is not what gives the author form its editor. And template parameters and UI parameters are attached with an *empty* language, as `authorform.js` does, because they may contain Twig and a JSON mode would report errors that are not there.
+
 Open:
 
 Nothing. Decision 7, below, is retained for its analysis.
