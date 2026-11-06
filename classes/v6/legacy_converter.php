@@ -64,6 +64,40 @@ class legacy_converter {
     }
 
     /**
+     * The collected fields a CodeRunner 5 prototype question supplied to its
+     * questions, which `fields_inherited_in_v5()` does not cover.
+     *
+     * That list is `extra_question_fields_static()` less
+     * `noninherited_fields()`, and `noninherited_fields()` describes which
+     * controls the authoring form hides behind its *Customise* checkbox — not
+     * what actually flowed from a prototype to a question. Template parameters,
+     * UI parameters and support files each flowed by their own dedicated
+     * mechanism — `evaluate_merged_parameters()`,
+     * `evaluate_merged_ui_parameters()` and `get_files()` — so they are absent
+     * from that list while being genuinely inherited at run time.
+     *
+     * Leaving them out of a migrated prototype silently discarded them. On the
+     * development site that was 12 prototypes' template parameters and 25
+     * prototypes' UI parameters, affecting 11,883 of 12,346 questions: the
+     * `wrapper_src` that tells the scratchpad UI where to find its wrapper, the
+     * `isdirected` and `isfsm` flags of the graph UI, and so on.
+     *
+     * The language and per-try settings come with the parameters rather than on
+     * their own, because they describe how to evaluate them and mean nothing
+     * without them.
+     *
+     * @return string[] the field names.
+     */
+    public static function fields_supplied_by_v5_prototypes(): array {
+        return [
+            'templateparams',
+            'templateparamslang',
+            'templateparamsevalpertry',
+            'uiparameters',
+        ];
+    }
+
+    /**
      * The override set for a prototype converted from a CodeRunner 5 prototype
      * question.
      *
@@ -102,6 +136,22 @@ class legacy_converter {
             }
             $values[$name] = self::cast($name, $value);
         }
+
+        // The collected fields, which CodeRunner 5 merged from the prototype by
+        // a route of their own; see fields_supplied_by_v5_prototypes(). The
+        // language and per-try settings are carried only alongside actual
+        // parameters, since on their own they describe nothing.
+        if (trim((string) ($columns['templateparams'] ?? '')) !== '') {
+            foreach (['templateparams', 'templateparamslang', 'templateparamsevalpertry'] as $name) {
+                if (array_key_exists($name, $columns) && $columns[$name] !== null && $columns[$name] !== '') {
+                    $values[$name] = self::cast($name, $columns[$name]);
+                }
+            }
+        }
+        if (trim((string) ($columns['uiparameters'] ?? '')) !== '') {
+            $values['uiparameters'] = self::cast('uiparameters', $columns['uiparameters']);
+        }
+
         return new override_set($values, $source);
     }
 
@@ -135,9 +185,15 @@ class legacy_converter {
      * A question's value for each of these was effective, so each is pinned on
      * migration whether it is null or not. That keeps every question exactly as
      * it is now, unaffected by its prototype or by the Site defaults, which is
-     * the opposite of the rule for prototypes: a *prototype's* value for these
-     * fields was ignored by CodeRunner 5, so carrying it over would invent a
-     * preference nobody expressed.
+     * the opposite of the rule for prototypes: a *prototype's* value for most of
+     * these fields was ignored by CodeRunner 5, so carrying it over would invent
+     * a preference nobody expressed.
+     *
+     * The exception is the four collected fields, which a prototype did supply
+     * through a mechanism of their own, and which a prototype therefore carries;
+     * see `fields_supplied_by_v5_prototypes()`. A question still pins its own
+     * values for them, because each layer's parameters are evaluated in that
+     * layer's own language before being merged, so both layers contribute.
      *
      * The consequence is that the new inheritance does nothing for existing
      * questions until an author deliberately flattens them. That is the
