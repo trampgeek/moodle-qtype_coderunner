@@ -632,7 +632,24 @@ This is the same three-way split core uses for questions themselves — `id` loc
 
 Open:
 
-Nothing. Decision 7, below, is retained for its analysis.
+23. **How does a site administrator customise a built-in prototype without losing it on the next release?** Built-ins are rewritten by `install_builtins()` on every upgrade, which is what keeps them current and what makes editing one pointless. CodeRunner 5's answer is to clone the prototype question and rename it, dropping the `BUILT_IN_PROTOTYPE_` prefix that makes it eligible for deletion — which works, and requires every question that wants the customisation to be re-pointed at the clone.
+
+    The reason to revisit it is that CodeRunner 6 has machinery CodeRunner 5 did not: a prototype can hold *only what it changes*, which is exactly what customising a built-in means.
+
+    **Proposal, to be decided: split on first edit, keeping the id.** When an administrator saves an edit to built-in `python3`, which is prototype id 7:
+
+    1. A new prototype is created holding the current stock content, flagged `builtin`, named `python3 (stock)` or similar.
+    2. Id 7 keeps its id, loses its `builtin` flag, becomes a child of the stock prototype, and retains only the administrator's overrides.
+
+    Every question still refers to id 7, so nothing is re-pointed and no migration runs. Later releases rewrite the stock prototype and the overrides continue to apply on top. The split happens lazily, so a site that customises nothing never grows a row.
+
+    **What it requires.** `install_builtins()` matches built-ins by name and would clobber the administrator's `python3`. It must match on **uuid** instead. The column exists and `install.xml` already describes it as "a stable identifier kept through export, backup and restore"; built-ins would carry a fixed uuid in `db/builtin_PROTOTYPES.xml`, making the stock prototype findable whatever it is called.
+
+    **What it costs.** The library gains a row for each customised built-in, and a stock prototype is visible where an administrator may not expect one; that can be hidden until its child is expanded. More seriously, when a release changes a field the administrator has overridden, their value silently wins and they never learn the stock value moved. That is inherent to inheritance and applies to any prototype built on a built-in, but it is sharper here, and argues for a "what changed upstream" view in the history work of M6.
+
+    **Alternatives considered.** Loading the stock version under a new name on upgrade, for example `python3_STOCK`, reaches almost the same end state but inverts which prototype keeps the id, so after an upgrade the questions point at the edited one and the stock copy is a stranger with no dependants. Leaving built-ins strictly read-only and requiring a child prototype is honest, but makes the administrator re-point every affected question, which on a site with thousands is not a real option.
+
+Decision 7, below, is retained for its analysis.
 
 7. **~~Does 6.0 pin attempts to prototype versions?~~** Settled as decision 11: no.
 
