@@ -68,7 +68,16 @@ class settings_form {
     }
 
     /**
-     * The fields belonging to one section, in registry order.
+     * The fields belonging to one section that this component can render, in
+     * registry order.
+     *
+     * Everything except support files, which are a set of files rather than a
+     * value and need a file manager and a draft area of their own. Note that
+     * the test for exclusion is the field's *type*, not whether it has a
+     * column: the test case field switches have no column, because they live
+     * in the overrides document rather than in
+     * question_coderunner_options, and they are settings an author edits like
+     * any other.
      *
      * @param form_section $section the section.
      * @return field[] name => field.
@@ -76,7 +85,7 @@ class settings_form {
     public static function fields_of(form_section $section): array {
         return array_filter(
             field_registry::all(),
-            fn($field) => $field->section === $section && $field->incolumn
+            fn($field) => $field->section === $section && $field->type !== field_type::FILES
         );
     }
 
@@ -151,7 +160,17 @@ class settings_form {
             return $mform->createElement('advcheckbox', $name, '', '');
         }
         if ($field->type === field_type::TEXT || $field->type === field_type::JSON) {
-            return $mform->createElement('textarea', $name, '', ['rows' => 6, 'cols' => 80]);
+            $attributes = ['rows' => $field->iscode ? 12 : 4, 'cols' => 80];
+            if ($field->iscode) {
+                // Read by the UI wrapper when Ace is attached; see
+                // require_ace(). Template parameters and UI parameters are
+                // deliberately left without a language, because they may
+                // contain Twig and a JSON mode would report errors that are
+                // not there.
+                $attributes['data-lang'] = self::ace_language($field);
+                $attributes['class'] = 'edit_code';
+            }
+            return $mform->createElement('textarea', $name, '', $attributes);
         }
         if ($field->type === field_type::INTEGER) {
             return $mform->createElement('text', $name, '', ['size' => 6]);
@@ -202,6 +221,54 @@ class settings_form {
         // contributes. The nearest contribution is the useful thing to show.
         $layers = $inherited->layers_of($field);
         return $layers ? end($layers)['value'] : $field->default;
+    }
+
+    /**
+     * The Ace syntax mode a code field is edited in.
+     *
+     * Empty for the parameter fields, which may hold Twig and would be
+     * reported as broken JSON, and for the free-form extras. The template is
+     * the prototype's own language, which is set when Ace is attached rather
+     * than here, since the registry does not know which prototype is being
+     * edited.
+     *
+     * @param field $field the field.
+     * @return string the Ace language, or the empty string for none.
+     */
+    protected static function ace_language(field $field): string {
+        return '';
+    }
+
+    /**
+     * Ask the page for Ace, and attach it to every code field on show.
+     *
+     * Called by the page rather than from the form definition, so that
+     * building a form has no side effects on $PAGE and can be done in a test.
+     *
+     * The question type owns Ace and the wrapper that attaches it; see
+     * decision 22 for why that coupling exists and why it cannot be declared.
+     *
+     * @param form_section[] $sections the sections the form is showing.
+     * @param string $language the language to highlight the template in.
+     */
+    public static function require_ace(array $sections, string $language = ''): void {
+        global $PAGE;
+
+        \qtype_coderunner_util::load_ace();
+
+        foreach ($sections as $section) {
+            foreach (self::fields_of($section) as $name => $field) {
+                if (!$field->iscode) {
+                    continue;
+                }
+                $lang = $name === 'template' ? $language : self::ace_language($field);
+                $PAGE->requires->js_call_amd(
+                    'qtype_coderunner/userinterfacewrapper',
+                    'newUiWrapper',
+                    ['ace', 'id_' . $name, ['lang' => $lang]]
+                );
+            }
+        }
     }
 
     /**

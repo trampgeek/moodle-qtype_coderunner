@@ -268,8 +268,15 @@ class field_registry {
     private static function definitions() {
         return [
             // Instance fields: the question's own, never inherited.
-            new field('answer', field_kind::INSTANCE, field_type::TEXT, form_section::QUESTION, twigable: true),
-            new field('answerpreload', field_kind::INSTANCE, field_type::TEXT, form_section::QUESTION, twigable: true),
+            new field('answer', field_kind::INSTANCE, field_type::TEXT, form_section::QUESTION, twigable: true, iscode: true),
+            new field(
+                'answerpreload',
+                field_kind::INSTANCE,
+                field_type::TEXT,
+                form_section::QUESTION,
+                twigable: true,
+                iscode: true,
+            ),
             new field('validateonsave', field_kind::INSTANCE, field_type::BOOLEAN, form_section::QUESTION, default: 1),
             new field('showsource', field_kind::INSTANCE, field_type::BOOLEAN, form_section::TEMPLATE, default: 0),
 
@@ -282,6 +289,7 @@ class field_registry {
                 default: '',
                 merge: merge_rule::AFTER_EVALUATION,
                 perlayerwith: ['templateparamslang', 'templateparamsevalpertry'],
+                iscode: true,
             ),
             new field(
                 'templateparamslang',
@@ -307,6 +315,7 @@ class field_registry {
                 default: '',
                 merge: merge_rule::IF_SAME_UI,
                 twigable: true,
+                iscode: true,
             ),
             new field(
                 'supportfiles',
@@ -372,10 +381,10 @@ class field_registry {
             new field('filenamesexplain', field_kind::INHERITED, field_type::TEXT, form_section::UI, default: ''),
 
             // Template and grader.
-            new field('template', field_kind::INHERITED, field_type::TEXT, form_section::TEMPLATE, default: ''),
+            new field('template', field_kind::INHERITED, field_type::TEXT, form_section::TEMPLATE, default: '', iscode: true),
             new field('iscombinatortemplate', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 0),
             new field('grader', field_kind::INHERITED, field_type::CHAR, form_section::TEMPLATE, default: 'EqualityGrader'),
-            new field('resultcolumns', field_kind::INHERITED, field_type::JSON, form_section::TEMPLATE, default: ''),
+            new field('resultcolumns', field_kind::INHERITED, field_type::JSON, form_section::TEMPLATE, default: '', iscode: true),
             new field('testsplitterre', field_kind::INHERITED, field_type::CHAR, form_section::TEMPLATE, default: ''),
             new field('allowmultiplestdins', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 0),
             new field('extractcodefromjson', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 1),
@@ -393,7 +402,7 @@ class field_registry {
                 labelstring: 'ace-language',
             ),
             new field('sandbox', field_kind::INHERITED, field_type::CHOICE, form_section::SANDBOX),
-            new field('sandboxparams', field_kind::INHERITED, field_type::JSON, form_section::SANDBOX),
+            new field('sandboxparams', field_kind::INHERITED, field_type::JSON, form_section::SANDBOX, iscode: true),
             new field(
                 'cputimelimitsecs',
                 field_kind::INHERITED,
@@ -404,8 +413,24 @@ class field_registry {
             new field('memlimitmb', field_kind::INHERITED, field_type::INTEGER, form_section::SANDBOX, labelstring: 'memorylimit'),
 
             // Extras.
-            new field('globalextra', field_kind::INHERITED, field_type::TEXT, form_section::EXTRAS, default: '', twigable: true),
-            new field('prototypeextra', field_kind::INHERITED, field_type::TEXT, form_section::EXTRAS, default: '', twigable: true),
+            new field(
+                'globalextra',
+                field_kind::INHERITED,
+                field_type::TEXT,
+                form_section::EXTRAS,
+                default: '',
+                twigable: true,
+                iscode: true,
+            ),
+            new field(
+                'prototypeextra',
+                field_kind::INHERITED,
+                field_type::TEXT,
+                form_section::EXTRAS,
+                default: '',
+                twigable: true,
+                iscode: true,
+            ),
 
             // New in CodeRunner 6: which test case fields the form offers.
             new field('showtestcode', field_kind::INHERITED, field_type::BOOLEAN, form_section::TESTCASEFIELDS,

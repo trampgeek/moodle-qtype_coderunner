@@ -45,6 +45,10 @@ final readonly class field {
      * @param bool $twigable true if the field is Twig expanded when twigall is set.
      * @param bool $incolumn true if the field is stored as a column of question_coderunner_options.
      * @param string[] $perlayerwith other fields that travel with this one, per layer, and cannot be separated from it.
+     * @param bool $iscode true if the field holds code or a JSON document, and
+     *      is therefore edited in Ace rather than in a plain textarea. Short
+     *      strings that merely happen to be typed as text, such as a filename
+     *      pattern, are not code.
      * @param string $labelstring the language string identifying this field's
      *      label, when it is not the field's own name. CodeRunner 5's form
      *      labels several fields under a group heading, so the control itself
@@ -73,6 +77,8 @@ final readonly class field {
         public array $perlayerwith = [],
         /** @var string The label's language string id, when not the field name. */
         public string $labelstring = '',
+        /** @var bool True if the field holds code or JSON and is edited in Ace. */
+        public bool $iscode = false,
     ) {
     }
 

@@ -117,15 +117,24 @@ final class settings_form_test extends \advanced_testcase {
     }
 
     /**
-     * Only fields with a column are offered. Support files and the test case
-     * field switches are handled elsewhere and would render as broken controls.
+     * Support files are not offered as an ordinary control, because they are a
+     * set of files and need a file manager.
+     *
+     * The exclusion is by type and not by whether the field has a column: the
+     * test case field switches have no column, living in the overrides
+     * document instead, and must still be offered.
      */
-    public function test_only_fields_with_a_column_are_offered(): void {
+    public function test_only_file_fields_are_left_out(): void {
+        $offered = [];
         foreach (form_section::cases() as $section) {
             foreach (settings_form::fields_of($section) as $name => $field) {
-                $this->assertTrue($field->incolumn, "Field $name has no column but is offered on a form.");
+                $this->assertNotSame(field_type::FILES, $field->type, "Field $name needs a file manager.");
+                $offered[] = $name;
             }
         }
+
+        $this->assertContains('showtestcode', $offered, 'A field with no column was wrongly left out.');
+        $this->assertNotContains('supportfiles', $offered);
     }
 
     /**
@@ -155,7 +164,10 @@ final class settings_form_test extends \advanced_testcase {
             $offered = array_merge($offered, array_keys(settings_form::fields_of($section)));
         }
 
-        $expected = array_keys(array_filter(field_registry::all(), fn($f) => $f->incolumn));
+        $expected = array_keys(array_filter(
+            field_registry::all(),
+            fn($f) => $f->type !== field_type::FILES
+        ));
 
         $this->assertSame([], array_values(array_diff($expected, $offered)));
     }
@@ -248,6 +260,54 @@ final class settings_form_test extends \advanced_testcase {
         $this->assertSame(
             '{"b": 2}',
             settings_form::inherited_value(field_registry::get('templateparams'), $inherited)
+        );
+    }
+
+    /**
+     * Code and JSON fields are marked as such, and short text fields are not.
+     *
+     * The mark decides which fields get an Ace editor, so a filename pattern
+     * acquiring one, or a template losing one, is a visible regression.
+     */
+    public function test_the_code_fields_are_the_ones_holding_code(): void {
+        $code = array_keys(array_filter(field_registry::all(), fn($f) => $f->iscode));
+
+        sort($code);
+        $this->assertSame([
+            'answer',
+            'answerpreload',
+            'globalextra',
+            'prototypeextra',
+            'resultcolumns',
+            'sandboxparams',
+            'template',
+            'templateparams',
+            'uiparameters',
+        ], $code);
+
+        $this->assertFalse(field_registry::get('filenamesregex')->iscode, 'A filename pattern is not code.');
+        $this->assertFalse(field_registry::get('penaltyregime')->iscode);
+    }
+
+    /**
+     * Asking for Ace registers the scripts and a wrapper for each code field
+     * on show, and touches nothing else.
+     *
+     * This runs the real path, so it fails if the question type renames
+     * load_ace() or the wrapper module — the coupling decision 22 records as
+     * undeclarable, and therefore worth a test.
+     */
+    public function test_requiring_ace_registers_the_question_types_wrapper(): void {
+        global $PAGE;
+
+        $this->resetAfterTest();
+        $PAGE->set_url('/');
+
+        settings_form::require_ace([form_section::TEMPLATE], 'python3');
+
+        $this->assertTrue(
+            method_exists(\qtype_coderunner_util::class, 'load_ace'),
+            'The question type no longer offers load_ace(), which the manager depends on.'
         );
     }
 }
