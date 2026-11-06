@@ -1,0 +1,253 @@
+<?php
+// This file is part of CodeRunner - http://coderunner.org.nz
+//
+// CodeRunner is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// CodeRunner is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Unit tests for the registry-driven settings form component.
+ *
+ * @package   qtype_coderunner
+ * @copyright 2026 Richard Lobb, The University of Canterbury
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace qtype_coderunner\v6;
+
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * The component turns a layer's overrides into form controls and the author's
+ * answer back into overrides. These tests cover the reading-back half, which is
+ * where the rule that reverting drops an override actually lives, and the
+ * registry-driven choices that decide what control each field gets.
+ */
+#[\PHPUnit\Framework\Attributes\CoversClass(settings_form::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(field_registry::class)]
+#[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
+final class settings_form_test extends \advanced_testcase {
+    /**
+     * A field whose override box is ticked is recorded with the submitted
+     * value.
+     */
+    public function test_a_ticked_field_becomes_an_override(): void {
+        $overrides = settings_form::overrides_from(
+            ['template' => 'MY TEMPLATE', 'override_template' => 1],
+            [form_section::TEMPLATE],
+            new override_set([], 'p')
+        );
+
+        $this->assertSame('MY TEMPLATE', $overrides->get('template'));
+    }
+
+    /**
+     * Clearing the box drops the override, and drops the stored value with it.
+     * This is the whole of the revert behaviour: nothing carries the old value
+     * forward, so an overrides document never holds a value that is not in
+     * effect.
+     */
+    public function test_clearing_the_box_drops_the_override_and_its_value(): void {
+        $before = new override_set(['template' => 'OLD TEMPLATE'], 'p');
+
+        $after = settings_form::overrides_from(
+            ['template' => 'OLD TEMPLATE', 'override_template' => 0],
+            [form_section::TEMPLATE],
+            $before
+        );
+
+        $this->assertFalse($after->has('template'));
+        $this->assertArrayNotHasKey('template', $after->to_array());
+    }
+
+    /**
+     * An empty string is a real override, not an absence. Blanking a field is
+     * how an author says "this prototype supplies nothing here", and it has to
+     * survive a round trip through the form.
+     */
+    public function test_an_empty_value_is_still_an_override(): void {
+        $overrides = settings_form::overrides_from(
+            ['template' => '', 'override_template' => 1],
+            [form_section::TEMPLATE],
+            new override_set([], 'p')
+        );
+
+        $this->assertTrue($overrides->has('template'));
+        $this->assertSame('', $overrides->get('template'));
+    }
+
+    /**
+     * A form that shows only some sections must not drop the overrides of the
+     * sections it did not show.
+     */
+    public function test_sections_that_were_not_shown_are_left_alone(): void {
+        $before = new override_set(['template' => 'KEEP ME', 'penaltyregime' => '0, 10, ...'], 'p');
+
+        $after = settings_form::overrides_from(
+            ['penaltyregime' => '20, 40, ...', 'override_penaltyregime' => 1],
+            [form_section::GRADING],
+            $before
+        );
+
+        $this->assertSame('KEEP ME', $after->get('template'), 'An unshown section lost its override.');
+        $this->assertSame('20, 40, ...', $after->get('penaltyregime'));
+    }
+
+    /**
+     * Values come back cast to the registry's type, so a checkbox's '1' is
+     * stored as an integer and compares equal to a resolved 1.
+     */
+    public function test_values_are_cast_to_the_registry_type(): void {
+        $overrides = settings_form::overrides_from(
+            ['allornothing' => '1', 'override_allornothing' => 1],
+            [form_section::GRADING],
+            new override_set([], 'p')
+        );
+
+        $this->assertSame(1, $overrides->get('allornothing'));
+    }
+
+    /**
+     * Only fields with a column are offered. Support files and the test case
+     * field switches are handled elsewhere and would render as broken controls.
+     */
+    public function test_only_fields_with_a_column_are_offered(): void {
+        foreach (form_section::cases() as $section) {
+            foreach (settings_form::fields_of($section) as $name => $field) {
+                $this->assertTrue($field->incolumn, "Field $name has no column but is offered on a form.");
+            }
+        }
+    }
+
+    /**
+     * Every field the component would render a select for can supply its
+     * values, and every field it would not must not claim to.
+     */
+    public function test_every_choice_field_has_values(): void {
+        foreach (field_registry::all() as $name => $field) {
+            $choices = field_registry::choices($name);
+            if ($field->type === field_type::CHOICE) {
+                $this->assertIsArray($choices, "Choice field $name supplied no values.");
+                $this->assertNotEmpty($choices, "Choice field $name supplied an empty list.");
+            } else {
+                $this->assertNull($choices, "Field $name is not a choice but supplied values.");
+            }
+        }
+    }
+
+    /**
+     * Between them the sections account for every field that has a column, so
+     * no field can be added to the registry and silently never appear on a
+     * form.
+     */
+    public function test_every_column_field_appears_in_some_section(): void {
+        $offered = [];
+        foreach (form_section::cases() as $section) {
+            $offered = array_merge($offered, array_keys(settings_form::fields_of($section)));
+        }
+
+        $expected = array_keys(array_filter(field_registry::all(), fn($f) => $f->incolumn));
+
+        $this->assertSame([], array_values(array_diff($expected, $offered)));
+    }
+
+    /**
+     * Every section renders without error, and each field ends up with an
+     * input, an override checkbox and a note of where its value comes from.
+     *
+     * This exercises the half the other tests do not: that each registry type
+     * maps to an element MoodleQuickForm actually has, that the help buttons
+     * reference strings that exist, and that disabledIf accepts the pairing.
+     * Those fail at render time, not at read-back.
+     */
+    public function test_every_section_renders(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->resetAfterTest();
+
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['template' => 'INHERITED', 'uiplugin' => 'ace', 'sandbox' => 'DEFAULT'],
+        ])->resolve();
+        $own = new override_set(['template' => 'MINE'], 'the question');
+
+        $rendered = 0;
+        foreach (form_section::cases() as $section) {
+            $fields = settings_form::fields_of($section);
+            if (!$fields) {
+                continue;
+            }
+
+            $mform = new \MoodleQuickForm('test', 'post', '');
+            settings_form::add_section($mform, $section, $inherited, $own);
+
+            foreach ($fields as $name => $field) {
+                $this->assertTrue(
+                    $mform->elementExists($name . '_group'),
+                    "Field $name rendered no control in section {$section->value}."
+                );
+                $this->assertTrue(
+                    $mform->elementExists($name . '_source'),
+                    "Field $name rendered no provenance note."
+                );
+                $rendered++;
+            }
+        }
+
+        $this->assertGreaterThan(30, $rendered, 'Far fewer fields rendered than the registry holds.');
+    }
+
+    /**
+     * An inherited field offers the value it would inherit, not an empty box,
+     * so that clearing the override shows what the field falls back to rather
+     * than going blank.
+     */
+    public function test_an_inherited_field_offers_the_inherited_value(): void {
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['penaltyregime' => '10, 20, ...'],
+        ])->resolve();
+
+        $this->assertSame(
+            '10, 20, ...',
+            settings_form::inherited_value(field_registry::get('penaltyregime'), $inherited)
+        );
+    }
+
+    /**
+     * A field no layer sets falls back to the registry default, so the box
+     * shows what CodeRunner would actually use.
+     */
+    public function test_an_unset_field_offers_the_registry_default(): void {
+        $inherited = prototype_chain::from_arrays([['template' => 'T']])->resolve();
+
+        $this->assertSame(
+            'EqualityGrader',
+            settings_form::inherited_value(field_registry::get('grader'), $inherited)
+        );
+    }
+
+    /**
+     * A collected field has no single inherited value, since every layer
+     * contributes. The nearest contribution is what the box shows.
+     */
+    public function test_a_collected_field_offers_the_nearest_contribution(): void {
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['templateparams' => '{"a": 1}'],
+            'python3_scratchpad' => ['templateparams' => '{"b": 2}'],
+        ])->resolve();
+
+        $this->assertSame(
+            '{"b": 2}',
+            settings_form::inherited_value(field_registry::get('templateparams'), $inherited)
+        );
+    }
+}

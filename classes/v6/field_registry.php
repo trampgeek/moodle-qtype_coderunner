@@ -24,6 +24,8 @@
 
 namespace qtype_coderunner\v6;
 
+use qtype_coderunner\constants;
+
 /**
  * The schema of a CodeRunner question: which fields exist, which of them a
  * prototype can supply, how a layer's value combines with an inherited one,
@@ -86,6 +88,85 @@ class field_registry {
             'prototypeid' => 'the prototype whose chain the question resolves against',
             'overrides' => 'what the question overrides of that chain, as a JSON document',
         ];
+    }
+
+    /**
+     * The values a CHOICE field may take, as value => label.
+     *
+     * These live here rather than in the forms because the registry is meant to
+     * describe a field completely: a form that has to know, on its own, what
+     * `precheck` may be set to is a second place the field is defined. The
+     * question form built each of these inline, which is why the same list had
+     * to be written again for the prototype editor.
+     *
+     * Built on demand rather than in the field table, because the labels need
+     * get_string() and the UI plugin list is discovered from the plugins
+     * present, neither of which belongs in a static definition.
+     *
+     * @param string $name the field name.
+     * @return array|null value => label, or null if the field is not a choice.
+     */
+    public static function choices($name) {
+        $field = self::get($name);
+        if ($field->type !== field_type::CHOICE) {
+            return null;
+        }
+
+        switch ($name) {
+            case 'precheck':
+                return [
+                    constants::PRECHECK_DISABLED => get_string('precheck_disabled', 'qtype_coderunner'),
+                    constants::PRECHECK_EMPTY => get_string('precheck_empty', 'qtype_coderunner'),
+                    constants::PRECHECK_EXAMPLES => get_string('precheck_examples', 'qtype_coderunner'),
+                    constants::PRECHECK_SELECTED => get_string('precheck_selected', 'qtype_coderunner'),
+                    constants::PRECHECK_ALL => get_string('precheck_all', 'qtype_coderunner'),
+                ];
+
+            case 'displayfeedback':
+                return [
+                    constants::FEEDBACK_USE_QUIZ => get_string('feedback_quiz', 'qtype_coderunner'),
+                    constants::FEEDBACK_SHOW => get_string('feedback_show', 'qtype_coderunner'),
+                    constants::FEEDBACK_HIDE => get_string('feedback_hide', 'qtype_coderunner'),
+                ];
+
+            case 'giveupallowed':
+                return [
+                    constants::GIVEUP_NEVER => get_string('giveup_never', 'qtype_coderunner'),
+                    constants::GIVEUP_AFTER_MAX_MARKS => get_string('giveup_aftermaxmarks', 'qtype_coderunner'),
+                    constants::GIVEUP_ALWAYS => get_string('giveup_always', 'qtype_coderunner'),
+                ];
+
+            case 'templateparamslang':
+                // The value None means the parameters are already JSON and
+                // are used as they stand. The rest are evaluated, Twig in process and the
+                // others on the sandbox server.
+                return [
+                    'None' => 'None',
+                    'twig' => 'Twig',
+                    'python3' => 'Python3',
+                    'c' => 'C',
+                    'cpp' => 'C++',
+                    'java' => 'Java',
+                    'php' => 'php',
+                    'octave' => 'Octave',
+                    'pascal' => 'Pascal',
+                ];
+
+            case 'uiplugin':
+                return \qtype_coderunner_ui_plugins::get_instance()->dropdownlist();
+
+            case 'sandbox':
+                // DEFAULT means "whichever sandbox claims the language", which
+                // is what almost every question wants.
+                $sandboxes = ['DEFAULT' => 'DEFAULT'];
+                foreach (array_keys(\qtype_coderunner_sandbox::enabled_sandboxes()) as $name) {
+                    $sandboxes[$name] = $name;
+                }
+                return $sandboxes;
+
+            default:
+                throw new \coding_exception("Field '$name' is a choice but the registry lists no values for it.");
+        }
     }
 
     /**
@@ -249,14 +330,42 @@ class field_registry {
             ),
             new field('precheck', field_kind::INHERITED, field_type::CHOICE, form_section::GRADING, default: 0),
             new field('hidecheck', field_kind::INHERITED, field_type::BOOLEAN, form_section::GRADING, default: 0),
-            new field('displayfeedback', field_kind::INHERITED, field_type::CHOICE, form_section::GRADING, default: 1, labelstring: 'feedback'),
-            new field('giveupallowed', field_kind::INHERITED, field_type::CHOICE, form_section::GRADING, default: 0, labelstring: 'giveup'),
+            new field(
+                'displayfeedback',
+                field_kind::INHERITED,
+                field_type::CHOICE,
+                form_section::GRADING,
+                default: 1,
+                labelstring: 'feedback',
+            ),
+            new field(
+                'giveupallowed',
+                field_kind::INHERITED,
+                field_type::CHOICE,
+                form_section::GRADING,
+                default: 0,
+                labelstring: 'giveup',
+            ),
 
             // User interface.
-            new field('uiplugin', field_kind::INHERITED, field_type::CHAR, form_section::UI, default: 'ace', labelstring: 'student_answer'),
+            new field(
+                'uiplugin',
+                field_kind::INHERITED,
+                field_type::CHOICE,
+                form_section::UI,
+                default: 'ace',
+                labelstring: 'student_answer',
+            ),
             new field('useace', field_kind::INHERITED, field_type::BOOLEAN, form_section::UI, default: 1),
             new field('answerboxlines', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 18),
-            new field('attachments', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 0, labelstring: 'allowattachments'),
+            new field(
+                'attachments',
+                field_kind::INHERITED,
+                field_type::INTEGER,
+                form_section::UI,
+                default: 0,
+                labelstring: 'allowattachments',
+            ),
             new field('attachmentsrequired', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 0),
             new field('maxfilesize', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 0),
             new field('filenamesregex', field_kind::INHERITED, field_type::TEXT, form_section::UI, default: ''),
@@ -275,10 +384,23 @@ class field_registry {
 
             // Sandbox, languages and limits.
             new field('language', field_kind::INHERITED, field_type::CHAR, form_section::SANDBOX, default: ''),
-            new field('acelang', field_kind::INHERITED, field_type::CHAR, form_section::SANDBOX, default: '', labelstring: 'ace-language'),
-            new field('sandbox', field_kind::INHERITED, field_type::CHAR, form_section::SANDBOX),
+            new field(
+                'acelang',
+                field_kind::INHERITED,
+                field_type::CHAR,
+                form_section::SANDBOX,
+                default: '',
+                labelstring: 'ace-language',
+            ),
+            new field('sandbox', field_kind::INHERITED, field_type::CHOICE, form_section::SANDBOX),
             new field('sandboxparams', field_kind::INHERITED, field_type::JSON, form_section::SANDBOX),
-            new field('cputimelimitsecs', field_kind::INHERITED, field_type::INTEGER, form_section::SANDBOX, labelstring: 'cputime'),
+            new field(
+                'cputimelimitsecs',
+                field_kind::INHERITED,
+                field_type::INTEGER,
+                form_section::SANDBOX,
+                labelstring: 'cputime',
+            ),
             new field('memlimitmb', field_kind::INHERITED, field_type::INTEGER, form_section::SANDBOX, labelstring: 'memorylimit'),
 
             // Extras.

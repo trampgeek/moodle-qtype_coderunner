@@ -166,6 +166,6 @@ final readonly class field {
      * @return string the string identifier.
      */
     public function help_string_id(): string {
-        return $this->name . '_help';
+        return $this->label_string_id() . '_help';
     }
 }

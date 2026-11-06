@@ -1146,6 +1146,9 @@ $string['run_failed'] = 'Failed to run tests';
 
 $string['sampleanswerattachments'] = 'Sample answer attachments';
 $string['sampleanswerattachments_help'] = 'If the sample answer needs attachments files, upload them here';
+$string['inheritedfrom'] = 'Inherited from {$a}';
+$string['inheritedfromdefault'] = 'CodeRunner default';
+$string['overridethisfield'] = 'Override';
 $string['sandbox'] = 'Sandbox';
 $string['showexpected'] = 'Offer an expected-output field';
 $string['showstdin'] = 'Offer a standard input field';
