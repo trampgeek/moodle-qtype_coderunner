@@ -100,6 +100,15 @@ class qtype_coderunner_question extends question_graded_automatically {
      * that a field is stored in one place whether it came from the question's
      * own column, from a prototype, or from a Twig expansion.
      */
+    /**
+     * @var string The qt_var holding a signature of every layer's raw template
+     * parameters, so that a change to any of them is detected.
+     */
+    const PARAMS_SIGNATURE_VAR = '_template_params_sig';
+
+    /** @var string The qt_var holding the merged, evaluated template parameters. */
+    const PARAMS_JSON_VAR = '_template_params_json';
+
     private $fieldvalues = [];
 
     /**
@@ -127,6 +136,17 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     /** @var ?string What this question overrides of that chain, as a JSON document. */
     public $overrides;
+
+    /**
+     * @var ?array Each layer of the resolved prototype chain, root first, with
+     * what it contributes to the collected fields. Null when the question was
+     * not loaded through get_question_options(), which is the authoring form
+     * and the test helpers.
+     */
+    public $chainlayers;
+
+    /** @var ?array The file areas the chain's support files are merged from, root first. */
+    public $supportfileareas;
 
     /** @var string The evaluated template parameters (JSON). */
     public $templateparamsevald;
@@ -336,7 +356,13 @@ class qtype_coderunner_question extends question_graded_automatically {
     // If this happens, we display a message at the start of the question.
     //
     public function evaluate_question_for_display($seed, $step) {
-        $this->get_prototype();
+        if (!is_array($this->chainlayers)) {
+            // Only the authoring form and the test helpers reach this, and only
+            // they still need a CodeRunner 5 prototype object. A question loaded
+            // for an attempt has its chain resolved already, so this no longer
+            // runs the five-table prototype lookup on every page load.
+            $this->get_prototype();
+        }
         $this->initialisationerrormessage = '';
         try {
             $this->templateparamsjson = $this->evaluate_merged_parameters($seed, $step);
@@ -388,60 +414,146 @@ class qtype_coderunner_question extends question_graded_automatically {
      */
 
     public function evaluate_merged_parameters($seed, $step = null) {
-        assert(isset($this->templateparams));
-        $paramsjson = $this->template_params_json($seed, $step, '_template_params');
-        $prototype = $this->prototype;
-        if ($prototype !== null && !is_array($prototype) &&  $this->prototypetype == 0) {
-            // Merge with prototype parameters (unless this is a prototype or prototype is missing/multiple).
-            $prototype->student = $this->student; // Supply this missing attribute.
-            $prototype->quiz = $this->quiz; // And this one.
-            $prototypeparamsjson = $prototype->template_params_json($seed, $step, '_prototype__template_params');
-            $paramsjson = qtype_coderunner_util::merge_json($prototypeparamsjson, $paramsjson);
+        $layers = $this->parameter_layers();
+
+        if ($step === null) {
+            // Step is null when validating a question, so always evaluate.
+            return $this->evaluate_parameter_layers($layers, $seed);
         }
 
-        if (empty($paramsjson)) {
-            $paramsjson = '{}';
+        // One signature over every layer, rather than one md5 per layer. A
+        // layer's parameters cannot be cached under a name of their own:
+        // question_attempt_step_data.name is char(32), and the CodeRunner 5
+        // name `_prototype__template_params_json` is already exactly 32
+        // characters, so there is no room for a per-layer suffix. The signature
+        // covers each layer's raw parameters and language, and the chain's
+        // layer labels, so that inserting a prototype which contributes no
+        // parameters of its own still counts as a change.
+        $signature = $this->parameter_layers_signature($layers);
+        if ($step->get_qt_var(self::PARAMS_SIGNATURE_VAR) === $signature) {
+            return $step->get_qt_var(self::PARAMS_JSON_VAR);
         }
 
+        $paramsjson = $this->evaluate_parameter_layers($layers, $seed);
+        if (!is_a($step, 'question_attempt_step_read_only')) {
+            $step->set_qt_var(self::PARAMS_SIGNATURE_VAR, $signature);
+            $step->set_qt_var(self::PARAMS_JSON_VAR, $paramsjson);
+        }
         return $paramsjson;
     }
 
     /**
-     * Evaluate the template parameter field for this question alone (i.e.
-     * not including its prototype).
-     * Note: the prototype is also a question and will cache it's own jsontemplateparams
-     *       eg, we call $prototype->template_params_json(..,.., '_prototype_template_params') in
-     *           the evaulate_merged_parameters method.
+     * The layers whose template parameters are merged, root first.
      *
-     * @param int $seed the random number seed for this instance of the question
-     * @param question_attempt_step $step the current attempt step
-     * @param string $qtvar the base name of a qt_variable in which to record
-     * the md5 hash of the current template parameters (with suffix '_md5') and the evaluated
-     * json (with suffix '_json').
-     * @return string The Json template parameters.
+     * Normally these come from the resolved prototype chain, recorded in the
+     * question's options by qtype_coderunner::resolve_inherited_fields() so
+     * that reading them needs no database access.
+     *
+     * When they are absent the question was not loaded through
+     * get_question_options() — the authoring form builds a question object
+     * straight from submitted form data, and so do the test helpers. Those
+     * paths still carry a CodeRunner 5 prototype object, so the two-layer
+     * CodeRunner 5 arrangement is reconstructed from it. That fallback goes
+     * when the form does, in M7.
+     *
+     * @return array list of ['templateparams' => string, 'templateparamslang' =>
+     *      string, 'source' => string, 'evald' => ?string], root first.
      */
-    public function template_params_json($seed = 0, $step = null, $qtvar = '') {
-        $params = $this->templateparams;
-        $lang = $this->templateparamslang;
-        if ($step === null) {
-            // Step is null when validating question so evaluate params.
-            $jsontemplateparams = $this->evaluate_template_params($params, $lang, $seed);
-        } else {
-            $previousparamsmd5 = $step->get_qt_var($qtvar . '_md5');
-            $currentparamsmd5 = md5($params);
-            if ($previousparamsmd5 === $currentparamsmd5) {
-                $jsontemplateparams = $step->get_qt_var($qtvar . '_json');
-            } else {
-                $jsontemplateparams = $this->evaluate_template_params($params, $lang, $seed);
-                if (!is_a($step, 'question_attempt_step_read_only')) {
-                    $step->set_qt_var($qtvar . '_md5', $currentparamsmd5);
-                    $step->set_qt_var($qtvar . '_json', $jsontemplateparams);
-                }
+    private function parameter_layers() {
+        $layers = [];
+
+        if (is_array($this->chainlayers)) {
+            foreach ($this->chainlayers as $layer) {
+                $layers[] = [
+                    'templateparams' => (string) $layer['templateparams'],
+                    'templateparamslang' => (string) $layer['templateparamslang'],
+                    'source' => $layer['source'],
+                    // Only the question has a saved evaluation of its own
+                    // parameters; see evaluate_parameter_layers().
+                    'evald' => $layer['source'] === qtype_coderunner::QUESTION_LAYER
+                        ? $this->templateparamsevald
+                        : null,
+                ];
             }
+            return $layers;
         }
-        return $jsontemplateparams;
+
+        $prototype = $this->prototype;
+        if (is_object($prototype) && $this->prototypetype == 0) {
+            $layers[] = [
+                'templateparams' => (string) $prototype->templateparams,
+                'templateparamslang' => (string) $prototype->templateparamslang,
+                'source' => 'prototype',
+                'evald' => $prototype->templateparamsevald,
+            ];
+        }
+        $layers[] = [
+            'templateparams' => (string) $this->templateparams,
+            'templateparamslang' => (string) $this->templateparamslang,
+            'source' => qtype_coderunner::QUESTION_LAYER,
+            'evald' => $this->templateparamsevald,
+        ];
+        return $layers;
     }
 
+    /**
+     * This question's own template parameters, evaluated, excluding every layer
+     * it inherits from.
+     *
+     * The authoring form reports on what a question itself declares, separately
+     * from what it inherits — for instance when warning that a template
+     * parameter is being used as a UI parameter. The merged value for the whole
+     * chain comes from evaluate_merged_parameters() instead.
+     *
+     * @param int $seed the random number seed for this instance of the question.
+     * @return string the JSON template parameters.
+     */
+    public function template_params_json($seed = 0) {
+        return $this->evaluate_template_params(
+            (string) $this->templateparams,
+            (string) $this->templateparamslang,
+            $seed,
+            $this->templateparamsevald
+        );
+    }
+
+    /**
+     * A signature of everything that can change the merged parameters.
+     *
+     * @param array $layers the layers, from parameter_layers().
+     * @return string the signature.
+     */
+    private function parameter_layers_signature(array $layers) {
+        $parts = [];
+        foreach ($layers as $layer) {
+            $parts[] = $layer['source'] . "\0" . $layer['templateparamslang'] . "\0" . $layer['templateparams'];
+        }
+        return md5(implode("\1", $parts));
+    }
+
+    /**
+     * Evaluate each layer's template parameters in that layer's own language
+     * and merge them, the nearest layer winning.
+     *
+     * @param array $layers the layers, root first, from parameter_layers().
+     * @param int $seed the random number seed for this attempt.
+     * @return string the merged JSON.
+     */
+    private function evaluate_parameter_layers(array $layers, $seed) {
+        $paramsjson = '';
+        foreach ($layers as $layer) {
+            $layerjson = $this->evaluate_template_params(
+                $layer['templateparams'],
+                $layer['templateparamslang'],
+                $seed,
+                $layer['evald']
+            );
+            $paramsjson = $paramsjson === ''
+                ? $layerjson
+                : qtype_coderunner_util::merge_json($paramsjson, $layerjson);
+        }
+        return $paramsjson === '' ? '{}' : $paramsjson;
+    }
 
     // Evaluate the given template parameters in the context of the given random
     // number seed. Return value is a json string.
@@ -454,10 +566,14 @@ class qtype_coderunner_question extends question_graded_automatically {
      * @return string The evaluated JSON string or an error message (which won't be
      * valid json).
      */
-    public function evaluate_template_params($templateparams, $lang, $seed) {
+    public function evaluate_template_params($templateparams, $lang, $seed, $evald = null) {
+        // The memo has to include the parameters themselves. Two layers of a
+        // chain commonly share a language and always share the seed, so a memo
+        // keyed on those alone would hand one layer another's result.
+        $memokey = ['params' => md5((string) $templateparams), 'lang' => $lang, 'seed' => $seed];
         if (
             isset($this->cachedfuncparams) &&
-                $this->cachedfuncparams === ['lang' => $lang, 'seed' => $seed]
+                $this->cachedfuncparams === $memokey
         ) {
             // Use previously cached result if possible.
 
@@ -474,13 +590,17 @@ class qtype_coderunner_question extends question_graded_automatically {
                 } catch (\Twig\Error\Error $e) {
                     throw new qtype_coderunner_bad_json_exception($e->getMessage());
                 }
-            } else if (!$this->templateparamsevalpertry && !empty($this->templateparamsevald)) {
-                $jsontemplateparams = $this->templateparamsevald;
+            } else if (!$this->templateparamsevalpertry && !empty($evald)) {
+                // A copy evaluated when the question was saved, which only the
+                // question layer has: a prototype's parameters are evaluated
+                // live, since a prototype is no longer a question and has no
+                // column to keep one in.
+                $jsontemplateparams = $evald;
             } else {
                 $jsontemplateparams = $this->evaluate_template_params_on_jobe($templateparams, $lang, $seed);
             }
             // Cache in this to avoid multiple evaluations during question editing and validation.
-            $this->cachedfuncparams = ['lang' => $lang, 'seed' => $seed];
+            $this->cachedfuncparams = $memokey;
             $this->cachedevaldtemplateparams = $jsontemplateparams;
         }
         return $jsontemplateparams;
@@ -575,10 +695,30 @@ class qtype_coderunner_question extends question_graded_automatically {
     private function evaluate_merged_ui_parameters() {
         $uiplugin = $this->uiplugin === null ? 'ace' : strtolower($this->uiplugin);
         $uiparams = new qtype_coderunner_ui_parameters($uiplugin);
-        // Merge prototype's UI parameters unless prototype is missing or UI plugin has changed.
-        if (isset($this->prototype->uiparameters) && strtolower($this->prototype->uiplugin) === $uiplugin) {
+
+        // Every layer above the question, root first, so a nearer prototype
+        // overrides a more distant one. A layer counts only if the UI plugin in
+        // force at that point in the chain is the one finally resolved:
+        // parameters meant for the graph UI must not be handed to Ace.
+        if (is_array($this->chainlayers)) {
+            foreach ($this->chainlayers as $layer) {
+                if ($layer['source'] === qtype_coderunner::QUESTION_LAYER) {
+                    continue;  // The question's own are merged last, below.
+                }
+                if ($layer['uiparameters'] === null || $layer['uiparameters'] === '') {
+                    continue;
+                }
+                if (strtolower((string) $layer['uiplugin']) !== $uiplugin) {
+                    continue;
+                }
+                $uiparams->merge_json($layer['uiparameters']);
+            }
+        } else if (isset($this->prototype->uiparameters) && strtolower($this->prototype->uiplugin) === $uiplugin) {
+            // The authoring form and the test helpers, which build a question
+            // without resolving a chain. Removed with the form, in M7.
             $uiparams->merge_json($this->prototype->uiparameters);
         }
+
         $uiparams->merge_json($this->templateparamsjson, true); // Legacy support.
         $uiparams->merge_json($this->uiparameters);
         return $uiparams->updated_params();
@@ -1317,15 +1457,55 @@ class qtype_coderunner_question extends question_graded_automatically {
     // prototype. This does not include files attached to the answer.
     // Returns an associative array mapping filenames to filecontents.
     public function get_files() {
-        if ($this->prototypetype != 0) { // Is this a prototype question?
-            $files = []; // Don't load the files twice.
+        $files = [];
+
+        if ($this->prototypetype != 0) {
+            // A legacy prototype question: its own files are added below, and
+            // it inherits none.
+            $files = [];
+        } else if (is_array($this->supportfileareas)) {
+            // Merged by filename along the chain, root first, so the nearest
+            // layer's copy of a file wins. The areas were resolved when the
+            // question was loaded, so no prototype table is read here.
+            foreach ($this->supportfileareas as $area) {
+                $files = array_merge($files, self::files_in_area($area['contextid'], $area['itemid']));
+            }
         } else {
-            // Load any files from the prototype.
+            // The authoring form and the test helpers; see
+            // evaluate_merged_ui_parameters(). Removed with the form, in M7.
             $this->get_prototype();
             $files = self::get_support_files($this->prototype);
         }
+
         $files = array_merge($files, self::get_support_files($this));  // Add in files for this question.
         return $files;
+    }
+
+    /**
+     * The support files one prototype version holds, by filename.
+     *
+     * @param int $contextid the context the version's files live in.
+     * @param int $itemid the version id, which is the file area's item id.
+     * @return array filename => file contents.
+     */
+    private static function files_in_area($contextid, $itemid) {
+        $filemap = [];
+        $fs = get_file_storage();
+        $files = $fs->get_area_files(
+            $contextid,
+            \local_coderunner_manager\prototype_repository::COMPONENT,
+            \local_coderunner_manager\prototype_repository::FILEAREA,
+            $itemid,
+            '',
+            false
+        );
+        foreach ($files as $f) {
+            $name = $f->get_filename();
+            if ($name !== '.') {
+                $filemap[$name] = $f->get_content();
+            }
+        }
+        return $filemap;
     }
 
 

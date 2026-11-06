@@ -578,11 +578,8 @@ class qtype_coderunner extends question_type {
     protected function resolve_inherited_fields($question, $options) {
         $options->customise = false;
 
-        // Still loaded by name, and only to merge the collected fields: the
-        // per-layer template parameters, UI parameters and support files. That
-        // is the last use of the legacy lookup on this path and it goes when
-        // those merges move onto the chain.
-        $prototype = null;
+        $options->chainlayers = null;
+        $options->supportfileareas = [];
 
         if (empty($options->prototypeid)) {
             $question->prototype = null;
@@ -590,7 +587,8 @@ class qtype_coderunner extends question_type {
         }
 
         try {
-            $chain = (new \local_coderunner_manager\prototype_repository())->chain_for(
+            $repository = new \local_coderunner_manager\prototype_repository();
+            $chain = $repository->chain_for(
                 $options->prototypeid,
                 new \qtype_coderunner\v6\override_set(
                     json_decode($options->overrides ?? '{}', true) ?: [],
@@ -626,8 +624,48 @@ class qtype_coderunner extends question_type {
             }
         }
 
-        $prototype = $this->get_prototype($options->coderunnertype, $this->question_context($question));
-        $question->prototype = is_object($prototype) ? $prototype : null;
+        // Everything the collected fields need, resolved here so that the
+        // attempt path can merge them without reading a prototype table
+        // (decision 16). Template parameters have to be evaluated in each
+        // layer's own language before they can be merged, and a layer's UI
+        // parameters count only if that layer's UI plugin is the resolved one,
+        // so each layer is recorded rather than reduced to a single value.
+        $options->chainlayers = $this->chain_layers($chain);
+        $options->supportfileareas = $repository->file_areas_for($options->prototypeid);
+
+        // Nothing on the attempt path needs the CodeRunner 5 prototype
+        // question any more. The authoring form still sets this for itself,
+        // and stops in M7.
+        $question->prototype = null;
+    }
+
+    /**
+     * Each layer of a chain, with what it contributes to the collected fields.
+     *
+     * @param \qtype_coderunner\v6\prototype_chain $chain the resolved chain.
+     * @return array list of layer descriptions, root first.
+     */
+    public function chain_layers($chain) {
+        $layers = [];
+        $uiplugin = null;
+
+        foreach ($chain->layers() as $layer) {
+            if ($layer->has('uiplugin')) {
+                // The UI plugin in force at this point in the chain, which is
+                // what decides whether this layer's UI parameters apply.
+                $uiplugin = $layer->get('uiplugin');
+            }
+            $layers[] = [
+                'source' => $layer->source,
+                'templateparams' => $layer->has('templateparams') ? $layer->get('templateparams') : '',
+                'templateparamslang' => $layer->has('templateparamslang')
+                    ? $layer->get('templateparamslang')
+                    : \qtype_coderunner\v6\field_registry::get('templateparamslang')->default,
+                'uiparameters' => $layer->has('uiparameters') ? $layer->get('uiparameters') : null,
+                'uiplugin' => $uiplugin,
+            ];
+        }
+        return $layers;
     }
 
     /**
