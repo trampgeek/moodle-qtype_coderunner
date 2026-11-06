@@ -203,10 +203,20 @@ final class settings_form_test extends \advanced_testcase {
             settings_form::add_section($mform, $section, $inherited, $own);
 
             foreach ($fields as $name => $field) {
+                // A code field is added on its own so that Ace styles it
+                // correctly; everything else is grouped with its override box.
                 $this->assertTrue(
-                    $mform->elementExists($name . '_group'),
+                    $mform->elementExists($field->iscode ? $name : $name . '_group'),
                     "Field $name rendered no control in section {$section->value}."
                 );
+                if ($field->iscode) {
+                    // Only a code field's override box is a top-level element;
+                    // the others live inside their group.
+                    $this->assertTrue(
+                        $mform->elementExists(settings_form::OVERRIDE_PREFIX . $name),
+                        "Field $name rendered no override control."
+                    );
+                }
                 $this->assertTrue(
                     $mform->elementExists($name . '_source'),
                     "Field $name rendered no provenance note."

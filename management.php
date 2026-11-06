@@ -207,6 +207,16 @@ display_category(
 );
 echo html_writer::start_tag('div', ['class' => 'row']);
 
+// The prototype manager is a separate plugin, which the question type declares
+// as a dependency, so it is always present.
+display_tool_card(
+    get_string('mgmt_tool_prototypemanager_title', 'qtype_coderunner'),
+    get_string('mgmt_tool_prototypemanager_desc', 'qtype_coderunner'),
+    '/local/coderunner_manager/index.php' . ($courseid ? '?courseid=' . $courseid : ''),
+    'fa fa-sitemap',
+    'primary'
+);
+
 display_tool_card(
     get_string('mgmt_tool_prototypeusage_title', 'qtype_coderunner'),
     get_string('mgmt_tool_prototypeusage_desc', 'qtype_coderunner'),

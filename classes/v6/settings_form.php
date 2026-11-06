@@ -108,23 +108,39 @@ class settings_form {
         $overridename = self::OVERRIDE_PREFIX . $name;
         $isoverridden = $own->has($field);
 
-        $group = [
-            self::input_element($mform, $field),
-            $mform->createElement(
-                'advcheckbox',
-                $overridename,
-                '',
-                get_string('overridethisfield', 'qtype_coderunner')
-            ),
-        ];
-        $mform->addGroup($group, $name . '_group', $field->label(), '&nbsp;&nbsp;&nbsp;', false);
+        $override = $mform->createElement(
+            'advcheckbox',
+            $overridename,
+            '',
+            get_string('overridethisfield', 'qtype_coderunner')
+        );
+
+        if ($field->iscode) {
+            // A code field is added on its own rather than in a group.
+            // CodeRunner positions Ace's full-screen control against the
+            // textarea's own container, and a group wrapper leaves it half
+            // visible in the corner. The author form adds its code textareas
+            // the same way, as plain elements, which is why they look right.
+            $mform->addElement(self::input_element($mform, $field));
+            $mform->addElement($override);
+            $helpanchor = $name;
+        } else {
+            $mform->addGroup(
+                [self::input_element($mform, $field), $override],
+                $name . '_group',
+                $field->label(),
+                '&nbsp;&nbsp;&nbsp;',
+                false
+            );
+            $helpanchor = $name . '_group';
+        }
 
         if ($field->help() !== null) {
             // Moodle's help icon appends '_help' itself and needs the plain
             // identifier to exist as well, so the two strings must share a
             // base. Passing help_string_id() here would send it looking for
             // '<field>_help_help'.
-            $mform->addHelpButton($name . '_group', $field->help_identifier(), 'qtype_coderunner');
+            $mform->addHelpButton($helpanchor, $field->help_identifier(), 'qtype_coderunner');
         }
 
         // The input shows the author's value when they have one, and otherwise
@@ -166,6 +182,8 @@ class settings_form {
             ]);
         }
         if ($field->type === field_type::TEXT || $field->type === field_type::JSON) {
+            // A code field carries its own label, since it is not in a group.
+            $label = $field->iscode ? $field->label() : '';
             $attributes = ['rows' => $field->iscode ? 12 : 2, 'cols' => 80];
             if ($field->iscode) {
                 // Read by the UI wrapper when Ace is attached; see
@@ -176,7 +194,7 @@ class settings_form {
                 $attributes['data-lang'] = self::ace_language($field);
                 $attributes['class'] = 'edit_code';
             }
-            return $mform->createElement('textarea', $name, '', $attributes);
+            return $mform->createElement('textarea', $name, $label, $attributes);
         }
         if ($field->type === field_type::INTEGER) {
             return $mform->createElement('text', $name, '', ['size' => 6]);
@@ -202,7 +220,11 @@ class settings_form {
         $source = $inherited->was_set($field) ? $inherited->source_of($field) : null;
         $text = $source === null
             ? get_string('inheritedfromdefault', 'qtype_coderunner')
-            : get_string('inheritedfrom', 'qtype_coderunner', $source);
+            : get_string('inheritedfrom', 'qtype_coderunner', self::layer_name($source));
+
+        if (in_array(self::inherited_value($field, $inherited), [null, ''], true)) {
+            $text .= ' ' . get_string('inheritednotset', 'qtype_coderunner');
+        }
 
         $mform->addElement(
             'static',
@@ -210,6 +232,20 @@ class settings_form {
             '',
             \html_writer::tag('small', $text, ['class' => 'text-muted'])
         );
+    }
+
+    /**
+     * A layer's name as an author knows it.
+     *
+     * The stored label carries the prototype's id, so that two prototypes of
+     * the same name in different courses stay distinct when a chain is checked
+     * for cycles. The id means nothing to an author and is dropped here.
+     *
+     * @param string $source the stored layer label.
+     * @return string the name.
+     */
+    protected static function layer_name(string $source): string {
+        return preg_replace('/@\\d+$/', '', $source);
     }
 
     /**
