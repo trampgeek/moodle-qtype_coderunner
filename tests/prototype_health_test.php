@@ -262,6 +262,7 @@ final class prototype_health_test extends \qtype_coderunner_testcase {
     private function save_in_course(object $form): object {
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $category = $generator->create_question_category(['contextid' => $this->bankcontextid]);
+        $form = $this->form_data_from_question($form);
         $form->category = $category->id;
         $form->contextid = $category->contextid;
 

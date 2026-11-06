@@ -167,6 +167,8 @@ EOTEMPLATE;
     <displayfeedback>1</displayfeedback>
     <giveupallowed>0</giveupallowed>
     <prototypeextra></prototypeextra>
+    <prototypeid></prototypeid>
+    <overrides></overrides>
     <testcases>
       <testcase testtype="0" useasexample="0" hiderestiffail="0" mark="1.0000000" >
       <testcode>
@@ -256,7 +258,11 @@ Line 2</text>
         \test_question_maker::initialise_a_question($row);
         $row->qtype = 'coderunner';
         $qtype = new \qtype_coderunner();
-        $qtype->save_question($row, $q);
+        $form = $this->form_data_from_question($q);
+        $qtype->save_question($row, $form);
+        // save_question() records the new id on the form, and the file
+        // attachment below needs it.
+        $q->id = $form->id;
 
         if ($fileattachmentreqd) {
             // Attach a file to this new prototype question.

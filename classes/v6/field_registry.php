@@ -67,6 +67,28 @@ class field_registry {
     }
 
     /**
+     * Columns of question_coderunner_options that carry the resolution itself,
+     * rather than a field the resolution produces.
+     *
+     * They are neither registry fields nor legacy: `prototypeid` says which
+     * chain a question resolves against and `overrides` is what the question
+     * contributes to it, so they are the inputs resolution reads and not values
+     * it resolves. Unlike the legacy columns they are not dropped in phase 4.
+     *
+     * Listed here so that the completeness check over
+     * extra_question_fields_static() can account for every column, and so that
+     * neither can be mistaken for a field and given a merge rule.
+     *
+     * @return array column name => what it holds.
+     */
+    public static function resolution_columns() {
+        return [
+            'prototypeid' => 'the prototype whose chain the question resolves against',
+            'overrides' => 'what the question overrides of that chain, as a JSON document',
+        ];
+    }
+
+    /**
      * Every field, keyed by name.
      *
      * @return field[] name => field.

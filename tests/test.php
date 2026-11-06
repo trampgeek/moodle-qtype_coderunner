@@ -61,6 +61,27 @@ abstract class qtype_coderunner_testcase extends advanced_testcase {
     }
 
     /**
+     * Plain form data equivalent to a question object.
+     *
+     * Several fixtures build a question with make_question() and then hand it
+     * to save_question() as the editing form. Production never does that: the
+     * form is always plain form data from moodleform, and the save path reads
+     * its properties. That became visible once a question's settings stopped
+     * being properties of qtype_coderunner_question and moved behind __get(),
+     * because property_exists() on the form no longer finds them.
+     *
+     * @param object $question a question, usually from make_question().
+     * @return \stdClass form data carrying the same values.
+     */
+    protected function form_data_from_question(object $question): \stdClass {
+        $data = get_object_vars($question);
+        if ($question instanceof \qtype_coderunner_question) {
+            $data = array_merge($data, $question->field_values());
+        }
+        return (object) $data;
+    }
+
+    /**
      * Set up the the test sandbox configuration defined in the files
      * tests/fixtures/test-sandbox-config-dist.php and
      * tests/fixtures/test-sandbox-config.php.

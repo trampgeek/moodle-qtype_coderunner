@@ -61,6 +61,14 @@ use core_question\local\bank\question_version_status;
  */
 class qtype_coderunner extends question_type {
     /**
+     * The provenance label for a question's own layer of its prototype chain.
+     *
+     * Used when the chain is built and again when it is asked which layer a
+     * value came from, so the two cannot disagree.
+     */
+    const QUESTION_LAYER = 'question';
+
+    /**
      * Whether this question type can perform a frequency analysis of student
      * responses.
      *
@@ -134,6 +142,9 @@ class qtype_coderunner extends question_type {
             'displayfeedback',
             'giveupallowed',
             'prototypeextra',
+            // CodeRunner 6: the question's prototype, and what it overrides of it.
+            'prototypeid',
+            'overrides',
         ];
     }
 
@@ -172,6 +183,12 @@ class qtype_coderunner extends question_type {
             'filenamesexplain',
             'displayfeedback',
             'giveupallowed',
+            // CodeRunner 6: a question's own prototype reference and overrides
+            // are never inherited. Omitting them here would let
+            // clean_question_form() null them and set_inherited_fields() copy
+            // a prototype question's values over them.
+            'prototypeid',
+            'overrides',
         ];
     }
 
@@ -279,6 +296,12 @@ class qtype_coderunner extends question_type {
         // Tidy the form, handle inheritance from prototype.
         $this->clean_question_form($question);
 
+        // Record the CodeRunner 6 prototype reference and overrides. This must
+        // run after clean_question_form(), which is what makes the question's
+        // columns mean "null is inherited" — exactly the input the converter
+        // expects.
+        $this->set_prototype_reference($question);
+
         parent::save_question_options($question);
 
         // Write test cases to DB, reusing old ones where possible.
@@ -334,6 +357,65 @@ class qtype_coderunner extends question_type {
         return true;
     }
 
+
+    /**
+     * Set a question's CodeRunner 6 prototype reference and overrides document
+     * from its CodeRunner 5 columns.
+     *
+     * The CodeRunner 5 authoring form is still in use, so a saved question
+     * arrives with a prototype *name* in `coderunnertype` and its inherited
+     * fields nulled by clean_question_form(). Both new columns are derived from
+     * that here, so that a question saved or created after the migration
+     * resolves the same way a migrated one does. Without this, editing a
+     * question would leave its overrides document describing the question as it
+     * was before the edit.
+     *
+     * The rules deliberately match qtype_coderunner\v6\question_migrator: a
+     * legacy prototype question is not itself resolved and keeps both columns
+     * null, and a question whose prototype name cannot be resolved keeps its
+     * overrides but gets a null prototype id, so that it is recorded as broken
+     * rather than silently acquiring another prototype.
+     *
+     * @param object $question the question editing form, already cleaned.
+     */
+    public function set_prototype_reference($question) {
+        if ($question->prototypetype != 0) {
+            // A legacy prototype question is not a question with a prototype.
+            $question->prototypeid = null;
+            $question->overrides = null;
+            return;
+        }
+
+        $overrides = \qtype_coderunner\v6\legacy_converter::question_overrides((array) $question);
+        $question->overrides = json_encode($overrides->to_array());
+        $question->prototypeid = $this->resolve_prototype_id(
+            $question->coderunnertype,
+            $this->question_context($question)
+        );
+    }
+
+    /**
+     * The manager prototype of the given name that the given context can see.
+     *
+     * Name-based lookup survives only at boundaries like this one — a save
+     * through the old form, a legacy import, a restore that could not map an
+     * id — and never on the run-time path, which resolves from the prototype
+     * id alone.
+     *
+     * @param string $name the prototype name, from `coderunnertype`.
+     * @param context $context the question's context.
+     * @return int|null the prototype id, or null if the context cannot see one
+     *      of that name.
+     */
+    public function resolve_prototype_id($name, $context) {
+        $coursecontext = $context->get_course_context(false);
+        if (!$coursecontext) {
+            return null;
+        }
+        $repository = new \local_coderunner_manager\prototype_repository();
+        $prototype = $repository->find_by_name_for_course($name, (int) $coursecontext->instanceid);
+        return $prototype ? $prototype->id : null;
+    }
 
     /**
      * Clean up the "question" (which is actually the question editing form)
@@ -449,11 +531,7 @@ class qtype_coderunner extends question_type {
             $options->customise = true;
         } else if (!($question->export_process ?? false)) {
             // Don't inherit fields when exporting during quiz duplication or backup restore.
-            $qtype = $options->coderunnertype;
-            $context = $this->question_context($question);
-            $prototype = $this->get_prototype($qtype, $context);
-            $this->set_inherited_fields($options, $prototype);
-            $question->prototype = $prototype;
+            $this->resolve_inherited_fields($question, $options);
         }
 
         // Add in any testcases.
@@ -470,6 +548,86 @@ class qtype_coderunner extends question_type {
         }
 
         return true;
+    }
+
+    /**
+     * Fill in a question's inherited field values by resolving its prototype
+     * chain.
+     *
+     * This is the CodeRunner 6 run-time path. The question's `prototypeid` and
+     * `overrides` are resolved through the prototype manager, and every
+     * inherited field the chain produces is written into the options object, so
+     * that everything downstream — the question object, the authoring form, the
+     * renderer — sees the same flattened options it always has.
+     *
+     * `prototypeid` is the single authority on whether a question resolves. A
+     * null one means broken, which is what the design specifies for a question
+     * the migration could not resolve and what a missing prototype has always
+     * looked like. The CodeRunner 5 name lookup is deliberately not consulted
+     * as a fallback: a second resolution path is exactly what this release
+     * removes.
+     *
+     * Resolution is done here, inside get_question_options(), rather than on
+     * the question object, because core caches this object in the
+     * `core/questiondata` application cache. Resolving here means a question is
+     * resolved once per cache lifetime instead of once per attempt.
+     *
+     * @param object $question the question data.
+     * @param object $options the question's options, modified in place.
+     */
+    protected function resolve_inherited_fields($question, $options) {
+        $options->customise = false;
+
+        // Still loaded by name, and only to merge the collected fields: the
+        // per-layer template parameters, UI parameters and support files. That
+        // is the last use of the legacy lookup on this path and it goes when
+        // those merges move onto the chain.
+        $prototype = null;
+
+        if (empty($options->prototypeid)) {
+            $question->prototype = null;
+            return;
+        }
+
+        try {
+            $chain = (new \local_coderunner_manager\prototype_repository())->chain_for(
+                $options->prototypeid,
+                new \qtype_coderunner\v6\override_set(
+                    json_decode($options->overrides ?? '{}', true) ?: [],
+                    self::QUESTION_LAYER
+                )
+            );
+            $settings = $chain->resolve();
+        } catch (\Exception $e) {
+            // Bad stored data: a missing prototype, or parent links that form a
+            // cycle. Either way the question cannot resolve, so it is broken.
+            $question->prototype = null;
+            return;
+        }
+
+        foreach (\qtype_coderunner\v6\field_registry::all() as $name => $field) {
+            if ($field->kind !== \qtype_coderunner\v6\field_kind::INHERITED || !$field->incolumn) {
+                // Instance fields keep their own columns; collected fields are
+                // merged per layer, not resolved to one value; and a field with
+                // no column is not part of the options object.
+                continue;
+            }
+            $options->$name = $settings->get($field);
+        }
+
+        // Whether to open the authoring form's customisation panel. Only the
+        // fields CodeRunner 5 inherited are considered, because the migration
+        // pins every other inheritable field on every question, so counting
+        // those would report every question as customised.
+        foreach (\qtype_coderunner\v6\legacy_converter::fields_inherited_in_v5() as $name) {
+            if ($settings->source_of($name) === self::QUESTION_LAYER) {
+                $options->customise = true;
+                break;
+            }
+        }
+
+        $prototype = $this->get_prototype($options->coderunnertype, $this->question_context($question));
+        $question->prototype = is_object($prototype) ? $prototype : null;
     }
 
     /**
@@ -872,6 +1030,13 @@ class qtype_coderunner extends question_type {
             'attachments' => 0,
             'extractcodefromjson' => 1,
             'giveupallowed' => 0,
+            // CodeRunner 6: absent from any export, since export_to_xml()
+            // blanks both. They are defaulted here only so that a file
+            // containing them cannot seed a stale value; the import goes on
+            // through save_question_options(), which recomputes both from the
+            // prototype name by calling set_prototype_reference().
+            'prototypeid' => null,
+            'overrides' => null,
         ];
 
         foreach ($extraquestionfields as $field) {
@@ -984,7 +1149,11 @@ class qtype_coderunner extends question_type {
 
         // Copy the question so we can modify it for export
         // (Just in case the original gets used elsewhere).
+        // clone is shallow, so options has to be copied as well: without this
+        // every "export only" change below is made to the caller's question
+        // too, which matters now that resolution reads two of those columns.
         $questiontoexport = clone $question;
+        $questiontoexport->options = clone $question->options;
 
         $qtype = $question->options->coderunnertype;
         $coursecontext = context_course::instance($COURSE->id);
@@ -992,19 +1161,32 @@ class qtype_coderunner extends question_type {
 
         // Clear all inherited fields equal in value to the corresponding Prototype field
         // (but only if we found a prototype and this is not a prototype question itself).
-        if ($row && $questiontoexport->options->prototypetype == 0) {
-            $noninheritedfields = $this->noninherited_fields();
+        // get_prototype() returns an array of candidates when a name is
+        // ambiguous, and null when there is none, so only an object is usable.
+        // The inherited field names are iterated rather than the prototype's
+        // properties, because a question's settings are reached through
+        // __get() and so are not properties to iterate over.
+        if (is_object($row) && $questiontoexport->options->prototypetype == 0) {
             $extrafields = $this->extra_question_fields();
-            foreach ($row as $field => $value) {
-                if (
-                    in_array($field, $extrafields) &&
-                        !in_array($field, $noninheritedfields) &&
-                        $question->options->$field === $value
-                ) {
+            array_shift($extrafields); // Discard the table name.
+            $inheritedfields = array_diff($extrafields, $this->noninherited_fields());
+            foreach ($inheritedfields as $field) {
+                if ($question->options->$field === $row->$field) {
                     $questiontoexport->options->$field = null;
                 }
             }
         }
+
+        // Neither of the CodeRunner 6 columns belongs in a shareable file. The
+        // prototype id means nothing anywhere but this site, and the overrides
+        // document is derived from the question's own columns, which are
+        // exported beside it. An import recomputes both from the prototype name
+        // in coderunnertype, through set_prototype_reference(), so exporting
+        // them would be at best redundant and at worst a local id that looks
+        // meaningful. The elements are left in place but empty; M5 decides what
+        // a portable prototype reference looks like (decision 18).
+        $questiontoexport->options->prototypeid = null;
+        $questiontoexport->options->overrides = null;
 
         $expout = parent::export_to_xml($questiontoexport, $format, $extra);
 

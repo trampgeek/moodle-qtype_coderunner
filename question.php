@@ -32,12 +32,88 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 use qtype_coderunner\constants;
 use qtype_coderunner\coderunner_files;
 
-/*
- * Represents a 'CodeRunner' question.
+/**
+ * Represents a 'CodeRunner' question at run time.
+ *
+ * The question's settings — everything a prototype can supply and everything
+ * the question overrides of it — are no longer properties of this class. They
+ * are held together, so that there is one answer to what a question's settings
+ * are and where each came from, and reached through __get(), which resolves the
+ * name through the field registry. Call sites are unchanged: $question->template
+ * still works and still means the same thing.
+ *
+ * The @property-read lines below are generated from the registry by
+ * qtype_coderunner\v6\field_registry, and
+ * qtype_coderunner\v6\question_property_docblock_test asserts they still
+ * match it, so they cannot drift from the field list. Without them, __get()
+ * would cost IDE completion, type checking and static analysis.
+ *
+ * @property-read ?string $answer
+ * @property-read ?string $answerpreload
+ * @property-read ?bool $validateonsave
+ * @property-read ?bool $showsource
+ * @property-read ?string $templateparams
+ * @property-read ?string $templateparamslang
+ * @property-read ?bool $templateparamsevalpertry
+ * @property-read ?string $uiparameters
+ * @property-read ?bool $allornothing
+ * @property-read ?string $penaltyregime
+ * @property-read ?int $precheck
+ * @property-read ?bool $hidecheck
+ * @property-read ?int $displayfeedback
+ * @property-read ?int $giveupallowed
+ * @property-read ?string $uiplugin
+ * @property-read ?bool $useace
+ * @property-read ?int $answerboxlines
+ * @property-read ?int $attachments
+ * @property-read ?int $attachmentsrequired
+ * @property-read ?int $maxfilesize
+ * @property-read ?string $filenamesregex
+ * @property-read ?string $filenamesexplain
+ * @property-read ?string $template
+ * @property-read ?bool $iscombinatortemplate
+ * @property-read ?string $grader
+ * @property-read ?string $resultcolumns
+ * @property-read ?string $testsplitterre
+ * @property-read ?bool $allowmultiplestdins
+ * @property-read ?bool $extractcodefromjson
+ * @property-read ?bool $twigall
+ * @property-read ?bool $hoisttemplateparams
+ * @property-read ?string $language
+ * @property-read ?string $acelang
+ * @property-read ?string $sandbox
+ * @property-read ?string $sandboxparams
+ * @property-read ?int $cputimelimitsecs
+ * @property-read ?int $memlimitmb
+ * @property-read ?string $globalextra
+ * @property-read ?string $prototypeextra
+ * Dynamic properties remain allowed. The authoring form assigns every submitted
+ * form field to a question object, most of which are not question fields at
+ * all, and the magic accessors below intercept the ones that are.
  */
-
 #[AllowDynamicProperties]
 class qtype_coderunner_question extends question_graded_automatically {
+    /**
+     * @var array The question's field values, keyed by registry field name.
+     *
+     * Reached through __get(), __set() and __isset() rather than directly, so
+     * that a field is stored in one place whether it came from the question's
+     * own column, from a prototype, or from a Twig expansion.
+     */
+    private $fieldvalues = [];
+
+    /**
+     * @var array The values a removed property declaration used to supply.
+     *
+     * Two of the fields were declared with an initialiser rather than left
+     * null, and code reads them before the question is loaded, so the values
+     * have to survive the properties' removal.
+     */
+    private const PROPERTY_DEFAULTS = [
+        'answerboxlines' => '',
+        'validateonsave' => 1,
+    ];
+
     public $testcases = null; // Array of testcases.
 
     /** @var string containing the language for coderunner type. */
@@ -46,134 +122,14 @@ class qtype_coderunner_question extends question_graded_automatically {
     /** @var int 0, 1 or 2 for not-a-prototype, built-in prototype and user-defined prototype */
     public $prototypetype;
 
-    /** @var bool True for All-or-nothing grading */
-    public $allornothing;
+    /** @var ?int The prototype whose chain this question resolves against. */
+    public $prototypeid;
 
-    /** @var string The penalty regime of the question. */
-    public $penaltyregime;
-
-    /** @var int Precheck for the question.
-     *  0 = 'disable': no pretest button available,
-     *  1 = 'empty' for no actual tests,
-     *  2 = 'examples' for all use-as-example tests,
-     *  3 = 'selected' for specific selected tests,
-     *  4 = 'all' for all tests.
-     */
-    public $precheck;
-
-    /** @var int Hide check. Non-zero to hide the Check button. */
-    public $hidecheck;
-
-    /** @var bool Show source. If true, the Twigged template output is displayed for each run. */
-    public $showsource;
-
-    /** @var int|string The number of lines for the answer box. */
-    public $answerboxlines = '';
-
-    /** @var string The string that is preloaded into the answer box. */
-    public $answerpreload;
-
-    /** @var string Extra data for use by template authors, global to all tests. */
-    public $globalextra;
-
-    /** @var bool True if template uses ace. */
-    public $useace;
-
-    /** @var string JSON-encoded list of column specifiers. */
-    public $resultcolumns;
-
-    /** @var string The question template. */
-    public $template;
-
-    /** @var ?bool True if a combinator template is being used. */
-    public $iscombinatortemplate;
-
-    /** @var bool True if multiple tests are allowed. */
-    public $allowmultiplestdins;
-
-    /** @var string The answer of the question. */
-    public $answer;
-
-    /** @var int True to validate the question on save. */
-    public $validateonsave = 1;
-
-    /** @var string The regular expression to split output from the combinator run into the basic tests again. */
-    public $testsplitterre;
-
-    /** @var string The language of the question. */
-    public $language;
-
-    /** @var string The language for the Ace editor */
-    public $acelang;
-
-    /** @var mixed The question sandbox. */
-    public $sandbox;
-
-    /** @var string The grader instance. */
-    public $grader;
-
-    /** @var ?double The allowed CPU time (null unless explicitly set). */
-    public $cputimelimitsecs;
-
-    /** @var ?int The allowed memory in MB (null unless explicitly set). */
-    public $memlimitmb;
-
-    /** @var string The JSON string used to specify the sandbox parameters. */
-    public $sandboxparams;
-
-    /** @var string The template parameters. */
-    public $templateparams;
-
-    /** @var bool The hoisted template parameters. */
-    public $hoisttemplateparams;
-
-    /** @var bool True if the response is json from which the actual code attribute should be extracted */
-    public $extractcodefromjson;
-
-    /** @var ?string The template parameters language. */
-    public $templateparamslang;
-
-    /** @var bool The template parameters eval per try. */
-    public $templateparamsevalpertry;
+    /** @var ?string What this question overrides of that chain, as a JSON document. */
+    public $overrides;
 
     /** @var string The evaluated template parameters (JSON). */
     public $templateparamsevald;
-
-    /** @var ?int True if all question fields need Twig expansion. */
-    public $twigall;
-
-    /** @var ?string The UI plugin in use. */
-    public $uiplugin;
-
-    /** @var ?string The parameters to pass to the UI plugin*/
-    public $uiparameters;
-
-    /** @var ?string The attachments of the question. */
-    public $attachments;
-
-    /** @var ?int The number of attachments required. */
-    public $attachmentsrequired;
-
-    /** @var ?int Max allowed file size (bytes) */
-    public $maxfilesize;
-
-    /** @var ?string Allowed file names (regular expression) */
-    public $filenamesregex;
-
-    /** @var ?string Description of file name. */
-    public $filenamesexplain;
-
-    /**
-     * @var ?int Set to 0 or 1, feedback (result table) is shown.
-     * Not if display feedback is set to 2.
-     */
-    public $displayfeedback;
-
-    /** @var int True if Stop button is to be displayed. */
-    public $giveupallowed;
-
-    /** @var ?string Extra data for use by prototype or customised code. */
-    public $prototypeextra;
 
     /** @var ?array The answers of the question (unused - for superclass compatibility only) */
     public $answers;
@@ -219,6 +175,87 @@ class qtype_coderunner_question extends question_graded_automatically {
 
     /** @var int questionid. */
     public $questionid;
+
+    /**
+     * Read a question field.
+     *
+     * A registry field comes from the field values; anything else falls through
+     * to the parent, which serves `latestversion` and returns null for a name
+     * nothing knows, as reading an undefined property did before.
+     *
+     * @param string $name the property name.
+     * @return mixed the value.
+     */
+    public function __get($name) {
+        if (\qtype_coderunner\v6\field_registry::exists($name)) {
+            return $this->field_value($name);
+        }
+        return parent::__get($name);
+    }
+
+    /**
+     * Write a question field.
+     *
+     * This is what lets the 39 property declarations go without touching the
+     * several hundred lines that read them or the dozens that write them. A
+     * write to a field name lands in the field values; without it, the write
+     * would create a real property that shadowed __get() for the rest of the
+     * request — silently, and only for fields that happened to be non-empty.
+     *
+     * Anything else keeps the dynamic-property behaviour the authoring form
+     * depends on.
+     *
+     * @param string $name the property name.
+     * @param mixed $value the value.
+     */
+    public function __set($name, $value) {
+        if (\qtype_coderunner\v6\field_registry::exists($name)) {
+            $this->fieldvalues[$name] = $value;
+            return;
+        }
+        $this->$name = $value;
+    }
+
+    /**
+     * Whether a question field has a value.
+     *
+     * Matches what isset() reported when these were declared properties: true
+     * when the value is not null. This is load-bearing rather than tidy:
+     * initialise_question_instance() copies an option onto the question only
+     * when isset() says it is absent, and classes/jobrunner.php tests the
+     * prototype with empty().
+     *
+     * @param string $name the property name.
+     * @return bool true if it has a non-null value.
+     */
+    public function __isset($name) {
+        if (\qtype_coderunner\v6\field_registry::exists($name)) {
+            return $this->field_value($name) !== null;
+        }
+        return false;
+    }
+
+    /**
+     * One field's value, or what its property declaration used to supply.
+     *
+     * @param string $name a registry field name.
+     * @return mixed the value, or null if nothing has set it.
+     */
+    private function field_value($name) {
+        if (array_key_exists($name, $this->fieldvalues)) {
+            return $this->fieldvalues[$name];
+        }
+        return self::PROPERTY_DEFAULTS[$name] ?? null;
+    }
+
+    /**
+     * Every field value this question holds, keyed by field name.
+     *
+     * @return array field name => value.
+     */
+    public function field_values() {
+        return $this->fieldvalues;
+    }
 
     /**
      * Start a new attempt at this question, storing any information that will

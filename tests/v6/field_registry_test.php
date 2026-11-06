@@ -41,8 +41,9 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 final class field_registry_test extends \advanced_testcase {
     /**
      * Every field in today's extra_question_fields_static() must be either a
-     * registry field or an explicitly declared legacy column, so that no field
-     * can be forgotten when the options row is converted.
+     * registry field, an explicitly declared legacy column, or one of the two
+     * columns that carry the resolution itself, so that no field can be
+     * forgotten when the options row is converted.
      */
     public function test_every_current_field_is_accounted_for(): void {
         $extra = \qtype_coderunner::extra_question_fields_static();
@@ -50,13 +51,15 @@ final class field_registry_test extends \advanced_testcase {
 
         $accounted = array_merge(
             array_keys(field_registry::all()),
-            array_keys(field_registry::legacy_columns())
+            array_keys(field_registry::legacy_columns()),
+            array_keys(field_registry::resolution_columns())
         );
         $unaccounted = array_diff($extra, $accounted);
 
         $this->assertEmpty(
             $unaccounted,
-            'Question fields neither in the registry nor declared legacy: ' . implode(', ', $unaccounted)
+            'Question fields neither in the registry nor declared legacy nor resolution columns: '
+                . implode(', ', $unaccounted)
         );
     }
 

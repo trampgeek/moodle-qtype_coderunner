@@ -138,6 +138,25 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
                 $data->grader = 'TemplateGrader';
             }
 
+            // The prototype id is a local id and Moodle does not remap ids by
+            // itself, so carrying the backed-up one over would point the
+            // question at whatever prototype holds that id here: right by
+            // accident on the same site, silently wrong across sites. It is
+            // discarded and the prototype is found by name instead, which is
+            // the boundary-code name lookup the design allows for restore, and
+            // which works on the same site and across sites alike whenever the
+            // target course can see a prototype of that name. When it cannot,
+            // the question is left with a null prototype id and reports itself
+            // broken, which is visible rather than silent.
+            //
+            // M5 adds matching by the backed-up id and by the prototype uuid,
+            // for the cases a name cannot settle: an ambiguous name, or a
+            // prototype that travelled in the backup itself.
+            $data->prototypeid = (new qtype_coderunner())->resolve_prototype_id(
+                $data->coderunnertype,
+                \context_course::instance($this->get_task()->get_courseid())
+            );
+
             // Insert the record.
             $DB->insert_record("question_coderunner_options", $data);
         }
@@ -182,6 +201,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             '/hints',
             '/prototype',
             '/options/customise',
+            '/options/prototypeid',
             '/options/templateparamsevald',
             '/options/testcases/id',
             '/options/testcases/questionid',
