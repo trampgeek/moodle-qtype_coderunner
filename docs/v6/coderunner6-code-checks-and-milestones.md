@@ -16,7 +16,8 @@ Built and verified on the development site, all uncommitted on the `Version6` br
 - **M1** field registry and resolver — 37 tests.
 - **M2** prototype storage, Site defaults, built-in installation, user-prototype snapshot, support files, read-only list page — 72 prototypes and 251 file records snapshotted from the live site.
 - **M3** question schema and migration — 12,346 questions converted in 3.3 seconds, and **all 12,346 verified to resolve exactly as CodeRunner 5 resolves them**. 405 question versions left broken for want of a resolvable prototype, which matches the health report's own count.
-- **M4** the run-time switch — **complete**, four increments. The two new columns are carried through save, import, export, backup and restore (decisions 17 and 18); and the 39 settings are no longer properties of `qtype_coderunner_question`, being reached through `__get`, `__set` and `__isset` with a generated `@property-read` block and a test that it matches the registry. And `get_question_options()` now resolves a question's inherited fields from `prototypeid` and `overrides` through the manager's chain, with `set_inherited_fields()` off the run-time path entirely. What remains is the collected fields.
+- **M4** the run-time switch — **complete**, four increments.
+- **M4a** the upgrade end to end — **fixes done and exercised** on this site's own data; the pre-6.0 clone rehearsal is the one outstanding item. The two new columns are carried through save, import, export, backup and restore (decisions 17 and 18); and the 39 settings are no longer properties of `qtype_coderunner_question`, being reached through `__get`, `__set` and `__isset` with a generated `@property-read` block and a test that it matches the registry. And `get_question_options()` now resolves a question's inherited fields from `prototypeid` and `overrides` through the manager's chain, with `set_inherited_fields()` off the run-time path entirely. What remains is the collected fields.
 - **M1a has dissolved into M3.** Its "faithful reimplementation of `set_inherited_fields()`" is unnecessary while the CodeRunner 5 code is still present: the verifier calls `get_prototype()` and `set_inherited_fields()` directly, which cannot drift from the thing it is checking. What remained of M1a — the question converter and the verification script — is in M3.
 - **The collected fields are now merged along the chain, which completes M4's four increments.** `get_question_options()` records each layer's template parameters with their language, each layer's UI parameters with the UI plugin in force at that point, and the file areas the support files merge from. The attempt path reads all three off the options object, so it touches no prototype table — decision 16, enforced by a test that counts database reads rather than by review.
 
@@ -395,7 +396,20 @@ Three faults stand in the way, all found by looking at the site rather than the 
 
 Only an upgrade purges that cache — `purge_all_caches()` runs at the end of `upgrade_plugins()` (`lib/upgradelib.php:1871` and nearby). Adding the two columns to the list without bumping `$plugin->version` therefore left a site whose schema was already current, so no upgrade ran, so the stale entries survived. The release is not exposed to this, because the schema step and the field-list change ship at one version and a 5.x site gets a single purge on the way through; but every development change to that list needs its own bump, and `admin/cli/purge_caches.php` is the manual remedy.
 
-Also here: `$plugin->release` is still `'5.10.9'` and wants deciding.
+`$plugin->release` is set to `'6.0.0-dev'`. It had been left at `'5.10.9'`, which matters beyond tidiness: core compares release strings through `backup_release_compare()`, so a 6.0 backup claiming to be 5.10.9 would be mis-ordered against a real one.
+
+**Done, and exercised on the development site's own 12,751 questions.** The fault above is fixed by `prototype_installer::queue_migration_if_needed()`, called from both the install step and every upgrade, which queues the task when the prototype tables are empty *or* a question still has a null `prototypeid` — a conversion that stopped part way, or a question restored from a pre-6.0 backup. Four tests cover the decision, because it is silent when wrong in either direction: too eager and every upgrade queues pointless work, too shy and a broken site stays broken.
+
+Running the upgrade for real confirmed the whole chain, including both negative cases:
+
+- the two plugin steps ran, and `moodle_needs_upgrading()` went false — which matters more than it sounds, because `\core\cron::run_main_process()` refuses to run *anything* while an upgrade is pending (`lib/classes/cron.php:70`), so a half-finished upgrade silently stops cron altogether;
+- exactly **one** prototype-setup task was queued, not another nineteen, so the duplicate check holds;
+- **no** migration task was queued, the recovery check correctly finding nothing to recover;
+- cron then ran the queued task and drained the queue.
+
+A real question loaded through the question bank resolves a three-layer chain, a 55,000-character inherited template, twelve support files merged along the chain, and — the test that matters for the correction recorded under M3 — a question declaring no UI parameters of its own receives all four of its prototype's, `wrapper_src` included, with the right UI plugin.
+
+**What remains of the exit criterion** is the one part that needs a clone rather than this site: an upgrade from a genuinely *pre-6.0* database, so that the question type's column step and the manager's first install are themselves exercised rather than being no-ops. Everything downstream of them now is.
 
 **Exit:** a clone of the development site, restored from a pre-6.0 database, upgrades through the plugin-check page with cron running normally, the migration task runs itself, the verification script reports zero differences, and a question in a real course renders and grades. That is the first point at which an author can be let near it.
 
