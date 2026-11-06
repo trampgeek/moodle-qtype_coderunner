@@ -1146,6 +1146,11 @@ $string['run_failed'] = 'Failed to run tests';
 
 $string['sampleanswerattachments'] = 'Sample answer attachments';
 $string['sampleanswerattachments_help'] = 'If the sample answer needs attachments files, upload them here';
+$string['sandbox'] = 'Sandbox';
+$string['showexpected'] = 'Offer an expected-output field';
+$string['showstdin'] = 'Offer a standard input field';
+$string['showtestcode'] = 'Offer a test code field';
+$string['showtestextra'] = 'Offer an extra template data field';
 $string['sandboxcontrols'] = 'Sandbox';
 $string['sandboxcontrols_help'] = 'All jobs are run on the Jobe sandbox, which imposes
 constraints on memory, CPU time, file output etc. Here is where you adjust those constraints.

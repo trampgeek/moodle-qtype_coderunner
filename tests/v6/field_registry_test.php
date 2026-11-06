@@ -40,6 +40,50 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 #[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
 final class field_registry_test extends \advanced_testcase {
     /**
+     * Every field has a label.
+     *
+     * The prototype editor and the new question form show each field on its own
+     * with the layer its value came from, so a group heading is not enough: a
+     * field with no label of its own would render as a blank caption. Several
+     * fields take their label from a CodeRunner 5 string under a different name
+     * — `cputime` for `cputimelimitsecs`, `student_answer` for `uiplugin` — and
+     * this asserts every one of those mappings resolves.
+     */
+    public function test_every_field_has_a_label(): void {
+        $unlabelled = [];
+        foreach (field_registry::all() as $name => $field) {
+            if (!get_string_manager()->string_exists($field->label_string_id(), 'qtype_coderunner')) {
+                $unlabelled[] = $name . ' (wants ' . $field->label_string_id() . ')';
+            }
+        }
+
+        $this->assertSame([], $unlabelled, 'Fields whose label string is missing from the language file.');
+    }
+
+    /**
+     * A field's help text is optional, and a field without it must say so
+     * rather than resolving to a broken string.
+     *
+     * Help is written field by field as the forms are built, so a form adds a
+     * help button only where there is something to show. This test does not
+     * require help to exist; it requires help() to answer honestly, so that a
+     * form can rely on it.
+     */
+    public function test_help_is_optional_and_honest(): void {
+        foreach (field_registry::all() as $name => $field) {
+            $help = $field->help();
+            $exists = get_string_manager()->string_exists($field->help_string_id(), 'qtype_coderunner');
+
+            if ($exists) {
+                $this->assertNotNull($help, "Field $name has a help string but help() returned null.");
+                $this->assertNotSame('', trim($help), "Field $name has an empty help string.");
+            } else {
+                $this->assertNull($help, "Field $name has no help string but help() returned something.");
+            }
+        }
+    }
+
+    /**
      * Every field in today's extra_question_fields_static() must be either a
      * registry field, an explicitly declared legacy column, or one of the two
      * columns that carry the resolution itself, so that no field can be

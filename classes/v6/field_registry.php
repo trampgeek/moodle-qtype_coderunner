@@ -234,6 +234,7 @@ class field_registry {
                 form_section::FILES,
                 merge: merge_rule::BY_FILENAME,
                 incolumn: false,
+                labelstring: 'datafiles',
             ),
 
             // Grading and penalties.
@@ -248,14 +249,14 @@ class field_registry {
             ),
             new field('precheck', field_kind::INHERITED, field_type::CHOICE, form_section::GRADING, default: 0),
             new field('hidecheck', field_kind::INHERITED, field_type::BOOLEAN, form_section::GRADING, default: 0),
-            new field('displayfeedback', field_kind::INHERITED, field_type::CHOICE, form_section::GRADING, default: 1),
-            new field('giveupallowed', field_kind::INHERITED, field_type::CHOICE, form_section::GRADING, default: 0),
+            new field('displayfeedback', field_kind::INHERITED, field_type::CHOICE, form_section::GRADING, default: 1, labelstring: 'feedback'),
+            new field('giveupallowed', field_kind::INHERITED, field_type::CHOICE, form_section::GRADING, default: 0, labelstring: 'giveup'),
 
             // User interface.
-            new field('uiplugin', field_kind::INHERITED, field_type::CHAR, form_section::UI, default: 'ace'),
+            new field('uiplugin', field_kind::INHERITED, field_type::CHAR, form_section::UI, default: 'ace', labelstring: 'student_answer'),
             new field('useace', field_kind::INHERITED, field_type::BOOLEAN, form_section::UI, default: 1),
             new field('answerboxlines', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 18),
-            new field('attachments', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 0),
+            new field('attachments', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 0, labelstring: 'allowattachments'),
             new field('attachmentsrequired', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 0),
             new field('maxfilesize', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 0),
             new field('filenamesregex', field_kind::INHERITED, field_type::TEXT, form_section::UI, default: ''),
@@ -274,11 +275,11 @@ class field_registry {
 
             // Sandbox, languages and limits.
             new field('language', field_kind::INHERITED, field_type::CHAR, form_section::SANDBOX, default: ''),
-            new field('acelang', field_kind::INHERITED, field_type::CHAR, form_section::SANDBOX, default: ''),
+            new field('acelang', field_kind::INHERITED, field_type::CHAR, form_section::SANDBOX, default: '', labelstring: 'ace-language'),
             new field('sandbox', field_kind::INHERITED, field_type::CHAR, form_section::SANDBOX),
             new field('sandboxparams', field_kind::INHERITED, field_type::JSON, form_section::SANDBOX),
-            new field('cputimelimitsecs', field_kind::INHERITED, field_type::INTEGER, form_section::SANDBOX),
-            new field('memlimitmb', field_kind::INHERITED, field_type::INTEGER, form_section::SANDBOX),
+            new field('cputimelimitsecs', field_kind::INHERITED, field_type::INTEGER, form_section::SANDBOX, labelstring: 'cputime'),
+            new field('memlimitmb', field_kind::INHERITED, field_type::INTEGER, form_section::SANDBOX, labelstring: 'memorylimit'),
 
             // Extras.
             new field('globalextra', field_kind::INHERITED, field_type::TEXT, form_section::EXTRAS, default: '', twigable: true),

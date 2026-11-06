@@ -45,6 +45,12 @@ final readonly class field {
      * @param bool $twigable true if the field is Twig expanded when twigall is set.
      * @param bool $incolumn true if the field is stored as a column of question_coderunner_options.
      * @param string[] $perlayerwith other fields that travel with this one, per layer, and cannot be separated from it.
+     * @param string $labelstring the language string identifying this field's
+     *      label, when it is not the field's own name. CodeRunner 5's form
+     *      labels several fields under a group heading, so the control itself
+     *      carries either no label or one named differently; the prototype
+     *      editor shows each field on its own with its provenance, so every
+     *      field needs a label of its own.
      */
     public function __construct(
         /** @var string The field's name, which is also its column name when it has one. */
@@ -65,6 +71,8 @@ final readonly class field {
         public bool $incolumn = true,
         /** @var string[] Other fields that travel with this one, per layer. */
         public array $perlayerwith = [],
+        /** @var string The label's language string id, when not the field name. */
+        public string $labelstring = '',
     ) {
     }
 
@@ -124,7 +132,32 @@ final readonly class field {
      * @return string the string identifier.
      */
     public function label_string_id(): string {
-        return $this->name;
+        return $this->labelstring !== '' ? $this->labelstring : $this->name;
+    }
+
+    /**
+     * This field's label, for a form or a resolved-settings display.
+     *
+     * @return string the label.
+     */
+    public function label(): string {
+        return get_string($this->label_string_id(), 'qtype_coderunner');
+    }
+
+    /**
+     * This field's help text, if there is any.
+     *
+     * Help is optional by design. A field without it gets no help button rather
+     * than a broken one, so that help can be written field by field without
+     * every form being blocked on the last of it.
+     *
+     * @return string|null the help text, or null if none is defined.
+     */
+    public function help(): ?string {
+        $id = $this->help_string_id();
+        return get_string_manager()->string_exists($id, 'qtype_coderunner')
+            ? get_string($id, 'qtype_coderunner')
+            : null;
     }
 
     /**
