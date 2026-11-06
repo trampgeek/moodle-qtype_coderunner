@@ -612,6 +612,16 @@ This is the same three-way split core uses for questions themselves — `id` loc
 
     The cost is that a change anywhere re-evaluates every layer rather than only the changed one. That is negligible for Twig, and for a layer using a Jobe language it is one run, only when something actually changed. It also upgrades itself: an in-flight attempt's old keys simply miss, and the next page load re-evaluates and stores under the new one.
 
+21. **The forms are built from standard Moodle form elements and Boost styling, and departures are argued for in writing.** This had not been recorded anywhere, in any of the three documents, which is how the prototype picker nearly acquired a custom combobox before anyone asked whether it needed one.
+
+    In practice: controls are `MoodleQuickForm` elements added through `moodleform`, not hand-written `<input>` markup; markup comes from Mustache templates rendered through the renderer, not from strings concatenated in PHP; styling uses Boost's existing classes in preference to new CSS; behaviour goes in AMD modules built with grunt; and all text goes through `get_string()`. Where a standard element will not do, the milestone says so and says why, rather than reaching for custom code as the default.
+
+    The reason is not uniformity for its own sake. A standard element arrives with keyboard handling, ARIA attributes, screen-reader labelling, right-to-left support, theme compatibility and translation already done and already maintained. Rebuilding any of that is work that has to be redone on every Moodle release, and CodeRunner has had accessibility fixes contributed for exactly these reasons.
+
+    **The known exception, so that it is argued once rather than rediscovered.** There is no core element for "a field that is either inherited or overridden, with a control to revert it". That affordance has to be built. It is built as a *thin wrapper* around standard elements — the input for each field stays whatever `MoodleQuickForm` offers for its registry type, and the wrapper adds the provenance label, the revert control and the inherited styling around it. What is not acceptable is reimplementing the inputs themselves in order to decorate them.
+
+    **Reverting a field to inherited drops the override immediately**, rather than keeping the value in case the author changes their mind. An overrides document that carries values which are not in effect is a second, invisible state, and the saving is only retyping; an author who wants to keep a value before reverting can copy it, and undo is undo.
+
 Open:
 
 Nothing. Decision 7, below, is retained for its analysis.
