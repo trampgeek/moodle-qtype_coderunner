@@ -71,7 +71,13 @@ function update_question_types() {
         // (b) we need to call question_bank_helper::get_default_open_instance_system_type
         // which cannot be used during install/upgrade.
         $task = new qtype_coderunner\task\qtype_coderunner_setup_question_prototypes();
-        core\task\manager::queue_adhoc_task($task);
+        // Queued only if an identical task is not already waiting. This
+        // function is called on every upgrade, outside any version guard, so
+        // without the check each upgrade adds another copy of a task that
+        // deletes and reloads the same prototypes. A development site had
+        // nineteen of them queued, the oldest seven months old, because cron
+        // was not running to clear them.
+        core\task\manager::queue_adhoc_task($task, true);
         return true;
     } else {
         // In Moodle 4.5 or earlier, we can execute the update immediately.
