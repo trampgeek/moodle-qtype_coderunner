@@ -427,6 +427,20 @@ The prototype picker with its grouping, and the capability check on save as well
 
 The `before_course_deleted` handler; the cleanup script for legacy prototype questions; the prune script for prototype history. Documentation.
 
+**The removal inventory.** The CodeRunner 5 prototype machinery comes out in pieces, as each piece's last caller goes, which risks a remnant surviving because no single milestone owns it. So it is listed here, and M8 is not done while anything on the list is still present.
+
+| To remove | Last caller goes in |
+| --- | --- |
+| `qtype_coderunner::get_prototype()` | the form and `ajax.php` in M7, `export_to_xml()` in M5, the verifier in phase 4 |
+| `qtype_coderunner::get_all_prototypes()` | the form's type menu in M7, `scripts/prototypeusage.php` in M6 |
+| `qtype_coderunner::prototype_contexts()` | with `get_prototype()`, except the health report, which is 5.x code |
+| `qtype_coderunner::set_inherited_fields()` | already off the run-time path; the form in M7, the verifier in phase 4 |
+| `qtype_coderunner_question::get_prototype()` and `$this->prototype` | the no-chain fallbacks in `question.php`, with the form in M7 |
+| `$options->customise` | computed only for the CodeRunner 5 form's panel; M7 |
+| `/prototype` identity-hash exclusion, and the restorer's `unset($questiondata->prototype)` | already defending against something that no longer happens; M5 |
+| `update_question_types()` and `qtype_coderunner_setup_question_prototypes` | the form resolves by name against the prototype questions these install; M7 |
+| `legacy_converter`, `migration_verifier`, the legacy columns of `field_registry::legacy_columns()` | phase 4, with the migration itself |
+
 ## 5. Where each piece should live
 
 | Piece | Plugin | Why |
