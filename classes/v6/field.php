@@ -79,6 +79,8 @@ final readonly class field {
         public string $labelstring = '',
         /** @var bool True if the field holds code or JSON and is edited in Ace. */
         public bool $iscode = false,
+        /** @var string The help's language string id, when not the label's. */
+        public string $helpstring = '',
     ) {
     }
 
@@ -172,6 +174,23 @@ final readonly class field {
      * @return string the string identifier.
      */
     public function help_string_id(): string {
-        return $this->label_string_id() . '_help';
+        return $this->help_identifier() . '_help';
+    }
+
+    /**
+     * The identifier a help button is registered under.
+     *
+     * Moodle's help icon takes an identifier and looks up both it and that
+     * identifier with '_help' appended, so the pair has to share a base. Where
+     * a field borrows the help of the CodeRunner 5 group it used to sit in, the
+     * base is that group's, not the field's.
+     *
+     * @return string the identifier.
+     */
+    public function help_identifier(): string {
+        if ($this->helpstring === '') {
+            return $this->label_string_id();
+        }
+        return preg_replace('/_help$/', '', $this->helpstring);
     }
 }

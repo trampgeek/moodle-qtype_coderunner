@@ -117,14 +117,14 @@ class settings_form {
                 get_string('overridethisfield', 'qtype_coderunner')
             ),
         ];
-        $mform->addGroup($group, $name . '_group', $field->label(), ' ', false);
+        $mform->addGroup($group, $name . '_group', $field->label(), '&nbsp;&nbsp;&nbsp;', false);
 
         if ($field->help() !== null) {
             // Moodle's help icon appends '_help' itself and needs the plain
             // identifier to exist as well, so the two strings must share a
             // base. Passing help_string_id() here would send it looking for
             // '<field>_help_help'.
-            $mform->addHelpButton($name . '_group', $field->label_string_id(), 'qtype_coderunner');
+            $mform->addHelpButton($name . '_group', $field->help_identifier(), 'qtype_coderunner');
         }
 
         // The input shows the author's value when they have one, and otherwise
@@ -157,10 +157,16 @@ class settings_form {
             return $mform->createElement('select', $name, '', field_registry::choices($name));
         }
         if ($field->type === field_type::BOOLEAN) {
-            return $mform->createElement('advcheckbox', $name, '', '');
+            // Not a checkbox: it would sit beside the override checkbox as two
+            // identical boxes with a single label between them, and no way to
+            // tell which was which.
+            return $mform->createElement('select', $name, '', [
+                0 => get_string('no'),
+                1 => get_string('yes'),
+            ]);
         }
         if ($field->type === field_type::TEXT || $field->type === field_type::JSON) {
-            $attributes = ['rows' => $field->iscode ? 12 : 4, 'cols' => 80];
+            $attributes = ['rows' => $field->iscode ? 12 : 2, 'cols' => 80];
             if ($field->iscode) {
                 // Read by the UI wrapper when Ace is attached; see
                 // require_ace(). Template parameters and UI parameters are
@@ -249,7 +255,10 @@ class settings_form {
      * decision 22 for why that coupling exists and why it cannot be declared.
      *
      * @param form_section[] $sections the sections the form is showing.
-     * @param string $language the language to highlight the template in.
+     * @param string $language the language to highlight the template in. This
+     *      must come from the settings the layer being edited *resolves to*,
+     *      not from what it inherits: a prototype that sets its own language
+     *      would otherwise get no syntax colouring at all.
      */
     public static function require_ace(array $sections, string $language = ''): void {
         global $PAGE;

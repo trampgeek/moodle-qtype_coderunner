@@ -155,6 +155,22 @@ class field_registry {
             case 'uiplugin':
                 return \qtype_coderunner_ui_plugins::get_instance()->dropdownlist();
 
+            case 'grader':
+                return [
+                    'EqualityGrader' => get_string('equalitygrader', 'qtype_coderunner'),
+                    'NearEqualityGrader' => get_string('nearequalitygrader', 'qtype_coderunner'),
+                    'RegexGrader' => get_string('regexgrader', 'qtype_coderunner'),
+                    'TemplateGrader' => get_string('templategrader', 'qtype_coderunner'),
+                ];
+
+            case 'attachments':
+                // The question type class is not autoloaded, so it is fetched
+                // through the question bank rather than instantiated directly.
+                return \question_bank::get_qtype('coderunner')->attachment_options();
+
+            case 'attachmentsrequired':
+                return \question_bank::get_qtype('coderunner')->attachments_required_options();
+
             case 'sandbox':
                 // DEFAULT means "whichever sandbox claims the language", which
                 // is what almost every question wants.
@@ -298,6 +314,7 @@ class field_registry {
                 form_section::PARAMETERS,
                 default: 'twig',
                 merge: merge_rule::AFTER_EVALUATION,
+                helpstring: 'twigcontrols_help',
             ),
             new field(
                 'templateparamsevalpertry',
@@ -306,6 +323,7 @@ class field_registry {
                 form_section::PARAMETERS,
                 default: 0,
                 merge: merge_rule::AFTER_EVALUATION,
+                helpstring: 'twigcontrols_help',
             ),
             new field(
                 'uiparameters',
@@ -316,6 +334,7 @@ class field_registry {
                 merge: merge_rule::IF_SAME_UI,
                 twigable: true,
                 iscode: true,
+                helpstring: 'uiparametergroup_help',
             ),
             new field(
                 'supportfiles',
@@ -328,7 +347,14 @@ class field_registry {
             ),
 
             // Grading and penalties.
-            new field('allornothing', field_kind::INHERITED, field_type::BOOLEAN, form_section::GRADING, default: 1),
+            new field(
+                'allornothing',
+                field_kind::INHERITED,
+                field_type::BOOLEAN,
+                form_section::GRADING,
+                default: 1,
+                helpstring: 'markinggroup_help',
+            ),
             new field(
                 'penaltyregime',
                 field_kind::INHERITED,
@@ -336,6 +362,8 @@ class field_registry {
                 form_section::GRADING,
                 default: '10, 20, ...',
                 twigable: true,
+                helpstring: 'markinggroup_help',
+                labelstring: 'penaltyregimelabel',
             ),
             new field('precheck', field_kind::INHERITED, field_type::CHOICE, form_section::GRADING, default: 0),
             new field('hidecheck', field_kind::INHERITED, field_type::BOOLEAN, form_section::GRADING, default: 0),
@@ -366,33 +394,82 @@ class field_registry {
                 labelstring: 'student_answer',
             ),
             new field('useace', field_kind::INHERITED, field_type::BOOLEAN, form_section::UI, default: 1),
-            new field('answerboxlines', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 18),
+            new field(
+                'answerboxlines',
+                field_kind::INHERITED,
+                field_type::INTEGER,
+                form_section::UI,
+                default: 18,
+                helpstring: 'answerbox_group_help',
+            ),
             new field(
                 'attachments',
                 field_kind::INHERITED,
-                field_type::INTEGER,
+                field_type::CHOICE,
                 form_section::UI,
                 default: 0,
                 labelstring: 'allowattachments',
             ),
-            new field('attachmentsrequired', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 0),
+            new field('attachmentsrequired', field_kind::INHERITED, field_type::CHOICE, form_section::UI, default: 0),
             new field('maxfilesize', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 0),
-            new field('filenamesregex', field_kind::INHERITED, field_type::TEXT, form_section::UI, default: ''),
-            new field('filenamesexplain', field_kind::INHERITED, field_type::TEXT, form_section::UI, default: ''),
+            new field(
+                'filenamesregex',
+                field_kind::INHERITED,
+                field_type::TEXT,
+                form_section::UI,
+                default: '',
+                helpstring: 'allowedfilenames_help',
+            ),
+            new field(
+                'filenamesexplain',
+                field_kind::INHERITED,
+                field_type::TEXT,
+                form_section::UI,
+                default: '',
+                helpstring: 'allowedfilenames_help',
+            ),
 
             // Template and grader.
             new field('template', field_kind::INHERITED, field_type::TEXT, form_section::TEMPLATE, default: '', iscode: true),
-            new field('iscombinatortemplate', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 0),
-            new field('grader', field_kind::INHERITED, field_type::CHAR, form_section::TEMPLATE, default: 'EqualityGrader'),
+            new field(
+                'iscombinatortemplate',
+                field_kind::INHERITED,
+                field_type::BOOLEAN,
+                form_section::TEMPLATE,
+                default: 0,
+                helpstring: 'templatecontrols_help',
+            ),
+            new field(
+                'grader',
+                field_kind::INHERITED,
+                field_type::CHOICE,
+                form_section::TEMPLATE,
+                default: 'EqualityGrader',
+                helpstring: 'gradingcontrols_help',
+            ),
             new field('resultcolumns', field_kind::INHERITED, field_type::JSON, form_section::TEMPLATE, default: '', iscode: true),
             new field('testsplitterre', field_kind::INHERITED, field_type::CHAR, form_section::TEMPLATE, default: ''),
             new field('allowmultiplestdins', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 0),
             new field('extractcodefromjson', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 1),
-            new field('twigall', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 0),
+            new field(
+                'twigall',
+                field_kind::INHERITED,
+                field_type::BOOLEAN,
+                form_section::TEMPLATE,
+                default: 0,
+                helpstring: 'twigcontrols_help',
+            ),
             new field('hoisttemplateparams', field_kind::INHERITED, field_type::BOOLEAN, form_section::PARAMETERS, default: 1),
 
             // Sandbox, languages and limits.
-            new field('language', field_kind::INHERITED, field_type::CHAR, form_section::SANDBOX, default: ''),
+            new field(
+                'language',
+                field_kind::INHERITED,
+                field_type::CHAR,
+                form_section::SANDBOX,
+                default: '',
+                helpstring: 'languages_help',
+            ),
             new field(
                 'acelang',
                 field_kind::INHERITED,
@@ -401,16 +478,37 @@ class field_registry {
                 default: '',
                 labelstring: 'ace-language',
             ),
-            new field('sandbox', field_kind::INHERITED, field_type::CHOICE, form_section::SANDBOX),
-            new field('sandboxparams', field_kind::INHERITED, field_type::JSON, form_section::SANDBOX, iscode: true),
+            new field(
+                'sandbox',
+                field_kind::INHERITED,
+                field_type::CHOICE,
+                form_section::SANDBOX,
+                helpstring: 'sandboxcontrols_help',
+            ),
+            new field(
+                'sandboxparams',
+                field_kind::INHERITED,
+                field_type::JSON,
+                form_section::SANDBOX,
+                iscode: true,
+                helpstring: 'sandboxcontrols_help',
+            ),
             new field(
                 'cputimelimitsecs',
                 field_kind::INHERITED,
                 field_type::INTEGER,
                 form_section::SANDBOX,
                 labelstring: 'cputime',
+                helpstring: 'sandboxcontrols_help',
             ),
-            new field('memlimitmb', field_kind::INHERITED, field_type::INTEGER, form_section::SANDBOX, labelstring: 'memorylimit'),
+            new field(
+                'memlimitmb',
+                field_kind::INHERITED,
+                field_type::INTEGER,
+                form_section::SANDBOX,
+                labelstring: 'memorylimit',
+                helpstring: 'sandboxcontrols_help',
+            ),
 
             // Extras.
             new field(
