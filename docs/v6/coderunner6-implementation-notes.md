@@ -11,7 +11,7 @@ Technical details and gotchas found while checking the design against Moodle and
 - **Support files.** Stored through the file API in the manager's own component, with the version row's id as the item id. The file API deduplicates by content hash, so an unchanged file costs only a file record per version.
 - **Questions.** `question_coderunner_options` gains the prototype id and the overrides JSON. The old option columns stay, unused at run time, until phase 4; a legacy reader keeps using them for migration and for legacy import and restore.
 - **Field registry.** Every inheritable field is a registry entry in code with its type, default, merge rule (replace, merge by key, merge by filename) and form section. Resolution, both forms, export, backup and the migration check all work from the registry.
-- **Resolved settings cache.** A Moodle application cache keyed by the chain of version ids (the same string the attempt records), holding the resolved settings. Entries never go stale, because a version never changes, so no invalidation is needed except by pruning.
+- **Resolved settings cache.** **Not in 6.0**; see decision 15 in the milestones document, which defers it until a measurement asks for it, because `questiondata` is an application cache and so already resolves each question once rather than once per attempt. The design, if it is ever built: a Moodle application cache keyed by the chain of version ids (the same string the attempt records), holding the resolved settings. Entries never go stale, because a version never changes, so no invalidation is needed except by pruning.
 
 ## Resolution and versions
 

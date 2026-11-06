@@ -16,12 +16,13 @@ Built and verified on the development site, all uncommitted on the `Version6` br
 - **M1** field registry and resolver — 37 tests.
 - **M2** prototype storage, Site defaults, built-in installation, user-prototype snapshot, support files, read-only list page — 72 prototypes and 251 file records snapshotted from the live site.
 - **M3** question schema and migration — 12,346 questions converted in 3.3 seconds, and **all 12,346 verified to resolve exactly as CodeRunner 5 resolves them**. 405 question versions left broken for want of a resolvable prototype, which matches the health report's own count.
+- **M4** the run-time switch — **started**, three increments in. The two new columns are carried through save, import, export, backup and restore (decisions 17 and 18); and the 39 settings are no longer properties of `qtype_coderunner_question`, being reached through `__get`, `__set` and `__isset` with a generated `@property-read` block and a test that it matches the registry. And `get_question_options()` now resolves a question's inherited fields from `prototypeid` and `overrides` through the manager's chain, with `set_inherited_fields()` off the run-time path entirely. What remains is the collected fields.
 - **M1a has dissolved into M3.** Its "faithful reimplementation of `set_inherited_fields()`" is unnecessary while the CodeRunner 5 code is still present: the verifier calls `get_prototype()` and `set_inherited_fields()` directly, which cannot drift from the thing it is checking. What remained of M1a — the question converter and the verification script — is in M3.
-- **Next is M4**, the run-time switch. Nothing reads `prototypeid` or `overrides` at run time yet.
+- **Next in M4** is the collected fields: moving the per-layer template parameters, UI parameters and support files onto the chain, which is what finally satisfies decision 16 and retires `qtype_coderunner_question::get_prototype()` and its per-render query. It carries one open design question — the qt_var caching convention `_prototype__template_params_*` assumes exactly one prototype layer and does not generalise to a chain.
 
 **Development site state at that date**, which is transient and recorded only so a fresh session knows what it is looking at:
 
-- Nothing is committed. 39 modified and 8 untracked files in the question type on `Version6`, of which 26 of the modifications are only the `@coversNothing` and `@group` conversion to PHPUnit attributes. `public/local/coderunner_manager/` is untracked in the Moodle repository and is not yet a repository of its own.
+- M0 to M3 are committed as `5ae9cb56`, "Up to milestone3 in the V6 rewrite". The M4 work described below is uncommitted. `public/local/coderunner_manager/` is still untracked in the Moodle repository and is not yet a repository of its own, so M2's output has no commit anywhere.
 - `local_coderunner_manager` is installed and its tables are populated: 72 prototypes, 251 file records.
 - `question_coderunner_options` has `prototypeid` and `overrides` added and filled for all 12,751 rows. Additive only; no pre-existing column was written.
 - `qtype_coderunner` requires Moodle 5.0 and declares the manager as a dependency; `$plugin->release` is still `5.10.9` and wants deciding.
@@ -30,7 +31,9 @@ Built and verified on the development site, all uncommitted on the `Version6` br
 - Use `~/.config/composer/vendor/bin/phpcs --standard=moodle` (3.13.6 with `moodlehq/moodle-cs`). The `moodle-local_codechecker` copy bundles PHP_CodeSniffer 3.5.8, which reports named arguments as goto labels and carried a high-severity CVE.
 - Thirty-odd lint errors across the new code are all `enum` and `readonly class` blind spots in moodle-cs that Moodle core also trips; none is actionable.
 
-Suites: 208 tests / 1370 assertions in `qtype_coderunner_testsuite`, 58 / 333 in `local_coderunner_manager_testsuite`.
+Suites, after M4's second increment: 221 tests / 1395 assertions in `qtype_coderunner_testsuite` (19 skipped, all sandbox-dependent), 59 / 337 in `local_coderunner_manager_testsuite`. Both remain the pre-M4 208 / 1370 and 58 / 333 plus exactly the new tests, so no pre-existing assertion has changed.
+
+One new lint error, in `question.php`: the class comment was `/*` and is now `/**`, which it has to be for the `@property-read` block to mean anything to an IDE, and moodle-cs reports any docblock after a `require_once` as an inline one. Every test file in the plugin already trips the same sniff.
 
 Line numbers are from Moodle 5.2.1 and will drift; the surrounding function names are the durable reference. Paths are relative to Moodle's `public/` directory **except** `admin/cli/`, which in Moodle 5.x sits at the repository root, outside the document root (`public/admin/cli` does not exist). That matters for the comparison script in milestone 1.
 
@@ -181,7 +184,7 @@ The data is absent, not merely uncached, so reading the contexts by direct SQL i
 
 ## 4. Milestones for 6.0
 
-Nine milestones. M0 is the only one that ships in the 5.x line. M1 to M5 are strictly sequential; M6 and M7 can proceed in parallel once M5 lands.
+Ten milestones. M0 is the only one that ships in the 5.x line. M1 to M4 are strictly sequential, then M4a, and then the authoring UIs; M5 comes last of the 6.0 work. See decision 19 for why the order changed.
 
 ### Where the migration runs, and why it cannot be gated
 
@@ -299,31 +302,101 @@ Instance fields keep their own columns and stay out of the overrides document, w
 
 **Measured on the development site:** 12,346 questions converted in 3.3 seconds, 0.26 ms a row, which extrapolates to about 105 seconds at 400,000 rows. Verification took 60 seconds for 12,751 rows because the old side queries per question; at 400,000 that is roughly 35 minutes, which is tolerable for a re-runnable diagnostic but would want the same index treatment to be comfortable on the largest sites.
 
+**Correction found in M4, and it was the largest fault so far.** A migrated prototype carried only `legacy_converter::fields_inherited_in_v5()`, which is `extra_question_fields_static()` less `noninherited_fields()`. That subtraction looks like "what a prototype supplied" and is not: `noninherited_fields()` says which controls the authoring form hides behind its *Customise* checkbox. Template parameters, UI parameters and support files each reached a question by their own dedicated mechanism — `evaluate_merged_parameters()`, `evaluate_merged_ui_parameters()` and `get_files()` — so they are absent from that list while being fully effective at run time.
+
+So migrated prototypes silently lost their template and UI parameters: on the development site, 12 prototypes' template parameters and 25 prototypes' UI parameters, reaching **11,883 of 12,346 questions**. The lost values were not decoration — `wrapper_src`, which tells the scratchpad UI where to find its wrapper, and the `isdirected` and `isfsm` flags of the graph UI.
+
+**Why nothing caught it.** The fault was latent, not live: `evaluate_merged_parameters()` and `evaluate_merged_ui_parameters()` still read the legacy prototype *question*, so behaviour was correct and remained correct through M4's first three increments. It would have become live in the increment that moves the collected fields onto the chain, at which point 96% of the site's questions would have lost their UI configuration at once. The verifier could not see it either, by construction: decision 3 excludes support files from comparison, and the collected fields are compared as each layer's raw strings rather than as merged output, so a prototype contributing nothing where it should contribute something is invisible to it.
+
+**The lesson is about the premise, not the code.** Three separate places had written down that a prototype's value for these fields "was ignored by CodeRunner 5". It was a plausible reading of `noninherited_fields()` and it was wrong, and no test could contradict it because every test encoded the same assumption. What found it was reading the live data before building on it — the migrated prototypes had zero template and UI parameters where the CodeRunner 5 rows had plenty.
+
+Fixed by `legacy_converter::fields_supplied_by_v5_prototypes()`, with the language and per-try settings carried only alongside actual parameters, since alone they describe nothing. Three tests pin it. The existing data was repaired by re-running `install_builtins()` and `snapshot_user_prototypes()` with the corrected converter — 2 built-ins and 41 user prototypes gained a version 2 — which is exactly the recovery route decision 8 reserves for this case, and needed no backup.
+
 **Exit, met:** the migration is idempotent, re-running converts nothing; it changes no existing column, which a test asserts field by field; an unresolvable question is left with a null `prototypeid` and still gets its overrides document, so it is recorded as broken rather than silently acquiring someone else's prototype; and verification reports zero differences across every question on the development site.
 
 ### M4. Switch the run-time path
 
-`get_question_options()` and `qtype_coderunner_question::get_prototype()` resolve from `prototypeid` and `overrides`, with the resolved-settings cache keyed by the chain of version ids.
+`get_question_options()` and `qtype_coderunner_question::get_prototype()` resolve from `prototypeid` and `overrides`. Resolution stays inside `get_question_options()`, where the `questiondata` cache already covers it, and carries the per-layer data the collected fields need into `$options` with it, so that nothing on the per-attempt path reads a prototype table. There is no resolved-settings cache in 6.0. See decisions 15 and 16.
 
 **There is one resolution path, not two.** A question whose `prototypeid` is null is broken and reports itself as broken, which is what the design already specifies for questions the migration could not resolve ("stored without a prototype and stay broken", design section 10) and is how a missing prototype presents today. Name-based lookup survives only in the migration and in legacy import and restore (M5) — boundary code that runs once per question, never on the run-time path. The legacy resolver of M1a is scaffolding and is not shipped as an alternative.
 
-**Reaching the resolved settings from existing code.** Roughly 42 of the resolved settings are public properties of `qtype_coderunner_question` today, read as `$question->template` on about 319 lines, most of them in `classes/jobrunner.php`, `renderer.php`, `edit_coderunner_form.php` and `questiontype.php`. In CodeRunner 6 those values live in a `question_settings` object, so the three options are to rewrite every call site, to keep the properties and copy them off the settings object at load time, or to delete the properties and delegate through `__get`.
+**Reaching the resolved settings from existing code.** **39** of the resolved settings are public properties of `qtype_coderunner_question` today — the registry's 44 fields less `supportfiles` and the four test case field switches, which are not columns — read as `$question->template` on **about 210 lines of non-test code** and a further 260 in the test suite. The non-test sites are concentrated: `question.php` 53, `renderer.php` 45, `classes/jobrunner.php` 23, `edit_coderunner_form.php` 12, `questiontype.php` 5. (An earlier draft said 42 properties and 319 lines; both were counted loosely and are corrected here.) In CodeRunner 6 those values live in a `question_settings` object, so the three options are to rewrite every call site, to keep the properties and copy them off the settings object at load time, or to delete the properties and delegate through `__get`.
 
 M4 takes the third, staged towards the first:
 
-- The 42 properties are removed and `__get` resolves the name through the registry, so an unknown name throws instead of evaluating to null as it does today. No call site changes.
+- The 39 properties are removed and `__get` resolves the name through the registry, so an unknown name throws instead of evaluating to null as it does today. No call site changes.
 - `@property-read` lines are **generated from the registry** into the class docblock, with a test asserting they match `field_registry::all()`. Without them `__get` costs IDE completion, type checking and static analysis; generating them means they cannot drift from the field list.
 - `__get` gains a `debugging()` notice when convenient, call sites are converted to `$settings->get(...)` as each file is touched for other reasons, and `__get` is deleted when the count reaches zero. Completing that is V7 work.
 
-The explicit form is the better end state. It is staged rather than done at once because those 319 sites sit almost entirely in code the prototype change does not otherwise touch, so rewriting them would put risk into the most stable part of the plugin during its largest release, and because a 319-site commit is not reviewable whereas file-by-file conversion is.
+The explicit form is the better end state. It is staged rather than done at once because those 210 sites sit almost entirely in code the prototype change does not otherwise touch, so rewriting them would put risk into the most stable part of the plugin during its largest release, and because a 210-site commit is not reviewable whereas file-by-file conversion is.
 
-**Two prerequisites, not tidy-ups.** `__get` fires only for undefined properties, and `question.php` declares `#[AllowDynamicProperties]` while `twig_all()` assigns to those same field names. The first assignment therefore creates a real property that shadows `__get` for the rest of the request, silently and only for fields that were non-empty — six registry fields are exposed (`answer`, `answerpreload`, `globalextra`, `prototypeextra`, `penaltyregime`, `uiparameters`). So Twig expansion must return a new settings object instead of mutating in place, and `AllowDynamicProperties` must go. Neither is optional.
+**Built so far.** The columns are carried everywhere a question is written or read as data, which had to come first because `get_question_options()` cannot resolve from columns it does not load:
+
+- `prototypeid` and `overrides` added to `extra_question_fields()` **and** to `noninherited_fields()`. The second is not optional: without it `clean_question_form()` nulls both on every save, because it nulls any inherited field that arrives blank, and `set_inherited_fields()` copies a prototype question's values over them.
+- `qtype_coderunner::set_prototype_reference()`, called from `save_question_options()` immediately after `clean_question_form()`, derives both columns from the question's CodeRunner 5 columns. It must run there and not earlier: cleaning is what makes a null column mean "inherited", which is precisely the converter's input contract. Its rules match `question_migrator` deliberately, and a test asserts a question saved after the upgrade needs no migration.
+- `qtype_coderunner::resolve_prototype_id()` and `prototype_repository::find_by_name_for_course()` do the name lookup. A name is unique across a course's prototypes and all site prototypes, so it returns at most one and needs no tie-break.
+- Moodle XML **import** needed nothing: `qformat_default::importprocess()` calls `save_question_options()` directly (`question/format.php:513`), after the question, bank entry and version rows exist, so an imported question resolves its prototype by name like any other save. Moodle XML **export** blanks both columns on the exported copy, since a local id in a shareable file is at best meaningless.
+- Restore nulls `prototypeid` as the deliberate stub of decision 17, and `/options/prototypeid` is excluded from the identity hash.
+
+Two things found while doing it. `clone $question` in `export_to_xml()` is shallow, so `options` was shared with the caller and every "export only" change leaked back into the live question; options is now cloned too. And the migrator's own tests had to be changed to null the two columns before migrating, because a fixture saved through the form now arrives already converted — a test of the migration would otherwise pass without the migration running.
+
+**The three write prerequisites dissolve into `__set`, and that is the whole trick.** Built, and the plan here was wrong about what it would cost. The concern was that `__get` fires only for *undefined* properties, so any assignment to one of the 39 names would create a real property that shadowed `__get` for the rest of the request — making `twig_all()`, `make_question_from_form_data()` (`edit_coderunner_form.php:1762-1774`) and `initialise_question_instance()` blocking prerequisites, each needing to be rewritten before the properties could go.
+
+Defining **`__set`** removes all three at once. A write to a field name is intercepted and lands in the field values, so there is no property to shadow with and no call site to change. A write to anything else keeps the dynamic-property behaviour the authoring form depends on — it assigns every submitted form field, most of which are not question fields at all — so `#[AllowDynamicProperties]` stays rather than being a prerequisite. Removing it is V7 tidying, not a condition of this milestone. `twig_all()` likewise needs no change: its assignments now land in the field values, so the mutation is contained without having to return a new settings object.
+
+**`__isset` is required, not optional**, and this part was right. `initialise_question_instance()` copies an option onto the question only when `isset()` says it is absent, and `classes/jobrunner.php:81` tests `empty($question->prototype)`. It returns true exactly when the value is not null, which is what `isset()` reported when these were declared properties. `__get` delegates an unknown name to `question_definition::__get()` (`question/type/questionbase.php:156`), which serves `latestversion` and returns null for a name nothing knows — the same as reading an undefined property did before. It does not throw: the plan's "an unknown name throws" would have to be reconciled with core returning null there, and nothing yet needs it.
+
+**Two of the fields had property initialisers** — `answerboxlines = ''` and `validateonsave = 1` — and code reads them before a question is loaded, so those values are kept in a constant and served when nothing has set the field. Without this the two silently become null.
+
+**What `__get` cost, and it was not the call sites.** No call site needed changing, as predicted. What did break was code that iterates a question object's *properties*, because the 39 are no longer among them:
+
+- `export_to_xml()` cleared an inherited field by iterating the prototype object with `foreach ($row as $field => $value)`. It now iterates the inherited field names and reads each through `__get`. The rewrite also fixed a live hazard beside it: `get_prototype()` returns an *array* of candidates when a name is ambiguous, and the guard tested only truthiness, so the loop ran over the candidate list; it now tests `is_object()`.
+- Two test fixtures built a question with `make_question()` and handed it to `save_question()` as the editing form. Production never does that — the form is always plain form data, and `questiontypebase::save_question_options()` reads it with `property_exists()` — so the prototype was saved without its template, time limit or template parameters, and five tests failed for that one reason. The base test case gained `form_data_from_question()`, which flattens a question into form data, and both fixtures use it.
+
+This is the general lesson for the rest of the conversion: `__get` is transparent to anything that *reads a named field*, and invisible to anything that *enumerates properties*. The second set is small and findable, but it is where the work is.
+
+**Resolution switched, and the whole suite passed unchanged.** `get_question_options()` now calls `resolve_inherited_fields()`, which builds the chain through `prototype_repository::chain_for()` from `prototypeid` and the question's `overrides`, and writes every resolved inherited field into the options object. Downstream sees the same flattened options it always has, so no call site changed and 221 tests passed with no edit to a single assertion — which is the result M3's verifier predicted, since it had already shown all 12,346 questions resolving identically both ways.
+
+Four details that were decisions rather than mechanics:
+
+- **`prototypeid` is the only authority on whether a question resolves.** A null one means broken, and the CodeRunner 5 name lookup is deliberately not consulted as a fallback, since a second resolution path is what this release removes. A chain that throws — a missing prototype, or parent links forming a cycle, both of which bad restored data can produce — is treated the same way.
+- **Only `INHERITED` fields with a column are written.** Instance fields keep their own columns, collected fields are merged per layer rather than resolved to one value, and a field with no column is not part of the options object.
+- **`customise`, which the CodeRunner 5 form still needs, is computed from provenance** — whether the question's own layer supplied the value — but only over `legacy_converter::fields_inherited_in_v5()`. Over the whole field set it would report every question as customised, because the migration pins twenty fields on every one of them.
+- **`$question->prototype` is still loaded by name**, and only to merge the collected fields. That is the last use of the legacy lookup on this path, and it goes with the next increment.
+
+`set_inherited_fields()` now has no run-time caller. What is left is the CodeRunner 5 form (`edit_coderunner_form.php:1788`, M7), the migration verifier, which calls it deliberately as its "before" side, and the test helper.
 
 Whether this milestone also pins attempts to prototype versions is an open decision; see section 6. If it does, it additionally carries the `_prototypeversions` qt_var, the regrade detection and refresh of section 2, and the guard unit test including the `start_based_on` case.
 
-**Exit:** the existing PHPUnit suite passes unchanged, plus new tests for cache keying and for a null-prototype question presenting as broken. The question form is still the old one, deliberately. This is the highest-risk milestone and every form change stays out of it.
+**Exit:** the existing PHPUnit suite's **assertions** pass unchanged — its *fixtures* must change, because `tests/helper.php:1356-1393` builds question objects by direct assignment to about 25 of the 39 names and would otherwise shadow `__get` in every test, hiding the resolver from the very suite meant to exercise it — plus a test that `apply_attempt_state()` reads no prototype table (decision 16), a test that a null-prototype question presents as broken, and a before-and-after measurement of exam-start database cost against 5.x (decision 15). The question form is still the old one, deliberately. This is the highest-risk milestone and every form change stays out of it.
+
+### M4a. The upgrade, end to end
+
+Short, and the thing that makes a real course testable. Everything the migration needs exists — the question type's upgrade step adds `prototypeid` and `overrides` at version `2026110600`, and the manager's `install.php` queues the task that fills them — but the *delivery* has never been exercised. On the development site the prototypes were installed by running the task directly, not by the path a real site takes.
+
+Three faults stand in the way, all found by looking at the site rather than the code:
+
+1. **Cron is not processing adhoc tasks there.** Nineteen copies of `qtype_coderunner_setup_question_prototypes` are queued and unrun, the oldest from 6 April 2026. So the queue-on-install, run-on-cron mechanism the whole migration depends on has never actually been observed working.
+2. **`update_question_types()` was called unconditionally** — at the end of `db/upgrade.php`, outside every version guard — so every plugin upgrade queued another copy of that task. That is where the nineteen came from. It cannot simply be deleted: the CodeRunner 5 form resolves prototypes by name against the prototype *questions* it installs, so it has to survive until M7 replaces the form. **Fixed** by passing `$checkforexisting` to `queue_adhoc_task()`, so a duplicate is not queued while one is still pending.
+3. **The manager has no re-queue path.** `install.php` queues the migration task only on a fresh install, so a site whose task was lost, or which installed the manager before the task existed, has no route back. An upgrade step that queues it when the prototype tables are empty gives one.
+
+**Adding a column to `extra_question_fields()` requires a version bump, and this bit for real.** The `core/questiondata` application cache holds the options object, built from whatever that method listed at the time. `questiontypebase::initialise_question_instance()` then reads *every* field in the current list off it (`question/type/questionbase.php:1027` region), unconditionally. So a cache entry written before a field was added makes every subsequent question load warn `Undefined property: stdClass::$overrides`.
+
+Only an upgrade purges that cache — `purge_all_caches()` runs at the end of `upgrade_plugins()` (`lib/upgradelib.php:1871` and nearby). Adding the two columns to the list without bumping `$plugin->version` therefore left a site whose schema was already current, so no upgrade ran, so the stale entries survived. The release is not exposed to this, because the schema step and the field-list change ship at one version and a 5.x site gets a single purge on the way through; but every development change to that list needs its own bump, and `admin/cli/purge_caches.php` is the manual remedy.
+
+Also here: `$plugin->release` is still `'5.10.9'` and wants deciding.
+
+**Exit:** a clone of the development site, restored from a pre-6.0 database, upgrades through the plugin-check page with cron running normally, the migration task runs itself, the verification script reports zero differences, and a question in a real course renders and grades. That is the first point at which an author can be let near it.
 
 ### M5. Backup, restore, import and export
+
+**Moved to last of the 6.0 work (decision 19).** Much of what made this urgent is already handled by M4's boundary code: Moodle XML import resolves a question's prototype by name through `set_prototype_reference()`, export carries no local id, and restore resolves by name too. What remains genuinely outstanding is a course backup carrying the prototypes themselves, and id- and uuid-based matching for the cases a name cannot settle.
+
+**The identity hash has never included inherited values, which narrows this milestone.** The hash is built from `get_question_options()` output on the database side, but the caller sets `export_process = true` first (`backup/util/dbops/restore_dbops.class.php:728-730`), and CodeRunner skips `set_inherited_fields()` on exactly that flag (`questiontype.php:452`). So both sides of the comparison have always used the question's own raw columns, and the existing exclusion list already covers the two things `get_question_options()` adds, `customise` and `prototype`. The identity-hash work here is therefore confined to the new columns; see open question 17.
+
+**The question backup needs a portable prototype identity, not just `prototypeid`.** The case that decides the format is a quiz backup from course A restored into course B on another site, where the prototype was never in the backup because it lives in course A's bank or at site level. There is no id mapping to look up, so the question element carries the prototype's **uuid** as well as its id: the id resolves a same-site restore directly, and the uuid finds an existing copy on another site through `find_by_uuid()`. The name is not carried as a new element, because `coderunnertype` already holds it for as long as it exists (decision 18).
+
+The uuid is not a column of `question_coderunner_options`, so it cannot travel through `extra_question_fields()` the way `prototypeid` does. It is added by changing the options element from `set_source_table()` (`backup_qtype_coderunner_plugin.class.php:63`) to `set_source_sql()` with a left join to the prototypes table, which is a change to the backup format rather than to the column list. Because it is computed at backup time it is current by construction, which `coderunnertype` is not.
 
 `backup_local_coderunner_manager_plugin` with the course and question structures and write-once recording through `backup_ids_temp`; `restore_local_coderunner_manager_plugin` with both structure methods and linking in `after_restore_question()` per section 1.3; identity-hash exclusions and legacy conversion in `convert_backup_to_questiondata()`; then Moodle XML reference-only, include-prototypes and flatten, and legacy prototype-question import. If attempts are pinned, this also carries the `recode_response()` extension of section 1.4 and backup of each prototype's whole version history.
 
@@ -354,7 +427,7 @@ The `before_course_deleted` handler; the cleanup script for legacy prototype que
 | Shared registry-driven form component | qtype | keeps the question form's dependencies local |
 | Question form and picker rendering | qtype | |
 | `prototypeid` and `overrides` columns | qtype | columns of the qtype's own table |
-| Resolved-settings cache | qtype | consumed on the question-load path |
+| Resolved-settings cache (deferred, decision 15) | qtype | behind the resolver on the question-load path, if measurement ever justifies it |
 | `_prototypeversions` qt_var and pinning, if adopted | qtype | question-attempt state |
 | `recode_response()` for `_prototypeversions`, if adopted | qtype | core calls only the qtype restorer there (section 1.4) |
 | Prototype tables and version history | manager | the course-level backup point is the whole reason it exists |
@@ -417,7 +490,79 @@ Taken:
 
     Resolved by removing the setting and resolving the new-question default from Site defaults instead, falling back to the registry default if the install task has not yet run. Keeping the two in step with a `set_updatedcallback` was considered and rejected: it synchronises only from the setting to Site defaults, so editing Site defaults would leave the settings page displaying a stale value, which is worse than no synchronisation because it looks consistent.
 
+15. **The resolved-settings cache is deferred until it can be measured.** The notes' *Resolved settings cache* assumes a Moodle application cache keyed by the chain of version ids. 6.0 ships without one.
+
+    `questiondata` is `MODE_APPLICATION` with a datasource (`lib/db/caches.php:85-91`), so it is shared across requests and users rather than being per-request. Resolution therefore happens once per question per cache lifetime, not once per attempt: an exam with 500 students on 30 questions resolves about 30 times. A three-to-five layer chain walk over two small indexed tables, thirty times, is not measurable against the cost of initialising 500 students' attempts, which is where the database pressure at exam start actually comes from.
+
+    The one part of resolution that can go stale is the prototype-to-current-version map, and the manager purges that alongside the `questiondata` purge it must do anyway when a prototype is saved. So deferring the cache removes an invalidation path rather than creating one. Prototype saves are rare — days with none, and at most one every ten minutes while a prototype is being developed — so the existing purge-the-children mechanism is adequate and is kept, including the bulk-purge threshold added for the 400,000-question site.
+
+    Nothing is foreclosed: the cache would sit behind the resolver and needs no data migration, so it can be added whenever a measurement asks for it. Decision 7's retained analysis predates this and refers to the cache as a given.
+
+16. **No prototype or version table access on the per-attempt path.** This is the condition that makes decision 15 safe, and it is a requirement on M4 rather than an optimisation.
+
+    `apply_attempt_state()` runs every time an attempt is loaded for rendering or grading, and calls `evaluate_question_for_display()` and so `get_prototype()` (`question/type/coderunner/question.php:279-281`). In CodeRunner 5 that reaches the uncached five-table join with a correlated `MAX(version)` subquery at `questiontype.php:576`. Measured warm on the development site for `python3_scratchpad`, which has 8,304 children, across all contexts: 5.5 ms. At exam start that is 500 executions per question, in the window where the database is already under the most pressure.
+
+    So `get_question_options()` must produce not only the resolved single-value fields but everything the collected fields need — each layer's template parameters with that layer's language and per-try flag, each layer's UI parameters, and the support-file chain — and put them in `$options`, where `questiondata` holds them. The per-attempt path then does no prototype database access at all, and 6.0 is cheaper than 5.x on the one path that runs once per student per page.
+
+    Getting this wrong inverts it: resolving on the per-attempt path would replace one join with three to five queries, 500 times, making exam start worse and then needing a cache to hide it.
+
+    Enforced by a test that counts database reads across `apply_attempt_state()` and asserts that none touches `local_coderunner_manager_prototypes` or `local_coderunner_manager_versions`, rather than by review, so that a lookup added later fails loudly.
+
+    **Consequence for what goes in `$options`.** It is serialised into the `questiondata` store, so the per-layer data is stored as plain arrays and the `question_settings` object is rebuilt from them per attempt, without database access. A serialised object whose class shape changes across a plugin upgrade is a failure mode worth not having.
+
+17. **`prototypeid` and `overrides` go into `extra_question_fields()`.** They are absent today; M3 added the columns only. `get_question_options()` now has to read both, and `parent::get_question_options()` loads exactly the columns that method names, so they belong in the list by the same ownership argument as decision 1. There is no counter-argument worth the name: the alternative is custom load-and-save code in the question type, written only to be deleted. An earlier draft of this document put the choice as an open question, which overstated it.
+
+    What the choice does carry is two consequences, both of which are real work.
+
+    **The identity hash.** `/options/prototypeid` joins `define_excluded_identity_hash_fields()` beside the existing `/options/testcases/questionid`; both are local ids that differ between sites and would otherwise make an identical question fail to match. `overrides` is content rather than an id, so it stays in the hash.
+
+    **Restore must not carry the raw id.** Adding a field to `extra_question_fields()` also adds it to the backup, because the backup element list is built from that method (`backup_qtype_coderunner_plugin.class.php:49-55`). That is a trap in M4 rather than a benefit, because **Moodle's id remapping is explicit, not automatic.** A reference is declared on the backup side with `backup_nested_element::annotate_ids()` and resolved on the restore side with `get_mappingid()`, which reads `backup_ids_temp` by restore id and item name (`restore_structure_step::get_mapping()`, `backup/util/plan/restore_structure_step.class.php:218`). Nothing inspects column names or types. CodeRunner's own restorer shows it plainly: `process_coderunner_options()` inserts `$data` from the XML wholesale and remaps exactly one field, `questionid`, through `get_new_parentid('question')` (`restore_qtype_coderunner_plugin.class.php:113,142`).
+
+    An unmapped `prototypeid` would therefore survive a same-site course copy or quiz duplication *by accident*, and on a cross-site restore would point at whatever prototype happens to hold that id on the target site: wrong, but plausible-looking, where a null is visibly broken. The accidental same-site success is what makes it dangerous, since that is the case a developer tests first.
+
+    M4 could not do the real mapping even if it tried: the mapping entry a question would look up is created by the manager's restore step, which is M5, and until that exists `get_mappingid()` returns false for every question. So M4's restorer nulls `prototypeid` as a deliberate one-line stub, and M5 replaces it with real linking. A restored question is then broken and says so, which is what the design already specifies for an unresolvable question.
+
+    Because `get_mapping()` is keyed only by restore id and item name, a mapping set by one plugin's restore step is readable by another's, which is what makes the M5 plan — the manager's step maps the prototypes, the question type links in `after_restore_question()` (section 1.3) — work at all.
+
+**Three identifiers, one authority.** A prototype is named three ways in 6.0, which looks like redundancy and is not: each is authoritative over a different scope, and exactly one of them is read at run time.
+
+| | Where it lives | Scope | Read by |
+| --- | --- | --- | --- |
+| `prototypeid` | `question_coderunner_options` | this site only | resolution, at run time — the only identifier on that path (decision 1's corollary) |
+| `uuid` | `local_coderunner_manager_prototypes` | the prototype's lineage, anywhere it has been copied | restore and import matching, at boundaries only |
+| `coderunnertype` | `question_coderunner_options` | a human-readable name, frozen at migration or save | the verification script's "before" side, the broken-question message, the restore name fallback, and a re-run of the migration |
+
+This is the same three-way split core uses for questions themselves — `id` local, `stamp` portable and used for cross-site restore matching (`backup/util/dbops/restore_dbops.class.php:620,624`), `name` human — so it is the established pattern rather than a CodeRunner invention. Phase 4 drops `coderunnertype` and leaves the usual two.
+
+**`coderunnertype` can be a frozen record or a live label, not both.** Frozen, it is a dependable migration input and verifier baseline, and its name may be out of date after a prototype is renamed. Live, it is a useful denormalised type label and M6's rename has to update every child question, which reintroduces the bulk-update problem that renaming a prototype causes in CodeRunner 5. 6.0 takes frozen, for the verifier. If the label is wanted for its own sake beyond phase 4, that is the point to switch it to live and accept the rename cost.
+
+18. **`coderunnertype` is not replaced by `prototypeid` in 6.0.** The two look redundant — `coderunnertype` is the prototype's identifier in CodeRunner 5, and `field_registry::legacy_columns()` already records that it is superseded — but it retires in phase 4 with the other legacy columns, not now. Three reasons, strongest first.
+
+    **`prototypeid` is not a portable identity and `coderunnertype` is.** The hard restore case is not the course backup that contains the prototype; it is the quiz backup from course A restored into course B on another site, where the prototype lives in course A's bank or at site level and was never in the backup at all. There is no mapping to look up, so the question can only be linked by a durable identifier. Replacing a portable identifier with a non-portable one would be a step backwards.
+
+    `coderunnertype` carries the prototype's **name**, which is the only thing the question has to go on when its chain cannot be resolved at all — which is exactly when no chain is available to read a name from. CodeRunner 5 already works this way: `missingprototypewhenrunning` is given `['crtype' => $question->coderunnertype]` (`classes/jobrunner.php:88`). So no new name element is needed in 6.0; one becomes necessary only in phase 4, when `coderunnertype` goes.
+
+    A name is not a sufficient identity on its own, which is why M5 adds the prototype's **uuid** to the backup alongside it. Prototype names are unique only per `(courseid, name)` plus the site set, so two courses may each have a `python3_mine`, and a name lookup scoped to the target course and site can legitimately match a *different* prototype of the same name — the CodeRunner 5 ambiguity that CodeRunner 6 exists to remove, reintroduced at the restore boundary. The uuid identifies the same lineage wherever it has been copied, which is what `find_by_uuid()` is for. Restore therefore tries the id, then the uuid, then the name with CodeRunner 5's semantics, then reports the question broken.
+
+    **`coderunnertype` is a frozen snapshot, not a live name.** Nothing updates it when a prototype is renamed in the manager, and decision 18's third reason wants it frozen, since it is the verification script's "before" side. So it is a reliable migration input and an unreliable current name, and the uuid in the backup is computed fresh at backup time rather than being derived from it.
+
+    **Backward portability across the version boundary, and it costs nothing.** `insert_record()` silently drops keys that are not columns of the table (`lib/dml/mysqli_native_moodle_database.php:1487-1489`). So a 6.0 backup restored into a 5.x site has `prototypeid` and `overrides` dropped on the way in and still carries `coderunnertype`, so 5.x's name lookup finds the prototype and the question works. Stop writing `coderunnertype` and that restore yields a question with no prototype identity at all. Restoring a newer backup into an older site is not officially supported, but CodeRunner courses do move between sites running different versions.
+
+    **It is what makes the migration re-runnable.** Decision 8's accepted consequence and design section 10 both rest on correcting the converter and re-running from retained data. `coderunnertype` is the input to the name lookup, and it is the "before" side of the verification script. Stop writing it and both are gone.
+
+    They are also not strictly redundant, because they can disagree, and the disagreement is load-bearing: a question with a null `prototypeid` and a `coderunnertype` of `python3` is a migration failure, and that is exactly what the verifier and the health report read. Collapsing them into one field would remove the ability to detect it.
+
+19. **The authoring UIs come before backup and restore, and an upgrade milestone comes before both.** The original order put M5 before M6 and M7 on the principle of finishing the data layer first. Nothing in M6 or M7 depends on M5: the editor needs M1 and M2, the question form needs M1, M2 and M4's resolution, and neither reads anything M5 produces. The order was tidiness, not a constraint.
+
+    What the order has to serve instead is the first useful milestone for the person building the thing: being able to author and run CodeRunner 6 questions in a real course. That needs M4, a working upgrade, and the two UIs — and not backup. So: finish M4, then **M4a** the upgrade end to end, then M7, then M6, then M5.
+
+    This reorders work and reduces nothing. M5 must still land before 6.0 ships, because until it does a course backup carries no prototypes at all, and restoring such a backup into a site that does not already have them by name leaves questions visibly broken.
+
+    The risk accepted in the meantime is bounded and visible rather than silent: between now and M5, a restore or duplication resolves a question's prototype by name, which succeeds whenever the target scope has one of that name and otherwise leaves the question reporting itself broken.
+
 Open:
+
+Nothing. Decision 7, below, is retained for its analysis.
 
 7. **~~Does 6.0 pin attempts to prototype versions?~~** Settled as decision 11: no.
 
