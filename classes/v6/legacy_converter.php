@@ -272,4 +272,19 @@ class legacy_converter {
     public static function documentation(array $columns): string {
         return (string) ($columns['questiontext'] ?? '');
     }
+
+    /**
+     * The format a converted prototype's documentation is written in.
+     *
+     * A prototype question's text carried a format like any other Moodle text,
+     * and the documentation that replaces it is edited through the same editor,
+     * so the format travels with it. Defaults to HTML, which is what every
+     * prototype question on the development site used.
+     *
+     * @param array $columns column name => value, including 'questiontextformat'.
+     * @return int the FORMAT_ constant.
+     */
+    public static function documentation_format(array $columns): int {
+        return (int) ($columns['questiontextformat'] ?? FORMAT_HTML);
+    }
 }
