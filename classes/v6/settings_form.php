@@ -366,6 +366,27 @@ class settings_form {
     }
 
     /**
+     * Submitted text with its line endings in the form the rest of CodeRunner
+     * uses.
+     *
+     * An HTML form submits CRLF whatever the textarea was given, so saving a
+     * template that was stored with newlines rewrites every line of it. The
+     * text is unchanged to look at, which makes the consequence worse rather
+     * than better: a change history reports the field as edited, and the
+     * before and after columns show the same thing.
+     *
+     * CodeRunner 5 has the same behaviour and patches one symptom of it in
+     * renderer.php, where a submitted answer is cleaned on the way back out.
+     * This cleans it on the way in, which is where it starts.
+     *
+     * @param mixed $value the submitted value.
+     * @return mixed the value, with CRLF and bare CR turned into newlines.
+     */
+    protected static function normalise_newlines($value) {
+        return is_string($value) ? str_replace(["\r\n", "\r"], "\n", $value) : $value;
+    }
+
+    /**
      * The PARAM_ type a field's submitted value is cleaned with.
      *
      * @param field $field the field.
@@ -408,7 +429,7 @@ class settings_form {
                 unset($values[$name]);
                 $overridden = !empty($data[self::OVERRIDE_PREFIX . $name]);
                 if ($overridden && array_key_exists($name, $data)) {
-                    $values[$name] = legacy_converter::cast($name, $data[$name]);
+                    $values[$name] = legacy_converter::cast($name, self::normalise_newlines($data[$name]));
                 }
             }
         }

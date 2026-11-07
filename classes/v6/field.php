@@ -137,7 +137,10 @@ final readonly class field {
             field_type::BOOLEAN => (int) (bool) $value,
             field_type::INTEGER => $value === null ? null : (int) $value,
             field_type::FILES => $value,
-            default => $value === null ? '' : (string) $value,
+            // Line endings are not content. A form submits CRLF whatever it
+            // was given, so without this every multi-line field looks changed
+            // the first time a prototype is saved through the editor.
+            default => $value === null ? '' : str_replace(["\r\n", "\r"], "\n", (string) $value),
         };
     }
 

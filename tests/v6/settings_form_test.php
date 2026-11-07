@@ -402,4 +402,41 @@ final class settings_form_test extends \advanced_testcase {
         $this->assertStringContainsString('…', $note, 'A long value was not truncated.');
         $this->assertLessThan(300, \core_text::strlen(strip_tags($note)));
     }
+
+    /**
+     * A form submits CRLF whatever the textarea was given, so the submitted
+     * value is brought back to newlines before it is stored. Otherwise saving
+     * a template rewrites every line of it without changing a character that
+     * anyone can see.
+     */
+    public function test_submitted_line_endings_are_normalised(): void {
+        $overrides = settings_form::overrides_from(
+            ['template' => "line one\r\nline two\r\n", 'override_template' => 1],
+            [form_section::TEMPLATE],
+            new override_set([], 'p')
+        );
+
+        $this->assertSame("line one\nline two\n", $overrides->get('template'));
+    }
+
+    /**
+     * Text that differs only in its line endings is not a change, so a history
+     * does not report a field as edited when nothing about it moved.
+     */
+    public function test_line_endings_alone_are_not_a_difference(): void {
+        $before = new override_set(['template' => "a\nb\nc"], 'v1');
+        $after = new override_set(['template' => "a\r\nb\r\nc"], 'v2');
+
+        $this->assertSame([], $after->differences_from($before));
+    }
+
+    /**
+     * A real edit is still reported, so the leniency does not hide anything.
+     */
+    public function test_a_real_change_is_still_a_difference(): void {
+        $before = new override_set(['template' => "a\nb"], 'v1');
+        $after = new override_set(['template' => "a\r\nB"], 'v2');
+
+        $this->assertArrayHasKey('template', $after->differences_from($before));
+    }
 }
