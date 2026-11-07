@@ -630,24 +630,28 @@ This is the same three-way split core uses for questions themselves — `id` loc
 
     **Two details worth keeping.** The route is `userinterfacewrapper`, not `textareas::setupAllTAs`: the latter selects `div.edit_code textarea`, while the question form puts the class on the textarea itself, so it is not what gives the author form its editor. And template parameters and UI parameters are attached with an *empty* language, as `authorform.js` does, because they may contain Twig and a JSON mode would report errors that are not there.
 
+23. **An administrator customises a built-in by editing it, which splits it.** Built-ins are rewritten by `install_builtins()` on every upgrade, so an edit to one would be discarded. Rather than refusing the edit, the first save splits the prototype:
+
+    1. A new prototype is created holding the stock content, flagged `builtin`, named `<name> (stock)`.
+    2. The edited prototype **keeps its id**, loses its `builtin` flag, becomes a child of the stock one, and retains only the administrator's overrides.
+
+    Every question still refers to the same id, so nothing is re-pointed and no migration runs. Later releases rewrite the stock prototype and the overrides continue to apply on top. The split is lazy: a site that customises nothing never grows a row.
+
+    CodeRunner 5's equivalent is to clone the prototype question and rename it, dropping the `BUILT_IN_PROTOTYPE_` prefix, which requires every question wanting the customisation to be moved to the clone. The split needs no such move, because inheritance is what the new model is for.
+
+    **Built-ins are matched by a uuid derived from their name, not by the name itself.** After a split the administrator's prototype holds the name, so an installer matching by name would find it and overwrite the customisation. The stock prototype must be findable whatever it is called.
+
+    The uuid is **computed**, not stored in a file: a version 5 (name-based, SHA-1) UUID over a fixed namespace and the built-in's canonical name. `python3` therefore has the same uuid on every CodeRunner site, forever, and `db/builtin_PROTOTYPES.xml` needs no new element — which matters, because that file is still read by the CodeRunner 5 question importer, and a foreign element in a Moodle XML export is asking for trouble. Moodle's `core\uuid` generates version 4 only, so the algorithm is implemented in the manager.
+
+    This also earns something for M5: the `uuid` column exists so that "copies of the same prototype elsewhere can be recognised", and a deterministic built-in uuid means a cross-site restore recognises built-ins automatically, with no mapping.
+
+    **Falling behind upstream is accepted.** When a release changes a field an administrator has overridden, their value silently wins and they are not told the stock value moved. Built-in changes are rare enough — the development site's own built-ins have not been meaningfully revised in about a decade — that a notification mechanism is not worth building. The better answer is to discourage editing built-ins at all in favour of a site prototype built on one, which needs the reparenting tool below.
+
 Open:
 
-23. **How does a site administrator customise a built-in prototype without losing it on the next release?** Built-ins are rewritten by `install_builtins()` on every upgrade, which is what keeps them current and what makes editing one pointless. CodeRunner 5's answer is to clone the prototype question and rename it, dropping the `BUILT_IN_PROTOTYPE_` prefix that makes it eligible for deletion — which works, and requires every question that wants the customisation to be re-pointed at the clone.
+24. **A better format for defining built-in prototypes.** `db/builtin_PROTOTYPES.xml` is a Moodle XML *question* export, because built-ins used to be questions. In 6.0 they are not, and the file is read twice for different purposes: by the CodeRunner 5 importer to create the legacy prototype questions, and by the manager to create the real prototypes. Once M7 removes the first, the format should be something that describes a prototype rather than a question, possibly maintained through the manager itself. Not urgent, and not worth doing while both readers exist.
 
-    The reason to revisit it is that CodeRunner 6 has machinery CodeRunner 5 did not: a prototype can hold *only what it changes*, which is exactly what customising a built-in means.
-
-    **Proposal, to be decided: split on first edit, keeping the id.** When an administrator saves an edit to built-in `python3`, which is prototype id 7:
-
-    1. A new prototype is created holding the current stock content, flagged `builtin`, named `python3 (stock)` or similar.
-    2. Id 7 keeps its id, loses its `builtin` flag, becomes a child of the stock prototype, and retains only the administrator's overrides.
-
-    Every question still refers to id 7, so nothing is re-pointed and no migration runs. Later releases rewrite the stock prototype and the overrides continue to apply on top. The split happens lazily, so a site that customises nothing never grows a row.
-
-    **What it requires.** `install_builtins()` matches built-ins by name and would clobber the administrator's `python3`. It must match on **uuid** instead. The column exists and `install.xml` already describes it as "a stable identifier kept through export, backup and restore"; built-ins would carry a fixed uuid in `db/builtin_PROTOTYPES.xml`, making the stock prototype findable whatever it is called.
-
-    **What it costs.** The library gains a row for each customised built-in, and a stock prototype is visible where an administrator may not expect one; that can be hidden until its child is expanded. More seriously, when a release changes a field the administrator has overridden, their value silently wins and they never learn the stock value moved. That is inherent to inheritance and applies to any prototype built on a built-in, but it is sharper here, and argues for a "what changed upstream" view in the history work of M6.
-
-    **Alternatives considered.** Loading the stock version under a new name on upgrade, for example `python3_STOCK`, reaches almost the same end state but inverts which prototype keeps the id, so after an upgrade the questions point at the edited one and the stock copy is a stranger with no dependants. Leaving built-ins strictly read-only and requiring a child prototype is honest, but makes the administrator re-point every affected question, which on a site with thousands is not a real option.
+25. **A reparenting tool, to move every question from one prototype to another.** The advice to build a site prototype on a built-in rather than editing the built-in is only practical if questions can be moved onto it afterwards. The operation is a single `UPDATE` over `question_coderunner_options` plus a cache purge, but it needs a UI that shows what will move and a check that the target resolves compatibly. It would also give administrators a way out of a built-in they have already customised.
 
 Decision 7, below, is retained for its analysis.
 
