@@ -61,9 +61,10 @@ class settings_form {
         form_section $section,
         question_settings $inherited,
         override_set $own,
-        string $language = ''
+        string $language = '',
+        bool $withinstancefields = false
     ): void {
-        foreach (self::fields_of($section) as $name => $field) {
+        foreach (self::fields_of($section, $withinstancefields) as $name => $field) {
             self::add_field($mform, $field, $inherited, $own, $language);
         }
     }
@@ -80,13 +81,31 @@ class settings_form {
      * question_coderunner_options, and they are settings an author edits like
      * any other.
      *
+     * **Instance fields are left out unless asked for**, because only a
+     * question has them. The prototype editor must not offer one at all: a
+     * prototype that stored an instance field would break every question
+     * beneath it, since `prototype_chain` refuses a chain in which any layer
+     * but the last supplies one, and a question whose chain cannot be built
+     * reports itself broken. `showsource` is the field that makes this more
+     * than theory — it is the control labelled *Template debugging*, it is a
+     * field of the question alone, and it sits in the Template section, which
+     * the prototype editor shows.
+     *
+     * The default is therefore the safe one: a caller has to say that it is
+     * editing a question before an instance field appears. The write path
+     * refuses them in any case; see {@see overrides_from()}.
+     *
      * @param form_section $section the section.
+     * @param bool $withinstancefields true when the layer being edited is a
+     *      question, which is the only layer that has instance fields.
      * @return field[] name => field.
      */
-    public static function fields_of(form_section $section): array {
+    public static function fields_of(form_section $section, bool $withinstancefields = false): array {
         return array_filter(
             field_registry::all(),
-            fn($field) => $field->section === $section && $field->type !== field_type::FILES
+            fn($field) => $field->section === $section
+                && $field->type !== field_type::FILES
+                && ($withinstancefields || $field->is_inheritable())
         );
     }
 
@@ -107,6 +126,21 @@ class settings_form {
         string $language = ''
     ): void {
         $name = $field->name;
+
+        if (!$field->is_inheritable()) {
+            // A field of the question alone. There is no layer above it to
+            // inherit from, so an override checkbox would be a choice between
+            // a value and nothing, and a provenance note would have nothing to
+            // name. It gets its control and its help, and that is all.
+            $mform->addElement(self::input_element($mform, $field, $language, true));
+            if ($field->help() !== null) {
+                $mform->addHelpButton($name, $field->help_identifier(), 'qtype_coderunner');
+            }
+            $mform->setDefault($name, $own->has($field) ? $own->get($field) : $field->default);
+            $mform->setType($name, self::param_type($field));
+            return;
+        }
+
         $overridename = self::OVERRIDE_PREFIX . $name;
         $isoverridden = $own->has($field);
 
@@ -168,24 +202,30 @@ class settings_form {
      * @param field $field the field.
      * @return object the form element.
      */
-    protected static function input_element(\MoodleQuickForm $mform, field $field, string $language = '') {
+    protected static function input_element(
+        \MoodleQuickForm $mform,
+        field $field,
+        string $language = '',
+        bool $ownlabel = false
+    ) {
         $name = $field->name;
+        $label = $ownlabel ? $field->label() : '';
 
         if ($field->type === field_type::CHOICE) {
-            return $mform->createElement('select', $name, '', field_registry::choices($name));
+            return $mform->createElement('select', $name, $label, field_registry::choices($name));
         }
         if ($field->type === field_type::BOOLEAN) {
             // Not a checkbox: it would sit beside the override checkbox as two
             // identical boxes with a single label between them, and no way to
             // tell which was which.
-            return $mform->createElement('select', $name, '', [
+            return $mform->createElement('select', $name, $label, [
                 0 => get_string('no'),
                 1 => get_string('yes'),
             ]);
         }
         if ($field->type === field_type::TEXT || $field->type === field_type::JSON) {
             // A code field carries its own label, since it is not in a group.
-            $label = $field->iscode ? $field->label() : '';
+            $label = ($field->iscode || $ownlabel) ? $field->label() : '';
             $attributes = ['rows' => $field->rows ?: ($field->iscode ? 12 : 2)];
             if ($field->iscode) {
                 // InterfaceWrapper reads the language from this attribute and
@@ -201,9 +241,9 @@ class settings_form {
             return $mform->createElement('textarea', $name, $label, $attributes);
         }
         if ($field->type === field_type::INTEGER) {
-            return $mform->createElement('text', $name, '', ['size' => 6]);
+            return $mform->createElement('text', $name, $label, ['size' => 6]);
         }
-        return $mform->createElement('text', $name, '', ['size' => 40]);
+        return $mform->createElement('text', $name, $label, ['size' => 40]);
     }
 
     /**
@@ -343,13 +383,17 @@ class settings_form {
      *      not from what it inherits: a prototype that sets its own language
      *      would otherwise get no syntax colouring at all.
      */
-    public static function require_ace(array $sections, string $language = ''): void {
+    public static function require_ace(
+        array $sections,
+        string $language = '',
+        bool $withinstancefields = false
+    ): void {
         global $PAGE;
 
         \qtype_coderunner_util::load_ace();
 
         foreach ($sections as $section) {
-            foreach (self::fields_of($section) as $name => $field) {
+            foreach (self::fields_of($section, $withinstancefields) as $name => $field) {
                 if (!$field->iscode) {
                     continue;
                 }
@@ -425,6 +469,11 @@ class settings_form {
         $values = $existing->to_array();
 
         foreach ($sections as $section) {
+            // Instance fields are not asked for here at all, whichever layer is
+            // being edited: a question keeps them in its own columns, and a
+            // prototype that stored one would break every question beneath it.
+            // Refusing them on the write path as well as in the rendering means
+            // a form that offers one by mistake still cannot store it.
             foreach (self::fields_of($section) as $name => $field) {
                 unset($values[$name]);
                 $overridden = !empty($data[self::OVERRIDE_PREFIX . $name]);

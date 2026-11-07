@@ -157,11 +157,15 @@ final class settings_form_test extends \advanced_testcase {
      * Between them the sections account for every field that has a column, so
      * no field can be added to the registry and silently never appear on a
      * form.
+     *
+     * Asked of the question form's view, which is the one that shows
+     * everything: the prototype editor is offered fewer fields on purpose, as
+     * the next test says.
      */
     public function test_every_column_field_appears_in_some_section(): void {
         $offered = [];
         foreach (form_section::cases() as $section) {
-            $offered = array_merge($offered, array_keys(settings_form::fields_of($section)));
+            $offered = array_merge($offered, array_keys(settings_form::fields_of($section, true)));
         }
 
         $expected = array_keys(array_filter(
@@ -170,6 +174,102 @@ final class settings_form_test extends \advanced_testcase {
         ));
 
         $this->assertSame([], array_values(array_diff($expected, $offered)));
+    }
+
+    /**
+     * A prototype is offered no instance field, and the difference between the
+     * two views is exactly the instance fields.
+     *
+     * This is not tidiness. `prototype_chain` refuses a chain in which any
+     * layer but the last supplies an instance field, and a question whose chain
+     * cannot be built reports itself broken — so a prototype that stored one
+     * would break every question beneath it. The field that made this real is
+     * `showsource`, the control labelled *Template debugging*, which belongs to
+     * the question alone and sits in the Template section that the prototype
+     * editor shows.
+     */
+    public function test_a_prototype_is_offered_no_instance_field(): void {
+        $forprototype = [];
+        $forquestion = [];
+        foreach (form_section::cases() as $section) {
+            $forprototype = array_merge($forprototype, array_keys(settings_form::fields_of($section)));
+            $forquestion = array_merge($forquestion, array_keys(settings_form::fields_of($section, true)));
+        }
+
+        foreach ($forprototype as $name) {
+            $this->assertTrue(
+                field_registry::get($name)->is_inheritable(),
+                "The prototype editor is offered '$name', which only a question has."
+            );
+        }
+
+        $instancefields = array_keys(array_filter(
+            field_registry::all(),
+            fn($f) => !$f->is_inheritable() && $f->type !== field_type::FILES
+        ));
+        $this->assertSame(
+            $instancefields,
+            array_values(array_diff($forquestion, $forprototype)),
+            'The two views should differ by exactly the instance fields.'
+        );
+    }
+
+    /**
+     * An instance field is never read back as an override, whichever layer is
+     * being edited and whatever the form submitted.
+     *
+     * The write path refuses them as well as the rendering, so a form that
+     * offers one by mistake still cannot store it. A question keeps its
+     * instance fields in its own columns.
+     */
+    public function test_an_instance_field_is_never_an_override(): void {
+        $submitted = [
+            'showsource' => 1,
+            settings_form::OVERRIDE_PREFIX . 'showsource' => 1,
+            'answer' => 'print(42)',
+            settings_form::OVERRIDE_PREFIX . 'answer' => 1,
+            'template' => 'MY TEMPLATE',
+            settings_form::OVERRIDE_PREFIX . 'template' => 1,
+        ];
+
+        $overrides = settings_form::overrides_from(
+            $submitted,
+            form_section::cases(),
+            new override_set([], 'x'),
+            'the question'
+        );
+
+        $this->assertFalse($overrides->has('showsource'));
+        $this->assertFalse($overrides->has('answer'));
+        // And the inheritable field beside them is stored as usual.
+        $this->assertSame('MY TEMPLATE', $overrides->get('template'));
+    }
+
+    /**
+     * An instance field on the question form gets its control, its label and
+     * its help, and no override checkbox: there is no layer above it to inherit
+     * from, so the checkbox would be a choice between a value and nothing.
+     */
+    public function test_an_instance_field_has_no_override_control(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->resetAfterTest();
+
+        $mform = new \MoodleQuickForm('test', 'post', '');
+        settings_form::add_section(
+            $mform,
+            form_section::QUESTION,
+            (new prototype_chain([]))->resolve(),
+            new override_set([], 'the question'),
+            '',
+            true
+        );
+
+        $this->assertTrue($mform->elementExists('answer'));
+        $this->assertTrue($mform->elementExists('validateonsave'));
+        $this->assertFalse($mform->elementExists(settings_form::OVERRIDE_PREFIX . 'answer'));
+        $this->assertFalse($mform->elementExists('answer_source'));
     }
 
     /**

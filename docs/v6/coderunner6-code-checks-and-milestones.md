@@ -463,6 +463,12 @@ Several things were decided while building and are worth keeping:
 - **The usage report counts in SQL and maps contexts in PHP.** Grouping by question bank context rather than walking to the course in SQL keeps the query portable; there are only as many contexts as banks however many questions they hold. Site defaults, with all 72 descendants, reports in 234 ms.
 - **Two Moodle traps**, recorded so they are not rediscovered: `MoodleQuickForm::getElementValue()` and `toHtml()` both fail under PHP 8.3 through PEAR code that calls a non-static method statically, so a form cannot be rendered or read that way in a test; and the `FORMAT_` constants are defined as *strings* while the columns holding them are integers.
 
+**A bug found while starting M7, and it was reachable from the editor's own form.** `showsource` — the control labelled *Template debugging* — is a field of the question alone, and it sits in the **Template** section, which the prototype editor shows. So the editor offered an override checkbox for it. Ticking that box and saving would have stored an instance field on a prototype, and from then on `prototype_chain` would have refused to build any chain containing that prototype as a non-last layer, which `get_question_options()` catches and reports as a broken question. One tick would have broken every question beneath the prototype, silently, with nothing to point at the cause.
+
+Nothing had tripped it: all 119 stored versions on the development site were checked and none carries an instance field, which is consistent with the editor being, as recorded above, unexercised by an author. Fixed in two places, because the rendering and the writing are separate paths and either alone would leave the other able to do the damage: `settings_form::fields_of()` now leaves instance fields out unless the caller says it is editing a question, and `overrides_from()` refuses to store one whatever the form submitted. Tests cover the component view, the write path, and the difference between the two views being exactly the instance fields.
+
+The lesson is about where the field set comes from. The registry's `form_section` says where a field appears, and its `field_kind` says who may supply it; the editor was built from the first without consulting the second. M7's first increment — the control inventory — is the same kind of check applied to the question form, which is why it caught nothing here: it enumerates the CodeRunner 5 form, and CodeRunner 5 had no prototype editor to enumerate.
+
 **Not built, and deliberately:** the bulk tester is not run before publishing. The design asks for it, but the bulk tester lives in the question type and design section 5 anticipates moving it into the manager later; wiring the two together now would be work done twice. The publish banner shows the number of questions a publish would affect, which is the part of that feature that informs the decision.
 
 ### M7. New question form
@@ -525,6 +531,8 @@ The prototype picker with its grouping, and the capability check on save as well
 
     **One question for the maintainer.** Decision 23's split leaves a `<name> (stock)` prototype beside the edited one, and the picker offers it like any other: the development site shows `python3 (stock)` in the second group. It is a legitimate thing to build on, and it is also an implementation detail of having customised a built-in. Whether the picker should hide a built-in that has a same-named child holding its name is left open.
 4. **The form.** Registry-driven sections with change counts in place of the *Customise* and *Advanced customisation* panels, the question-specific controls and all of CodeRunner 5's validation kept, and the test case field switches deciding which test case columns appear.
+
+    **Instance fields first.** The shared component had to learn that only a question has them, which is both what lets the question form render its answer, answer preload and validate-on-save boxes as plain controls — an override checkbox there would be a choice between a value and nothing — and the fix for the M6 bug recorded above.
 5. ***Make prototype from this question***, the legacy prototype-question banner, and M7's share of the removal inventory below.
 6. **Behat** over override, revert and prototype-change.
 
