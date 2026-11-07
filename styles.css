@@ -35,15 +35,18 @@
     padding-bottom: 10px;
 }
 
-#page-question-type-coderunner div.ui_wrapper,
-.que.coderunner div.ui_wrapper {
+/* The wrapper is built by userinterfacewrapper.js and by nothing else, so
+   these rules need no page scoping: they were limited to the question form and
+   to a rendered question, which left the prototype editor with an unstyled
+   wrapper — no grey band, and a full-screen button positioned against a box of
+   the wrong size. */
+div.ui_wrapper {
     max-width: 100%;
     box-sizing: border-box;
     background-color: #f0f0f0;
 }
 
-.que.coderunner .ace_editor,
-body#page-question-type-coderunner .ace_editor {
+.ui_wrapper .ace_editor {
     font-size: 100%;
     line-height: 18px;
 }
@@ -288,21 +291,20 @@ div.coderunner-test-results.partial {
     margin-top: -1px;
 }
 
-/* Fullscreen and exit fullscreen */
-.que.coderunner .button-exit-fullscreen,
-body#page-question-type-coderunner .button-exit-fullscreen {
+/* Fullscreen and exit fullscreen. Scoped to the UI wrapper rather than to a
+   page: the wrapper is built by userinterfacewrapper.js wherever a CodeRunner
+   editor appears, and page scoping left the button unpositioned everywhere
+   else. */
+.ui_wrapper .button-exit-fullscreen {
     bottom: 0;
 }
 
-.que.coderunner .button-fullscreen,
-body#page-question-type-coderunner .button-fullscreen {
+.ui_wrapper .button-fullscreen {
     bottom: -1px;
 }
 
-.que.coderunner .button-fullscreen,
-.que.coderunner .button-exit-fullscreen,
-body#page-question-type-coderunner .button-fullscreen,
-body#page-question-type-coderunner .button-exit-fullscreen {
+.ui_wrapper .button-fullscreen,
+.ui_wrapper .button-exit-fullscreen {
     border: none;
     background: transparent;
     margin: 0 0 2px 0;
@@ -313,19 +315,15 @@ body#page-question-type-coderunner .button-exit-fullscreen {
     z-index: 10;
 }
 
-.que.coderunner .button-fullscreen:focus,
-.que.coderunner .button-exit-fullscreen:focus,
-body#page-question-type-coderunner .button-fullscreen:focus,
-body#page-question-type-coderunner .button-exit-fullscreen:focus {
+.ui_wrapper .button-fullscreen:focus,
+.ui_wrapper .button-exit-fullscreen:focus {
     display: flex;
     justify-content: center;
     outline: 2px solid black;
 }
 
-.que.coderunner .button-fullscreen img.icon:hover,
-.que.coderunner .button-exit-fullscreen img.icon:hover,
-body#page-question-type-coderunner .button-fullscreen img.icon:hover,
-body#page-question-type-coderunner .button-exit-fullscreen img.icon:hover {
+.ui_wrapper .button-fullscreen img.icon:hover,
+.ui_wrapper .button-exit-fullscreen img.icon:hover {
     animation: scaletooriginalsize 0.3s ease-in-out 0.1s forwards;
     transform: scale(1.2);
 }
@@ -336,10 +334,8 @@ body#page-question-type-coderunner .button-exit-fullscreen img.icon:hover {
     }
 }
 
-.que.coderunner .button-exit-fullscreen img.icon,
-.que.coderunner .button-fullscreen img.icon,
-body#page-question-type-coderunner .button-exit-fullscreen img.icon,
-body#page-question-type-coderunner .button-fullscreen img.icon {
+.ui_wrapper .button-exit-fullscreen img.icon,
+.ui_wrapper .button-fullscreen img.icon {
     margin-right: unset;
     margin-bottom: 10px;
     width: 15px;
@@ -353,7 +349,7 @@ body#page-question-type-coderunner .button-fullscreen img.icon {
 
 
 /* Editing form. */
-body#page-question-type-coderunner div.edit_code textarea {
+div.edit_code textarea {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -412,7 +408,7 @@ body#page-question-type-coderunner button.toggleuidetails {
     color: blue;
 }
 
-body#page-question-type-coderunner .ace_wrapper {
+.ace_wrapper {
     border: 1px solid #bbb;
 }
 
@@ -487,17 +483,17 @@ body#page-question-type-coderunner input[type="checkbox"] + label {
     margin-right: 1em;
 }
 
-body#page-question-type-coderunner textarea.edit_code {
+textarea.edit_code {
     width: 100%;
     box-sizing: border-box;
     font-family: courier, monospace;
 }
 
-body#page-question-type-coderunner textarea.uiloadfailed {
+textarea.uiloadfailed {
     border: 6px solid orange;
 }
 
-body#page-question-type-coderunner div.uiloadfailed {
+div.uiloadfailed {
     background-color: orange;
     padding-left: 10px;
 }

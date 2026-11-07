@@ -45,6 +45,11 @@ final readonly class field {
      * @param bool $twigable true if the field is Twig expanded when twigall is set.
      * @param bool $incolumn true if the field is stored as a column of question_coderunner_options.
      * @param string[] $perlayerwith other fields that travel with this one, per layer, and cannot be separated from it.
+     * @param int $rows how many lines the field's editor gets, when neither
+     *      the code default of twelve nor the plain-text default of two suits
+     *      it. A result-columns specification is usually four short lines, and
+     *      a twelve-line box for it is mostly empty; an author who needs more
+     *      drags the editor's handle.
      * @param bool $iscode true if the field holds code or a JSON document, and
      *      is therefore edited in Ace rather than in a plain textarea. Short
      *      strings that merely happen to be typed as text, such as a filename
@@ -81,6 +86,8 @@ final readonly class field {
         public bool $iscode = false,
         /** @var string The help's language string id, when not the label's. */
         public string $helpstring = '',
+        /** @var int How many lines its editor gets, when the default is wrong. */
+        public int $rows = 0,
     ) {
     }
 

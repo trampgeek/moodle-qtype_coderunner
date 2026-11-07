@@ -186,7 +186,7 @@ class settings_form {
         if ($field->type === field_type::TEXT || $field->type === field_type::JSON) {
             // A code field carries its own label, since it is not in a group.
             $label = $field->iscode ? $field->label() : '';
-            $attributes = ['rows' => $field->iscode ? 12 : 2];
+            $attributes = ['rows' => $field->rows ?: ($field->iscode ? 12 : 2)];
             if ($field->iscode) {
                 // InterfaceWrapper reads the language from this attribute and
                 // overwrites whatever data-params holds, so this is the only

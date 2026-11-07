@@ -321,6 +321,7 @@ class field_registry {
                 merge: merge_rule::AFTER_EVALUATION,
                 perlayerwith: ['templateparamslang', 'templateparamsevalpertry'],
                 iscode: true,
+                rows: 8,
             ),
             new field(
                 'templateparamslang',
@@ -355,6 +356,7 @@ class field_registry {
                 twigable: true,
                 iscode: true,
                 helpstring: 'uiparametergroup_help',
+                rows: 6,
             ),
             new field(
                 'supportfiles',
@@ -467,7 +469,7 @@ class field_registry {
                 default: 'EqualityGrader',
                 helpstring: 'gradingcontrols_help',
             ),
-            new field('resultcolumns', field_kind::INHERITED, field_type::JSON, form_section::TEMPLATE, default: '', iscode: true),
+            new field('resultcolumns', field_kind::INHERITED, field_type::JSON, form_section::TEMPLATE, default: '', iscode: true, rows: 4),
             new field('testsplitterre', field_kind::INHERITED, field_type::CHAR, form_section::TEMPLATE, default: ''),
             new field('allowmultiplestdins', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 0),
             new field('extractcodefromjson', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 1),
@@ -512,6 +514,7 @@ class field_registry {
                 form_section::SANDBOX,
                 iscode: true,
                 helpstring: 'sandboxcontrols_help',
+                rows: 3,
             ),
             new field(
                 'cputimelimitsecs',
