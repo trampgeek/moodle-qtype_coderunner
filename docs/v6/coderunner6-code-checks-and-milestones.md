@@ -460,6 +460,19 @@ The prototype picker with its grouping, and the capability check on save as well
 
 **Exit:** besides Behat coverage of override, revert and prototype-change, an automated test enumerating the registry against `extra_question_fields_static()` and the old form's elements, so the notes' "the field set comes from the current code" rule is enforced rather than remembered.
 
+**The increments.** The exit criterion comes first, because it is the checklist the rest of the milestone works from rather than an audit at the end of it.
+
+1. **The control inventory.** Done, as `tests/v6/form_control_inventory_test.php`. Every one of the **85** named controls of `edit_coderunner_form.php` is recorded with what accounts for it in CodeRunner 6 — a registry field, a value of the question itself, CodeRunner 5 layout that the registry's sections replace, or a deliberate removal with its reason — and four checks hold the record and the code to each other in both directions: nothing the form defines may go unrecorded, and no registry field may exist that neither a CodeRunner 5 control nor a short declared-new list accounts for. The thirty-nine column-backed registry fields map one to one onto the thirty-nine fields the old form offered; the five that do not are `supportfiles`, which the old form calls `datafiles`, and the four test case field switches, which are new.
+2. **The save path and the form's two sides.** `prototypeid` and `overrides` come from the form rather than being derived from the legacy columns, which are written from them instead. The inherited side is `chain_for($prototypeid)` with no question overrides; the question's own side is its `overrides` column. Exit: a question saved through the new path verifies clean.
+3. **The prototype picker.** The manager API for the three groups, the used-in-this-course query of the notes, tree order with depth indentation in an `autocomplete`, the selected chain as a breadcrumb with its summary, *From another course…*, and the capability check in the picker and again on save.
+4. **The form.** Registry-driven sections with change counts in place of the *Customise* and *Advanced customisation* panels, the question-specific controls and all of CodeRunner 5's validation kept, and the test case field switches deciding which test case columns appear.
+5. ***Make prototype from this question***, the legacy prototype-question banner, and M7's share of the removal inventory below.
+6. **Behat** over override, revert and prototype-change.
+
+**One correction to the notes, found in building the inventory.** The notes say template debugging "is a per-session author option, not a stored setting, so it probably stays outside the registry". It is neither per-session nor outside the registry: the control labelled *Template debugging* is `showsource`, a column of `question_coderunner_options` and an instance field of the registry since M1. Nothing has to be done about it, which is the useful half of the finding; the notes are corrected so that nobody builds the per-session option it describes.
+
+**`badquestionload` is dead in CodeRunner 5.** The form adds it as a hidden field and sets its type, nothing on the server ever gives it a value, and the only JavaScript that touches it hides it (`amd/src/authorform.js:593`). So the message it was to carry has never been shown to anyone, and it is recorded as a removal rather than as something to reproduce.
+
 ### M8. Site defaults and tidying
 
 The `before_course_deleted` handler; the cleanup script for legacy prototype questions; the prune script for prototype history. Documentation.
