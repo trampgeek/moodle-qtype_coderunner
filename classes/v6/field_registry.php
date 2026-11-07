@@ -164,12 +164,10 @@ class field_registry {
                 ];
 
             case 'attachments':
-                // The question type class is not autoloaded, so it is fetched
-                // through the question bank rather than instantiated directly.
-                return \question_bank::get_qtype('coderunner')->attachment_options();
+                return self::coderunner()->attachment_options();
 
             case 'attachmentsrequired':
-                return \question_bank::get_qtype('coderunner')->attachments_required_options();
+                return self::coderunner()->attachments_required_options();
 
             case 'sandbox':
                 // DEFAULT means "whichever sandbox claims the language", which
@@ -183,6 +181,23 @@ class field_registry {
             default:
                 throw new \coding_exception("Field '$name' is a choice but the registry lists no values for it.");
         }
+    }
+
+    /**
+     * The question type, for the option lists it owns.
+     *
+     * Neither qtype_coderunner nor question_bank is autoloaded, and a page that
+     * only needs the registry has no reason to have loaded questionlib — the
+     * prototype editor is exactly such a page. So the library is required here
+     * rather than assumed.
+     *
+     * @return \qtype_coderunner the question type.
+     */
+    protected static function coderunner() {
+        global $CFG;
+
+        require_once($CFG->libdir . '/questionlib.php');
+        return \question_bank::get_qtype('coderunner');
     }
 
     /**
