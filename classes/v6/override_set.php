@@ -115,6 +115,47 @@ final class override_set {
     }
 
     /**
+     * What changed between another override set and this one.
+     *
+     * Fields, not text: comparing two overrides documents as JSON would report
+     * a reordering or a whitespace change as a difference, which is noise. The
+     * question form needs this too, to count what a question overrides.
+     *
+     * Values are compared through the registry's normalisation, so a stored
+     * '1' and a resolved 1 are the same value, and null and the empty string
+     * are the same for a string field but not for an integer one.
+     *
+     * @param override_set $previous the set this one is compared against.
+     * @return array field name => ['change' => 'added'|'removed'|'changed',
+     *      'from' => mixed, 'to' => mixed], in registry order.
+     */
+    public function differences_from(override_set $previous): array {
+        $differences = [];
+
+        foreach (field_registry::all() as $name => $field) {
+            $wasset = $previous->has($field);
+            $isset = $this->has($field);
+
+            if (!$wasset && !$isset) {
+                continue;
+            }
+
+            $from = $wasset ? $previous->get($field) : null;
+            $to = $isset ? $this->get($field) : null;
+
+            if (!$wasset) {
+                $differences[$name] = ['change' => 'added', 'from' => null, 'to' => $to];
+            } else if (!$isset) {
+                $differences[$name] = ['change' => 'removed', 'from' => $from, 'to' => null];
+            } else if ($field->normalise_for_comparison($from) !== $field->normalise_for_comparison($to)) {
+                $differences[$name] = ['change' => 'changed', 'from' => $from, 'to' => $to];
+            }
+        }
+
+        return $differences;
+    }
+
+    /**
      * All of this layer's values.
      *
      * @return array field name => value.

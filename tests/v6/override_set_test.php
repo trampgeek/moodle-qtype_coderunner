@@ -143,4 +143,57 @@ final class override_set_test extends \basic_testcase {
         $this->assertSame(field_kind::INHERITED, $fields['template']->kind);
         $this->assertSame(field_kind::COLLECTED, $fields['templateparams']->kind);
     }
+
+    /**
+     * A field one set has and the other does not is an addition or a removal,
+     * and a field both have with different values is a change.
+     */
+    public function test_differences_names_what_changed(): void {
+        $before = new override_set(['template' => 'OLD', 'grader' => 'EqualityGrader'], 'v1');
+        $after = new override_set(['template' => 'NEW', 'penaltyregime' => '0, 10, ...'], 'v2');
+
+        $diff = $after->differences_from($before);
+
+        $this->assertSame('changed', $diff['template']['change']);
+        $this->assertSame('OLD', $diff['template']['from']);
+        $this->assertSame('NEW', $diff['template']['to']);
+        $this->assertSame('removed', $diff['grader']['change']);
+        $this->assertSame('added', $diff['penaltyregime']['change']);
+    }
+
+    /**
+     * A field neither set supplies is not a difference, so a diff lists only
+     * what an author actually did.
+     */
+    public function test_untouched_fields_are_not_differences(): void {
+        $before = new override_set(['template' => 'SAME'], 'v1');
+        $after = new override_set(['template' => 'SAME'], 'v2');
+
+        $this->assertSame([], $after->differences_from($before));
+    }
+
+    /**
+     * Values are compared as the registry compares them, so a stored '1' and a
+     * resolved 1 do not show up as a change that nobody made.
+     */
+    public function test_differences_use_the_registry_normalisation(): void {
+        $before = new override_set(['allornothing' => '1'], 'v1');
+        $after = new override_set(['allornothing' => 1], 'v2');
+
+        $this->assertSame([], $after->differences_from($before));
+    }
+
+    /**
+     * Blanking a field is a change, not a removal: the layer still supplies a
+     * value, and that value is the empty string.
+     */
+    public function test_blanking_a_field_is_a_change_not_a_removal(): void {
+        $before = new override_set(['template' => 'SOMETHING'], 'v1');
+        $after = new override_set(['template' => ''], 'v2');
+
+        $diff = $after->differences_from($before);
+
+        $this->assertSame('changed', $diff['template']['change']);
+        $this->assertSame('', $diff['template']['to']);
+    }
 }
