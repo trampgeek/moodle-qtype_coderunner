@@ -312,7 +312,12 @@ class field_registry {
                 field_kind::COLLECTED,
                 field_type::CHOICE,
                 form_section::PARAMETERS,
-                default: 'twig',
+                // None, not Twig: the CodeRunner 5 *form* already defaults to
+                // None, and only the column defaults to twig, so this matches
+                // what an author actually gets today. Most template parameters
+                // are plain JSON; on the development site 2,768 of the 4,405
+                // questions marked twig contained no Twig at all.
+                default: 'None',
                 merge: merge_rule::AFTER_EVALUATION,
                 helpstring: 'twigcontrols_help',
             ),
