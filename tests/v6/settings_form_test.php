@@ -320,4 +320,86 @@ final class settings_form_test extends \advanced_testcase {
             'The question type no longer offers load_ace(), which the manager depends on.'
         );
     }
+
+    /**
+     * An overridden field says what it would fall back to.
+     *
+     * Without this an author who clears the override has no way to see what
+     * saving would give them: the control greys but goes on showing the value
+     * they are discarding, because nothing on the page redraws.
+     */
+    public function test_an_overridden_field_names_the_value_it_would_fall_back_to(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+        $this->resetAfterTest();
+
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['grader' => 'TemplateGrader'],
+        ])->resolve();
+
+        $mform = new \MoodleQuickForm('t', 'post', '');
+        settings_form::add_section(
+            $mform,
+            form_section::TEMPLATE,
+            $inherited,
+            new override_set(['grader' => 'RegexGrader'], 'q')
+        );
+
+        $note = $mform->getElement('grader_source')->toHtml();
+
+        $this->assertStringContainsString('python3', $note);
+        $this->assertStringContainsString(
+            get_string('templategrader', 'qtype_coderunner'),
+            $note,
+            'The note did not say what clearing the override would give.'
+        );
+    }
+
+    /**
+     * A field that is not overridden does not repeat its value, because the
+     * control already shows it.
+     */
+    public function test_an_inherited_field_does_not_repeat_its_value(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+        $this->resetAfterTest();
+
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['grader' => 'TemplateGrader'],
+        ])->resolve();
+
+        $mform = new \MoodleQuickForm('t', 'post', '');
+        settings_form::add_section($mform, form_section::TEMPLATE, $inherited, new override_set([], 'q'));
+
+        $this->assertStringNotContainsString(
+            get_string('templategrader', 'qtype_coderunner'),
+            $mform->getElement('grader_source')->toHtml()
+        );
+    }
+
+    /**
+     * A long inherited value is cut off, since the note says what a field
+     * falls back to rather than showing the whole of a template.
+     */
+    public function test_a_long_inherited_value_is_truncated(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+        $this->resetAfterTest();
+
+        $long = str_repeat('a long stock template line ', 40);
+        $inherited = prototype_chain::from_arrays([['template' => $long]])->resolve();
+
+        $mform = new \MoodleQuickForm('t', 'post', '');
+        settings_form::add_section(
+            $mform,
+            form_section::TEMPLATE,
+            $inherited,
+            new override_set(['template' => 'MINE'], 'q')
+        );
+
+        $note = $mform->getElement('template_source')->toHtml();
+
+        $this->assertStringContainsString('…', $note, 'A long value was not truncated.');
+        $this->assertLessThan(300, \core_text::strlen(strip_tags($note)));
+    }
 }

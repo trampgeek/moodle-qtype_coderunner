@@ -226,8 +226,18 @@ class settings_form {
             ? get_string('inheritedfromdefault', 'qtype_coderunner')
             : get_string('inheritedfrom', 'qtype_coderunner', self::layer_name($source));
 
-        if (in_array(self::inherited_value($field, $inherited), [null, ''], true)) {
+        $value = self::inherited_value($field, $inherited);
+
+        if (in_array($value, [null, ''], true)) {
             $text .= ' ' . get_string('inheritednotset', 'qtype_coderunner');
+        } else if ($isoverridden) {
+            // Only when the field is overridden. Otherwise the control itself
+            // already shows this value and repeating it is noise. Overridden,
+            // the control shows the author's value instead, and this is the
+            // only place that says what clearing the override would give them
+            // — including straight after they clear it, when the control is
+            // greyed but still displaying what they are about to discard.
+            $text .= ': ' . self::summarise($field, $value);
         }
 
         $mform->addElement(
@@ -236,6 +246,34 @@ class settings_form {
             '',
             \html_writer::tag('small', $text, ['class' => 'text-muted'])
         );
+    }
+
+    /**
+     * An inherited value, short enough to sit on one line.
+     *
+     * A choice shows the label an author picked, not the number stored behind
+     * it, and a long value is cut off: a template runs to thousands of
+     * characters and the point here is to say what the field would fall back
+     * to, not to show the whole of it.
+     *
+     * @param field $field the field.
+     * @param mixed $value the inherited value.
+     * @return string the rendered summary.
+     */
+    protected static function summarise(field $field, $value): string {
+        if ($field->type === field_type::BOOLEAN) {
+            return $value ? get_string('yes') : get_string('no');
+        }
+
+        $choices = field_registry::choices($field->name);
+        if ($choices !== null && array_key_exists($value, $choices)) {
+            return (string) $choices[$value];
+        }
+
+        $text = preg_replace('/\s+/', ' ', trim((string) $value));
+        return \core_text::strlen($text) > 80
+            ? \core_text::substr($text, 0, 80) . '…'
+            : $text;
     }
 
     /**
