@@ -57,6 +57,16 @@ class graphui_save_test extends \qtype_coderunner_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $generator->create_question_category([]);
 
+        // The CodeRunner 6 form is built on a prototype and stores only what
+        // the question overrides of it, so the question needs one to point at
+        // and every field of this form data is pinned as its own.
+        $prototype = (new \local_coderunner_manager\prototype_repository())->create(
+            'python3',
+            (int) SITEID,
+            new \qtype_coderunner\v6\override_set(['template' => '{{ STUDENT_ANSWER }}'], 'python3')
+        );
+        \qtype_coderunner_test_helper::pin_every_field($formdata, $prototype->id);
+
         // Mock submit a form with form data.
         $formdata->category = "{$cat->id},{$cat->contextid}";
         \qtype_coderunner_edit_form::mock_submit((array)$formdata);

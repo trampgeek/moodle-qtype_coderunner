@@ -172,6 +172,24 @@ final class legacy_columns_test extends \advanced_testcase {
     }
 
     /**
+     * An empty integer box means "not set", not zero.
+     *
+     * Decision 2 turns on the difference, and the form is where it bites: an
+     * author clearing the CPU time limit means "no limit", and `isset()` is
+     * what `get_sandbox_params()` tests, so a cleared box stored as 0 would be
+     * a limit of zero seconds and every run of that question would fail. A
+     * deliberate 0 is still a 0.
+     */
+    public function test_an_empty_integer_box_is_not_set_rather_than_zero(): void {
+        $this->assertNull(legacy_converter::cast('cputimelimitsecs', ''));
+        $this->assertNull(legacy_converter::cast('cputimelimitsecs', '  '));
+        $this->assertSame(0, legacy_converter::cast('cputimelimitsecs', '0'));
+        $this->assertSame(5, legacy_converter::cast('cputimelimitsecs', '5'));
+        // A string field keeps its empty string, which is a value for it.
+        $this->assertSame('', legacy_converter::cast('acelang', ''));
+    }
+
+    /**
      * The forward converter reads back exactly the overrides the columns were
      * written from.
      *

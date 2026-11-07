@@ -57,4 +57,19 @@ enum form_section: string {
 
     /** Support files. */
     case FILES = 'files';
+
+    /**
+     * The heading this section is shown under.
+     *
+     * Here rather than in either form, because both forms show the same
+     * sections and a label defined twice is a label that drifts. The prototype
+     * editor reads it from here too, although the strings live in the question
+     * type: the sections are the registry's, and the registry is the question
+     * type's (decision 1).
+     *
+     * @return string the heading.
+     */
+    public function label(): string {
+        return get_string('section' . $this->value, 'qtype_coderunner');
+    }
 }

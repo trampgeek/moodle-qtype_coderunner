@@ -42,6 +42,15 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
  * inventory is recorded here first, each entry saying what accounts for it, and
  * three checks hold the record and the code to each other.
  *
+ * What this test does **not** cover, by construction, is the controls the
+ * registry builds: they are added inside `settings_form` under names the form's
+ * source never spells out, so no scan of this file can see them.
+ * `question_form_test::test_every_field_is_offered()` covers those, and covers
+ * them better, by asking the built form rather than reading the source. The two
+ * together are the whole field set: this one holds the record of what
+ * CodeRunner 5 offered and what became of it, and that one holds the new form
+ * to the registry.
+ *
  * The inventory is read from the form's **source** rather than from a built
  * form. Two reasons: `edit_coderunner_form` cannot be constructed without a
  * question, a context and a submit URL, and `MoodleQuickForm::getElementValue()`
@@ -262,12 +271,14 @@ final class form_control_inventory_test extends \advanced_testcase {
         $found = self::elements_of_the_authoring_form();
 
         // A regex over source is brittle, and a pattern that stopped matching
-        // would turn this check into one that always passes. The CodeRunner 5
-        // form defines 85 named elements, so a scan returning a handful means
-        // the pattern has stopped reading the file rather than that the form
-        // has shrunk.
+        // would turn this check into one that always passes. The floor is well
+        // below what the form holds — 85 named elements in CodeRunner 5, 21 in
+        // CodeRunner 6, where the settings are built from the registry inside
+        // settings_form and under names the form's source never spells out —
+        // so a scan returning a handful means the pattern has stopped reading
+        // the file.
         $this->assertGreaterThan(
-            60,
+            15,
             count($found),
             'The element scan found almost nothing, so it has stopped reading the form rather than passing.'
         );

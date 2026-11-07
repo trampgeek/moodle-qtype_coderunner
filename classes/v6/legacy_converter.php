@@ -172,7 +172,12 @@ class legacy_converter {
         }
         return match (field_registry::get($name)->type) {
             field_type::BOOLEAN => (int) (bool) $value,
-            field_type::INTEGER => (int) $value,
+            // An empty integer box means "not set", not zero. Decision 2 turns
+            // on the difference: `cputimelimitsecs` is read through isset(), so
+            // null is no limit and 0 is a limit of zero seconds. Casting a
+            // cleared box to 0 would give every question built that way a
+            // zero-second CPU limit, which fails every run.
+            field_type::INTEGER => trim((string) $value) === '' ? null : (int) $value,
             default => (string) $value,
         };
     }

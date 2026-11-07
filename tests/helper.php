@@ -40,6 +40,34 @@ class qtype_coderunner_missing_question_type extends Exception {
  *
  */
 class qtype_coderunner_test_helper extends question_test_helper {
+    /**
+     * Give CodeRunner 5 form data the CodeRunner 6 form's contract: the
+     * prototype the question is built on, and an explicit override for every
+     * inheritable field the data carries.
+     *
+     * The CodeRunner 6 form submits a prototype id rather than a type name,
+     * and a field without its override checkbox is inherited rather than
+     * stored. Form data written for CodeRunner 5 names every field, so pinning
+     * all of them is what preserves its meaning: a question whose every
+     * setting is its own.
+     *
+     * @param object $formdata form data, as get_question_form_data() returns.
+     * @param int $prototypeid the prototype the question is built on.
+     * @return object the same form data, with the reference and the overrides.
+     */
+    public static function pin_every_field($formdata, int $prototypeid) {
+        $formdata->prototypeid = $prototypeid;
+        $present = (array) $formdata;
+
+        foreach (\qtype_coderunner\v6\field_registry::all() as $name => $field) {
+            if ($field->is_inheritable() && array_key_exists($name, $present)) {
+                $formdata->{\qtype_coderunner\v6\settings_form::OVERRIDE_PREFIX . $name} = 1;
+            }
+        }
+
+        return $formdata;
+    }
+
     public function get_test_questions() {
         return ['sqr', 'sqr_with_ace', 'sqr_with_scratchpad', 'sqr_pylint', 'printans',
             'hello_func', 'copy_stdin', 'timeout', 'exceptions',

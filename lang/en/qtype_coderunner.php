@@ -565,6 +565,19 @@ $string['prototypeexists'] = 'This is a prototype; cannot change question type.'
 $string['prototypeextra'] = 'Prototype extra';
 $string['prototypeextra_help'] = 'A field of text for general-purpose use by question type authors, like global extra, but part of the prototype state. Available to the template author as {{ QUESTION.prototypeextra }}.';
 
+// The authoring forms' sections, shared by the question form and the prototype
+// editor through form_section::label().
+$string['sectionextras'] = 'Extras';
+$string['sectionfiles'] = 'Support files';
+$string['sectiongrading'] = 'Grading and penalties';
+$string['sectionparameters'] = 'Template parameters';
+$string['sectionquestion'] = 'Answer';
+$string['sectionsandbox'] = 'Sandbox, languages and limits';
+$string['sectiontemplate'] = 'Template and grader';
+$string['sectiontestcasefields'] = 'Test case fields';
+$string['sectionui'] = 'User interface';
+$string['sectionchanged'] = '{$a} changed';
+
 // The question form's prototype picker.
 $string['prototypefromanothercourse'] = 'Use a prototype from another course...';
 $string['prototypegroup_usedhere'] = 'Used in this course';

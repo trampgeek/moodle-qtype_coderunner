@@ -658,6 +658,32 @@ class qtype_coderunner extends question_type {
      * @param object $question the question data.
      * @param object $options the question's options, modified in place.
      */
+    /**
+     * Resolve a question's inherited fields where the question object carries
+     * its own options, which is what the authoring form builds.
+     *
+     * The form flattens a question's options onto the question itself, so for
+     * it the two arguments of resolve_inherited_fields() are the same object.
+     * Saying so here, once, is better than every caller knowing it.
+     *
+     * @param object $question a question carrying its own option values.
+     */
+    public function resolve_settings_in_place($question) {
+        $this->resolve_inherited_fields($question, $question);
+    }
+
+    /**
+     * Fill in a question's inherited field values by resolving its prototype
+     * chain.
+     *
+     * See resolve_settings_in_place() for the authoring form's way in, which
+     * exists so that the form resolves through this same code rather than a
+     * second implementation of it (decision 1's corollary: one resolution
+     * path, not two).
+     *
+     * @param object $question the question data.
+     * @param object $options the question's options, modified in place.
+     */
     protected function resolve_inherited_fields($question, $options) {
         $options->customise = false;
 
