@@ -249,4 +249,139 @@ final class save_prototype_reference_test extends \advanced_testcase {
 
         $this->assertContains('/options/prototypeid', $excluded);
     }
+
+    /**
+     * A question-form-like object of the shape the CodeRunner 6 form submits:
+     * the prototype it picked, the overrides the author made, and the marker
+     * that says it decided both itself.
+     *
+     * @param int $prototypeid the prototype the picker chose.
+     * @param array $overrides the author's overrides.
+     * @return \stdClass the question.
+     */
+    private function form6_question(int $prototypeid, array $overrides = []): \stdClass {
+        return $this->form_question([
+            'coderunnertype' => 'whatever the form last displayed',
+            'prototypeid' => $prototypeid,
+            'overrides' => json_encode($overrides),
+            \qtype_coderunner::OVERRIDES_SUPPLIED => 1,
+        ]);
+    }
+
+    /**
+     * A save from the CodeRunner 6 form keeps the prototype it picked and the
+     * overrides the author made, rather than recomputing either from the
+     * legacy columns.
+     */
+    public function test_form_supplied_overrides_are_the_authority(): void {
+        $prototypeid = $this->make_prototype('python3', SITEID);
+
+        $question = $this->form6_question($prototypeid, ['template' => 'MY TEMPLATE']);
+        $this->qtype->set_prototype_reference($question);
+
+        $this->assertSame($prototypeid, $question->prototypeid);
+        $this->assertSame(['template' => 'MY TEMPLATE'], json_decode($question->overrides, true));
+    }
+
+    /**
+     * The prototype's name is written to `coderunnertype`, frozen at the
+     * moment of the save, which is the portable identity decision 18 keeps it
+     * for. Whatever name the form happened to be displaying is not trusted.
+     */
+    public function test_a_form_save_names_the_prototype_in_coderunnertype(): void {
+        $prototypeid = $this->make_prototype('python3_local', (int) $this->course->id);
+
+        $question = $this->form6_question($prototypeid);
+        $this->qtype->set_prototype_reference($question);
+
+        $this->assertSame('python3_local', $question->coderunnertype);
+    }
+
+    /**
+     * The legacy columns are written from the overrides: null for a field
+     * CodeRunner 5 inherited and the question does not override, and the
+     * effective value for one CodeRunner 5 read straight from the column.
+     */
+    public function test_a_form_save_writes_the_legacy_columns(): void {
+        $prototypeid = $this->repo->create(
+            'python3',
+            SITEID,
+            new override_set(['template' => 'PROTOTYPE TEMPLATE', 'penaltyregime' => '10, 20, ...'], 'python3')
+        )->id;
+
+        $question = $this->form6_question($prototypeid, ['grader' => 'EqualityGrader']);
+        $this->qtype->set_prototype_reference($question);
+
+        // Inherited in CodeRunner 5 and not overridden, so null: CodeRunner 5
+        // resolves it from the prototype question named in coderunnertype.
+        $this->assertNull($question->template);
+        // Overridden, so the question's own value.
+        $this->assertSame('EqualityGrader', $question->grader);
+        // Read straight from the column by CodeRunner 5, so written in full
+        // even though the question inherits it.
+        $this->assertSame('10, 20, ...', $question->penaltyregime);
+    }
+
+    /**
+     * A question saved by the CodeRunner 6 form resolves identically whether
+     * its settings are read from the new columns or re-derived from the legacy
+     * ones.
+     *
+     * This is the verification script's comparison, less the step that goes
+     * through the CodeRunner 5 prototype *question* — which no fixture here
+     * has, and which only agrees for a chain CodeRunner 5 could express. What
+     * it does establish is the part M7 could break: that the columns the form
+     * writes still describe the question the form saved.
+     */
+    public function test_a_form_save_resolves_the_same_from_either_set_of_columns(): void {
+        $prototypeid = $this->repo->create(
+            'python3',
+            SITEID,
+            new override_set(['template' => 'PROTOTYPE TEMPLATE', 'penaltyregime' => '10, 20, ...'], 'python3')
+        )->id;
+
+        $submitted = ['grader' => 'EqualityGrader', 'memlimitmb' => 600];
+        $question = $this->form6_question($prototypeid, $submitted);
+        $this->qtype->set_prototype_reference($question);
+
+        $fromnew = $this->repo->chain_for(
+            $prototypeid,
+            new override_set($submitted, \qtype_coderunner::QUESTION_LAYER)
+        )->resolve();
+
+        $fromlegacy = $this->repo->chain_for(
+            $prototypeid,
+            legacy_converter::question_overrides((array) $question, \qtype_coderunner::QUESTION_LAYER)
+        )->resolve();
+
+        $this->assertEquals($fromnew->to_array(), $fromlegacy->to_array());
+    }
+
+    /**
+     * A prototype that has gone between the form being shown and submitted
+     * leaves the question broken, but the author's overrides are kept rather
+     * than their work being discarded.
+     */
+    public function test_a_form_save_with_an_unresolvable_prototype_keeps_the_overrides(): void {
+        $question = $this->form6_question(999999, ['template' => 'MY TEMPLATE']);
+        $this->qtype->set_prototype_reference($question);
+
+        $this->assertSame(['template' => 'MY TEMPLATE'], json_decode($question->overrides, true));
+        $this->assertSame('MY TEMPLATE', $question->template);
+    }
+
+    /**
+     * An imported question is not mistaken for a form submission, although
+     * export writes both new columns as empty elements and the importer
+     * carries them through.
+     */
+    public function test_an_import_still_resolves_by_name(): void {
+        $prototypeid = $this->make_prototype('python3', SITEID);
+
+        $question = $this->form_question(['prototypeid' => null, 'overrides' => null]);
+        $this->qtype->set_prototype_reference($question);
+
+        $this->assertEquals($prototypeid, $question->prototypeid);
+        $this->assertArrayHasKey('allornothing', json_decode($question->overrides, true));
+    }
 }

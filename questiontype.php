@@ -69,6 +69,25 @@ class qtype_coderunner extends question_type {
     const QUESTION_LAYER = 'question';
 
     /**
+     * The form field by which the CodeRunner 6 question form says that it has
+     * supplied the prototype reference and the overrides itself.
+     *
+     * Until M7 replaces the authoring form there are two kinds of save, and
+     * they derive the two new columns in opposite directions. The CodeRunner 5
+     * form, Moodle XML import and a legacy restore all arrive with a prototype
+     * *name* and CodeRunner 5 columns, from which both new columns are
+     * computed. The CodeRunner 6 form arrives with the new columns already
+     * decided, and the legacy columns are written from them instead
+     * (decision 26).
+     *
+     * A marker rather than a test for the columns' presence, because an
+     * imported question carries the empty `prototypeid` and `overrides`
+     * elements that export writes, and would otherwise be mistaken for a form
+     * submission. It goes with the CodeRunner 5 form.
+     */
+    const OVERRIDES_SUPPLIED = 'overridessupplied';
+
+    /**
      * Whether this question type can perform a frequency analysis of student
      * responses.
      *
@@ -386,12 +405,76 @@ class qtype_coderunner extends question_type {
             return;
         }
 
+        if (!empty($question->{self::OVERRIDES_SUPPLIED})) {
+            $this->set_legacy_columns($question);
+            return;
+        }
+
         $overrides = \qtype_coderunner\v6\legacy_converter::question_overrides((array) $question);
         $question->overrides = json_encode($overrides->to_array());
         $question->prototypeid = $this->resolve_prototype_id(
             $question->coderunnertype,
             $this->question_context($question)
         );
+    }
+
+    /**
+     * Write a question's CodeRunner 5 columns from the prototype reference and
+     * overrides the CodeRunner 6 form supplied.
+     *
+     * The form is the authority here: it submits the prototype it picked and
+     * the overrides the author made, as `prototypeid` and an `overrides` JSON
+     * document, and the legacy columns are derived from those rather than the
+     * other way round. Decision 26 says why they are written at all: export,
+     * backup and the verification script all still read them, and each would
+     * be quietly wrong rather than loudly broken if they went stale.
+     *
+     * `coderunnertype` is set to the prototype's name, frozen at this moment,
+     * which is what decision 18 requires of it: the portable identity a
+     * restore or an import falls back on, and the verifier's "before" side.
+     *
+     * A question whose prototype cannot be resolved keeps the overrides it was
+     * given and gets whatever columns they imply, with the rest left null. It
+     * is broken either way, and the alternative — refusing the save — would
+     * lose the author's work over a prototype they may be about to create.
+     *
+     * @param object $question the question editing form data, modified in place.
+     */
+    protected function set_legacy_columns($question) {
+        $overrides = new \qtype_coderunner\v6\override_set(
+            json_decode($question->overrides ?? '{}', true) ?: [],
+            self::QUESTION_LAYER
+        );
+        $question->overrides = json_encode($overrides->to_array());
+        $question->prototypeid = empty($question->prototypeid) ? null : (int) $question->prototypeid;
+
+        $repository = new \local_coderunner_manager\prototype_repository();
+        $resolved = null;
+        if ($question->prototypeid !== null) {
+            try {
+                $resolved = $repository->chain_for($question->prototypeid, $overrides)->resolve();
+                $question->coderunnertype = $repository->get_or_fail($question->prototypeid)->name;
+            } catch (\Exception $e) {
+                // A prototype deleted or re-parented into a cycle between the
+                // form being shown and submitted. The question is broken, and
+                // says so when it is next loaded.
+                $resolved = null;
+            }
+        }
+
+        if ($resolved === null) {
+            // No chain to resolve against, so the question is the whole of it:
+            // the author's own values, and the registry's defaults for
+            // everything else. Those defaults are what any unset field resolves
+            // to in any case, so this writes nothing that a working chain
+            // would not have written for a field nobody has set.
+            $resolved = (new \qtype_coderunner\v6\prototype_chain([$overrides]))->resolve();
+        }
+
+        $columns = \qtype_coderunner\v6\legacy_converter::question_columns($overrides, $resolved);
+        foreach ($columns as $name => $value) {
+            $question->$name = $value;
+        }
     }
 
     /**

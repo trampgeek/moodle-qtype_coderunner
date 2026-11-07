@@ -260,6 +260,70 @@ class legacy_converter {
     }
 
     /**
+     * The CodeRunner 5 columns implied by a question's overrides and by what
+     * its chain resolves to.
+     *
+     * This is the inverse of `question_overrides()`, and it exists because M7
+     * reverses the direction of the derivation: the new question form produces
+     * `prototypeid` and `overrides` directly, so the legacy columns stop being
+     * their source and have to be written from them instead. They cannot be
+     * left to go stale, because Moodle XML export, course backup and the
+     * verification script all still read them — see decision 26.
+     *
+     * The columns fall into three groups, and the rule differs because
+     * CodeRunner 5's own treatment of them differed.
+     *
+     * - **Inherited by name** (`fields_inherited_in_v5()`). A null column meant
+     *   "inherit", so a field this question does not override is written null
+     *   and CodeRunner 5 resolves it from the prototype question named in
+     *   `coderunnertype`, exactly as it does for an uncustomised question
+     *   today.
+     * - **Collected** (`fields_supplied_by_v5_prototypes()`). Same rule, for a
+     *   different reason: each of these reached a question by merging the
+     *   prototype's contribution with the question's own, so an empty column is
+     *   a question that contributes nothing rather than a question with no
+     *   parameters.
+     * - **Everything else.** CodeRunner 5 read the column and had no other
+     *   source for it, so a field the question inherits under CodeRunner 6 has
+     *   to be written out at its effective value. This is the one place the two
+     *   models cannot agree: CodeRunner 5 has no way to express "inherited" for
+     *   these fields, which is precisely the freedom CodeRunner 6 adds.
+     *
+     * So this is a true inverse over every override set the forward converter
+     * can produce, and over the ones it cannot — an author dropping a pinned
+     * field's override — it produces columns that mean the same question
+     * without recording that the value is inherited. Re-converting such a row
+     * would pin the field again, which is harmless and in any case never
+     * happens: the migration skips any question that already has a prototype
+     * id.
+     *
+     * Instance fields are not included. They are the question's own in both
+     * models and the form writes them to their columns directly.
+     *
+     * @param override_set $own what the question overrides of its chain.
+     * @param question_settings $resolved what the chain resolves to, the
+     *      question's own overrides included.
+     * @return array column name => value.
+     */
+    public static function question_columns(override_set $own, question_settings $resolved): array {
+        $columns = [];
+
+        foreach (array_merge(self::fields_inherited_in_v5(), self::fields_supplied_by_v5_prototypes()) as $name) {
+            $columns[$name] = $own->has($name) ? $own->get($name) : null;
+        }
+
+        $readdirectly = array_diff(
+            self::fields_pinned_on_questions(),
+            self::fields_supplied_by_v5_prototypes()
+        );
+        foreach ($readdirectly as $name) {
+            $columns[$name] = $own->has($name) ? $own->get($name) : $resolved->get($name);
+        }
+
+        return $columns;
+    }
+
+    /**
      * The documentation for a prototype converted from a prototype question.
      *
      * A prototype question's question text is not the text of a question: it is
