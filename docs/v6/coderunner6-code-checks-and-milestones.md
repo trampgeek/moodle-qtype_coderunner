@@ -197,7 +197,7 @@ The data is absent, not merely uncached, so reading the contexts by direct SQL i
 
 ## 4. Milestones for 6.0
 
-Ten milestones. M0 is the only one that ships in the 5.x line. M1 to M4 are strictly sequential, then M4a, and then the authoring UIs; M5 comes last of the 6.0 work. See decision 19 for why the order changed.
+Eleven milestones. M0 is the only one that ships in the 5.x line. M1 to M4 are strictly sequential, then M4a, and then the authoring UIs; M5 comes last of the 6.0 work. See decision 19 for why the order changed.
 
 ### Where the migration runs, and why it cannot be gated
 
@@ -477,6 +477,22 @@ The `before_course_deleted` handler; the cleanup script for legacy prototype que
 | `/prototype` identity-hash exclusion, and the restorer's `unset($questiondata->prototype)` | already defending against something that no longer happens; M5 |
 | `update_question_types()` and `qtype_coderunner_setup_question_prototypes` | the form resolves by name against the prototype questions these install; M7 |
 | `legacy_converter`, `migration_verifier`, the legacy columns of `field_registry::legacy_columns()` | phase 4, with the migration itself |
+
+### M9. Revisit the built-in prototypes
+
+Numbered M9 because that is the next free number; the suggestion called it M10.
+
+The built-ins have not been meaningfully revised in about a decade, and CodeRunner 6 changes what they ought to be. Three things to do, of which only the first is small.
+
+**They have no one-line summaries.** All 19 carry documentation, inherited from the question text of the prototype questions they were converted from, and **not one has a summary**. The summary is what the picker shows beside a prototype and what the library lists in its last column, so without it both are bare names and an author choosing between `python3_scratchpad` and `python3_scratchpad_w_files` has nothing to go on. Writing nineteen sentences is a morning's work, and it is content only the maintainer can write.
+
+**The set itself wants rethinking, and will grow.** Much of what template parameters do today should become separate prototypes: writing a function and writing a program as two question types rather than one type with an `isfunction` parameter, matplotlib variants of their own, and so on. That is what cheap child prototypes are for, and it is why the picker was specified around *Used in this course* rather than around a list short enough to read (design section 7). Expect the library to end up two or three times its present size.
+
+**Parameter definitions become worth having at the same time.** Design section 6 defers them to 6.x: a prototype declaring its template parameters by name, type and default, so the question form can offer labelled controls instead of a JSON box. A pass over the built-ins is the natural moment, because deciding which parameters survive the split into separate prototypes is the same exercise as deciding which deserve a declared definition.
+
+This also settles open question 24, the format built-ins are defined in: a pass that rewrites them has to decide what it is rewriting them into, and by then M7 will have removed the CodeRunner 5 importer that is the only reason `db/builtin_PROTOTYPES.xml` is a question export.
+
+**Not a blocker for 6.0.** Every built-in works; they are simply undescribed and shaped by a model that no longer applies.
 
 ## 5. Where each piece should live
 
