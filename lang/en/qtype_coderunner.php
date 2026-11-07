@@ -565,6 +565,21 @@ $string['prototypeexists'] = 'This is a prototype; cannot change question type.'
 $string['prototypeextra'] = 'Prototype extra';
 $string['prototypeextra_help'] = 'A field of text for general-purpose use by question type authors, like global extra, but part of the prototype state. Available to the template author as {{ QUESTION.prototypeextra }}.';
 
+// The question form's prototype picker.
+$string['prototypefromanothercourse'] = 'Use a prototype from another course...';
+$string['prototypegroup_usedhere'] = 'Used in this course';
+$string['prototypegroup_courseandsite'] = 'This course and the site';
+$string['prototypegroup_borrowed'] = 'Borrowed from another course';
+$string['prototypegroup_othercourse'] = 'From the course you chose';
+$string['prototypenoothercourses'] = 'There is no other course whose prototypes you may use.';
+$string['prototypenotallowed'] = 'You do not have permission to build a question on that course\'s prototypes.';
+$string['prototypeothercourse'] = 'Course';
+$string['prototypeothercourse_help'] = 'Only courses in which you may manage CodeRunner questions are listed, and only those that have prototypes of their own.
+
+Building a question on another course\'s prototype ties the two together: the question follows later changes to that prototype, and the prototype cannot be deleted while the question uses it.';
+$string['prototyperequired'] = 'Choose the prototype this question is built on.';
+$string['prototypeshowcourse'] = 'Show that course\'s prototypes';
+
 $string['prototypehealth_ambiguous_heading'] = 'Questions whose prototype is ambiguous ({$a})';
 $string['prototypehealth_ambiguous_intro'] = 'More than one prototype of the required name is visible from this course, so these questions are broken: CodeRunner cannot tell which prototype to use. Delete or rename all but one of the prototypes listed in the last column.';
 $string['prototypehealth_candidates'] = 'Competing prototypes';
