@@ -60,10 +60,11 @@ class settings_form {
         \MoodleQuickForm $mform,
         form_section $section,
         question_settings $inherited,
-        override_set $own
+        override_set $own,
+        string $language = ''
     ): void {
         foreach (self::fields_of($section) as $name => $field) {
-            self::add_field($mform, $field, $inherited, $own);
+            self::add_field($mform, $field, $inherited, $own, $language);
         }
     }
 
@@ -102,7 +103,8 @@ class settings_form {
         \MoodleQuickForm $mform,
         field $field,
         question_settings $inherited,
-        override_set $own
+        override_set $own,
+        string $language = ''
     ): void {
         $name = $field->name;
         $overridename = self::OVERRIDE_PREFIX . $name;
@@ -121,12 +123,12 @@ class settings_form {
             // textarea's own container, and a group wrapper leaves it half
             // visible in the corner. The author form adds its code textareas
             // the same way, as plain elements, which is why they look right.
-            $mform->addElement(self::input_element($mform, $field));
+            $mform->addElement(self::input_element($mform, $field, $language));
             $mform->addElement($override);
             $helpanchor = $name;
         } else {
             $mform->addGroup(
-                [self::input_element($mform, $field), $override],
+                [self::input_element($mform, $field, $language), $override],
                 $name . '_group',
                 $field->label(),
                 '&nbsp;&nbsp;&nbsp;',
@@ -166,7 +168,7 @@ class settings_form {
      * @param field $field the field.
      * @return object the form element.
      */
-    protected static function input_element(\MoodleQuickForm $mform, field $field) {
+    protected static function input_element(\MoodleQuickForm $mform, field $field, string $language = '') {
         $name = $field->name;
 
         if ($field->type === field_type::CHOICE) {
@@ -184,15 +186,17 @@ class settings_form {
         if ($field->type === field_type::TEXT || $field->type === field_type::JSON) {
             // A code field carries its own label, since it is not in a group.
             $label = $field->iscode ? $field->label() : '';
-            $attributes = ['rows' => $field->iscode ? 12 : 2, 'cols' => 80];
+            $attributes = ['rows' => $field->iscode ? 12 : 2];
             if ($field->iscode) {
-                // Read by the UI wrapper when Ace is attached; see
-                // require_ace(). Template parameters and UI parameters are
-                // deliberately left without a language, because they may
-                // contain Twig and a JSON mode would report errors that are
-                // not there.
-                $attributes['data-lang'] = self::ace_language($field);
+                // InterfaceWrapper reads the language from this attribute and
+                // overwrites whatever data-params holds, so this is the only
+                // place that can set it. Template parameters and UI parameters
+                // are deliberately left without one, because they may contain
+                // Twig and a JSON mode reports errors that are not there.
+                $attributes['data-lang'] = self::ace_language($field, $language);
                 $attributes['class'] = 'edit_code';
+            } else {
+                $attributes['cols'] = 80;
             }
             return $mform->createElement('textarea', $name, $label, $attributes);
         }
@@ -277,7 +281,12 @@ class settings_form {
      * @param field $field the field.
      * @return string the Ace language, or the empty string for none.
      */
-    protected static function ace_language(field $field): string {
+    protected static function ace_language(field $field, string $language = ''): string {
+        if ($field->name === 'template') {
+            return $language;
+        }
+        // Everything else a code field holds is either JSON that may contain
+        // Twig, or free-form text. Neither has a mode worth setting.
         return '';
     }
 
@@ -306,11 +315,13 @@ class settings_form {
                 if (!$field->iscode) {
                     continue;
                 }
-                $lang = $name === 'template' ? $language : self::ace_language($field);
+                // Two arguments only: newUiWrapper(uiname, textareaId). The
+                // language travels on the textarea's data-lang attribute,
+                // which InterfaceWrapper reads for itself.
                 $PAGE->requires->js_call_amd(
                     'qtype_coderunner/userinterfacewrapper',
                     'newUiWrapper',
-                    ['ace', 'id_' . $name, ['lang' => $lang]]
+                    ['ace', 'id_' . $name]
                 );
             }
         }
