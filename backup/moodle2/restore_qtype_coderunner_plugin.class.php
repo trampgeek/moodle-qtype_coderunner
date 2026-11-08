@@ -202,6 +202,16 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             '/prototype',
             '/options/customise',
             '/options/prototypeid',
+            // The overrides document is excluded for as long as the CodeRunner
+            // 5 columns are still written, because those columns carry the same
+            // content and this does not: a pre-6.0 backup has no overrides
+            // element at all, so leaving it in the hash stops such a backup
+            // matching anything and makes the restore copy every question in
+            // it. That is the duplication bug that grew sites' question banks
+            // exponentially before CodeRunner supplied a hash at all. It
+            // returns, canonicalised, in phase 4, when the legacy columns go
+            // and it becomes the only record of what a question overrides.
+            '/options/overrides',
             '/options/templateparamsevald',
             '/options/testcases/id',
             '/options/testcases/questionid',
