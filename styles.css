@@ -471,8 +471,7 @@ body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_testtype_
 body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_testcasecontrols_] {
     border-left: 1px solid #bbb;
     border-right: 1px solid #bbb;
-    padding-left: 4px;
-    padding-right: 4px;
+    padding: 5px 4px;
 }
 
 body#page-question-type-coderunner div[id^=fgroup_id_testcasecontrols_] {
@@ -517,7 +516,6 @@ body#page-question-type-coderunner select#id_coderunner_type {
  */
 body#page-question-type-coderunner div[id^=fitem_id_testcode] {
     border-top: 1px solid #bbb;
-    padding-top: 4px;
 }
 
 body#page-question-type-coderunner div[id^=fitem_id_testcode]:not(:first-of-type) {
@@ -642,6 +640,17 @@ li.bulktest.coderunner.context.quiz {
 
 
 /* stylelint-disable declaration-no-important  */
+
+/* The rows of the question type section are three lines of information about
+ * one choice — the menu with the chain beside it, the summary, the button —
+ * rather than three fields, so they do not want a field's worth of space
+ * between them. Boost's mb-3 carries an !important, so saying otherwise takes
+ * one too.
+ */
+body#page-question-type-coderunner div[id=fgroup_id_prototypegroup],
+body#page-question-type-coderunner div[id=fitem_id_prototypeid_summary] {
+    margin-bottom: 0 !important;
+}
 
 /* The fields of a test case sit flush against each other, which takes an
  * !important to say: Boost's mb-3 carries one, as every Bootstrap spacing

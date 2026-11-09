@@ -99,6 +99,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
         settings_form::require_ace(self::sections(), (string) $this->resolved_settings()->get('language'));
         $this->require_answer_box_ui($mform);
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'setupAllTAs');
+        // The '<<' buttons in the table of failed test cases, which a failed
+        // *Validate on save* puts on the page.
+        $PAGE->requires->js_call_amd('qtype_coderunner/replaceexpected', 'init');
 
         parent::definition($mform);  // The superclass adds the "General" stuff.
     }

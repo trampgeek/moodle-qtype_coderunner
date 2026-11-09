@@ -591,6 +591,14 @@ The prototype picker with its grouping, and the capability check on save as well
 
     **The provenance note stops naming Site defaults.** It said *Inherited from Site defaults* on row after row. The layer is worth naming when it is one the author could go and edit — the prototype their question is built on, or an ancestor of it — and is noise otherwise, so a value coming from Site defaults or from the registry default now reads simply *Inherited*.
 
+    **Second round of review.** Three faults, two of them mine from the first round.
+
+    **The form could not save.** Taking `clean_question_form()` out of the form's question builder took the test cases with it — that call is what turns the submitted arrays into `$question->testcases` — so a question with *Validate on save* set died in `jobrunner.php` on a null test case list. Restored, with a test on the invariant rather than on the symptom, because the symptom needs a sandbox and the invariant does not. The same call had been doing two other jobs: nulling a sandbox of `DEFAULT`, and tidying a penalty regime typed as `10%, 20%, ...`. The second had broken differently and silently — the tidying reached the column, and the column is now written from the overrides, so the untidied value was what got stored. It is tidied before it becomes an override now, in one place that both save and validation pass through.
+
+    **The `<<` buttons stopped working.** The table of failed test cases offers a button per row that replaces a test case's expected output with what the sample answer produced, and it lived in `authorform.js`, which the new form does not load. It is now `qtype_coderunner/replaceexpected`, forty lines that depend on nothing but the ids the failure table renders. That is the second thing lifted out of `authorform.js` rather than lost with it, after the answer box's UI plugin; what remains in that module really is all machinery of the old form.
+
+    **And the test cases wanted CodeRunner 5's styling back, not a redesign.** The first round replaced the per-row grey with a panel per section, which suited the settings sections and ruined the test cases: the box round each test case lost three of its four sides, leaving a ghost, and the fields lost the five pixels of padding that separated one from the next. The box is drawn properly now — sides on every row of a test case, top on its first field, bottom on its controls, which is why the controls are the last element of the repeat whether or not the test type is offered — and the padding is back. The lesson is that the per-row rule was carrying two different jobs, a background for the settings fields and a box for the test cases, and only the first wanted replacing.
+
     **Exercised against real data.** The form was rendered for a question on the development site: 226 KB of HTML, the sections in the design's order, the picker showing *Used in this course* as a disabled heading with its prototypes indented beneath, and the chain beneath the picker reading *Site defaults › c_program*.
 5. ***Make prototype from this question***, the legacy prototype-question banner, and M7's share of the removal inventory below.
 6. **Behat** over override, revert and prototype-change.
@@ -855,6 +863,16 @@ Open:
     **Backup and restore cannot be the vehicle**, which the affected site's experience already shows: a course with a bank that large fails to back up. Restore's matching step is itself part of why — it calls `get_question_options()` once per question in the matched category. Any cleanup has to work in place.
 
     **The cheapest useful thing is a watchdog, not a cure.** This reached 560,000 because nobody saw it start. The duplicate report run by cron against a threshold — this bank gained *n* identical questions this week — would have caught it in the first month, and is worth having whether or not the collapsing tool is ever written.
+
+28. **A prototype should not have to own the support files it could inherit.** A child prototype's support files are merged with its ancestors' by filename, so a file it does not have, it inherits. What the migration produced is the opposite: each prototype got a snapshot of its CodeRunner 5 question's files, so a prototype reparented under another now owns copies of nearly everything it could inherit. The development site's `python3_files_function` owns twenty files, nineteen of which its new parent `python3_scratchpad` also owns, and only `_prefix.py` is genuinely its own.
+
+    This is the file half of the redundant-override problem, and the maintenance cost is the one the whole design exists to remove: the site's `python3_scratchpad` and its two files question types have nearly the same file set between them, and forgetting to update the other two after changing one has caused problems before. What is wanted is a view that says which of a prototype's own files are identical to one it would inherit, and an action that drops them — the same shape as dropping a redundant override, and with the same property that it changes nothing about how the prototype resolves today.
+
+    Not urgent: the case arises when a prototype is reparented, which is rare, and is easily fixed by hand one prototype at a time.
+
+29. **`install_builtins()` was inert on any site whose built-ins predate the derived uuid.** Found while giving the built-ins their summaries, and worth recording because it was silent. Decision 23 identifies a built-in by a version 5 uuid derived from its canonical name, so that a split can rename it without losing it. Built-ins installed before that scheme carry a random version 4 uuid, the lookup by uuid therefore fails, each is treated as a new prototype whose name is taken, and the run reports nineteen skipped and changes nothing — for that release and every release after it. On the development site all nineteen were in that state.
+
+    Fixed, by falling back to finding a built-in by name — in either the plain or the split-off stock form, and only when it is still flagged built-in, so the half of a split that holds the name is never mistaken for it — and writing the derived uuid to it. The nineteen healed on the next run. A fresh install was never affected, which is why nothing caught it.
 
 Decision 7, below, is retained for its analysis.
 
