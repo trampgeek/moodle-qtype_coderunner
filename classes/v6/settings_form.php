@@ -167,11 +167,15 @@ class settings_form {
         $overridename = self::INHERIT_PREFIX . $name;
         $isoverridden = $own->has($field);
 
+        // A checkbox, labelled, rather than a second unlabelled menu beside the
+        // field's own: two bare Yes/No menus side by side give an author no way
+        // to tell which is which. The box reads "Inherit", and the field's
+        // control is greyed while it is ticked.
         $override = $mform->createElement(
-            'select',
+            'advcheckbox',
             $overridename,
             '',
-            [1 => get_string('yes'), 0 => get_string('no')]
+            get_string('inheritthisfield', 'qtype_coderunner')
         );
 
         // Where the value would come from if this layer did not override it,
@@ -219,8 +223,8 @@ class settings_form {
         $mform->setType($name, self::param_type($field));
         $mform->setType($overridename, PARAM_BOOL);
 
-        // No JavaScript: core greys the input while the field is inherited.
-        $mform->disabledIf($name, $overridename, 'eq', 1);
+        // No JavaScript: core greys the field while Inherit is ticked.
+        $mform->disabledIf($name, $overridename, 'checked');
     }
 
     /**
@@ -325,15 +329,25 @@ class settings_form {
         $value = self::inherited_value($field, $inherited);
         $source = $inherited->was_set($field) ? self::layer_name($inherited->source_of($field)) : null;
 
+        // What the field would take if Inherit were ticked, which is the one
+        // thing an author cannot read off the form otherwise. Always said, and
+        // always in the same words: "Inherited" beside a box labelled "Inherit"
+        // read as a second opinion on the same question.
+        //
         // The layer is named only when it is one the author could go and edit.
         // Nearly every field of nearly every question resolves to Site
         // defaults or to the registry default, and saying so on forty rows
-        // tells an author nothing: the useful case is a value coming from the
-        // prototype their question is built on, or one of its ancestors, which
-        // is where they would go to change it for every question at once.
-        $text = $source === null || $source === self::SITE_DEFAULTS_LAYER
-            ? get_string('inheritedvalue', 'qtype_coderunner')
-            : get_string('inheritedfrom', 'qtype_coderunner', $source);
+        // tells an author nothing.
+        if (in_array($value, [null, ''], true)) {
+            $text = get_string('parentnotset', 'qtype_coderunner');
+        } else if ($source === null || $source === self::SITE_DEFAULTS_LAYER) {
+            $text = get_string('parentvalue', 'qtype_coderunner', self::summarise($field, $value));
+        } else {
+            $text = get_string('parentvaluefrom', 'qtype_coderunner', [
+                'value' => self::summarise($field, $value),
+                'source' => $source,
+            ]);
+        }
 
         // A field whose override really changes something is marked, so that
         // the count on the section header can be found without opening every
@@ -346,18 +360,6 @@ class settings_form {
                 $OUTPUT->pix_icon('i/warning', get_string('fieldchanged', 'qtype_coderunner')),
                 ['class' => 'text-warning me-1']
             );
-        }
-
-        if (in_array($value, [null, ''], true)) {
-            $text .= ' ' . get_string('inheritednotset', 'qtype_coderunner');
-        } else if ($isoverridden) {
-            // Only when the field is overridden. Otherwise the control itself
-            // already shows this value and repeating it is noise. Overridden,
-            // the control shows the author's value instead, and this is the
-            // only place that says what clearing the override would give them
-            // — including straight after they clear it, when the control is
-            // greyed but still displaying what they are about to discard.
-            $text .= ': ' . self::summarise($field, $value);
         }
 
         return $mform->createElement(

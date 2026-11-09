@@ -570,6 +570,15 @@ $string['prototypeextra_help'] = 'A field of text for general-purpose use by que
 $string['fieldchanged'] = 'This question changes this setting';
 $string['fieldchangedlegend'] = 'Marks a setting this question changes. The rest are set here but hold the value they would inherit anyway.';
 
+// The box that says a field takes its value from the prototype chain, and the
+// note beside it saying what that value is. "Parent" rather than "Inherited",
+// so that the note does not read as a second answer to the question the box
+// asks.
+$string['inheritthisfield'] = 'Inherit';
+$string['parentvalue'] = 'Parent: {$a}';
+$string['parentvaluefrom'] = 'Parent: {$a->value} (from {$a->source})';
+$string['parentnotset'] = 'Parent: not set';
+
 // What an inherited field's note says, when the layer supplying it is not one
 // the author would go and edit.
 $string['inheritedvalue'] = 'Inherited';

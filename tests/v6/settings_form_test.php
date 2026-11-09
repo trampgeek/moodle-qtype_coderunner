@@ -517,7 +517,7 @@ final class settings_form_test extends \advanced_testcase {
      * A field that is not overridden does not repeat its value, because the
      * control already shows it.
      */
-    public function test_an_inherited_field_does_not_repeat_its_value(): void {
+    public function test_the_note_states_the_parent_value_either_way(): void {
         global $CFG;
         require_once($CFG->libdir . '/formslib.php');
         $this->resetAfterTest();
@@ -526,13 +526,30 @@ final class settings_form_test extends \advanced_testcase {
             'python3' => ['grader' => 'TemplateGrader'],
         ])->resolve();
 
-        $mform = new \MoodleQuickForm('t', 'post', '');
-        settings_form::add_section($mform, form_section::TEMPLATE, $inherited, new override_set([], 'q'));
-
-        $this->assertStringNotContainsString(
+        // Inherited: the control shows the value too, and the note says it
+        // again. An earlier version suppressed the repetition, which made the
+        // note mean one thing when a field was overridden and another when it
+        // was not. It answers one question — what ticking Inherit would give
+        // you — so it says the same thing in the same words either way.
+        $plain = new \MoodleQuickForm('t', 'post', '');
+        settings_form::add_section($plain, form_section::TEMPLATE, $inherited, new override_set([], 'q'));
+        $this->assertStringContainsString(
             get_string('templategrader', 'qtype_coderunner'),
-            (string) $this->group_member($mform, 'grader', 'grader_source')->_text
+            (string) $this->group_member($plain, 'grader', 'grader_source')->_text
         );
+
+        // Overridden: same note, and it names the layer, because a prototype
+        // is somewhere the author could go and change it for every question.
+        $overridden = new \MoodleQuickForm('t2', 'post', '');
+        settings_form::add_section(
+            $overridden,
+            form_section::TEMPLATE,
+            $inherited,
+            new override_set(['grader' => 'EqualityGrader'], 'q')
+        );
+        $note = (string) $this->group_member($overridden, 'grader', 'grader_source')->_text;
+        $this->assertStringContainsString(get_string('templategrader', 'qtype_coderunner'), $note);
+        $this->assertStringContainsString('python3', $note);
     }
 
     /**
