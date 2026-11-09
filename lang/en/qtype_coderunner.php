@@ -729,6 +729,29 @@ $string['qb_type'] = 'Type';
 $string['qb_unknown_course'] = 'Unknown course ({$a})';
 // Question browser strings end
 
+// One-line summaries of the built-in question types, shown beside each in the
+// prototype picker and in the prototype library. Each says what an author
+// chooses this type for; the fuller account is the qtype_<name> string above.
+$string['qtype_c_function_summary'] = 'C: the student writes one or more functions, called by each test.';
+$string['qtype_c_program_summary'] = 'C: the student writes a complete program, run once per test with that test\'s standard input.';
+$string['qtype_cpp_function_summary'] = 'C++: the student writes one or more functions, called by each test.';
+$string['qtype_cpp_program_summary'] = 'C++: the student writes a complete program, run once per test with that test\'s standard input.';
+$string['qtype_directed_graph_summary'] = 'Python 3: the student draws a directed graph to a specification, using the graph editor.';
+$string['qtype_java_class_summary'] = 'Java: the student writes a complete class, which each test instantiates and exercises.';
+$string['qtype_java_method_summary'] = 'Java: the student writes a standalone method, called by the test code.';
+$string['qtype_java_program_summary'] = 'Java: the student writes a complete program, compiled and run once per test.';
+$string['qtype_multilanguage_summary'] = 'Write-a-program in whichever of several languages the student chooses.';
+$string['qtype_nodejs_summary'] = 'JavaScript run under Node.js: the test code follows the student answer.';
+$string['qtype_octave_function_summary'] = 'Octave: the student writes a function in full, called by each test with its arguments.';
+$string['qtype_pascal_function_summary'] = 'Pascal: the student writes a procedure or function, followed by the test code.';
+$string['qtype_pascal_program_summary'] = 'Pascal: the student writes a complete program, run once per test with that test\'s standard input.';
+$string['qtype_php_summary'] = 'PHP: the student submits PHP code, which opens the tag but does not close it.';
+$string['qtype_python2_summary'] = 'Python 2, for write-a-function, write-a-class or write-a-program questions. Prefer python3 for new questions.';
+$string['qtype_python3_summary'] = 'Python 3, for write-a-function, write-a-class or write-a-program questions. The usual starting point.';
+$string['qtype_python3_w_input_summary'] = 'Python 3 for answers that read standard input, which the simpler python3 type cannot supply.';
+$string['qtype_sql_summary'] = 'SQL run against sqlite3 from Python 3; sqlite3 must be installed on the Jobe server.';
+$string['qtype_undirected_graph_summary'] = 'Python 3: the student draws an undirected graph to a specification, using the graph editor.';
+
 $string['qtype_c_function'] = '<p>A question type for C write-a-function questions.
 The student answer is expected to be a complete C function, but it can optionally
 be preceded by other self-contained C code such as preprocessor directives and
