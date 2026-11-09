@@ -160,6 +160,12 @@ class settings_form {
             get_string('overridethisfield', 'qtype_coderunner')
         );
 
+        // Where the value would come from if this layer did not override it,
+        // beside the checkbox that decides whether it does rather than on a
+        // line of its own: it is the reading of the checkbox, not a remark
+        // about the field.
+        $provenance = self::provenance_element($mform, $field, $inherited, $isoverridden);
+
         if ($field->iscode) {
             // A code field is added on its own rather than in a group.
             // CodeRunner positions Ace's full-screen control against the
@@ -167,11 +173,11 @@ class settings_form {
             // visible in the corner. The author form adds its code textareas
             // the same way, as plain elements, which is why they look right.
             $mform->addElement(self::input_element($mform, $field, $language));
-            $mform->addElement($override);
+            $mform->addGroup([$override, $provenance], $name . '_group', '', '&nbsp;&nbsp;', false);
             $helpanchor = $name;
         } else {
             $mform->addGroup(
-                [self::input_element($mform, $field, $language), $override],
+                [self::input_element($mform, $field, $language), $override, $provenance],
                 $name . '_group',
                 $field->label(),
                 '&nbsp;&nbsp;&nbsp;',
@@ -200,8 +206,6 @@ class settings_form {
 
         // No JavaScript: core greys the input while the box is clear.
         $mform->disabledIf($name, $overridename, 'notchecked');
-
-        self::add_provenance($mform, $field, $inherited, $isoverridden);
     }
 
     /**
@@ -293,12 +297,12 @@ class settings_form {
      * @param question_settings $inherited what the layers above resolve to.
      * @param bool $isoverridden whether this layer overrides the field.
      */
-    protected static function add_provenance(
+    protected static function provenance_element(
         \MoodleQuickForm $mform,
         field $field,
         question_settings $inherited,
         bool $isoverridden
-    ): void {
+    ) {
         $value = self::inherited_value($field, $inherited);
         $source = $inherited->was_set($field) ? self::layer_name($inherited->source_of($field)) : null;
 
@@ -324,7 +328,7 @@ class settings_form {
             $text .= ': ' . self::summarise($field, $value);
         }
 
-        $mform->addElement(
+        return $mform->createElement(
             'static',
             $field->name . '_source',
             '',

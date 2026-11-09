@@ -599,6 +599,30 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
     /**
+     * Submitted values tidied into the form CodeRunner stores them in.
+     *
+     * The penalty regime is the one field an author may type loosely — `10%,
+     * 20%, ...` means `10, 20, ...` — and CodeRunner 5 tidied it in
+     * `clean_question_form()`, on its way to the column. Under CodeRunner 6
+     * the column is written from the overrides document, so tidying the
+     * question object after the fact no longer reaches what is stored: the
+     * value has to be tidied before it becomes an override. Both paths that
+     * build an override set from submitted data come through here.
+     *
+     * @param array $data the submitted data.
+     * @return array the same data, tidied.
+     */
+    protected static function tidy_submitted(array $data): array {
+        if (isset($data['penaltyregime']) && !preg_match('/{{.*}}/', trim($data['penaltyregime']))) {
+            // Not a Twig expression, so it can be tidied; if it is one, hope
+            // for the best, exactly as CodeRunner 5 does.
+            $regime = str_replace(['%', ','], ['', ', '], $data['penaltyregime']);
+            $data['penaltyregime'] = preg_replace('/ *,? +/', ', ', $regime);
+        }
+        return $data;
+    }
+
+    /**
      * Record the prototype the author picked and what the question overrides
      * of it.
      *
@@ -611,7 +635,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
      */
     protected function record_prototype_and_overrides($fields) {
         $overrides = settings_form::overrides_from(
-            $fields,
+            self::tidy_submitted((array) $fields),
             self::sections(),
             $this->own_overrides(),
             qtype_coderunner::QUESTION_LAYER
@@ -810,6 +834,24 @@ class qtype_coderunner_edit_form extends question_edit_form {
             ['size' => 3, 'class' => 'testcaseordering']
         );
 
+        // The test type comes before the controls, so that the controls are the
+        // last element of a test case whether or not it is offered. The box
+        // drawn round a test case in styles.css closes on the controls, and a
+        // row after them would fall outside it.
+        if ($shown['testtype']) {
+            $repeated[] = $mform->createElement(
+                'select',
+                'testtype',
+                get_string('testtype', 'qtype_coderunner'),
+                [
+                    constants::TESTTYPE_NORMAL   => get_string('testtype_normal', 'qtype_coderunner'),
+                    constants::TESTTYPE_PRECHECK => get_string('testtype_precheck', 'qtype_coderunner'),
+                    constants::TESTTYPE_BOTH     => get_string('testtype_both', 'qtype_coderunner'),
+                ],
+                ['class' => 'testtype']
+            );
+        }
+
         $repeated[] = $mform->createElement(
             'group',
             'testcasecontrols',
@@ -818,22 +860,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
             null,
             false
         );
-
-        $typevalues = [
-            constants::TESTTYPE_NORMAL   => get_string('testtype_normal', 'qtype_coderunner'),
-            constants::TESTTYPE_PRECHECK => get_string('testtype_precheck', 'qtype_coderunner'),
-            constants::TESTTYPE_BOTH     => get_string('testtype_both', 'qtype_coderunner'),
-        ];
-
-        if ($shown['testtype']) {
-            $repeated[] = $mform->createElement(
-                'select',
-                'testtype',
-                get_string('testtype', 'qtype_coderunner'),
-                $typevalues,
-                ['class' => 'testtype']
-            );
-        }
 
         foreach (array_keys(array_filter($shown)) as $field) {
             $repeatedoptions[$field]['type'] = PARAM_RAW;
@@ -1467,6 +1493,16 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $contextid = $DB->get_field('question_categories', 'contextid', ['id' => $category]);
         $question->contextid = $contextid;
 
+        // CodeRunner 5's cleaning still has three jobs here, and the first of
+        // them is load-bearing: it is what turns the submitted test case arrays
+        // into $question->testcases, which the sample answer run needs. It also
+        // nulls a sandbox of DEFAULT and tidies the penalty regime. It runs
+        // before the chain is resolved, so resolution has the last word on
+        // every inherited field.
+        $question->prototypetype = 0;
+        $qtype = new qtype_coderunner();
+        $qtype->clean_question_form($question, true);
+
         // Resolve the chain, so that every setting on this object is the one
         // the question will actually use. Two reasons it has to happen here
         // rather than being read from the submitted data:
@@ -1483,13 +1519,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $question->prototypeid = empty($question->prototypeid) ? null : (int) $question->prototypeid;
         $question->overrides = json_encode(
             settings_form::overrides_from(
-                $data,
+                self::tidy_submitted($data),
                 self::sections(),
                 $this->own_overrides(),
                 qtype_coderunner::QUESTION_LAYER
             )->to_array()
         );
-        (new qtype_coderunner())->resolve_settings_in_place($question);
+        $qtype->resolve_settings_in_place($question);
 
         return $question;
     }

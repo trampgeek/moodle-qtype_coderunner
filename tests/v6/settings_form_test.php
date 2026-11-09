@@ -154,6 +154,30 @@ final class settings_form_test extends \advanced_testcase {
     }
 
     /**
+     * One element of a field's group, by name.
+     *
+     * The input, the override checkbox and the provenance note share a row —
+     * the note reads as the checkbox's caption rather than a remark of its own
+     * — so none of the three is a top-level element of the form.
+     *
+     * @param \MoodleQuickForm $mform the built form.
+     * @param string $field the field name.
+     * @param string $name the element wanted.
+     * @return object|null the element, or null if the group has no such member.
+     */
+    private function group_member(\MoodleQuickForm $mform, string $field, string $name) {
+        if (!$mform->elementExists($field . '_group')) {
+            return null;
+        }
+        foreach ($mform->getElement($field . '_group')->getElements() as $element) {
+            if ($element->getName() === $name) {
+                return $element;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Between them the sections account for every field that has a column, so
      * no field can be added to the registry and silently never appear on a
      * form.
@@ -268,6 +292,7 @@ final class settings_form_test extends \advanced_testcase {
 
         $this->assertTrue($mform->elementExists('answer'));
         $this->assertTrue($mform->elementExists('validateonsave'));
+        $this->assertFalse($mform->elementExists('answer_group'));
         $this->assertFalse($mform->elementExists(settings_form::OVERRIDE_PREFIX . 'answer'));
         $this->assertFalse($mform->elementExists('answer_source'));
     }
@@ -309,16 +334,12 @@ final class settings_form_test extends \advanced_testcase {
                     $mform->elementExists($field->iscode ? $name : $name . '_group'),
                     "Field $name rendered no control in section {$section->value}."
                 );
-                if ($field->iscode) {
-                    // Only a code field's override box is a top-level element;
-                    // the others live inside their group.
-                    $this->assertTrue(
-                        $mform->elementExists(settings_form::OVERRIDE_PREFIX . $name),
-                        "Field $name rendered no override control."
-                    );
-                }
-                $this->assertTrue(
-                    $mform->elementExists($name . '_source'),
+                $this->assertNotNull(
+                    $this->group_member($mform, $name, settings_form::OVERRIDE_PREFIX . $name),
+                    "Field $name rendered no override control."
+                );
+                $this->assertNotNull(
+                    $this->group_member($mform, $name, $name . '_source'),
                     "Field $name rendered no provenance note."
                 );
                 $rendered++;
@@ -445,7 +466,7 @@ final class settings_form_test extends \advanced_testcase {
             new override_set(['grader' => 'RegexGrader'], 'q')
         );
 
-        $note = $mform->getElement('grader_source')->toHtml();
+        $note = (string) $this->group_member($mform, 'grader', 'grader_source')->_text;
 
         $this->assertStringContainsString('python3', $note);
         $this->assertStringContainsString(
@@ -473,7 +494,7 @@ final class settings_form_test extends \advanced_testcase {
 
         $this->assertStringNotContainsString(
             get_string('templategrader', 'qtype_coderunner'),
-            $mform->getElement('grader_source')->toHtml()
+            (string) $this->group_member($mform, 'grader', 'grader_source')->_text
         );
     }
 
@@ -497,7 +518,7 @@ final class settings_form_test extends \advanced_testcase {
             new override_set(['template' => 'MINE'], 'q')
         );
 
-        $note = $mform->getElement('template_source')->toHtml();
+        $note = (string) $this->group_member($mform, 'template', 'template_source')->_text;
 
         $this->assertStringContainsString('…', $note, 'A long value was not truncated.');
         $this->assertLessThan(300, \core_text::strlen(strip_tags($note)));

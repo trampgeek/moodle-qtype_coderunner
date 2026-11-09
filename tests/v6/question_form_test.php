@@ -221,9 +221,14 @@ final class question_form_test extends \advanced_testcase {
 
         $mform = $this->quickform($this->build_form());
 
-        $this->assertTrue($mform->elementExists(settings_form::OVERRIDE_PREFIX . 'template'));
+        // An inheritable field's control, override checkbox and provenance note
+        // share a row, so the group is what the form holds.
+        $this->assertTrue($mform->elementExists('template_group'));
+        // A field of the question alone gets no group and no checkbox: there is
+        // nothing above it to inherit from.
+        $this->assertFalse($mform->elementExists('answer_group'));
+        $this->assertFalse($mform->elementExists('showsource_group'));
         $this->assertFalse($mform->elementExists(settings_form::OVERRIDE_PREFIX . 'answer'));
-        $this->assertFalse($mform->elementExists(settings_form::OVERRIDE_PREFIX . 'showsource'));
     }
 
     /**
@@ -307,6 +312,51 @@ final class question_form_test extends \advanced_testcase {
             (string) $header->_text
         );
         $this->assertNotEmpty($prototype->id);
+    }
+
+    /**
+     * The question the form builds for validation carries its test cases.
+     *
+     * Without them the sample answer run dies in `jobrunner.php` on a null
+     * test case list, which is what happens the moment an author ticks
+     * *Validate on save* — so this is the invariant that keeps the form able to
+     * save at all. It is `clean_question_form()` that turns the submitted
+     * arrays into `$question->testcases`, and the same call nulls a sandbox of
+     * `DEFAULT` and tidies the penalty regime.
+     */
+    public function test_the_validation_question_carries_its_test_cases(): void {
+        $this->make_prototype('python3');
+        $questiondata = $this->make_question('python3');
+
+        $form = $this->build_form($questiondata);
+        $data = [
+            'category' => $this->category->id . ',' . $this->category->contextid,
+            'questiontext' => ['text' => 'Write sqr.', 'format' => FORMAT_HTML],
+            'generalfeedback' => ['text' => '', 'format' => FORMAT_HTML],
+            prototype_picker::FIELD => $questiondata->options->prototypeid,
+            'testcode' => ["print(sqr(2))", "print(sqr(-3))"],
+            'stdin' => ['', ''],
+            'expected' => ["4\n", "9\n"],
+            'extra' => ['', ''],
+            'mark' => ['1.0', '1.0'],
+            'ordering' => ['10', '20'],
+            'useasexample' => ['1', '0'],
+            'display' => ['SHOW', 'SHOW'],
+            'hiderestiffail' => ['0', '0'],
+            'sandbox' => 'DEFAULT',
+            'penaltyregime' => '10%,20%, ...',
+            settings_form::OVERRIDE_PREFIX . 'penaltyregime' => 1,
+        ];
+
+        $method = new \ReflectionMethod($form, 'make_question_from_form_data');
+        $method->setAccessible(true);
+        $question = $method->invoke($form, $data);
+
+        $this->assertCount(2, $question->testcases);
+        $this->assertSame("print(sqr(2))", $question->testcases[0]->testcode);
+        // The other two jobs of the same call.
+        $this->assertNull($question->sandbox);
+        $this->assertSame('10, 20, ...', $question->penaltyregime);
     }
 
     /**

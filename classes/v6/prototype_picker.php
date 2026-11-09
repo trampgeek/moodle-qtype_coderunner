@@ -96,7 +96,9 @@ class prototype_picker {
         $menu = $mform->createElement(
             'selectgroups',
             self::FIELD,
-            get_string('coderunnertype', 'qtype_coderunner'),
+            // No label of its own: the group carries it, and an element that
+            // repeats it renders the words a second time, above the menu.
+            '',
             self::optgroups($courseid, $selectedid, $othercourseid),
             null,
             true
