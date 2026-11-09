@@ -459,11 +459,10 @@ body#page-question-type-coderunner div[id^=id_section_] > .fitem {
  * backgrounds join into a block, and the margin below a test case's controls
  * plus the margin above the next test case's first field leaves the gap.
  *
- * No border. An earlier version of this drew one round each test case, three
- * sides of which used to come from the per-row rule that gave every field in
- * the form its own grey box. Boost's rows carry negative margins, so a border
- * on a row does not line up with a background on its container, and what it
- * read as was a ghost.
+ * The sides and the line under the controls are CodeRunner 5's, and belong on
+ * the rows for the same reason the background does: Boost's rows carry
+ * negative margins, so a border on a row does not line up with a background on
+ * its container. Painting the container was what made them look wrong.
  */
 body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_testcode_],
 body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_stdin_],
@@ -473,6 +472,13 @@ body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_testtype_
 body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_testcasecontrols_] {
     background: #eee;
     padding: 5px 4px;
+    border-left: 1px solid #bbb;
+    border-right: 1px solid #bbb;
+}
+
+/* And a line closing the foot of each test case, under its controls. */
+body#page-question-type-coderunner div[id^=fgroup_id_testcasecontrols_] {
+    border-bottom: 1px solid #ccc;
 }
 
 

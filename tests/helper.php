@@ -61,7 +61,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
 
         foreach (\qtype_coderunner\v6\field_registry::all() as $name => $field) {
             if ($field->is_inheritable() && array_key_exists($name, $present)) {
-                $formdata->{\qtype_coderunner\v6\settings_form::OVERRIDE_PREFIX . $name} = 1;
+                $formdata->{\qtype_coderunner\v6\settings_form::INHERIT_PREFIX . $name} = 0;
             }
         }
 

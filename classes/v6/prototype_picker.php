@@ -80,6 +80,16 @@ class prototype_picker {
     const OTHER_COURSE_WANTED = 'pickerothercoursewanted';
 
     /**
+     * The no-submit button that rebuilds the form for a newly chosen prototype.
+     *
+     * Visually hidden, and clicked by `qtype_coderunner/prototypereload` when
+     * the menu changes. It is a real button rather than a scripted form submit
+     * because `no_submit_button_pressed()` recognises a rebuild by finding a
+     * registered button's name in the submission.
+     */
+    const RELOAD_BUTTON = 'pickerreload';
+
+    /**
      * Add the picker, the second step that reaches another course, and the
      * breadcrumb that says what the current choice inherits from.
      *
@@ -116,12 +126,40 @@ class prototype_picker {
         $mform->addRule(self::GROUP, get_string('prototyperequired', 'qtype_coderunner'), 'required', null, 'client');
         $mform->addHelpButton(self::GROUP, 'coderunnertype', 'qtype_coderunner');
 
+        // Changing the menu rebuilds the form, so that the fields the question
+        // inherits, the notes saying where they come from, and the test case
+        // columns the new prototype offers are all the new prototype's.
+        $mform->addElement(
+            'submit',
+            self::RELOAD_BUTTON,
+            get_string('prototypereload', 'qtype_coderunner'),
+            ['class' => 'visually-hidden']
+        );
+        $mform->registerNoSubmitButton(self::RELOAD_BUTTON);
+
         $summary = self::summary($selectedid);
         if ($summary !== '') {
             $mform->addElement('static', self::FIELD . '_summary', '', $summary);
         }
 
         self::add_other_course_step($mform, $courseid, $othercourseid);
+    }
+
+    /**
+     * Ask the page for the script that rebuilds the form on a change of
+     * prototype.
+     *
+     * Called by the form rather than from the element definitions, so that
+     * building a form has no side effects on $PAGE and can be done in a test.
+     */
+    public static function require_reload_on_change(): void {
+        global $PAGE;
+
+        $PAGE->requires->js_call_amd(
+            'qtype_coderunner/prototypereload',
+            'init',
+            ['id_' . self::FIELD, 'id_' . self::RELOAD_BUTTON]
+        );
     }
 
     /**

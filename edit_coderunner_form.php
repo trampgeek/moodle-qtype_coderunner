@@ -102,6 +102,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // The '<<' buttons in the table of failed test cases, which a failed
         // *Validate on save* puts on the page.
         $PAGE->requires->js_call_amd('qtype_coderunner/replaceexpected', 'init');
+        prototype_picker::require_reload_on_change();
 
         parent::definition($mform);  // The superclass adds the "General" stuff.
     }
@@ -178,6 +179,8 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * @param MoodleQuickForm $mform the form being built.
      */
     protected function make_settings_sections($mform) {
+        global $OUTPUT;
+
         $inherited = $this->inherited_settings();
         $own = $this->own_overrides();
         $language = (string) $this->resolved_settings()->get('language');
@@ -210,6 +213,24 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // that may show them, and `showsource` — Template debugging —
             // sits in the Template section.
             settings_form::add_section($mform, $section, $inherited, $own, $language, true);
+
+            if ($this->section_override_count($section, $own) > 0) {
+                // What the marks beside the fields above mean, said once per
+                // section that has any and nowhere else. A legend outside the
+                // sections would be in a collapsed region or far from the
+                // thing it explains.
+                $mform->addElement(
+                    'static',
+                    self::section_header($section) . '_legend',
+                    '',
+                    \html_writer::tag(
+                        'small',
+                        $OUTPUT->pix_icon('i/warning', '') . ' '
+                            . get_string('fieldchangedlegend', 'qtype_coderunner'),
+                        ['class' => 'text-muted']
+                    )
+                );
+            }
         }
     }
 

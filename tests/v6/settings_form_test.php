@@ -42,7 +42,7 @@ final class settings_form_test extends \advanced_testcase {
      */
     public function test_a_ticked_field_becomes_an_override(): void {
         $overrides = settings_form::overrides_from(
-            ['template' => 'MY TEMPLATE', 'override_template' => 1],
+            ['template' => 'MY TEMPLATE', 'inherit_template' => 0],
             [form_section::TEMPLATE],
             new override_set([], 'p')
         );
@@ -60,7 +60,7 @@ final class settings_form_test extends \advanced_testcase {
         $before = new override_set(['template' => 'OLD TEMPLATE'], 'p');
 
         $after = settings_form::overrides_from(
-            ['template' => 'OLD TEMPLATE', 'override_template' => 0],
+            ['template' => 'OLD TEMPLATE', 'inherit_template' => 1],
             [form_section::TEMPLATE],
             $before
         );
@@ -76,7 +76,7 @@ final class settings_form_test extends \advanced_testcase {
      */
     public function test_an_empty_value_is_still_an_override(): void {
         $overrides = settings_form::overrides_from(
-            ['template' => '', 'override_template' => 1],
+            ['template' => '', 'inherit_template' => 0],
             [form_section::TEMPLATE],
             new override_set([], 'p')
         );
@@ -93,7 +93,7 @@ final class settings_form_test extends \advanced_testcase {
         $before = new override_set(['template' => 'KEEP ME', 'penaltyregime' => '0, 10, ...'], 'p');
 
         $after = settings_form::overrides_from(
-            ['penaltyregime' => '20, 40, ...', 'override_penaltyregime' => 1],
+            ['penaltyregime' => '20, 40, ...', 'inherit_penaltyregime' => 0],
             [form_section::GRADING],
             $before
         );
@@ -108,7 +108,7 @@ final class settings_form_test extends \advanced_testcase {
      */
     public function test_values_are_cast_to_the_registry_type(): void {
         $overrides = settings_form::overrides_from(
-            ['allornothing' => '1', 'override_allornothing' => 1],
+            ['allornothing' => '1', 'inherit_allornothing' => 0],
             [form_section::GRADING],
             new override_set([], 'p')
         );
@@ -239,6 +239,43 @@ final class settings_form_test extends \advanced_testcase {
     }
 
     /**
+     * The Inherit menu's sense is the inverse of the stored state, in both
+     * directions, and a field the form did not ask about keeps what it had.
+     *
+     * An inverted boolean is where this sort of change goes wrong, so each of
+     * the three cases is asserted rather than reasoned about. The third is the
+     * one with teeth: if a missing key were read as "inherit", a form showing
+     * fewer fields than the question overrides would quietly drop the rest.
+     */
+    public function test_the_inherit_menu_is_the_inverse_of_an_override(): void {
+        $existing = new override_set(['template' => 'OLD', 'grader' => 'EqualityGrader'], 'q');
+
+        // Inherit: No keeps the author's value as an override.
+        $kept = settings_form::overrides_from(
+            ['template' => 'MINE', settings_form::INHERIT_PREFIX . 'template' => 0],
+            [form_section::TEMPLATE],
+            $existing,
+            'q'
+        );
+        $this->assertSame('MINE', $kept->get('template'));
+
+        // Inherit: Yes drops it.
+        $dropped = settings_form::overrides_from(
+            ['template' => 'MINE', settings_form::INHERIT_PREFIX . 'template' => 1],
+            [form_section::TEMPLATE],
+            $existing,
+            'q'
+        );
+        $this->assertFalse($dropped->has('template'));
+
+        // A field the form never asked about is left exactly as it was, so a
+        // form showing one section cannot disturb another's overrides.
+        $this->assertSame('EqualityGrader', $dropped->get('grader'));
+        $untouched = settings_form::overrides_from([], [form_section::TEMPLATE], $existing, 'q');
+        $this->assertSame('OLD', $untouched->get('template'));
+    }
+
+    /**
      * An instance field is never read back as an override, whichever layer is
      * being edited and whatever the form submitted.
      *
@@ -249,11 +286,11 @@ final class settings_form_test extends \advanced_testcase {
     public function test_an_instance_field_is_never_an_override(): void {
         $submitted = [
             'showsource' => 1,
-            settings_form::OVERRIDE_PREFIX . 'showsource' => 1,
+            settings_form::INHERIT_PREFIX . 'showsource' => 0,
             'answer' => 'print(42)',
-            settings_form::OVERRIDE_PREFIX . 'answer' => 1,
+            settings_form::INHERIT_PREFIX . 'answer' => 0,
             'template' => 'MY TEMPLATE',
-            settings_form::OVERRIDE_PREFIX . 'template' => 1,
+            settings_form::INHERIT_PREFIX . 'template' => 0,
         ];
 
         $overrides = settings_form::overrides_from(
@@ -293,7 +330,7 @@ final class settings_form_test extends \advanced_testcase {
         $this->assertTrue($mform->elementExists('answer'));
         $this->assertTrue($mform->elementExists('validateonsave'));
         $this->assertFalse($mform->elementExists('answer_group'));
-        $this->assertFalse($mform->elementExists(settings_form::OVERRIDE_PREFIX . 'answer'));
+        $this->assertFalse($mform->elementExists(settings_form::INHERIT_PREFIX . 'answer'));
         $this->assertFalse($mform->elementExists('answer_source'));
     }
 
@@ -335,7 +372,7 @@ final class settings_form_test extends \advanced_testcase {
                     "Field $name rendered no control in section {$section->value}."
                 );
                 $this->assertNotNull(
-                    $this->group_member($mform, $name, settings_form::OVERRIDE_PREFIX . $name),
+                    $this->group_member($mform, $name, settings_form::INHERIT_PREFIX . $name),
                     "Field $name rendered no override control."
                 );
                 $this->assertNotNull(
@@ -532,7 +569,7 @@ final class settings_form_test extends \advanced_testcase {
      */
     public function test_submitted_line_endings_are_normalised(): void {
         $overrides = settings_form::overrides_from(
-            ['template' => "line one\r\nline two\r\n", 'override_template' => 1],
+            ['template' => "line one\r\nline two\r\n", 'inherit_template' => 0],
             [form_section::TEMPLATE],
             new override_set([], 'p')
         );

@@ -565,6 +565,11 @@ $string['prototypeexists'] = 'This is a prototype; cannot change question type.'
 $string['prototypeextra'] = 'Prototype extra';
 $string['prototypeextra_help'] = 'A field of text for general-purpose use by question type authors, like global extra, but part of the prototype state. Available to the template author as {{ QUESTION.prototypeextra }}.';
 
+// The mark beside a field whose value really differs from what it would
+// inherit, and the legend that explains it.
+$string['fieldchanged'] = 'This question changes this setting';
+$string['fieldchangedlegend'] = 'Marks a setting this question changes. The rest are set here but hold the value they would inherit anyway.';
+
 // What an inherited field's note says, when the layer supplying it is not one
 // the author would go and edit.
 $string['inheritedvalue'] = 'Inherited';
@@ -583,6 +588,7 @@ $string['sectionui'] = 'User interface';
 $string['sectionchanged'] = '{$a} changed';
 
 // The question form's prototype picker.
+$string['prototypereload'] = 'Update the form for this question type';
 $string['prototypefromanothercourse'] = 'Use a prototype from another course...';
 $string['prototypegroup_usedhere'] = 'Used in this course';
 $string['prototypegroup_courseandsite'] = 'This course and the site';

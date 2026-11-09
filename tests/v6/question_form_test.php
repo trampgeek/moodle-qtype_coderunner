@@ -228,7 +228,7 @@ final class question_form_test extends \advanced_testcase {
         // nothing above it to inherit from.
         $this->assertFalse($mform->elementExists('answer_group'));
         $this->assertFalse($mform->elementExists('showsource_group'));
-        $this->assertFalse($mform->elementExists(settings_form::OVERRIDE_PREFIX . 'answer'));
+        $this->assertFalse($mform->elementExists(settings_form::INHERIT_PREFIX . 'answer'));
     }
 
     /**
@@ -345,7 +345,7 @@ final class question_form_test extends \advanced_testcase {
             'hiderestiffail' => ['0', '0'],
             'sandbox' => 'DEFAULT',
             'penaltyregime' => '10%,20%, ...',
-            settings_form::OVERRIDE_PREFIX . 'penaltyregime' => 1,
+            settings_form::INHERIT_PREFIX . 'penaltyregime' => 0,
         ];
 
         $method = new \ReflectionMethod($form, 'make_question_from_form_data');

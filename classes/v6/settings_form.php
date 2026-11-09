@@ -45,8 +45,22 @@ namespace qtype_coderunner\v6;
  * holding values that are not in effect is a second, invisible state.
  */
 class settings_form {
-    /** @var string Prefix for the checkbox that says a field is overridden here. */
-    const OVERRIDE_PREFIX = 'override_';
+    /**
+     * Prefix for the menu that says whether a field is inherited here.
+     *
+     * An *Inherit* menu rather than an *Override* checkbox, and the difference
+     * is not cosmetic. The migration pins twenty fields on every pre-6.0
+     * question whether or not the value differs from what the chain supplies
+     * (M3), so most overrides on a migrated question restate what it would
+     * have inherited anyway. *Override ✓* against a value identical to the
+     * parent's reads as a mistake; *Inherit: No* against the same value reads
+     * as a true statement of where the value comes from, and makes turning
+     * inheritance on the obvious next move rather than a puzzle.
+     *
+     * The sense is therefore inverted from the stored state: `1` means the
+     * field is inherited, and so *not* in the overrides document.
+     */
+    const INHERIT_PREFIX = 'inherit_';
 
     /**
      * The name of the layer at the root of every chain.
@@ -150,21 +164,21 @@ class settings_form {
             return;
         }
 
-        $overridename = self::OVERRIDE_PREFIX . $name;
+        $overridename = self::INHERIT_PREFIX . $name;
         $isoverridden = $own->has($field);
 
         $override = $mform->createElement(
-            'advcheckbox',
+            'select',
             $overridename,
             '',
-            get_string('overridethisfield', 'qtype_coderunner')
+            [1 => get_string('yes'), 0 => get_string('no')]
         );
 
         // Where the value would come from if this layer did not override it,
         // beside the checkbox that decides whether it does rather than on a
         // line of its own: it is the reading of the checkbox, not a remark
         // about the field.
-        $provenance = self::provenance_element($mform, $field, $inherited, $isoverridden);
+        $provenance = self::provenance_element($mform, $field, $inherited, $isoverridden, $own);
 
         if ($field->iscode) {
             // A code field is added on its own rather than in a group.
@@ -201,11 +215,12 @@ class settings_form {
             $name,
             $isoverridden ? $own->get($field) : self::inherited_value($field, $inherited)
         );
-        $mform->setDefault($overridename, $isoverridden ? 1 : 0);
+        $mform->setDefault($overridename, $isoverridden ? 0 : 1);
         $mform->setType($name, self::param_type($field));
+        $mform->setType($overridename, PARAM_BOOL);
 
-        // No JavaScript: core greys the input while the box is clear.
-        $mform->disabledIf($name, $overridename, 'notchecked');
+        // No JavaScript: core greys the input while the field is inherited.
+        $mform->disabledIf($name, $overridename, 'eq', 1);
     }
 
     /**
@@ -301,8 +316,12 @@ class settings_form {
         \MoodleQuickForm $mform,
         field $field,
         question_settings $inherited,
-        bool $isoverridden
+        bool $isoverridden,
+        ?override_set $own = null
     ) {
+        global $OUTPUT;
+
+        $own ??= new override_set([], '');
         $value = self::inherited_value($field, $inherited);
         $source = $inherited->was_set($field) ? self::layer_name($inherited->source_of($field)) : null;
 
@@ -315,6 +334,19 @@ class settings_form {
         $text = $source === null || $source === self::SITE_DEFAULTS_LAYER
             ? get_string('inheritedvalue', 'qtype_coderunner')
             : get_string('inheritedfrom', 'qtype_coderunner', $source);
+
+        // A field whose override really changes something is marked, so that
+        // the count on the section header can be found without opening every
+        // field. The ones that merely restate what they would inherit — most
+        // of them, on a migrated question — are left unmarked.
+        $marker = '';
+        if ($isoverridden && !self::is_redundant($field, $own, $inherited)) {
+            $marker = \html_writer::tag(
+                'span',
+                $OUTPUT->pix_icon('i/warning', get_string('fieldchanged', 'qtype_coderunner')),
+                ['class' => 'text-warning me-1']
+            );
+        }
 
         if (in_array($value, [null, ''], true)) {
             $text .= ' ' . get_string('inheritednotset', 'qtype_coderunner');
@@ -332,7 +364,7 @@ class settings_form {
             'static',
             $field->name . '_source',
             '',
-            \html_writer::tag('small', $text, ['class' => 'text-muted'])
+            $marker . \html_writer::tag('small', $text, ['class' => 'text-muted'])
         );
     }
 
@@ -523,9 +555,18 @@ class settings_form {
             // Refusing them on the write path as well as in the rendering means
             // a form that offers one by mistake still cannot store it.
             foreach (self::fields_of($section) as $name => $field) {
+                $key = self::INHERIT_PREFIX . $name;
+                if (!array_key_exists($key, $data)) {
+                    // The form did not ask about this field, so it says nothing
+                    // about it: whatever the layer overrode before stands. Only
+                    // a field the author was actually shown can have its
+                    // override dropped.
+                    continue;
+                }
+
                 unset($values[$name]);
-                $overridden = !empty($data[self::OVERRIDE_PREFIX . $name]);
-                if ($overridden && array_key_exists($name, $data)) {
+                if (empty($data[$key]) && array_key_exists($name, $data)) {
+                    // Not inherited, so the author's value is an override.
                     $values[$name] = legacy_converter::cast($name, self::normalise_newlines($data[$name]));
                 }
             }
