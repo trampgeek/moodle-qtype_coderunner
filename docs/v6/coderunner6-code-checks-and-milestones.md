@@ -8,9 +8,15 @@ A companion to `coderunner6-design.md` and `coderunner6-implementation-notes.md`
 2. Lists corrections to the design doc and the notes that came out of that reading.
 3. Proposes a milestone sequence for 6.0, says where each piece should live, and records the decisions taken so far (section 6).
 
-## Status, 5 November 2026
+## Status, 9 November 2026
 
-Built and verified on the development site, all uncommitted on the `Version6` branch of the question type plus the new `public/local/coderunner_manager/`:
+Built and verified on the development site. Everything below is **committed**: the question type on its `Version6` branch, and `public/local/coderunner_manager/`, which is now a git repository of its own rather than untracked.
+
+**Where the work stands.** M0 to M4a and M6 are complete. M7 is complete through its fourth increment — the control inventory, the save path, the picker and the form itself — and has had three rounds of review by its author, each recorded under that milestone. What remains of M7 is increment 5 (*Make prototype from this question*, the legacy prototype-question banner, and M7's share of the removal inventory) and increment 6 (Behat), plus the end-to-end verifier run on the development site's own data, which is now possible because a question can be saved through the new form. Then M5, M8 and M9.
+
+**One piece of M5 has been pulled forward**, because the risk did not keep: `/options/overrides` is excluded from the identity hash. Left in, it stopped a pre-6.0 backup matching anything on a 6.0 site, which duplicates every question restored — the mechanism that grew one site's bank to 560,000 questions. See M5, and decision 17, which it supersedes in part.
+
+The detail of what each milestone built follows.
 
 - **M0** prototype health report — 6 checks, 9 tests.
 - **M1** field registry and resolver — 37 tests.
@@ -35,7 +41,8 @@ Two bugs were found and fixed in the writing rather than by a test:
 
 **Development site state at that date**, which is transient and recorded only so a fresh session knows what it is looking at:
 
-- M0 to M3 are committed as `5ae9cb56`, "Up to milestone3 in the V6 rewrite". The M4 work described below is uncommitted. `public/local/coderunner_manager/` is still untracked in the Moodle repository and is not yet a repository of its own, so M2's output has no commit anywhere.
+- Both plugins are committed. The question type's `Version6` branch carries M0 through M7's fourth increment; `public/local/coderunner_manager/` is a git repository of its own, so M2's output and everything since has a commit. Neither is pushed anywhere.
+- **Building the AMD modules needs Node 22**: `nvm use 22` (v22.11.0 is installed), because Moodle 5.2 requires `>=22.11 <23` and the system default is 24, which grunt refuses. Run `npx grunt amd` **from the plugin directory**, not the Moodle root, or it stops on an unrelated eslint error in `public/local/o365`.
 - `local_coderunner_manager` is installed and its tables are populated: 72 prototypes, 251 file records.
 - `question_coderunner_options` has `prototypeid` and `overrides` added and filled for all 12,751 rows. Additive only; no pre-existing column was written.
 - `qtype_coderunner` requires Moodle 5.0 and declares the manager as a dependency; `$plugin->release` is still `5.10.9` and wants deciding.
@@ -598,6 +605,30 @@ The prototype picker with its grouping, and the capability check on save as well
     **The `<<` buttons stopped working.** The table of failed test cases offers a button per row that replaces a test case's expected output with what the sample answer produced, and it lived in `authorform.js`, which the new form does not load. It is now `qtype_coderunner/replaceexpected`, forty lines that depend on nothing but the ids the failure table renders. That is the second thing lifted out of `authorform.js` rather than lost with it, after the answer box's UI plugin; what remains in that module really is all machinery of the old form.
 
     **And the test cases wanted CodeRunner 5's styling back, not a redesign.** The first round replaced the per-row grey with a panel per section, which suited the settings sections and ruined the test cases: the box round each test case lost three of its four sides, leaving a ghost, and the fields lost the five pixels of padding that separated one from the next. The box is drawn properly now — sides on every row of a test case, top on its first field, bottom on its controls, which is why the controls are the last element of the repeat whether or not the test type is offered — and the padding is back. The lesson is that the per-row rule was carrying two different jobs, a background for the settings fields and a box for the test cases, and only the first wanted replacing.
+
+    **Third round of review, which settled the override control.** The question the control asks turned out to matter more than the control.
+
+    **The test cases wanted CodeRunner 5's borders back, and the lesson is where they belong.** The faint `#bbb` lines down each row and the `#ccc` line under the controls are restored. What had made them look like a ghost was not the borders but the background: with the grey on the *container*, a border on a row cannot line up with it, because Boost's rows carry negative margins. Background and border have to live on the same element. The grey is on the rows now, so the band between test cases is the container showing through — white, as it was.
+
+    **A prototype change rebuilds the form.** A hidden no-submit button and a twenty-five-line module that clicks it when the menu changes. The rebuild needed nothing else: `chosen_prototypeid()` already reads the submitted value, so the chain, the summary, the documentation, every inherited value, every provenance note and the test case columns the new prototype offers all follow. Two properties worth recording. The author's typing survives, because the rebuilt form is populated from the submission. And with no JavaScript nothing is lost — change the menu, save, and the saved question shows the new settings — so this is an enhancement rather than a dependency.
+
+    Chosen over fetching the three pieces of prose through `ajax.php`, which would have been cheaper than first thought — that script is an `AJAX_SCRIPT` page with its own `require_login()`, `require_sesskey()` and capability check, so no web service is involved. What decided it is that a prototype change can alter **which elements exist**: the test case field switches and the precheck setting decide whether the standard input, expected, extra and test type columns are built at all. Patching that from the browser means adding and removing repeated form elements, which is the most rot-prone thing in a Moodle form. The server gets it right by construction.
+
+    **The override control asks about inheritance now, and the three attempts are worth recording.** The complaint was that *Override ✓* against a value identical to the parent's reads as a mistake, on a form where the migration has pinned twenty such fields.
+
+    1. An *Inherit* Yes/No **menu**, the inverse of the stored state. Right about the semantics — *Inherit: No* is a true statement where *Override ✓* looked like an error — and wrong about the form: two bare Yes/No menus side by side, one for the field and one for inheritance, give an author no way to tell which is which.
+    2. So a **checkbox** carrying the visible word *Inherit*, separated from the field's own control, which greys while the box is ticked. The label is what the first attempt was missing.
+    3. And the note beside it says **`Parent: Yes`**, not *Inherited: Yes*. Two words for one idea, next to a box asking about that idea, read as a second opinion on the same question.
+
+    The note is also now unconditional. It had shown the value only when the field was overridden, on the grounds that an inherited field's control already displays it — which made the line mean one thing in one state and another in the other. It answers exactly one question, what ticking *Inherit* would give you, and says so in the same words either way. The layer is named only when it is one the author could go and edit: `Parent: Template grader (from python3)` where a prototype supplies it, `Parent: Yes` where Site defaults or the registry default does.
+
+    **A marked field means a changed field.** `i/warning` in `text-warning` on the provenance line, shown only where the override differs from what would be inherited, so it agrees with the header count by construction; and one footnote per section that has any, saying what the mark means. Per section rather than once per form, because a legend outside the sections would sit in a collapsed region or far from what it explains.
+
+    **Rejected, and the reason is worth keeping.** The cheaper proposal was to keep the checkbox and tick it only when the value differs from the parent. That is not a display change: the box is the input that decides whether the override is *saved*, so rendering it clear would drop the override on the next save — nineteen of them, on a migrated question, as a side effect of editing one field. The field would then follow the chain, and a later edit to Site defaults would move thousands of questions. Dropping redundant overrides is worth doing, but as a script the maintainer runs deliberately, and only where the value comes from the registry default with nothing in the chain setting it, so that there is nothing that could later change under the question.
+
+    **Two strings left unused** by the rewording — `inheritedvalue`, `inheritedfrom`, `inheritednotset` — for M8 to clear.
+
+    **What is left of M7.** Increment 5 (*Make prototype from this question*, the legacy prototype-question banner, and M7's share of the removal inventory) and increment 6 (Behat). The end-to-end verifier run on the development site's own data is also still outstanding, and is now possible: a question can be saved through the form.
 
     **Exercised against real data.** The form was rendered for a question on the development site: 226 KB of HTML, the sections in the design's order, the picker showing *Used in this course* as a disabled heading with its prototypes indented beneath, and the chain beneath the picker reading *Site defaults › c_program*.
 5. ***Make prototype from this question***, the legacy prototype-question banner, and M7's share of the removal inventory below.
