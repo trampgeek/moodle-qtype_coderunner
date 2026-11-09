@@ -88,28 +88,41 @@ final class prototype_picker_test extends \advanced_testcase {
      * @param int|null $selectedid the prototype currently chosen.
      * @return array the option list.
      */
-    private function options(?int $selectedid = null): array {
-        return prototype_picker::options((int) $this->course->id, $selectedid);
+    private function optgroups(?int $selectedid = null): array {
+        return prototype_picker::optgroups((int) $this->course->id, $selectedid);
     }
 
     /**
-     * Each group is introduced by a disabled option, which is how an
-     * autocomplete can show groups at all: it rebuilds its suggestions from the
-     * select's direct children, so an optgroup would hide everything in it.
+     * Every option offered, flattened across the groups.
+     *
+     * @param int|null $selectedid the prototype currently chosen.
+     * @return array prototype id => label.
      */
-    public function test_each_group_is_introduced_by_a_disabled_option(): void {
+    private function all_options(?int $selectedid = null): array {
+        $flat = [];
+        foreach ($this->optgroups($selectedid) as $options) {
+            $flat += $options;
+        }
+        return $flat;
+    }
+
+    /**
+     * The groups are real option groups, keyed by their heading.
+     *
+     * An `autocomplete` could not have them — it rebuilds its suggestions from
+     * the select's direct children, so anything inside an `optgroup` vanishes
+     * once its JavaScript loads — which is part of why the picker is a
+     * `selectgroups`, as Moodle's own question category selector is.
+     */
+    public function test_the_groups_are_real_option_groups(): void {
         $this->make_prototype('python3');
 
-        $headings = array_values(array_filter($this->options(), fn($o) => $o['disabled']));
+        $groups = $this->optgroups();
 
-        $this->assertNotEmpty($headings);
         $this->assertSame(
-            get_string('prototypegroup_courseandsite', 'qtype_coderunner'),
-            $headings[0]['label']
+            [get_string('prototypegroup_courseandsite', 'qtype_coderunner')],
+            array_keys($groups)
         );
-        // A heading carries no value, so choosing one submits nothing and the
-        // required rule catches it.
-        $this->assertSame('', $headings[0]['value']);
     }
 
     /**
@@ -120,15 +133,10 @@ final class prototype_picker_test extends \advanced_testcase {
         $parent = $this->make_prototype('python3');
         $child = $this->make_prototype('python3_scratchpad', null, $parent->id);
 
-        $options = [];
-        foreach ($this->options() as $option) {
-            if (!$option['disabled']) {
-                $options[$option['value']] = $option['label'];
-            }
-        }
+        $options = $this->all_options();
 
-        $this->assertSame(4, substr_count($options[(string) $parent->id], '&nbsp;'));
-        $this->assertSame(8, substr_count($options[(string) $child->id], '&nbsp;'));
+        $this->assertSame(0, substr_count($options[$parent->id], '&nbsp;'));
+        $this->assertSame(4, substr_count($options[$child->id], '&nbsp;'));
     }
 
     /**
@@ -142,11 +150,7 @@ final class prototype_picker_test extends \advanced_testcase {
     public function test_a_name_is_escaped(): void {
         $prototype = $this->make_prototype('py<script>alert(1)</script>');
 
-        $labels = [];
-        foreach ($this->options() as $option) {
-            $labels[] = $option['label'];
-        }
-        $all = implode('', $labels);
+        $all = implode('', $this->all_options());
 
         $this->assertStringNotContainsString('<script>', $all);
         $this->assertStringContainsString('&lt;script&gt;', $all);
@@ -170,7 +174,38 @@ final class prototype_picker_test extends \advanced_testcase {
         $breadcrumb = prototype_picker::breadcrumb($leaf->id);
 
         $this->assertStringContainsString('python3 › python3_scratchpad › cosc131_scratchpad', $breadcrumb);
-        $this->assertStringContainsString('Scratchpad with the COSC131 wrapper.', $breadcrumb);
+        // The summary is its own line beside the menu's row, not part of the
+        // trail: it is a sentence, and the trail is a path.
+        $this->assertStringNotContainsString('Scratchpad with the COSC131 wrapper.', $breadcrumb);
+        $this->assertStringContainsString(
+            'Scratchpad with the COSC131 wrapper.',
+            prototype_picker::summary($leaf->id)
+        );
+    }
+
+    /**
+     * Site defaults is left out of the trail, and a trail that would say only
+     * what the menu already says is left out altogether.
+     *
+     * Every prototype descends from Site defaults, so naming it tells an author
+     * nothing they could act on; and once it is gone, a prototype whose parent
+     * is Site defaults has nothing left to show.
+     */
+    public function test_site_defaults_is_left_out_of_the_trail(): void {
+        $sitedefaults = $this->repo->site_defaults()
+            ?? $this->repo->create('Site defaults', (int) SITEID, new override_set([], 'Site defaults'),
+                null, '', '', false, '', true);
+        $child = $this->make_prototype('python3', null, $sitedefaults->id);
+        $grandchild = $this->make_prototype('python3_scratchpad', null, $child->id);
+
+        // Directly under Site defaults: nothing worth saying.
+        $this->assertSame('', prototype_picker::breadcrumb($child->id));
+
+        // One step further down, the trail names the prototype between them and
+        // never Site defaults itself.
+        $trail = prototype_picker::breadcrumb($grandchild->id);
+        $this->assertStringContainsString('python3 › python3_scratchpad', $trail);
+        $this->assertStringNotContainsString('Site defaults', $trail);
     }
 
     /**
@@ -232,18 +267,21 @@ final class prototype_picker_test extends \advanced_testcase {
 
         $mform = $this->build_picker($courseid, $prototype->id);
 
-        $this->assertTrue($mform->elementExists(prototype_picker::FIELD));
-        $this->assertTrue($mform->elementExists(prototype_picker::FIELD . '_chain'));
+        // The menu and the trail share one row, so the group is what the form
+        // holds and the menu is inside it.
+        $this->assertTrue($mform->elementExists(prototype_picker::GROUP));
         // The first step: a button, and no course menu until it is pressed.
         $this->assertTrue($mform->elementExists(prototype_picker::OTHER_COURSE_BUTTON));
         $this->assertFalse($mform->elementExists(prototype_picker::COURSE_FIELD));
         $this->assertTrue($mform->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON));
 
         // And the prototype is among the options offered.
-        $element = $mform->getElement(prototype_picker::FIELD);
+        [$menu] = $mform->getElement(prototype_picker::GROUP)->getElements();
         $values = [];
-        foreach ($element->_options as $option) {
-            $values[] = $option['attr']['value'];
+        foreach ($menu->_optGroups as $group) {
+            foreach ($group['options'] as $option) {
+                $values[] = (string) $option['attr']['value'];
+            }
         }
         $this->assertContains((string) $prototype->id, $values);
     }
@@ -307,21 +345,12 @@ final class prototype_picker_test extends \advanced_testcase {
 
         $_POST[prototype_picker::COURSE_FIELD] = (string) $other->id;
 
-        $options = prototype_picker::options((int) $this->course->id, null, (int) $other->id);
+        $groups = prototype_picker::optgroups((int) $this->course->id, null, (int) $other->id);
+        $heading = get_string('prototypegroup_othercourse', 'qtype_coderunner');
 
-        $labels = [];
-        $headings = [];
-        foreach ($options as $option) {
-            if ($option['disabled']) {
-                $headings[] = $option['label'];
-            } else {
-                $labels[$option['value']] = $option['label'];
-            }
-        }
-
-        $this->assertContains(get_string('prototypegroup_othercourse', 'qtype_coderunner'), $headings);
-        $this->assertArrayHasKey((string) $theirs->id, $labels);
-        $this->assertStringContainsString('scratchpad (COSC122-26S1)', $labels[(string) $theirs->id]);
+        $this->assertArrayHasKey($heading, $groups);
+        $this->assertArrayHasKey($theirs->id, $groups[$heading]);
+        $this->assertStringContainsString('scratchpad (COSC122-26S1)', $groups[$heading][$theirs->id]);
     }
 
     /**

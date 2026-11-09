@@ -257,16 +257,26 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
     /**
-     * How many of a section's fields the question overrides.
+     * How many of a section's fields the question overrides **to a different
+     * value** from the one it would otherwise inherit.
+     *
+     * Not simply how many it overrides. The migration pins twenty fields on
+     * every pre-6.0 question whether or not the value differs from what the
+     * chain would supply (M3), so counting overrides reports five of the eight
+     * sections as changed on every migrated question — including fields
+     * holding exactly the registry default, which is what an author reads as
+     * *not* changed. Counting effective differences makes the number mean what
+     * the header claims: this question does something its prototype does not.
      *
      * @param form_section $section the section.
      * @param override_set $own what the question overrides.
      * @return int the count.
      */
     protected function section_override_count(form_section $section, override_set $own): int {
+        $inherited = $this->inherited_settings();
         $changed = 0;
-        foreach (settings_form::fields_of($section) as $name => $field) {
-            if ($own->has($field)) {
+        foreach (settings_form::fields_of($section, true) as $name => $field) {
+            if ($own->has($field) && !settings_form::is_redundant($field, $own, $inherited)) {
                 $changed++;
             }
         }
@@ -503,6 +513,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
             'stdin' => (bool) $resolved->get('showstdin'),
             'expected' => (bool) $resolved->get('showexpected'),
             'extra' => (bool) $resolved->get('showtestextra'),
+            // Which tests a precheck runs is a per-test choice only when the
+            // question's precheck is *Selected*. Under every other setting the
+            // answer is the same for every test, so the column says the same
+            // thing on every row — *Check only*, on all of them — and asks the
+            // author to read past it. CodeRunner 5 hid it with JavaScript
+            // driven by the precheck menu; the setting is resolved here before
+            // the form is built, so it is simply not offered.
+            'testtype' => (int) $resolved->get('precheck') === constants::PRECHECK_SELECTED,
         ];
     }
 
@@ -567,9 +585,13 @@ class qtype_coderunner_edit_form extends question_edit_form {
             if ($isshown) {
                 continue;
             }
+            // A row the form did not have at all gets the empty value for the
+            // column: nothing for the text columns, and the normal test type
+            // rather than an empty string, since that one is an integer.
+            $empty = $column === 'testtype' ? constants::TESTTYPE_NORMAL : '';
             $values = [];
             for ($i = 0; $i < $rows; $i++) {
-                $values[] = isset($stored[$i]) ? (string) $stored[$i]->$column : '';
+                $values[] = isset($stored[$i]) ? $stored[$i]->$column : $empty;
             }
             $restored[$column] = $values;
         }
@@ -803,22 +825,26 @@ class qtype_coderunner_edit_form extends question_edit_form {
             constants::TESTTYPE_BOTH     => get_string('testtype_both', 'qtype_coderunner'),
         ];
 
-        $repeated[] = $mform->createElement(
-            'select',
-            'testtype',
-            get_string('testtype', 'qtype_coderunner'),
-            $typevalues,
-            ['class' => 'testtype']
-        );
+        if ($shown['testtype']) {
+            $repeated[] = $mform->createElement(
+                'select',
+                'testtype',
+                get_string('testtype', 'qtype_coderunner'),
+                $typevalues,
+                ['class' => 'testtype']
+            );
+        }
 
         foreach (array_keys(array_filter($shown)) as $field) {
             $repeatedoptions[$field]['type'] = PARAM_RAW;
         }
         $repeatedoptions['mark']['type'] = PARAM_FLOAT;
         $repeatedoptions['ordering']['type'] = PARAM_INT;
-        $repeatedoptions['testtype']['type'] = PARAM_RAW;
+        if ($shown['testtype']) {
+            $repeatedoptions['testtype']['type'] = PARAM_RAW;
+        }
 
-        foreach (array_merge(array_keys(array_filter($shown)), ['testcasecontrols', 'testtype']) as $field) {
+        foreach (array_merge(array_keys(array_filter($shown)), ['testcasecontrols']) as $field) {
             $repeatedoptions[$field]['helpbutton'] = [$field, 'qtype_coderunner'];
         }
 
@@ -945,7 +971,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             isset($this->question->options->prototypeid) ? (int) $this->question->options->prototypeid : null
         );
         if ($prototypeerror !== null) {
-            $errors[prototype_picker::FIELD] = $prototypeerror;
+            $errors[prototype_picker::GROUP] = $prototypeerror;
             return $errors;
         }
 

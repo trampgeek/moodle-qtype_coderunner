@@ -565,6 +565,10 @@ $string['prototypeexists'] = 'This is a prototype; cannot change question type.'
 $string['prototypeextra'] = 'Prototype extra';
 $string['prototypeextra_help'] = 'A field of text for general-purpose use by question type authors, like global extra, but part of the prototype state. Available to the template author as {{ QUESTION.prototypeextra }}.';
 
+// What an inherited field's note says, when the layer supplying it is not one
+// the author would go and edit.
+$string['inheritedvalue'] = 'Inherited';
+
 // The authoring forms' sections, shared by the question form and the prototype
 // editor through form_section::label().
 $string['sectionextras'] = 'Extras';

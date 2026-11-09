@@ -49,6 +49,15 @@ class settings_form {
     const OVERRIDE_PREFIX = 'override_';
 
     /**
+     * The name of the layer at the root of every chain.
+     *
+     * Named here so that the provenance note can decline to point an author at
+     * it. It is the one layer nobody navigates to from a question form, and
+     * every chain ends there.
+     */
+    const SITE_DEFAULTS_LAYER = 'Site defaults';
+
+    /**
      * Add every field of one form section.
      *
      * @param \MoodleQuickForm $mform the form being built.
@@ -247,6 +256,35 @@ class settings_form {
     }
 
     /**
+     * Whether a layer's override of a field says nothing: it holds the value
+     * the field would have had anyway.
+     *
+     * The migration pins twenty fields on every pre-6.0 question whether or
+     * not the value differs from what the chain supplies, so most overrides on
+     * a migrated question are of this kind. They are real overrides and are
+     * left alone in the data — dropping them would unfreeze behaviour the
+     * migration deliberately froze — but presenting them as changes makes a
+     * form full of nothing look full of something.
+     *
+     * Compared through the registry's own normalisation, so that a null and an
+     * empty string are one value for a string field and two for an integer
+     * (decision 2).
+     *
+     * @param field $field the field.
+     * @param override_set $own what this layer overrides.
+     * @param question_settings $inherited what the layers above resolve to.
+     * @return bool true if the override makes no difference.
+     */
+    public static function is_redundant(field $field, override_set $own, question_settings $inherited): bool {
+        if (!$own->has($field)) {
+            return false;
+        }
+
+        return $field->normalise_for_comparison($own->get($field))
+            === $field->normalise_for_comparison(self::inherited_value($field, $inherited));
+    }
+
+    /**
      * Say where an inherited value comes from, so an author can see which
      * prototype to go and edit.
      *
@@ -261,12 +299,18 @@ class settings_form {
         question_settings $inherited,
         bool $isoverridden
     ): void {
-        $source = $inherited->was_set($field) ? $inherited->source_of($field) : null;
-        $text = $source === null
-            ? get_string('inheritedfromdefault', 'qtype_coderunner')
-            : get_string('inheritedfrom', 'qtype_coderunner', self::layer_name($source));
-
         $value = self::inherited_value($field, $inherited);
+        $source = $inherited->was_set($field) ? self::layer_name($inherited->source_of($field)) : null;
+
+        // The layer is named only when it is one the author could go and edit.
+        // Nearly every field of nearly every question resolves to Site
+        // defaults or to the registry default, and saying so on forty rows
+        // tells an author nothing: the useful case is a value coming from the
+        // prototype their question is built on, or one of its ancestors, which
+        // is where they would go to change it for every question at once.
+        $text = $source === null || $source === self::SITE_DEFAULTS_LAYER
+            ? get_string('inheritedvalue', 'qtype_coderunner')
+            : get_string('inheritedfrom', 'qtype_coderunner', $source);
 
         if (in_array($value, [null, ''], true)) {
             $text .= ' ' . get_string('inheritednotset', 'qtype_coderunner');

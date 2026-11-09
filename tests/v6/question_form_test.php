@@ -166,7 +166,7 @@ final class question_form_test extends \advanced_testcase {
 
         $mform = $this->quickform($this->build_form());
 
-        $this->assertTrue($mform->elementExists(prototype_picker::FIELD));
+        $this->assertTrue($mform->elementExists(prototype_picker::GROUP));
         $this->assertTrue($mform->elementExists('answer'));
         $this->assertTrue($mform->elementExists('answerpreload'));
         $this->assertTrue($mform->elementExists('datafiles'));
@@ -239,8 +239,7 @@ final class question_form_test extends \advanced_testcase {
         $form = $this->build_form($questiondata);
         $mform = $this->quickform($form);
 
-        $this->assertTrue($mform->elementExists(prototype_picker::FIELD));
-        $this->assertTrue($mform->elementExists(prototype_picker::FIELD . '_chain'));
+        $this->assertTrue($mform->elementExists(prototype_picker::GROUP));
     }
 
     /**
@@ -254,7 +253,7 @@ final class question_form_test extends \advanced_testcase {
 
         $mform = $this->quickform($this->build_form($questiondata));
 
-        $this->assertTrue($mform->elementExists(prototype_picker::FIELD));
+        $this->assertTrue($mform->elementExists(prototype_picker::GROUP));
     }
 
     /**
@@ -266,7 +265,7 @@ final class question_form_test extends \advanced_testcase {
         $questiondata = $this->make_question('python3');
         $questiondata->options->overrides = json_encode([
             'template' => 'MY TEMPLATE',
-            'grader' => 'EqualityGrader',
+            'grader' => 'TemplateGrader',
         ]);
 
         $mform = $this->quickform($this->build_form($questiondata));
@@ -276,6 +275,38 @@ final class question_form_test extends \advanced_testcase {
             get_string('sectionchanged', 'qtype_coderunner', 2),
             (string) $header->_text
         );
+    }
+
+    /**
+     * An override that restates what the field would inherit is not counted as
+     * a change.
+     *
+     * This is what makes the counts mean anything on a migrated question. The
+     * migration pins twenty fields whether or not the value differs from what
+     * the chain supplies, so counting overrides reported five of the eight
+     * sections as changed on every pre-6.0 question — including fields holding
+     * exactly the value they would have had anyway. Measured on the
+     * development site's own data, the typical question has twenty overrides
+     * of which six or seven are real.
+     */
+    public function test_a_redundant_override_is_not_counted(): void {
+        $prototype = $this->make_prototype('python3', ['grader' => 'TemplateGrader']);
+        $questiondata = $this->make_question('python3');
+        $questiondata->options->overrides = json_encode([
+            // Exactly what the prototype supplies, so it changes nothing.
+            'grader' => 'TemplateGrader',
+            // And one that really does differ.
+            'template' => 'MY TEMPLATE',
+        ]);
+
+        $mform = $this->quickform($this->build_form($questiondata));
+        $header = $mform->getElement('section_' . form_section::TEMPLATE->value);
+
+        $this->assertStringContainsString(
+            get_string('sectionchanged', 'qtype_coderunner', 1),
+            (string) $header->_text
+        );
+        $this->assertNotEmpty($prototype->id);
     }
 
     /**

@@ -35,22 +35,22 @@ use local_coderunner_manager\prototype_repository;
  * ({@see prototype_candidates}); what is here is the rendering, which is the
  * question type's (design section 5).
  *
- * **One autocomplete, with the groups as disabled options.** Moodle's
- * `autocomplete` is a `select` with a filter box and the accessibility
- * behaviour already written, which decision 21 asks for in preference to a
- * custom combobox. It does not support `optgroup`: `form-autocomplete.js`
- * rebuilds its suggestions from `option` elements that are *direct children* of
- * the select, so anything inside an optgroup would vanish the moment
- * JavaScript loaded. It does support a disabled option — the suggestions
- * template documents one, and renders it `aria-disabled="true"`, which keyboard
- * navigation then skips — so each group is introduced by a disabled option and
- * the tree is shown by indenting with non-breaking spaces. Both work the same
- * in the plain select and in the enhanced list, since HTML_QuickForm writes an
- * option's text unescaped and the suggestion template renders it as HTML.
+ * **A `selectgroups`, which is what Moodle's own question category selector
+ * is.** The design asked for an `autocomplete`, for its filter box. Built that
+ * way it read badly: `autocomplete` puts the current selection in a panel of
+ * its own *above* a search box, where every other selector in Moodle puts the
+ * menu beside its label with the current value showing in it. It also has no
+ * option groups — `form-autocomplete.js` rebuilds its suggestions from the
+ * select's direct children, so anything inside an `optgroup` vanishes once the
+ * JavaScript loads — which forced the groups to be faked with disabled
+ * options. `MoodleQuickForm_questioncategory` extends `selectgroups`, so
+ * following it gives real option groups, the conventional layout, and a native
+ * select's keyboard type-ahead in place of the filter box. If the library
+ * grows past what type-ahead can cope with, that is the point to revisit it.
  *
- * That last point cuts both ways: a prototype's name is author-supplied text
- * going into a context that treats it as markup, so every label is escaped
- * here.
+ * Option text is written into the select unescaped, by `selectgroups` exactly
+ * as by `select`, so the indentation that shows the tree works and every label
+ * has to be escaped here: a prototype's name is author-supplied text.
  *
  * **Another course takes two steps, and neither needs JavaScript.** A
  * no-submit button reveals a course menu, and choosing a course adds that
@@ -61,6 +61,14 @@ use local_coderunner_manager\prototype_repository;
 class prototype_picker {
     /** @var string The field holding the chosen prototype, which is the column it is saved to. */
     const FIELD = 'prototypeid';
+
+    /**
+     * The form group holding the menu and the chain beside it.
+     *
+     * Errors and the help button anchor here rather than on the menu, because
+     * formslib shows both against the group when an element is inside one.
+     */
+    const GROUP = 'prototypegroup';
 
     /** @var string The field holding the other course whose prototypes are being offered. */
     const COURSE_FIELD = 'pickercourseid';
@@ -82,30 +90,34 @@ class prototype_picker {
     public static function add_to_form(\MoodleQuickForm $mform, int $courseid, ?int $selectedid = null): void {
         $othercourseid = self::other_course_chosen();
 
-        $element = $mform->addElement(
-            'autocomplete',
+        // The menu and the chain the choice inherits through, on one row: the
+        // menu where every Moodle selector puts it, and the chain beside the
+        // value it describes rather than in a panel of its own.
+        $menu = $mform->createElement(
+            'selectgroups',
             self::FIELD,
             get_string('coderunnertype', 'qtype_coderunner'),
-            [],
-            ['noselectionstring' => get_string('choosedots')]
+            self::optgroups($courseid, $selectedid, $othercourseid),
+            null,
+            true
         );
-        foreach (self::options($courseid, $selectedid, $othercourseid) as $option) {
-            $element->addOption(
-                $option['label'],
-                $option['value'],
-                $option['disabled'] ? ['disabled' => 'disabled'] : []
-            );
-        }
-        $mform->setType(self::FIELD, PARAM_INT);
-        $mform->addRule(self::FIELD, get_string('prototyperequired', 'qtype_coderunner'), 'required', null, 'client');
-        $mform->addHelpButton(self::FIELD, 'coderunnertype', 'qtype_coderunner');
+        $chain = $mform->createElement('static', self::FIELD . '_chain', '', self::breadcrumb($selectedid));
 
-        $mform->addElement(
-            'static',
-            self::FIELD . '_chain',
-            '',
-            self::breadcrumb($selectedid)
+        $mform->addGroup(
+            [$menu, $chain],
+            self::GROUP,
+            get_string('coderunnertype', 'qtype_coderunner'),
+            '&nbsp;&nbsp;',
+            false
         );
+        $mform->setType(self::FIELD, PARAM_INT);
+        $mform->addRule(self::GROUP, get_string('prototyperequired', 'qtype_coderunner'), 'required', null, 'client');
+        $mform->addHelpButton(self::GROUP, 'coderunnertype', 'qtype_coderunner');
+
+        $summary = self::summary($selectedid);
+        if ($summary !== '') {
+            $mform->addElement('static', self::FIELD . '_summary', '', $summary);
+        }
 
         self::add_other_course_step($mform, $courseid, $othercourseid);
     }
@@ -171,16 +183,15 @@ class prototype_picker {
     }
 
     /**
-     * The picker's options in the order they are shown: a disabled heading for
-     * each group, then the group's prototypes, indented by their depth in the
-     * tree.
+     * The picker's option groups, each holding its prototypes in tree order,
+     * indented by their depth.
      *
      * @param int $courseid the course the question belongs to.
      * @param int|null $selectedid the prototype the question currently uses.
      * @param int $othercourseid another course whose prototypes to add, or 0.
-     * @return array a list of ['value', 'label', 'disabled'].
+     * @return array group heading => [prototype id => label].
      */
-    public static function options(int $courseid, ?int $selectedid = null, int $othercourseid = 0): array {
+    public static function optgroups(int $courseid, ?int $selectedid = null, int $othercourseid = 0): array {
         $candidates = new prototype_candidates();
         $groups = $candidates->groups_for_course($courseid, $selectedid);
 
@@ -191,49 +202,41 @@ class prototype_picker {
             }
         }
 
-        $options = [];
+        $optgroups = [];
         foreach ($groups as $group) {
-            $options[] = [
-                'value' => '',
-                'label' => get_string('prototypegroup_' . $group['key'], 'qtype_coderunner'),
-                'disabled' => true,
-            ];
+            $heading = get_string('prototypegroup_' . $group['key'], 'qtype_coderunner');
+            $optgroups[$heading] = [];
             foreach ($group['options'] as $id => $option) {
-                $options[] = [
-                    'value' => (string) $id,
-                    'label' => str_repeat('&nbsp;', 4 * ($option['depth'] + 1)) . s($option['label']),
-                    'disabled' => false,
-                ];
+                $optgroups[$heading][$id] =
+                    str_repeat('&nbsp;', 4 * $option['depth']) . s($option['label']);
             }
         }
-        return $options;
+        return $optgroups;
     }
 
     /**
-     * What the chosen prototype inherits from, as a trail of names, with its
-     * one-line summary.
+     * What the chosen prototype inherits through, as a trail of names.
      *
-     * The trail is shown once, beneath the picker, rather than on each row of
-     * it: a chain repeated against every descendant is the same ancestors over
-     * and over, and the full tree belongs in the prototype library, where
-     * browsing the structure is the task.
+     * **Site defaults is left out, and so is a trail that says nothing.**
+     * Every prototype descends from Site defaults, so naming it tells an
+     * author nothing they could act on; and once it is gone, a prototype whose
+     * parent *is* Site defaults leaves a trail of one name — the name already
+     * showing in the menu beside it — so there is nothing to show at all. What
+     * survives is the case the trail is for: a prototype built on another
+     * prototype, where the author wants to know which one.
+     *
+     * The trail is shown once, beside the menu, rather than on each row of it:
+     * a chain repeated against every descendant is the same ancestors over and
+     * over, and the full tree belongs in the prototype library, where browsing
+     * the structure is the task.
      *
      * @param int|null $prototypeid the chosen prototype.
-     * @return string the rendered breadcrumb, or an empty string if there is
-     *      nothing to say.
+     * @return string the rendered trail, or an empty string if there is
+     *      nothing worth saying.
      */
     public static function breadcrumb(?int $prototypeid): string {
-        if (!$prototypeid) {
-            return '';
-        }
-
-        $repository = new prototype_repository();
-        try {
-            $chain = $repository->chain_prototypes($prototypeid);
-        } catch (\Exception $e) {
-            // A prototype that has been deleted, or whose parent links form a
-            // cycle. The question is broken and says so elsewhere; the picker
-            // does not need to say it twice.
+        $chain = self::chain_of($prototypeid);
+        if (count($chain) < 2) {
             return '';
         }
 
@@ -241,15 +244,60 @@ class prototype_picker {
         foreach ($chain as $prototype) {
             $names[] = s($prototype->name);
         }
-        $trail = \html_writer::tag('span', implode(' › ', $names), ['class' => 'text-muted']);
 
-        $last = end($chain);
-        $summary = $last->currentversion->summary ?? '';
-        if ($summary !== '') {
-            $trail .= \html_writer::tag('div', s($summary), ['class' => 'text-muted']);
+        return \html_writer::tag(
+            'small',
+            implode(' › ', $names),
+            ['class' => 'text-muted']
+        );
+    }
+
+    /**
+     * The chosen prototype's one-line summary.
+     *
+     * On its own row rather than beside the menu: it is a sentence, and the row
+     * beside the menu is already carrying the trail. The section is one panel,
+     * so a second row there does not read as a second thing.
+     *
+     * @param int|null $prototypeid the chosen prototype.
+     * @return string the rendered summary, or an empty string if it has none.
+     */
+    public static function summary(?int $prototypeid): string {
+        $chain = self::chain_of($prototypeid);
+        if (!$chain) {
+            return '';
         }
 
-        return \html_writer::tag('small', $trail);
+        $last = end($chain);
+        $summary = trim($last->currentversion->summary ?? '');
+
+        return $summary === ''
+            ? ''
+            : \html_writer::tag('small', s($summary), ['class' => 'text-muted']);
+    }
+
+    /**
+     * The chosen prototype's chain, root first, without Site defaults.
+     *
+     * @param int|null $prototypeid the chosen prototype.
+     * @return \local_coderunner_manager\prototype[] the chain, or an empty
+     *      array if it cannot be read.
+     */
+    protected static function chain_of(?int $prototypeid): array {
+        if (!$prototypeid) {
+            return [];
+        }
+
+        try {
+            $chain = (new prototype_repository())->chain_prototypes($prototypeid);
+        } catch (\Exception $e) {
+            // A prototype that has been deleted, or whose parent links form a
+            // cycle. The question is broken and says so elsewhere; the picker
+            // does not need to say it twice.
+            return [];
+        }
+
+        return array_values(array_filter($chain, fn($prototype) => !$prototype->issitedefaults));
     }
 
     /**
