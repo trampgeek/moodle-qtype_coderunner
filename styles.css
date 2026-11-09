@@ -432,7 +432,6 @@ body#page-question-type-coderunner #id_questiontypeheadercontainer,
 body#page-question-type-coderunner #id_questiontypehelpheadercontainer,
 body#page-question-type-coderunner #id_answerhdrcontainer,
 body#page-question-type-coderunner #id_answerpreloadhdrcontainer,
-body#page-question-type-coderunner #id_testcasehdrcontainer,
 body#page-question-type-coderunner div[id^=id_section_] {
     background: #eee;
     border: 1px solid #bbb;
@@ -453,15 +452,18 @@ body#page-question-type-coderunner div[id^=id_section_] > .fitem {
     padding-bottom: 4px;
 }
 
-/* A test case is a box, and its fields sit flush inside it.
+/* One grey block per test case, with a white band between one and the next.
  *
- * The flushness is deliberate and predates this: the rule at the end of this
- * file kills the rows' bottom margin with `!important`, which is what it takes
- * to beat Boost's `mb-3`. What a test case also had was a border all the way
- * round, three sides of it coming from the per-row rule that no longer exists.
- * The sides are drawn here instead, the top on the first field of each test
- * case and the bottom on its controls — which is why the controls are the last
- * element of the repeat, whether or not the test type is being offered.
+ * The grey is on the rows rather than on the container, which is what puts
+ * white between the test cases: the rows of a test case are flush, so their
+ * backgrounds join into a block, and the margin below a test case's controls
+ * plus the margin above the next test case's first field leaves the gap.
+ *
+ * No border. An earlier version of this drew one round each test case, three
+ * sides of which used to come from the per-row rule that gave every field in
+ * the form its own grey box. Boost's rows carry negative margins, so a border
+ * on a row does not line up with a background on its container, and what it
+ * read as was a ghost.
  */
 body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_testcode_],
 body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_stdin_],
@@ -469,15 +471,10 @@ body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_expected_
 body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_extra_],
 body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_testtype_],
 body#page-question-type-coderunner #id_testcasehdrcontainer > div[id*=_testcasecontrols_] {
-    border-left: 1px solid #bbb;
-    border-right: 1px solid #bbb;
+    background: #eee;
     padding: 5px 4px;
 }
 
-body#page-question-type-coderunner div[id^=fgroup_id_testcasecontrols_] {
-    border-bottom: 1px solid #bbb;
-    padding-bottom: 4px;
-}
 
 body#page-question-type-coderunner label[for^=id_useasexample],
 body#page-question-type-coderunner label[for^=id_hiderestiffail],
@@ -514,10 +511,7 @@ body#page-question-type-coderunner select#id_coderunner_type {
  * panel, and a rule with space around it separates one test case from the
  * next.
  */
-body#page-question-type-coderunner div[id^=fitem_id_testcode] {
-    border-top: 1px solid #bbb;
-}
-
+/* The white band above every test case but the first. */
 body#page-question-type-coderunner div[id^=fitem_id_testcode]:not(:first-of-type) {
     margin-top: 14px;
 }
@@ -660,8 +654,7 @@ body#page-question-type-coderunner div[id^=fitem_id_testcode],
 body#page-question-type-coderunner div[id^=fitem_id_stdin_],
 body#page-question-type-coderunner div[id^=fitem_id_expected_],
 body#page-question-type-coderunner div[id^=fitem_id_extra_],
-body#page-question-type-coderunner div[id^=fitem_id_testtype_],
-body#page-question-type-coderunner div[id^=fgroup_id_testcasecontrols_] {
+body#page-question-type-coderunner div[id^=fitem_id_testtype_] {
     margin-bottom: 0 !important;
 }
 
