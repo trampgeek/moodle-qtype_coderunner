@@ -34,6 +34,7 @@ use qtype_coderunner\v6\form_section;
 use qtype_coderunner\v6\override_set;
 use qtype_coderunner\v6\prototype_chain;
 use qtype_coderunner\v6\prototype_picker;
+use qtype_coderunner\v6\prototype_promotion;
 use qtype_coderunner\v6\settings_form;
 
 /**
@@ -153,6 +154,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
         $mform->setExpanded('questiontypeheader', 1);
 
         prototype_picker::add_to_form($mform, $this->picker_courseid(), $this->chosen_prototypeid());
+        prototype_promotion::add_to_form($mform, $this->picker_courseid(), $this->chosen_prototypeid());
 
         $documentation = $this->prototype_documentation();
         if ($documentation !== '') {
@@ -631,7 +633,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             qtype_coderunner::QUESTION_LAYER
         );
 
-        $fields->prototypeid = $this->chosen_prototypeid();
+        $prototypeid = $this->chosen_prototypeid();
+        [$prototypeid, $overrides] = $this->apply_promotion($fields, $prototypeid, $overrides);
+
+        $fields->prototypeid = $prototypeid;
         $fields->overrides = json_encode($overrides->to_array());
         $fields->{qtype_coderunner::OVERRIDES_SUPPLIED} = 1;
 
@@ -639,6 +644,50 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // retires with the rest of the legacy ones in phase 4. Until then it
         // has to carry a value, because save_question_options() reads it.
         $fields->prototypetype = 0;
+    }
+
+    /**
+     * Make a prototype out of this question's overrides, if the author asked
+     * for one, and say what the question should then refer to.
+     *
+     * Re-pointing clears the question's overrides, and has to: the new
+     * prototype holds them, so keeping them as well would leave every field
+     * overridden with exactly the value it now inherits. That is the redundant
+     * duplicate the sixth round of review removed from the merging fields —
+     * harmless at run time and wrong in intent, because a question holding a
+     * copy stops following the prototype it was copied from.
+     *
+     * Declining to re-point leaves the question exactly as it was, which is
+     * not the same question answered twice: the question resolves identically
+     * either way today, and differs in what happens when the new prototype is
+     * next edited. A re-pointed question follows it; one left alone does not.
+     *
+     * @param object $fields the submitted data.
+     * @param int|null $prototypeid the prototype the author chose.
+     * @param override_set $overrides what the question overrides.
+     * @return array the prototype id and overrides the question is saved with.
+     */
+    protected function apply_promotion($fields, ?int $prototypeid, override_set $overrides): array {
+        $name = prototype_promotion::requested_name((array) $fields);
+        if ($name === '' || $prototypeid === null) {
+            return [$prototypeid, $overrides];
+        }
+
+        $prototype = prototype_promotion::promote(
+            $name,
+            $this->picker_courseid(),
+            $prototypeid,
+            $overrides
+        );
+
+        if (!prototype_promotion::repoint_wanted((array) $fields)) {
+            return [$prototypeid, $overrides];
+        }
+
+        return [
+            (int) $prototype->id,
+            new override_set([], qtype_coderunner::QUESTION_LAYER),
+        ];
     }
 
     /**
@@ -990,6 +1039,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $errors[prototype_picker::GROUP] = $prototypeerror;
             return $errors;
         }
+
+        // The name of a prototype being promoted out of this question. Checked
+        // beside the prototype rather than with the settings below, because it
+        // is a question about the question's type and not about its values.
+        $errors += prototype_promotion::validate(
+            $data,
+            $this->picker_courseid(),
+            $this->chosen_prototypeid()
+        );
 
         // The test case columns the form did not show, so that the checks
         // below — and the sample answer run — see every row in full.

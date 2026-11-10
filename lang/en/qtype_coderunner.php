@@ -620,6 +620,22 @@ Building a question on another course\'s prototype ties the two together: the qu
 $string['prototyperequired'] = 'Choose the prototype this question is built on.';
 $string['prototypeshowcourse'] = 'Show that course\'s prototypes';
 
+// Make prototype from this question.
+$string['promotebutton'] = 'Make prototype from this question...';
+$string['promotename'] = 'New prototype name';
+$string['promotename_help'] = 'Saving the question also creates a new prototype of this name, in this course, as a child of the prototype shown above. It holds exactly what this question overrides, so a question built on it starts out behaving like this one.
+
+The name is what question authors choose from, and what identifies the prototype in a backup or an export, so it cannot be changed later without re-pointing every question that uses it. Leave the box empty to make no prototype.
+
+A summary and documentation are added afterwards, in the prototype editor.';
+$string['promotenoparent'] = 'A new prototype has to be a child of an existing one, so choose the prototype this question is built on first.';
+$string['promotenopermission'] = 'You do not have permission to create a prototype in this course.';
+$string['promoterepoint'] = 'Use it for this question';
+$string['promoterepointlabel'] = 'Point this question at the new prototype';
+$string['promoterepoint_help'] = 'Pointing the question at its new prototype moves its settings up one layer: the question inherits them instead of overriding them, and follows any later change to the prototype. What it resolves to today is unchanged either way.
+
+Leaving this unticked creates the prototype and leaves the question exactly as it is, keeping its own overrides and ignoring later changes to the new prototype.';
+
 $string['prototypehealth_ambiguous_heading'] = 'Questions whose prototype is ambiguous ({$a})';
 $string['prototypehealth_ambiguous_intro'] = 'More than one prototype of the required name is visible from this course, so these questions are broken: CodeRunner cannot tell which prototype to use. Delete or rename all but one of the prototypes listed in the last column.';
 $string['prototypehealth_candidates'] = 'Competing prototypes';
