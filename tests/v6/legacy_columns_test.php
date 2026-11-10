@@ -257,4 +257,36 @@ final class legacy_columns_test extends \advanced_testcase {
         // And the field that was overridden is unchanged.
         $this->assertSame('MY TEMPLATE', $reconverted->get('template'));
     }
+
+    /**
+     * `DEFAULT` is the sandbox menu's name for null, and is converted to it
+     * rather than stored.
+     *
+     * There is no sandbox of that name: `get_sandbox()` refuses a question
+     * that asks for one, so storing the pseudo-value breaks every question
+     * that resolves to it. CodeRunner 5 converted it in
+     * `clean_question_form()`, which under CodeRunner 6 mutates the question
+     * object after the overrides have already been read from the submission —
+     * the same trap as the penalty regime's, one line below it in the same
+     * method. The prototype editor stored `DEFAULT` on the development site's
+     * `python3_scratchpad` and broke every question under it.
+     */
+    public function test_the_default_sandbox_is_converted_to_null(): void {
+        $this->assertNull(legacy_converter::cast('sandbox', 'DEFAULT'));
+        // Only for the sandbox, and only for that exact word.
+        $this->assertSame('DEFAULT', legacy_converter::cast('grader', 'DEFAULT'));
+        $this->assertSame('jobesandbox', legacy_converter::cast('sandbox', 'jobesandbox'));
+
+        // So a layer that chooses it says "whichever sandbox claims the
+        // language", which is what the author meant, rather than naming one
+        // that does not exist.
+        $overrides = settings_form::overrides_from(
+            ['sandbox' => 'DEFAULT', settings_form::INHERIT_PREFIX . 'sandbox' => 0],
+            [form_section::SANDBOX],
+            new override_set([], 'the question'),
+            'the question'
+        );
+        $this->assertTrue($overrides->has('sandbox'));
+        $this->assertNull($overrides->get('sandbox'));
+    }
 }

@@ -116,13 +116,38 @@ final class prototype_picker_test extends \advanced_testcase {
      */
     public function test_the_groups_are_real_option_groups(): void {
         $this->make_prototype('python3');
+        $this->make_prototype('cosc131_python3', (int) $this->course->id);
 
         $groups = $this->optgroups();
 
         $this->assertSame(
-            [get_string('prototypegroup_courseandsite', 'qtype_coderunner')],
-            array_keys($groups)
+            [
+                get_string('prototypegroup_thiscourse', 'qtype_coderunner'),
+                get_string('prototypegroup_site', 'qtype_coderunner'),
+            ],
+            array_keys($groups),
+            "The course's own prototypes come first, then the site's."
         );
+    }
+
+    /**
+     * A course with nothing of its own gets a plain menu rather than a grouped
+     * one, because a single heading is a row that partitions nothing.
+     *
+     * Most sites are expected to look like this for a long while: the
+     * built-ins and no course prototypes at all.
+     */
+    public function test_one_group_means_a_plain_menu(): void {
+        $this->make_prototype('python3');
+
+        $mform = $this->build_picker((int) $this->course->id);
+        $this->assertSame('select', $this->menu($mform)->getType());
+
+        // And with a prototype of its own, the menu is grouped again.
+        $this->make_prototype('cosc131_python3', (int) $this->course->id);
+        prototype_candidates::reset_caches();
+        $grouped = $this->build_picker((int) $this->course->id);
+        $this->assertSame('selectgroups', $this->menu($grouped)->getType());
     }
 
     /**
@@ -276,14 +301,47 @@ final class prototype_picker_test extends \advanced_testcase {
         $this->assertTrue($mform->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON));
 
         // And the prototype is among the options offered.
-        [$menu] = $mform->getElement(prototype_picker::GROUP)->getElements();
+        $this->assertContains((string) $prototype->id, $this->menu_values($mform));
+    }
+
+    /**
+     * The values the menu offers, whichever element it is.
+     *
+     * A course with prototypes of its own gets a grouped menu and one without
+     * gets a plain one, so a test that reads the options has to cope with
+     * both.
+     *
+     * @param \MoodleQuickForm $mform the built form.
+     * @return string[] the option values.
+     */
+    private function menu_values(\MoodleQuickForm $mform): array {
+        $menu = $this->menu($mform);
         $values = [];
-        foreach ($menu->_optGroups as $group) {
-            foreach ($group['options'] as $option) {
-                $values[] = (string) $option['attr']['value'];
+        if ($menu->getType() === 'selectgroups') {
+            foreach ($menu->_optGroups as $group) {
+                foreach ($group['options'] as $option) {
+                    $values[] = (string) $option['attr']['value'];
+                }
             }
+            return $values;
         }
-        $this->assertContains((string) $prototype->id, $values);
+
+        foreach ($menu->_options as $option) {
+            $values[] = (string) $option['attr']['value'];
+        }
+        return $values;
+    }
+
+    /**
+     * The menu element itself, which lives inside the group that carries the
+     * label and the chain rather than at the top level of the form.
+     *
+     * @param \MoodleQuickForm $mform the built form.
+     * @return object the menu element.
+     */
+    private function menu(\MoodleQuickForm $mform) {
+        [$menu] = $mform->getElement(prototype_picker::GROUP)->getElements();
+        return $menu;
     }
 
     /**
@@ -355,7 +413,17 @@ final class prototype_picker_test extends \advanced_testcase {
 
     /**
      * An author with no other course to borrow from is told so, rather than
-     * being given an empty menu.
+     * being given an empty menu — and the press that got them there is still a
+     * no-submit press.
+     *
+     * The second assertion is the one with teeth, and this test was here
+     * without it while the bug it describes was live. Pressing the button
+     * saved the question: the press arrives on a request that takes the
+     * second branch of the step, that branch returned early for an author
+     * with nowhere to borrow from, and the early return skipped the
+     * registration — so formslib saw an ordinary submission, validated the
+     * question, ran the sample answer against the sandbox and saved a new
+     * version. The registration is unconditional now.
      */
     public function test_an_author_with_nowhere_to_borrow_from_is_told(): void {
         $teacher = $this->getDataGenerator()->create_user();
@@ -368,5 +436,71 @@ final class prototype_picker_test extends \advanced_testcase {
 
         $this->assertFalse($mform->elementExists(prototype_picker::COURSE_FIELD));
         $this->assertTrue($mform->elementExists(prototype_picker::COURSE_FIELD . '_none'));
+        $this->assertTrue(
+            $mform->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON),
+            'The press that asked for another course was not recorded as a no-submit press, '
+                . 'so formslib would save the question instead of rebuilding the form.'
+        );
+    }
+
+    /**
+     * Every state of the step keeps the button registered, whether or not it
+     * renders one, because the press always arrives on a later request than
+     * the render.
+     *
+     * Asserted through `isNoSubmitButton()` rather than
+     * `no_submit_button_pressed()`: that method caches its answer in a static,
+     * which lasts for the whole PHPUnit process rather than for one request,
+     * so the first test to call it would decide the answer for every test
+     * after it.
+     */
+    public function test_the_button_is_registered_in_every_state(): void {
+        $other = $this->getDataGenerator()->create_course();
+        $this->make_prototype('theirs', (int) $other->id);
+
+        // Before it has been asked for, which is when the button is rendered.
+        $fresh = $this->build_picker((int) $this->course->id);
+        $this->assertTrue($fresh->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON));
+
+        // On the press, where the course menu replaces the button.
+        $_POST[prototype_picker::OTHER_COURSE_BUTTON] = 'x';
+        $pressed = $this->build_picker((int) $this->course->id);
+        $this->assertTrue($pressed->elementExists(prototype_picker::COURSE_FIELD));
+        $this->assertTrue($pressed->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON));
+
+        // And on the second press, which asks for a course's prototypes.
+        $_POST[prototype_picker::COURSE_FIELD] = (int) $other->id;
+        $chosen = $this->build_picker((int) $this->course->id);
+        $this->assertTrue($chosen->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON));
+    }
+
+    /**
+     * Each no-submit button marks itself as skipping the form's client-side
+     * validation, which it can only do if it was registered before it was
+     * created.
+     *
+     * `MoodleQuickForm_submit` asks `isNoSubmitButton()` as it is built
+     * (`lib/form/submit.php`) and adds `data-skip-validation`,
+     * `data-no-submit` and an `onclick` that sets `skipClientValidation`.
+     * Registered the other way round the button still works on the server,
+     * but pressing it runs the validation of every rule on the form — and the
+     * picker itself carries a required rule.
+     */
+    public function test_a_no_submit_button_skips_client_validation(): void {
+        $mform = $this->build_picker((int) $this->course->id);
+
+        foreach ([prototype_picker::RELOAD_BUTTON, prototype_picker::OTHER_COURSE_BUTTON] as $name) {
+            $button = $mform->getElement($name);
+            $this->assertSame(
+                1,
+                $button->getAttribute('data-no-submit'),
+                "$name was registered after it was created, so it does not skip client validation."
+            );
+            $this->assertStringContainsString(
+                'skipClientValidation',
+                (string) $button->getAttribute('onclick'),
+                "$name does not set skipClientValidation."
+            );
+        }
     }
 }

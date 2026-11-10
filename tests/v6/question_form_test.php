@@ -197,11 +197,22 @@ final class question_form_test extends \advanced_testcase {
 
         $mform = $this->quickform($this->build_form());
 
+        $components = settings_form::components_of(field_registry::all());
         $missing = [];
         foreach (field_registry::all() as $name => $field) {
             if ($field->type === field_type::FILES) {
                 // The support files have a file manager of their own.
                 $this->assertTrue($mform->elementExists('datafiles'));
+                continue;
+            }
+            if (isset($components[$name])) {
+                // A component is offered inside the group of the field it
+                // belongs to — the language and the per-try switch sit beside
+                // the parameters they describe — so it is neither an element
+                // of its own nor a group of its own.
+                if (!$this->is_group_member($mform, $name)) {
+                    $missing[] = $name;
+                }
                 continue;
             }
             if (!$mform->elementExists($name) && !$mform->elementExists($name . '_group')) {
@@ -210,6 +221,31 @@ final class question_form_test extends \advanced_testcase {
         }
 
         $this->assertSame([], $missing, 'Registry fields the question form does not offer.');
+    }
+
+    /**
+     * Whether a component field is offered inside the group of the field it
+     * belongs to.
+     *
+     * @param \MoodleQuickForm $mform the built form.
+     * @param string $name the component's name.
+     * @return bool true if it is there.
+     */
+    private function is_group_member(\MoodleQuickForm $mform, string $name): bool {
+        foreach (field_registry::all() as $principal) {
+            if (!in_array($name, $principal->perlayerwith, true)) {
+                continue;
+            }
+            if (!$mform->elementExists($principal->name . '_group')) {
+                return false;
+            }
+            foreach ($mform->getElement($principal->name . '_group')->getElements() as $element) {
+                if ($element->getName() === $name) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

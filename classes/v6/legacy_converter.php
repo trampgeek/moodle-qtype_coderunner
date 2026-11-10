@@ -170,6 +170,20 @@ class legacy_converter {
         if ($value === null) {
             return null;
         }
+
+        // The sandbox menu's `DEFAULT` means "whichever sandbox claims the
+        // language", which CodeRunner spells as **null** — there is
+        // no sandbox of that name, and `get_sandbox()` refuses a question that
+        // asks for one. CodeRunner 5 converted it in `clean_question_form()`,
+        // on the question object's way to the column; under CodeRunner 6 the
+        // column is written from the overrides document, so converting the
+        // object after the fact no longer reaches what is stored, and the
+        // pseudo-value was stored verbatim. The same mistake as the penalty
+        // regime's, one line below it in the same method.
+        if ($name === 'sandbox' && trim((string) $value) === 'DEFAULT') {
+            return null;
+        }
+
         return match (field_registry::get($name)->type) {
             field_type::BOOLEAN => (int) (bool) $value,
             // An empty integer box means "not set", not zero. Decision 2 turns

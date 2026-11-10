@@ -111,6 +111,27 @@ final readonly class field {
     }
 
     /**
+     * Whether this field is a JSON document that merges with the documents of
+     * the layers above it, key by key, rather than replacing them.
+     *
+     * True of the template parameters and the UI parameters, and of nothing
+     * else: the other two collected fields qualify a layer's own contribution
+     * rather than being merged themselves, and the other JSON fields —
+     * `resultcolumns`, `sandboxparams` — replace outright.
+     *
+     * Such a field is offered without an *Inherit* control, because the choice
+     * the control describes does not exist. Every layer that holds a document
+     * contributes it; a layer that holds nothing contributes nothing. So an
+     * empty document and no document at all are the same state, and the
+     * control would be asking which of two identical things the author meant.
+     *
+     * @return bool true if the field's value merges with what it inherits.
+     */
+    public function merges_with_inherited(): bool {
+        return !$this->resolves_to_one_value() && $this->type === field_type::JSON;
+    }
+
+    /**
      * This field's value reduced to a canonical form, for comparing a
      * CodeRunner 5 resolution against a CodeRunner 6 one.
      *

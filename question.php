@@ -582,7 +582,7 @@ class qtype_coderunner_question extends question_graded_automatically {
             $lang = strtolower($lang); // Just in case some old legacy DB entries escaped.
             if (empty($templateparams)) {
                 $jsontemplateparams = '{}';
-            } else if ($lang == 'none') {
+            } else if ($lang == 'none' || $lang == '') {
                 $jsontemplateparams = $templateparams;
             } else if ($lang == 'twig') {
                 try {
@@ -1421,6 +1421,15 @@ class qtype_coderunner_question extends question_graded_automatically {
     // Return an instance of the sandbox to be used to run code for this question.
     public function get_sandbox() {
         $sandbox = $this->sandbox; // Get the specified sandbox (if question has one).
+        if (trim((string) $sandbox) === 'DEFAULT') {
+            // The name the menu gives to "whichever sandbox claims the
+            // language", which is null everywhere else. It should never be
+            // stored — it is converted on the way into an overrides document —
+            // but a question imported from a site that stored it, or saved
+            // before that conversion existed, would otherwise be refused for
+            // asking for a sandbox that does not exist.
+            $sandbox = null;
+        }
         if ($sandbox === null) {   // No sandbox specified. Use best we can find.
             $sandboxinstance = qtype_coderunner_sandbox::get_best_sandbox($this->language);
             if ($sandboxinstance === null) {

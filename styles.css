@@ -665,3 +665,17 @@ body#page-question-type-coderunner div[id^=fitem_id_testtype_] {
 }
 
 /* stylelint-enable declaration-no-important  */
+
+/* An inherited code field, on either of the two settings forms. Ace is put
+ * into read-only mode by inheritedcode.js, which is invisible on its own: a
+ * read-only editor looks exactly like an editable one. The shading is what
+ * says the field is not the author's to type in, and matches what core's
+ * disabledIf does to every other control on the form.
+ *
+ * Not scoped to a page: the question form and the prototype editor both show
+ * these fields, and they are different pages.
+ */
+.coderunner-inherited .ui_wrapper {
+    background: #f2f2f2;
+    opacity: 0.65;
+}

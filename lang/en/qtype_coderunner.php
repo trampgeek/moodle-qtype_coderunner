@@ -567,8 +567,16 @@ $string['prototypeextra_help'] = 'A field of text for general-purpose use by que
 
 // The mark beside a field whose value really differs from what it would
 // inherit, and the legend that explains it.
-$string['fieldchanged'] = 'This question changes this setting';
-$string['fieldchangedlegend'] = 'Marks a setting this question changes. The rest are set here but hold the value they would inherit anyway.';
+$string['fieldchanged'] = 'This setting is changed here';
+$string['fieldchangedlegend'] = 'Marks a setting changed here. The rest are set here too, but hold the value they would inherit anyway.';
+
+// The two JSON documents that merge with the documents above them rather than
+// replacing them, which is why they are offered with no Inherit control: the
+// label says the value merges, and the note says what it merges with.
+$string['mergeswith'] = 'Merges with: {$a}';
+$string['mergeswithlayers'] = 'Merges with the values set by {$a}';
+$string['mergeswithparent'] = '(merges with parent)';
+$string['mergesnothing'] = 'Nothing above this sets any';
 
 // The box that says a field takes its value from the prototype chain, and the
 // note beside it saying what that value is. "Parent" rather than "Inherited",
@@ -599,10 +607,10 @@ $string['sectionchanged'] = '{$a} changed';
 // The question form's prototype picker.
 $string['prototypereload'] = 'Update the form for this question type';
 $string['prototypefromanothercourse'] = 'Use a prototype from another course...';
-$string['prototypegroup_usedhere'] = 'Used in this course';
-$string['prototypegroup_courseandsite'] = 'This course and the site';
 $string['prototypegroup_borrowed'] = 'Borrowed from another course';
 $string['prototypegroup_othercourse'] = 'From the course you chose';
+$string['prototypegroup_site'] = 'Site';
+$string['prototypegroup_thiscourse'] = 'This course';
 $string['prototypenoothercourses'] = 'There is no other course whose prototypes you may use.';
 $string['prototypenotallowed'] = 'You do not have permission to build a question on that course\'s prototypes.';
 $string['prototypeothercourse'] = 'Course';

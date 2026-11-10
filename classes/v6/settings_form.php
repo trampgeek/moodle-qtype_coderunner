@@ -38,7 +38,10 @@ namespace qtype_coderunner\v6;
  * reimplementing the inputs: each field keeps whatever element its registry
  * type calls for, and an `advcheckbox` beside it decides whether the value is
  * the author's or the one above. `disabledIf` greys the input while the box is
- * clear, so the whole affordance needs no JavaScript at all.
+ * clear, so the affordance needs no JavaScript — except on the code fields,
+ * where Ace replaces the textarea with an editor of its own that `disabledIf`
+ * cannot reach. Those get `inheritedcode.js`, which is a few lines and does
+ * nothing else.
  *
  * Clearing the box drops the override when the form is saved; the value is not
  * kept against the author changing their mind, because an overrides document
@@ -87,9 +90,147 @@ class settings_form {
         string $language = '',
         bool $withinstancefields = false
     ): void {
-        foreach (self::fields_of($section, $withinstancefields) as $name => $field) {
+        global $OUTPUT;
+
+        $fields = self::fields_of($section, $withinstancefields);
+        $components = self::components_of($fields);
+        foreach ($fields as $name => $field) {
+            if (isset($components[$name])) {
+                // Rendered beside the field it belongs to, by add_field().
+                continue;
+            }
             self::add_field($mform, $field, $inherited, $own, $language);
         }
+
+        if (self::changed_count($section, $own, $inherited, $withinstancefields) === 0) {
+            return;
+        }
+
+        // What the marks beside the fields above mean, said once per section
+        // that has any and nowhere else. A legend outside the sections would
+        // be in a collapsed region or far from the thing it explains.
+        //
+        // Emitted here rather than by the caller so that the two forms cannot
+        // disagree: the marks are put on the fields by this component, and a
+        // form that showed them with nothing to explain them is what the
+        // prototype editor did.
+        $mform->addElement(
+            'static',
+            self::section_header($section) . '_legend',
+            '',
+            \html_writer::tag(
+                'small',
+                $OUTPUT->pix_icon('i/asterisk', '', 'core', ['class' => 'text-primary']) . ' '
+                    . get_string('fieldchangedlegend', 'qtype_coderunner'),
+                ['class' => 'text-muted']
+            )
+        );
+    }
+
+    /**
+     * The form element name of a section's header.
+     *
+     * Shared, because the legend above hangs off it and both forms name their
+     * headers this way.
+     *
+     * @param form_section $section the section.
+     * @return string the element name.
+     */
+    public static function section_header(form_section $section): string {
+        return 'section_' . $section->value;
+    }
+
+    /**
+     * The fields of a section that belong to another field rather than
+     * standing on their own.
+     *
+     * The registry says which through `perlayerwith`: the language a layer's
+     * template parameters are written in, and whether they are re-evaluated
+     * for every student, describe how to read that layer's document and mean
+     * nothing without it. Presenting them as peers of the thing they qualify
+     * is what made the whole of this section hard to read — three controls
+     * that look like three independent settings, two of which are inert
+     * unless the third says something.
+     *
+     * They are therefore rendered beside their own field and counted with it,
+     * so that one authoring decision reads as one change rather than three.
+     *
+     * @param field[] $fields the section's fields.
+     * @return array component name => true.
+     */
+    public static function components_of(array $fields): array {
+        $components = [];
+        foreach ($fields as $field) {
+            foreach ($field->perlayerwith as $componentname) {
+                $components[$componentname] = true;
+            }
+        }
+        return $components;
+    }
+
+    /**
+     * A section's heading, with the number of fields this layer changes in it
+     * when there are any.
+     *
+     * @param form_section $section the section.
+     * @param override_set $own what this layer overrides.
+     * @param question_settings $inherited what the layers above resolve to.
+     * @param bool $withinstancefields true when the layer is a question.
+     * @return string the heading.
+     */
+    public static function section_label(
+        form_section $section,
+        override_set $own,
+        question_settings $inherited,
+        bool $withinstancefields = false
+    ): string {
+        $name = $section->label();
+        $changed = self::changed_count($section, $own, $inherited, $withinstancefields);
+        if ($changed === 0) {
+            return $name;
+        }
+        return $name . ' · ' . get_string('sectionchanged', 'qtype_coderunner', $changed);
+    }
+
+    /**
+     * How many of a section's fields this layer overrides **to a different
+     * value** from the one it would otherwise inherit.
+     *
+     * Not simply how many it overrides. The migration pins twenty fields on
+     * every pre-6.0 question whether or not the value differs from what the
+     * chain would supply (M3), so counting overrides reports five of the eight
+     * sections as changed on every migrated question — including fields
+     * holding exactly the registry default, which is what an author reads as
+     * *not* changed. Counting effective differences makes the number mean what
+     * the header claims: this layer does something the one above it does not.
+     *
+     * @param form_section $section the section.
+     * @param override_set $own what this layer overrides.
+     * @param question_settings $inherited what the layers above resolve to.
+     * @param bool $withinstancefields true when the layer is a question.
+     * @return int the count.
+     */
+    public static function changed_count(
+        form_section $section,
+        override_set $own,
+        question_settings $inherited,
+        bool $withinstancefields = false
+    ): int {
+        $fields = self::fields_of($section, $withinstancefields);
+        $components = self::components_of($fields);
+        $changed = 0;
+        foreach ($fields as $name => $field) {
+            if (isset($components[$name])) {
+                // Counted with the field it belongs to: the language the
+                // parameters are written in is part of one decision about
+                // those parameters, not a second decision.
+                continue;
+            }
+            if ($own->has($field) && !self::is_redundant($field, $own, $inherited)) {
+                $changed++;
+            }
+        }
+        return $changed;
     }
 
     /**
@@ -164,6 +305,11 @@ class settings_form {
             return;
         }
 
+        if (!$field->resolves_to_one_value()) {
+            self::add_collected_field($mform, $field, $inherited, $own, $language);
+            return;
+        }
+
         $overridename = self::INHERIT_PREFIX . $name;
         $isoverridden = $own->has($field);
 
@@ -190,7 +336,7 @@ class settings_form {
             // textarea's own container, and a group wrapper leaves it half
             // visible in the corner. The author form adds its code textareas
             // the same way, as plain elements, which is why they look right.
-            $mform->addElement(self::input_element($mform, $field, $language));
+            $mform->addElement(self::input_element($mform, $field, $language, false, !$isoverridden));
             $mform->addGroup([$override, $provenance], $name . '_group', '', '&nbsp;&nbsp;', false);
             $helpanchor = $name;
         } else {
@@ -228,20 +374,252 @@ class settings_form {
     }
 
     /**
+     * Add a collected field: one that every layer contributes to rather than
+     * one the nearest layer wins outright.
+     *
+     * **No *Inherit* control on any of them**, because there is nothing for it
+     * to decide. Two of the four are JSON documents that merge key by key, so
+     * a layer holding an empty document and a layer holding none are the same
+     * state: the control offered a choice between two identical things and
+     * then reported one of them as a change — on the development site, 10,199
+     * of 12,756 migrated questions were marked as changing their UI parameters
+     * by holding an empty override of them. The other two qualify a layer's
+     * *own* contribution, and are not inherited at all: `chain_layers()` gives
+     * a layer that sets no language the registry default, not its parent's, so
+     * a control reading *Inherit* beside a note reading *Parent: Twig* was
+     * promising something the run-time path does not do.
+     *
+     * What the author sees instead is what their own layer says — empty, or
+     * the registry default — with a note saying what that means and a mark
+     * when it says anything.
+     *
+     * @param \MoodleQuickForm $mform the form being built.
+     * @param field $field the field to add.
+     * @param question_settings $inherited what the layers above contribute.
+     * @param override_set $own what this layer contributes.
+     * @param string $language the language a template is highlighted in.
+     */
+    protected static function add_collected_field(
+        \MoodleQuickForm $mform,
+        field $field,
+        question_settings $inherited,
+        override_set $own,
+        string $language = ''
+    ): void {
+        $name = $field->name;
+
+        // The fields that travel with this one per layer, each behind its own
+        // label so that two bare menus side by side cannot be confused, and
+        // then the note saying what the document merges with. add_section()
+        // leaves the components out of its own loop, so this is the only place
+        // they are rendered.
+        $members = [];
+        $defaults = [];
+        foreach ($field->perlayerwith as $componentname) {
+            $component = field_registry::get($componentname);
+            $members[] = $mform->createElement(
+                'static',
+                $componentname . '_label',
+                '',
+                \html_writer::tag('span', $component->label(), ['class' => 'text-muted small'])
+            );
+            $members[] = self::input_element($mform, $component, $language);
+            $defaults[$componentname] = $own->has($component)
+                ? $own->get($component)
+                : $component->default;
+        }
+        $members[] = self::merge_note($mform, $field, $inherited, $own);
+
+        // Where the field's own help goes, and whether that leaves the group
+        // free to carry the components'. A help button cannot anchor on an
+        // element inside a group, so a component's can only go on the group.
+        $componenthelp = $name . '_group';
+        if ($field->iscode) {
+            // A code field is added on its own, as it is for every other kind
+            // of field: CodeRunner positions Ace's full-screen control against
+            // the textarea's own container, and a group wrapper leaves it half
+            // visible in the corner. Its components and its note follow in the
+            // group where the override checkbox used to be.
+            $mform->addElement(self::input_element($mform, $field, $language));
+            $mform->addGroup($members, $name . '_group', '', '&nbsp;&nbsp;', false);
+            if ($field->help() !== null) {
+                $mform->addHelpButton($name, $field->help_identifier(), 'qtype_coderunner');
+            }
+        } else {
+            // Everything else keeps the shape every other field has — control
+            // and note on one row, under the field's label — with nothing
+            // where the override checkbox was.
+            $mform->addGroup(
+                array_merge([self::input_element($mform, $field, $language)], $members),
+                $name . '_group',
+                self::field_label($field),
+                '&nbsp;&nbsp;&nbsp;',
+                false
+            );
+            if ($field->help() !== null) {
+                $mform->addHelpButton($name . '_group', $field->help_identifier(), 'qtype_coderunner');
+                $componenthelp = null;
+            }
+        }
+
+        // The components' help, where the group has none of its own. Both of
+        // this field's components share `twigcontrols_help`, so the first one
+        // that has help speaks for them.
+        foreach ($componenthelp === null ? [] : $field->perlayerwith as $componentname) {
+            $component = field_registry::get($componentname);
+            if ($component->help() !== null) {
+                $mform->addHelpButton($componenthelp, $component->help_identifier(), 'qtype_coderunner');
+                break;
+            }
+        }
+
+        foreach ($defaults as $componentname => $value) {
+            $mform->setDefault($componentname, $value);
+            $mform->setType($componentname, self::param_type(field_registry::get($componentname)));
+        }
+
+        // What this layer itself says, and nothing else: its own document, or
+        // its own qualifier, or the registry default where it has none.
+        // Showing the nearest ancestor's instead — which is what a field with
+        // an Inherit control does, so that clearing the control shows what the
+        // field falls back to — invited the author to adopt a copy of it, and
+        // a copy of a document merges to no effect while ceasing to follow the
+        // original.
+        $mform->setDefault(
+            $name,
+            $own->has($field) ? $own->get($field) : ($field->merges_with_inherited() ? '' : $field->default)
+        );
+        $mform->setType($name, self::param_type($field));
+    }
+
+    /**
+     * What a merging field's document merges with: the documents of the layers
+     * above, merged where they can be, and named where they cannot.
+     *
+     * A document is only merged for display when every contributing layer's is
+     * readable as JSON. A layer whose parameters are written in Twig or
+     * evaluated by a language cannot be merged without running it, which a
+     * form cannot do, so those layers are named instead of being guessed at.
+     *
+     * @param \MoodleQuickForm $mform the form being built.
+     * @param field $field the field.
+     * @param question_settings $inherited what the layers above contribute.
+     * @param override_set $own what this layer contributes.
+     * @return object the form element.
+     */
+    protected static function merge_note(
+        \MoodleQuickForm $mform,
+        field $field,
+        question_settings $inherited,
+        override_set $own
+    ) {
+        $contributions = [];
+        foreach ($inherited->layers_of($field) as $layer) {
+            if (!self::document_is_empty($layer['value'])) {
+                $contributions[] = $layer;
+            }
+        }
+
+        if (!$contributions) {
+            $text = get_string('mergesnothing', 'qtype_coderunner');
+        } else {
+            $merged = [];
+            $names = [];
+            foreach ($contributions as $layer) {
+                $names[] = self::layer_name($layer['source']);
+                $decoded = json_decode((string) $layer['value'], true);
+                if (!is_array($decoded)) {
+                    $merged = null;
+                    break;
+                }
+                // Root first, so a nearer layer's key wins, as it does when
+                // the question runs.
+                $merged = array_merge($merged, $decoded);
+            }
+
+            $text = $merged === null
+                ? get_string('mergeswithlayers', 'qtype_coderunner', implode(', ', $names))
+                : get_string(
+                    'mergeswith',
+                    'qtype_coderunner',
+                    self::summarise($field, json_encode($merged))
+                );
+        }
+
+        $marker = $own->has($field) && !self::document_is_empty($own->get($field))
+            ? self::changed_marker()
+            : '';
+
+        return $mform->createElement(
+            'static',
+            $field->name . '_source',
+            '',
+            $marker . \html_writer::tag('small', $text, ['class' => 'text-muted'])
+        );
+    }
+
+    /**
+     * Whether a JSON document says nothing, and so contributes nothing to a
+     * merge.
+     *
+     * An unreadable document is not empty: it may be Twig, which this cannot
+     * evaluate, and treating it as nothing would claim a question changes
+     * nothing when it may change everything.
+     *
+     * @param mixed $value the document.
+     * @return bool true if it contributes nothing.
+     */
+    public static function document_is_empty($value): bool {
+        $text = trim((string) $value);
+        if ($text === '') {
+            return true;
+        }
+        // Both `{}` and `[]` decode to the empty array.
+        return json_decode($text, true) === [];
+    }
+
+    /**
+     * The mark put beside a field this layer changes.
+     *
+     * An asterisk, in the accent colour, and not `i/warning`: that one maps to
+     * `fa-triangle-exclamation text-warning` in core's icon map, so it is a
+     * hazard triangle and reads as something being wrong rather than as a
+     * mark. An asterisk is also what a footnote reference is, which is what
+     * this is: the legend at the foot of the section explains it.
+     *
+     * @return string the marker's HTML.
+     */
+    protected static function changed_marker(): string {
+        global $OUTPUT;
+
+        return \html_writer::tag(
+            'span',
+            $OUTPUT->pix_icon('i/asterisk', get_string('fieldchanged', 'qtype_coderunner')),
+            ['class' => 'text-primary me-1 small']
+        );
+    }
+
+    /**
      * The input control for a field, chosen from its registry type.
      *
      * @param \MoodleQuickForm $mform the form being built.
      * @param field $field the field.
+     * @param string $language the language a template is highlighted in.
+     * @param bool $ownlabel true when the control carries its own label rather
+     *      than taking it from the group it sits in.
+     * @param bool $locked true when the field is inherited, which a code field
+     *      has to carry in its markup. See the comment where it is used.
      * @return object the form element.
      */
     protected static function input_element(
         \MoodleQuickForm $mform,
         field $field,
         string $language = '',
-        bool $ownlabel = false
+        bool $ownlabel = false,
+        bool $locked = false
     ) {
         $name = $field->name;
-        $label = $ownlabel ? $field->label() : '';
+        $label = $ownlabel ? self::field_label($field) : '';
 
         if ($field->type === field_type::CHOICE) {
             return $mform->createElement('select', $name, $label, field_registry::choices($name));
@@ -257,7 +635,7 @@ class settings_form {
         }
         if ($field->type === field_type::TEXT || $field->type === field_type::JSON) {
             // A code field carries its own label, since it is not in a group.
-            $label = ($field->iscode || $ownlabel) ? $field->label() : '';
+            $label = ($field->iscode || $ownlabel) ? self::field_label($field) : '';
             $attributes = ['rows' => $field->rows ?: ($field->iscode ? 12 : 2)];
             if ($field->iscode) {
                 // InterfaceWrapper reads the language from this attribute and
@@ -267,6 +645,16 @@ class settings_form {
                 // Twig and a JSON mode reports errors that are not there.
                 $attributes['data-lang'] = self::ace_language($field, $language);
                 $attributes['class'] = 'edit_code';
+                if ($locked) {
+                    // Ace reads the textarea's readonly attribute when it is
+                    // constructed and never looks at it again, so an inherited
+                    // code field has to say so in the markup. `disabledIf`
+                    // alone greys a textarea the author can no longer see:
+                    // Ace has replaced it with an editor of its own, which
+                    // stays editable. See {@see require_ace()} for the other
+                    // half, which follows the checkbox afterwards.
+                    $attributes['readonly'] = 'readonly';
+                }
             } else {
                 $attributes['cols'] = 80;
             }
@@ -276,6 +664,29 @@ class settings_form {
             return $mform->createElement('text', $name, $label, ['size' => 6]);
         }
         return $mform->createElement('text', $name, $label, ['size' => 40]);
+    }
+
+    /**
+     * A field's label, with a second line on the ones that merge saying so.
+     *
+     * The distinction is the hardest thing about these two fields and it
+     * cannot be read off the control: a box of JSON looks the same whether it
+     * replaces what is above it or adds to it. The form labels say which it
+     * is; the help text says what that means.
+     *
+     * @param field $field the field.
+     * @return string the label, which a form renders as HTML.
+     */
+    protected static function field_label(field $field): string {
+        if (!$field->merges_with_inherited()) {
+            return $field->label();
+        }
+
+        return $field->label() . \html_writer::tag(
+            'span',
+            get_string('mergeswithparent', 'qtype_coderunner'),
+            ['class' => 'd-block fw-normal text-muted small']
+        );
     }
 
     /**
@@ -301,6 +712,25 @@ class settings_form {
     public static function is_redundant(field $field, override_set $own, question_settings $inherited): bool {
         if (!$own->has($field)) {
             return false;
+        }
+
+        if ($field->merges_with_inherited()) {
+            // Such a field changes nothing when it says nothing. It cannot be
+            // compared against what it would inherit, because it does not
+            // replace that: it is merged with it, so an identical document
+            // and an empty one have the same effect and a different one adds
+            // to rather than supplants what is above.
+            return self::document_is_empty($own->get($field));
+        }
+
+        if (!$field->resolves_to_one_value()) {
+            // A qualifier of this layer's own contribution, measured against
+            // the registry default rather than against the layer above:
+            // `chain_layers()` gives a layer that does not set it the default,
+            // so that — and not the parent's value — is what this layer would
+            // have had if it said nothing.
+            return $field->normalise_for_comparison($own->get($field))
+                === $field->normalise_for_comparison($field->default);
         }
 
         return $field->normalise_for_comparison($own->get($field))
@@ -353,14 +783,9 @@ class settings_form {
         // the count on the section header can be found without opening every
         // field. The ones that merely restate what they would inherit — most
         // of them, on a migrated question — are left unmarked.
-        $marker = '';
-        if ($isoverridden && !self::is_redundant($field, $own, $inherited)) {
-            $marker = \html_writer::tag(
-                'span',
-                $OUTPUT->pix_icon('i/warning', get_string('fieldchanged', 'qtype_coderunner')),
-                ['class' => 'text-warning me-1']
-            );
-        }
+        $marker = $isoverridden && !self::is_redundant($field, $own, $inherited)
+            ? self::changed_marker()
+            : '';
 
         return $mform->createElement(
             'static',
@@ -474,6 +899,7 @@ class settings_form {
 
         \qtype_coderunner_util::load_ace();
 
+        $inheritable = [];
         foreach ($sections as $section) {
             foreach (self::fields_of($section, $withinstancefields) as $name => $field) {
                 if (!$field->iscode) {
@@ -487,7 +913,22 @@ class settings_form {
                     'newUiWrapper',
                     ['ace', 'id_' . $name]
                 );
+                if ($field->is_inheritable() && !$field->merges_with_inherited()) {
+                    $inheritable[] = $name;
+                }
             }
+        }
+
+        if ($inheritable) {
+            // The one place this component needs JavaScript, and only for the
+            // code fields. Every other control is greyed by `disabledIf`,
+            // which sets the `disabled` attribute; by then Ace has replaced
+            // the textarea with an editor that neither carries that attribute
+            // nor watches for it, so an inherited template stayed fully
+            // editable and an author's edit to it was dropped on save. The
+            // markup carries the initial state (see {@see input_element()});
+            // this follows the checkbox from there on.
+            $PAGE->requires->js_call_amd('qtype_coderunner/inheritedcode', 'init', [$inheritable]);
         }
     }
 
@@ -557,6 +998,31 @@ class settings_form {
             // Refusing them on the write path as well as in the rendering means
             // a form that offers one by mistake still cannot store it.
             foreach (self::fields_of($section) as $name => $field) {
+                if (!$field->resolves_to_one_value()) {
+                    // No Inherit control to consult: what the control holds is
+                    // the whole of what this layer says, and it is stored only
+                    // when it says something — an empty document, or a
+                    // qualifier at the registry default, is dropped rather
+                    // than stored. That is safe here and nowhere else: for a
+                    // collected field, holding nothing and saying nothing are
+                    // the same thing, so nothing the migration pinned comes
+                    // unfrozen. For a field that replaces, an empty value is a
+                    // real override that blanks what would be inherited.
+                    if (!array_key_exists($name, $data)) {
+                        continue;
+                    }
+                    unset($values[$name]);
+                    $value = legacy_converter::cast($name, self::normalise_newlines($data[$name]));
+                    $saysnothing = $field->merges_with_inherited()
+                        ? self::document_is_empty($value)
+                        : $field->normalise_for_comparison($value)
+                            === $field->normalise_for_comparison($field->default);
+                    if (!$saysnothing) {
+                        $values[$name] = $value;
+                    }
+                    continue;
+                }
+
                 $key = self::INHERIT_PREFIX . $name;
                 if (!array_key_exists($key, $data)) {
                     // The form did not ask about this field, so it says nothing

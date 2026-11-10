@@ -364,17 +364,37 @@ final class settings_form_test extends \advanced_testcase {
             $mform = new \MoodleQuickForm('test', 'post', '');
             settings_form::add_section($mform, $section, $inherited, $own);
 
+            $components = settings_form::components_of($fields);
             foreach ($fields as $name => $field) {
+                if (isset($components[$name])) {
+                    // A component is rendered inside the group of the field it
+                    // belongs to, and has neither a control nor a note of its
+                    // own; the next test covers that it is there.
+                    $this->assertFalse($mform->elementExists($name . '_group'));
+                    $rendered++;
+                    continue;
+                }
                 // A code field is added on its own so that Ace styles it
                 // correctly; everything else is grouped with its override box.
                 $this->assertTrue(
                     $mform->elementExists($field->iscode ? $name : $name . '_group'),
                     "Field $name rendered no control in section {$section->value}."
                 );
-                $this->assertNotNull(
-                    $this->group_member($mform, $name, settings_form::INHERIT_PREFIX . $name),
-                    "Field $name rendered no override control."
-                );
+                if (!$field->resolves_to_one_value()) {
+                    // No override control on a collected field: a document
+                    // merges with the ones above it and a qualifier applies to
+                    // this layer alone, so neither offers a choice between
+                    // inheriting and replacing.
+                    $this->assertNull(
+                        $this->group_member($mform, $name, settings_form::INHERIT_PREFIX . $name),
+                        "Collected field $name was offered an override control."
+                    );
+                } else {
+                    $this->assertNotNull(
+                        $this->group_member($mform, $name, settings_form::INHERIT_PREFIX . $name),
+                        "Field $name rendered no override control."
+                    );
+                }
                 $this->assertNotNull(
                     $this->group_member($mform, $name, $name . '_source'),
                     "Field $name rendered no provenance note."
@@ -477,6 +497,17 @@ final class settings_form_test extends \advanced_testcase {
             method_exists(\qtype_coderunner_util::class, 'load_ace'),
             'The question type no longer offers load_ace(), which the manager depends on.'
         );
+
+        // Ace on each code field, and the script that keeps an inherited one
+        // uneditable. The second is easy to lose: nothing else on the page
+        // refers to it, and without it the markup's readonly attribute would
+        // be the only thing holding a code field, which the author could then
+        // never untick.
+        $queued = new \ReflectionProperty($PAGE->requires, 'amdjscode');
+        $amd = implode(' ', $queued->getValue($PAGE->requires));
+        $this->assertStringContainsString('qtype_coderunner/userinterfacewrapper', $amd);
+        $this->assertStringContainsString('qtype_coderunner/inheritedcode', $amd);
+        $this->assertStringContainsString('"template"', $amd, 'The template was not among the fields named.');
     }
 
     /**
@@ -613,5 +644,525 @@ final class settings_form_test extends \advanced_testcase {
         $after = new override_set(['template' => "a\r\nB"], 'v2');
 
         $this->assertArrayHasKey('template', $after->differences_from($before));
+    }
+
+    /**
+     * A merging field is offered with no Inherit control, and holds this
+     * layer's own document rather than a copy of the nearest ancestor's.
+     *
+     * The control described a choice that does not exist. Both documents
+     * merge, key by key, with every document above them, so "inherited" and
+     * "overridden with nothing" are the same state — and the box, which
+     * showed the nearest ancestor's document so that clearing the control
+     * would show what the field fell back to, invited the author to adopt a
+     * copy of it. A copy merges with the original to no effect, and stops
+     * following it.
+     */
+    public function test_a_merging_field_has_no_inherit_control(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->resetAfterTest();
+
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['uiparameters' => '{"ui_source": "prefixed"}'],
+        ])->resolve();
+
+        $mform = new \MoodleQuickForm('merging', 'post', '');
+        settings_form::add_section($mform, form_section::UI, $inherited, new override_set([], 'q'));
+
+        $this->assertTrue($mform->elementExists('uiparameters'));
+        $this->assertFalse(
+            $mform->elementExists(settings_form::INHERIT_PREFIX . 'uiparameters'),
+            'A merging field was offered an Inherit control.'
+        );
+        $this->assertNull(
+            $this->group_member($mform, 'uiparameters', settings_form::INHERIT_PREFIX . 'uiparameters'),
+            'A merging field was offered an Inherit control inside its group.'
+        );
+        // Empty, because this layer contributes nothing — not a copy of what
+        // the prototype contributes.
+        $this->assertSame('', $mform->_defaultValues['uiparameters'] ?? '');
+    }
+
+    /**
+     * An empty document is dropped on save rather than stored, because
+     * contributing nothing and holding nothing are the same thing.
+     *
+     * This is the one place where dropping an override is safe. For every
+     * other field an empty value is a real override — it blanks what would be
+     * inherited — so dropping it would unfreeze a value the migration pinned.
+     * Here it cannot: an empty document contributes nothing to the merge
+     * whether it is stored or absent. On the development site 10,199 of the
+     * 12,756 migrated questions hold exactly this.
+     */
+    public function test_an_empty_merging_document_is_dropped(): void {
+        $existing = new override_set(['uiparameters' => '{"ui_source": "mine"}'], 'q');
+
+        foreach (['', '   ', '{}', '[]'] as $saysnothing) {
+            $after = settings_form::overrides_from(
+                ['uiparameters' => $saysnothing],
+                [form_section::UI],
+                $existing,
+                'q'
+            );
+            $this->assertFalse(
+                $after->has('uiparameters'),
+                "'$saysnothing' should contribute nothing and be dropped."
+            );
+        }
+
+        // And a document that says something is kept, with no checkbox to ask.
+        $kept = settings_form::overrides_from(
+            ['uiparameters' => '{"ui_source": "prefixed"}'],
+            [form_section::UI],
+            $existing,
+            'q'
+        );
+        $this->assertSame('{"ui_source": "prefixed"}', $kept->get('uiparameters'));
+
+        // A section the form did not show still keeps what it had.
+        $untouched = settings_form::overrides_from([], [form_section::UI], $existing, 'q');
+        $this->assertSame('{"ui_source": "mine"}', $untouched->get('uiparameters'));
+    }
+
+    /**
+     * A merging field is marked when it says something and unmarked when it
+     * does not, whatever the layers above it hold.
+     *
+     * It cannot be compared against what it would inherit, the way a
+     * replacing field is: it does not replace that. An empty document is the
+     * identity of the merge; a document identical to the parent's changes
+     * nothing either, but saying so would need the parameters evaluated,
+     * which a form cannot do — so a non-empty document is marked.
+     */
+    public function test_a_merging_field_is_redundant_only_when_empty(): void {
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['uiparameters' => '{"ui_source": "prefixed"}'],
+        ])->resolve();
+        $field = field_registry::get('uiparameters');
+
+        $empty = new override_set(['uiparameters' => ''], 'q');
+        $this->assertTrue(settings_form::is_redundant($field, $empty, $inherited));
+
+        $nothing = new override_set(['uiparameters' => '{}'], 'q');
+        $this->assertTrue(settings_form::is_redundant($field, $nothing, $inherited));
+
+        $something = new override_set(['uiparameters' => '{"font_size": 14}'], 'q');
+        $this->assertFalse(settings_form::is_redundant($field, $something, $inherited));
+
+        // An unreadable document is not nothing: it may be Twig, and claiming
+        // it changes nothing would be a guess.
+        $twig = new override_set(['templateparams' => '{"n": {{ 1 + 1 }} }'], 'q');
+        $this->assertFalse(
+            settings_form::is_redundant(field_registry::get('templateparams'), $twig, $inherited)
+        );
+    }
+
+    /**
+     * The parameters, the language they are written in and the per-try switch
+     * are one composite: the components sit in the document's own group, and
+     * the section counts the three of them as one change.
+     *
+     * They are not three settings. The language and the per-try switch say how
+     * to read this layer's document and mean nothing without it, so presenting
+     * them as peers of the thing they qualify is what made the section hard to
+     * read — and counting them separately reported one authoring decision as
+     * two or three changes.
+     */
+    public function test_the_parameters_and_their_qualifiers_are_one_composite(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->resetAfterTest();
+
+        $inherited = (new prototype_chain([]))->resolve();
+        $own = new override_set([
+            'templateparams' => '{"n": 3}',
+            'templateparamslang' => 'twig',
+            'templateparamsevalpertry' => 1,
+        ], 'q');
+
+        $mform = new \MoodleQuickForm('composite', 'post', '');
+        settings_form::add_section($mform, form_section::PARAMETERS, $inherited, $own);
+
+        // The components are in the document's group, not rows of their own.
+        foreach (['templateparamslang', 'templateparamsevalpertry'] as $componentname) {
+            $this->assertFalse(
+                $mform->elementExists($componentname . '_group'),
+                "$componentname should not have a row of its own."
+            );
+            $this->assertNotNull(
+                $this->group_member($mform, 'templateparams', $componentname),
+                "$componentname should sit beside the parameters it describes."
+            );
+            // Behind a label, so that two bare menus cannot be confused.
+            $this->assertNotNull(
+                $this->group_member($mform, 'templateparams', $componentname . '_label')
+            );
+        }
+
+        // One change, not three.
+        $this->assertSame(1, settings_form::changed_count(form_section::PARAMETERS, $own, $inherited));
+
+        // And the components are still read back and stored in their own
+        // right, since each is a column and a field of the overrides document.
+        $saved = settings_form::overrides_from(
+            [
+                'templateparams' => '{"n": 3}',
+                'templateparamslang' => 'twig',
+                'templateparamsevalpertry' => '1',
+            ],
+            [form_section::PARAMETERS],
+            new override_set([], 'q'),
+            'q'
+        );
+        $this->assertSame('twig', $saved->get('templateparamslang'));
+        $this->assertSame(1, $saved->get('templateparamsevalpertry'));
+    }
+
+    /**
+     * A language pinned against no parameters is not a change, because the
+     * composite's mark belongs to the document.
+     *
+     * On the development site 963 questions are in exactly that state, having
+     * been pinned as `twig` by the migration while contributing nothing.
+     */
+    public function test_a_qualifier_without_parameters_is_not_a_change(): void {
+        $inherited = (new prototype_chain([]))->resolve();
+        $own = new override_set([
+            'templateparams' => '',
+            'templateparamslang' => 'twig',
+        ], 'q');
+
+        $this->assertSame(0, settings_form::changed_count(form_section::PARAMETERS, $own, $inherited));
+    }
+
+    /**
+     * The two qualifiers of a contribution have no Inherit control either, and
+     * they answer to the registry default rather than to the layer above.
+     *
+     * They are not inherited at all: `chain_layers()` gives a layer that sets
+     * no language the registry default, not its parent's. So a control reading
+     * *Inherit* beside a note reading *Parent: Twig* promised something the
+     * run-time path does not do — a question contributing Twig parameters
+     * while leaving the control alone would have been evaluated as *None*.
+     */
+    public function test_a_qualifier_answers_to_the_registry_default(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->resetAfterTest();
+
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['templateparamslang' => 'twig'],
+        ])->resolve();
+
+        $mform = new \MoodleQuickForm('qualifier', 'post', '');
+        settings_form::add_section($mform, form_section::PARAMETERS, $inherited, new override_set([], 'q'));
+
+        $this->assertFalse(
+            $mform->elementExists(settings_form::INHERIT_PREFIX . 'templateparamslang'),
+            'A qualifier was offered an Inherit control.'
+        );
+        // The registry default, not the prototype's Twig: that is what this
+        // layer's own parameters would be evaluated as.
+        $this->assertSame(
+            field_registry::get('templateparamslang')->default,
+            $mform->_defaultValues['templateparamslang']
+        );
+
+        // Marked when it says something, measured against the default and not
+        // against the layer above.
+        $field = field_registry::get('templateparamslang');
+        $this->assertTrue(
+            settings_form::is_redundant($field, new override_set(['templateparamslang' => 'None'], 'q'), $inherited)
+        );
+        $this->assertFalse(
+            settings_form::is_redundant($field, new override_set(['templateparamslang' => 'twig'], 'q'), $inherited)
+        );
+    }
+
+    /**
+     * A qualifier at the registry default is dropped on save, and one that
+     * says something is kept.
+     */
+    public function test_a_qualifier_is_stored_only_when_it_says_something(): void {
+        $existing = new override_set(['templateparamslang' => 'twig'], 'q');
+
+        $dropped = settings_form::overrides_from(
+            ['templateparamslang' => field_registry::get('templateparamslang')->default],
+            [form_section::PARAMETERS],
+            $existing,
+            'q'
+        );
+        $this->assertFalse($dropped->has('templateparamslang'));
+
+        $kept = settings_form::overrides_from(
+            ['templateparamslang' => 'twig'],
+            [form_section::PARAMETERS],
+            $existing,
+            'q'
+        );
+        $this->assertSame('twig', $kept->get('templateparamslang'));
+
+        // And the boolean beside it, whose default is 0.
+        $boolean = settings_form::overrides_from(
+            ['templateparamsevalpertry' => '0'],
+            [form_section::PARAMETERS],
+            new override_set(['templateparamsevalpertry' => 1], 'q'),
+            'q'
+        );
+        $this->assertFalse($boolean->has('templateparamsevalpertry'));
+    }
+
+    /**
+     * The note under a merging field says what the document merges with: the
+     * merged result where every contributing layer can be read as JSON, and
+     * the layers by name where one cannot.
+     */
+    public function test_the_merge_note_says_what_it_merges_with(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->resetAfterTest();
+
+        // Two layers of plain JSON, so the note can show the merge itself,
+        // with the nearer layer's key winning as it does at run time.
+        $readable = prototype_chain::from_arrays([
+            'python3@1' => ['uiparameters' => '{"font_size": 12, "theme": "dark"}'],
+            'python3_scratchpad@2' => ['uiparameters' => '{"font_size": 14}'],
+        ])->resolve();
+        $note = $this->merge_note($readable, form_section::UI, 'uiparameters');
+        $this->assertStringContainsString('font_size', $note);
+        $this->assertStringContainsString('14', $note);
+        $this->assertStringContainsString('theme', $note);
+        $this->assertStringNotContainsString('12', $note);
+
+        // A layer that cannot be read as JSON is named instead of guessed at.
+        $twig = prototype_chain::from_arrays([
+            'python3@1' => ['templateparams' => '{"n": {{ 1 + 1 }} }'],
+        ])->resolve();
+        $this->assertStringContainsString(
+            'python3',
+            $this->merge_note($twig, form_section::PARAMETERS, 'templateparams')
+        );
+
+        // And nothing above contributing anything is said plainly.
+        $none = (new prototype_chain([]))->resolve();
+        $this->assertStringContainsString(
+            get_string('mergesnothing', 'qtype_coderunner'),
+            $this->merge_note($none, form_section::UI, 'uiparameters')
+        );
+    }
+
+    /**
+     * The label of a merging field says that it merges, on a line of its own.
+     */
+    public function test_a_merging_fields_label_says_so(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->resetAfterTest();
+
+        $mform = new \MoodleQuickForm('labels', 'post', '');
+        settings_form::add_section(
+            $mform,
+            form_section::UI,
+            (new prototype_chain([]))->resolve(),
+            new override_set([], 'q')
+        );
+
+        $label = (string) $mform->getElement('uiparameters')->getLabel();
+        $this->assertStringContainsString(
+            get_string('uiparameters', 'qtype_coderunner'),
+            $label
+        );
+        $this->assertStringContainsString(get_string('mergeswithparent', 'qtype_coderunner'), $label);
+        // The plugin menu beside it replaces rather than merges, and says
+        // nothing of the kind.
+        $this->assertStringNotContainsString(
+            get_string('mergeswithparent', 'qtype_coderunner'),
+            (string) $mform->getElement('uiplugin_group')->getLabel()
+        );
+    }
+
+    /**
+     * The text of a merging field's note, as rendered on a form.
+     *
+     * @param question_settings $inherited what the layers above contribute.
+     * @param form_section $section the section holding the field.
+     * @param string $name the field.
+     * @return string the note's content.
+     */
+    private function merge_note(question_settings $inherited, form_section $section, string $name): string {
+        $mform = new \MoodleQuickForm('note' . $name . mt_rand(), 'post', '');
+        settings_form::add_section($mform, $section, $inherited, new override_set([], 'q'));
+        $note = $this->group_member($mform, $name, $name . '_source');
+        $this->assertNotNull($note, "Field $name rendered no note.");
+        return (string) $note->_text;
+    }
+
+    /**
+     * An inherited code field says so in its markup, because Ace reads the
+     * textarea's readonly attribute as it starts up and nothing afterwards.
+     *
+     * Without this the attribute core's `disabledIf` sets was the only sign,
+     * and by the time it is set the textarea is hidden behind an Ace editor
+     * that neither carries it nor watches for it: an inherited template was
+     * fully editable, and because a disabled field is not submitted, an edit
+     * made to one was dropped without a word on save.
+     */
+    public function test_an_inherited_code_field_is_marked_readonly(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->resetAfterTest();
+
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['template' => 'INHERITED'],
+        ])->resolve();
+
+        $inheritform = new \MoodleQuickForm('inherits', 'post', '');
+        settings_form::add_section($inheritform, form_section::TEMPLATE, $inherited, new override_set([], 'q'));
+        $this->assertSame(
+            'readonly',
+            $inheritform->getElement('template')->getAttribute('readonly'),
+            'An inherited template was offered as editable.'
+        );
+
+        // And an overridden one is the author's to type in.
+        $ownform = new \MoodleQuickForm('overrides', 'post', '');
+        settings_form::add_section(
+            $ownform,
+            form_section::TEMPLATE,
+            $inherited,
+            new override_set(['template' => 'MINE'], 'q')
+        );
+        $this->assertNull(
+            $ownform->getElement('template')->getAttribute('readonly'),
+            'An overridden template was locked.'
+        );
+    }
+
+    /**
+     * Every code field an inheritable layer can override is marked, not just
+     * the template: the JSON parameter fields are code fields too, and each of
+     * them is edited in Ace.
+     */
+    public function test_every_inheritable_code_field_is_marked(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->resetAfterTest();
+
+        $inherited = (new prototype_chain([]))->resolve();
+        $checked = 0;
+        $merging = 0;
+        foreach (form_section::cases() as $section) {
+            $fields = array_filter(settings_form::fields_of($section), fn($field) => $field->iscode);
+            if (!$fields) {
+                continue;
+            }
+
+            $mform = new \MoodleQuickForm('t' . $section->value, 'post', '');
+            settings_form::add_section($mform, $section, $inherited, new override_set([], 'q'));
+            foreach ($fields as $name => $field) {
+                if ($field->merges_with_inherited()) {
+                    // A merging field is never locked: it holds this layer's
+                    // own document, which is always the author's to write.
+                    $this->assertNull(
+                        $mform->getElement($name)->getAttribute('readonly'),
+                        "Merging field $name was locked."
+                    );
+                    $merging++;
+                    continue;
+                }
+                $this->assertSame(
+                    'readonly',
+                    $mform->getElement($name)->getAttribute('readonly'),
+                    "Inherited code field $name was offered as editable."
+                );
+                $checked++;
+            }
+        }
+
+        // The inherited code fields Ace is attached to: the template, the
+        // result columns, the sandbox parameters and the two extras.
+        $this->assertSame(5, $checked);
+        // And the two that merge: the template parameters and the UI ones.
+        $this->assertSame(2, $merging);
+    }
+
+    /**
+     * A section with a mark in it explains what the mark means, and a section
+     * with none says nothing.
+     *
+     * The legend comes from the component rather than from each form, because
+     * the marks do: the prototype editor showed the marks with nothing to
+     * explain them for exactly as long as the two were in different places.
+     */
+    public function test_a_section_with_a_change_explains_its_mark(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->resetAfterTest();
+
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['template' => 'INHERITED'],
+        ])->resolve();
+        $legend = settings_form::section_header(form_section::TEMPLATE) . '_legend';
+
+        $changed = new \MoodleQuickForm('changed', 'post', '');
+        settings_form::add_section(
+            $changed,
+            form_section::TEMPLATE,
+            $inherited,
+            new override_set(['template' => 'MINE'], 'q')
+        );
+        $this->assertTrue($changed->elementExists($legend), 'A marked section explained nothing.');
+
+        $unchanged = new \MoodleQuickForm('unchanged', 'post', '');
+        settings_form::add_section($unchanged, form_section::TEMPLATE, $inherited, new override_set([], 'q'));
+        $this->assertFalse($unchanged->elementExists($legend), 'A section with no marks carried a legend.');
+
+        // An override that restates what it would inherit is not a mark, so it
+        // is not explained either.
+        $redundant = new \MoodleQuickForm('redundant', 'post', '');
+        settings_form::add_section(
+            $redundant,
+            form_section::TEMPLATE,
+            $inherited,
+            new override_set(['template' => 'INHERITED'], 'q')
+        );
+        $this->assertFalse($redundant->elementExists($legend));
+    }
+
+    /**
+     * A section's heading counts the fields the layer changes, and counts only
+     * the ones that make a difference.
+     */
+    public function test_a_section_label_counts_effective_changes(): void {
+        $inherited = prototype_chain::from_arrays([
+            'python3' => ['template' => 'INHERITED', 'grader' => 'TemplateGrader'],
+        ])->resolve();
+
+        $this->assertSame(
+            form_section::TEMPLATE->label(),
+            settings_form::section_label(form_section::TEMPLATE, new override_set([], 'q'), $inherited)
+        );
+
+        $own = new override_set([
+            // A real change.
+            'template' => 'MINE',
+            // And one that restates what it would have inherited anyway, which
+            // is what every migrated question is full of.
+            'grader' => 'TemplateGrader',
+        ], 'q');
+        $this->assertSame(
+            form_section::TEMPLATE->label() . ' · ' . get_string('sectionchanged', 'qtype_coderunner', 1),
+            settings_form::section_label(form_section::TEMPLATE, $own, $inherited)
+        );
+        $this->assertSame(1, settings_form::changed_count(form_section::TEMPLATE, $own, $inherited));
     }
 }

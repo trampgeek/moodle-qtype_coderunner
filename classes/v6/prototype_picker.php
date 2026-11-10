@@ -103,16 +103,10 @@ class prototype_picker {
         // The menu and the chain the choice inherits through, on one row: the
         // menu where every Moodle selector puts it, and the chain beside the
         // value it describes rather than in a panel of its own.
-        $menu = $mform->createElement(
-            'selectgroups',
-            self::FIELD,
-            // No label of its own: the group carries it, and an element that
-            // repeats it renders the words a second time, above the menu.
-            '',
-            self::optgroups($courseid, $selectedid, $othercourseid),
-            null,
-            true
-        );
+        //
+        // No label of its own: the group carries it, and an element that
+        // repeats it renders the words a second time, above the menu.
+        $menu = self::menu_element($mform, self::optgroups($courseid, $selectedid, $othercourseid));
         $chain = $mform->createElement('static', self::FIELD . '_chain', '', self::breadcrumb($selectedid));
 
         $mform->addGroup(
@@ -129,13 +123,15 @@ class prototype_picker {
         // Changing the menu rebuilds the form, so that the fields the question
         // inherits, the notes saying where they come from, and the test case
         // columns the new prototype offers are all the new prototype's.
+        // Registered before it is created, so that it marks itself as skipping
+        // client-side validation; see add_other_course_step().
+        $mform->registerNoSubmitButton(self::RELOAD_BUTTON);
         $mform->addElement(
             'submit',
             self::RELOAD_BUTTON,
             get_string('prototypereload', 'qtype_coderunner'),
             ['class' => 'visually-hidden']
         );
-        $mform->registerNoSubmitButton(self::RELOAD_BUTTON);
 
         $summary = self::summary($selectedid);
         if ($summary !== '') {
@@ -175,6 +171,29 @@ class prototype_picker {
         int $courseid,
         int $othercourseid
     ): void {
+        // Registered first, once, and whatever shape the rest of this method
+        // gives the form. Two reasons, and both of them bit.
+        //
+        // The press arrives on a *different* request from the one that drew the
+        // button, and that request takes the other branch below — which, for an
+        // author with no other course to borrow from, returns early. The name
+        // was then absent from the form's no-submit list exactly when the
+        // button had been pressed, so formslib took the press for an ordinary
+        // submission: it validated the question, ran the sample answer against
+        // the sandbox, saved a new version and redirected to wherever the
+        // author came from. Registering a name costs nothing and does not
+        // require the element to exist, so it is done unconditionally.
+        //
+        // And it is done *before* the element is created, because
+        // `MoodleQuickForm_submit` asks `isNoSubmitButton()` as it is built
+        // (`lib/form/submit.php:97`) and only then marks itself
+        // `data-skip-validation`, `data-no-submit` and
+        // `onclick="skipClientValidation = true"`. Registered afterwards, the
+        // button is honoured by the server but still runs the whole form's
+        // client-side validation in the browser. Core registers first for the
+        // same reason (`lib/formslib.php:1172`).
+        $mform->registerNoSubmitButton(self::OTHER_COURSE_BUTTON);
+
         if (!self::other_course_wanted()) {
             $mform->addElement(
                 'submit',
@@ -182,7 +201,6 @@ class prototype_picker {
                 get_string('prototypefromanothercourse', 'qtype_coderunner'),
                 ['class' => 'btn-secondary']
             );
-            $mform->registerNoSubmitButton(self::OTHER_COURSE_BUTTON);
             return;
         }
 
@@ -219,7 +237,31 @@ class prototype_picker {
             get_string('prototypeshowcourse', 'qtype_coderunner'),
             ['class' => 'btn-secondary']
         );
-        $mform->registerNoSubmitButton(self::OTHER_COURSE_BUTTON);
+    }
+
+    /**
+     * The menu itself: grouped when there is more than one group to choose
+     * between, and a plain menu when there is not.
+     *
+     * @param \MoodleQuickForm $mform the form being built.
+     * @param array $optgroups group heading => [prototype id => label].
+     * @return object the form element.
+     */
+    protected static function menu_element(\MoodleQuickForm $mform, array $optgroups) {
+        if (count($optgroups) === 1) {
+            // One group is no choice between groups, so the heading would be an
+            // unselectable row at the top of the menu saying nothing. A site
+            // whose courses add no prototypes of their own — most sites, for a
+            // while — sees a plain menu of the built-ins.
+            return $mform->createElement(
+                'select',
+                self::FIELD,
+                '',
+                ['' => get_string('choose') . '...'] + reset($optgroups)
+            );
+        }
+
+        return $mform->createElement('selectgroups', self::FIELD, '', $optgroups, null, true);
     }
 
     /**

@@ -179,8 +179,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * @param MoodleQuickForm $mform the form being built.
      */
     protected function make_settings_sections($mform) {
-        global $OUTPUT;
-
         $inherited = $this->inherited_settings();
         $own = $this->own_overrides();
         $language = (string) $this->resolved_settings()->get('language');
@@ -212,25 +210,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // Instance fields included: the question form is the only form
             // that may show them, and `showsource` — Template debugging —
             // sits in the Template section.
+            // The legend saying what the marks beside the fields mean comes
+            // with them, from the component.
             settings_form::add_section($mform, $section, $inherited, $own, $language, true);
-
-            if ($this->section_override_count($section, $own) > 0) {
-                // What the marks beside the fields above mean, said once per
-                // section that has any and nowhere else. A legend outside the
-                // sections would be in a collapsed region or far from the
-                // thing it explains.
-                $mform->addElement(
-                    'static',
-                    self::section_header($section) . '_legend',
-                    '',
-                    \html_writer::tag(
-                        'small',
-                        $OUTPUT->pix_icon('i/warning', '') . ' '
-                            . get_string('fieldchangedlegend', 'qtype_coderunner'),
-                        ['class' => 'text-muted']
-                    )
-                );
-            }
         }
     }
 
@@ -260,7 +242,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * @return string the element name.
      */
     protected static function section_header(form_section $section): string {
-        return 'section_' . $section->value;
+        return settings_form::section_header($section);
     }
 
     /**
@@ -272,39 +254,23 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * @return string the heading.
      */
     protected function section_label(form_section $section, override_set $own): string {
-        $name = $section->label();
-        $changed = $this->section_override_count($section, $own);
-        if ($changed === 0) {
-            return $name;
-        }
-        return $name . ' · ' . get_string('sectionchanged', 'qtype_coderunner', $changed);
+        return settings_form::section_label($section, $own, $this->inherited_settings(), true);
     }
 
     /**
      * How many of a section's fields the question overrides **to a different
      * value** from the one it would otherwise inherit.
      *
-     * Not simply how many it overrides. The migration pins twenty fields on
-     * every pre-6.0 question whether or not the value differs from what the
-     * chain would supply (M3), so counting overrides reports five of the eight
-     * sections as changed on every migrated question — including fields
-     * holding exactly the registry default, which is what an author reads as
-     * *not* changed. Counting effective differences makes the number mean what
-     * the header claims: this question does something its prototype does not.
+     * Counted by the component, which the prototype editor's headers need in
+     * the same words; see {@see settings_form::changed_count()} for why the
+     * count is of effective differences and not of overrides.
      *
      * @param form_section $section the section.
      * @param override_set $own what the question overrides.
      * @return int the count.
      */
     protected function section_override_count(form_section $section, override_set $own): int {
-        $inherited = $this->inherited_settings();
-        $changed = 0;
-        foreach (settings_form::fields_of($section, true) as $name => $field) {
-            if ($own->has($field) && !settings_form::is_redundant($field, $own, $inherited)) {
-                $changed++;
-            }
-        }
-        return $changed;
+        return settings_form::changed_count($section, $own, $this->inherited_settings(), true);
     }
 
     /**
