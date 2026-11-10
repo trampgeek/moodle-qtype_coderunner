@@ -8,11 +8,13 @@ A companion to `coderunner6-design.md` and `coderunner6-implementation-notes.md`
 2. Lists corrections to the design doc and the notes that came out of that reading.
 3. Proposes a milestone sequence for 6.0, says where each piece should live, and records the decisions taken so far (section 6).
 
-## Status, 9 November 2026
+## Status, 11 November 2026
 
 Built and verified on the development site. Everything below is **committed**: the question type on its `Version6` branch, and `public/local/coderunner_manager/`, which is now a git repository of its own rather than untracked.
 
-**Where the work stands.** M0 to M4a and M6 are complete. M7 is complete through its fourth increment — the control inventory, the save path, the picker and the form itself — and has had seven rounds of review by its author, each recorded under that milestone. The prototype editor has now been used by an author too, and the four faults that came out of that are recorded under M6 and in M7's fourth round, since one of them was in the shared component and showed on both forms. What remains of M7 is increment 5 (*Make prototype from this question*, the legacy prototype-question banner, and M7's share of the removal inventory) and increment 6 (Behat), plus the end-to-end verifier run on the development site's own data, which is now possible because a question can be saved through the new form. Then M5, M8 and M9.
+**Where the work stands.** M0 to M4a and M6 are complete. M7 is complete through its fourth increment — the control inventory, the save path, the picker and the form itself — and has had seven rounds of review by its author, each recorded under that milestone. The prototype editor has now been used by an author too, and the four faults that came out of that are recorded under M6 and in M7's fourth round, since one of them was in the shared component and showed on both forms. What remains of M7 is increment 5 (*Make prototype from this question*, the legacy prototype-question banner, and M7's share of the removal inventory) and increment 6 (Behat). Then M5, M8 and M9.
+
+**The end-to-end verifier run is done**, on the development site's own data: 12,350 questions, 9,528 unchanged, 2,822 changed, and **not one of the 2,822 a migration fault** — every one traces to a prototype an author edited after the migration, each identified from that prototype's own version history. Recorded in full under M7. Two things come out of it that are not about the migration: a test edit is sitting at the head of the live `c_function` template, in an unlabelled version, where two questions use it; and the verifier compares against the CodeRunner 5 prototype *questions*, which the prototype editor never touches, so any deliberate prototype edit shows as a difference for ever and the report no longer announces a real fault. Comparing against each prototype's v1 instead would fix that by construction and is left as a decision.
 
 **One piece of M5 has been pulled forward**, because the risk did not keep: `/options/overrides` is excluded from the identity hash. Left in, it stopped a pre-6.0 backup matching anything on a 6.0 site, which duplicates every question restored — the mechanism that grew one site's bank to 560,000 questions. See M5, and decision 17, which it supersedes in part.
 
@@ -51,7 +53,7 @@ Two bugs were found and fixed in the writing rather than by a test:
 - Use `~/.config/composer/vendor/bin/phpcs --standard=moodle` (3.13.6 with `moodlehq/moodle-cs`). The `moodle-local_codechecker` copy bundles PHP_CodeSniffer 3.5.8, which reports named arguments as goto labels and carried a high-severity CVE.
 - Thirty-odd lint errors across the new code are all `enum` and `readonly class` blind spots in moodle-cs that Moodle core also trips; none is actionable.
 
-Suites, after M4's second increment: 221 tests / 1395 assertions in `qtype_coderunner_testsuite` (19 skipped, all sandbox-dependent), 59 / 337 in `local_coderunner_manager_testsuite`. Both remain the pre-M4 208 / 1370 and 58 / 333 plus exactly the new tests, so no pre-existing assertion has changed.
+Suites, at M7's fourth increment and the verifier run: **322 tests / 1981 assertions** in `qtype_coderunner_testsuite` (19 skipped, all sandbox-dependent), **120 / 526** in `local_coderunner_manager_testsuite`. After M4’s second increment they were 221 / 1395 and 59 / 337, which were the pre-M4 208 / 1370 and 58 / 333 plus exactly the new tests.
 
 One new lint error, in `question.php`: the class comment was `/*` and is now `/**`, which it has to be for the `@property-read` block to mean anything to an IDE, and moodle-cs reports any docblock after a `require_once` as an inline one. Every test file in the plugin already trips the same sniff.
 
@@ -743,9 +745,28 @@ The prototype picker with its grouping, and the capability check on save as well
 
     The second is the knowledge that `$readonly` in `edit.php` means *"is a built-in"* rather than *"I may not write this"*. Under the restored gate it is unreachable — nobody who may not write a site prototype can open it — so the read-only machinery in `prototype_form` is retained and currently dead. That is worth knowing rather than tidying away: it is what would have to be corrected first if the read-only view is revived, since on its own it would hand a non-administrator write access to every site prototype that is not a built-in, Site defaults among them.
 
-    **What is left of M7.** Increment 5 (*Make prototype from this question*, the legacy prototype-question banner, and M7's share of the removal inventory) and increment 6 (Behat). The end-to-end verifier run on the development site's own data is also still outstanding, and is now possible: a question can be saved through the form.
+    **What is left of M7.** Increment 5 (*Make prototype from this question*, the legacy prototype-question banner, and M7's share of the removal inventory) and increment 6 (Behat). The end-to-end verifier run is done; it is recorded below.
 
     **Exercised against real data.** The form was rendered for a question on the development site: 226 KB of HTML, the sections in the design's order, the picker showing *Used in this course* as a disabled heading with its prototypes indented beneath, and the chain beneath the picker reading *Site defaults › c_program*.
+
+    **The end-to-end verifier run, done, on the development site's own data.** 12,350 questions in 90 seconds: 9,528 unchanged, 2,822 changed, and 405 question versions left broken for want of a resolvable prototype — the same 405 the health report counts, unmoved. **Not one of the 2,822 is a migration fault.** Every one traces to a prototype an author edited in the prototype editor *after* the migration ran, and each was identified by reading that prototype's own version history rather than by argument:
+
+    | Fields | Questions | Prototype | Version | The author's own commit message |
+    | --- | --- | --- | --- | --- |
+    | `sandbox` | 2,444 | `python3_scratchpad` | v6, 10 Nov | *Changed sandbox from explicit jobesandbox to DEFAULT* |
+    | `cputimelimitsecs`, `memlimitmb` | 372 | `python3` | v3, 7 Nov | *Increased time limit and memory limit to allow for more use of libraries* |
+    | `memlimitmb` | 4 | `python3` | v3, 7 Nov | the same change, on questions that already pinned the CPU limit |
+    | `template` | 2 | `c_function` | v4, 10 Nov | none, and the template now begins `// TESTING 1 2 3 4` |
+
+    The last row wants acting on rather than recording: a test edit is sitting at the head of a live prototype's template, in an unlabelled version, and two questions use it.
+
+    **Which exposes the verifier's own limit, and it is structural.** The old side resolves through the CodeRunner 5 prototype *questions*, which the prototype editor never touches, so **every deliberate prototype edit after the migration shows as a difference for ever, for every question beneath it**. One author's afternoon put 2,444 questions into the report. So the verifier reads clean only on data nobody has authored since — true when M3 ran it, and not true again. As a check on the migration it is still sound, because a fault would appear beside the authoring noise rather than instead of it; what it has lost is the ability to announce itself, which is most of what a verifier is for.
+
+    **What would fix it, and what it costs.** Compare each question against its prototype's **v1** — the snapshot M2 took at migration time — instead of the current version. The question's own overrides were written by the migration, so pairing them with v1 reconstructs exactly the state the migration produced: all four groups above vanish by construction, and a genuine fault still shows. The cost is that `chain_for()` resolves through `currentversionid` alone, so the repository would have to resolve a chain at a named version, which nothing else wants yet. Not done, and left as a decision.
+
+    **Three questions could not be verified at all, which is the expected state and was being reported as a fault.** They are the three saved through the new form on 10 November, on `python3_function` — a prototype made in the prototype editor, so there is no CodeRunner 5 prototype question of that name and CodeRunner 5 cannot resolve them at all. That is not a disagreement: there is one resolution, not two. They are now counted and named in their own category. The marker that recorded them as a difference was also crashing the script that printed it — a bare string where every other difference is a before-and-after pair — so the run ended in a TypeError after the summary and before the differences could be read; and it was counted as differing without being counted as checked, so the summary's arithmetic did not add up. Both fixed, with a test.
+
+    **So increment 2's deferred exit criterion is met in principle and not yet in fact.** A question saved through the new form can only be verified against CodeRunner 5 if the prototype it was saved on has a CodeRunner 5 counterpart, and the only three form-saved questions on the site are on one that does not. Saving one on a built-in — `c_program`, say — and re-running the script would close it. Nobody has done that yet, and it is a minute's work rather than a piece of building.
 5. ***Make prototype from this question***, the legacy prototype-question banner, and M7's share of the removal inventory below.
 6. **Behat** over override, revert and prototype-change.
 
