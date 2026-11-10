@@ -138,22 +138,8 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
                 $data->grader = 'TemplateGrader';
             }
 
-            // The prototype id is a local id and Moodle does not remap ids by
-            // itself, so carrying the backed-up one over would point the
-            // question at whatever prototype holds that id here: right by
-            // accident on the same site, silently wrong across sites. It is
-            // discarded and the prototype is found by name instead, which is
-            // the boundary-code name lookup the design allows for restore, and
-            // which works on the same site and across sites alike whenever the
-            // target course can see a prototype of that name. When it cannot,
-            // the question is left with a null prototype id and reports itself
-            // broken, which is visible rather than silent.
-            //
-            // M5 adds matching by the backed-up id and by the prototype uuid,
-            // for the cases a name cannot settle: an ambiguous name, or a
-            // prototype that travelled in the backup itself.
-            $data->prototypeid = (new qtype_coderunner())->resolve_prototype_id(
-                $data->coderunnertype,
+            self::set_v6_columns(
+                $data,
                 \context_course::instance($this->get_task()->get_courseid())
             );
 
@@ -161,6 +147,71 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             $DB->insert_record("question_coderunner_options", $data);
         }
         // Nothing to remap if the question already existed.
+    }
+
+    /**
+     * Set the CodeRunner 6 columns on an options row being restored.
+     *
+     * **The prototype id is re-resolved, never carried over.** It is a local
+     * id and Moodle does not remap ids by itself, so the backed-up one would
+     * point the question at whatever prototype holds that id here: right by
+     * accident on the same site, silently wrong across sites. It is discarded
+     * and the prototype found by name instead, which is the boundary-code name
+     * lookup the design allows for restore and which works on the same site
+     * and across sites alike whenever the target course can see a prototype of
+     * that name. When it cannot, the question is left with a null prototype id
+     * and reports itself broken, which is visible rather than silent.
+     *
+     * M5 adds matching by the backed-up id and by the prototype uuid, for the
+     * cases a name cannot settle: an ambiguous name, or a prototype that
+     * travelled in the backup itself.
+     *
+     * **A pre-6.0 backup has no overrides document, and must be given one
+     * here.** Its settings are in the CodeRunner 5 columns beside it, where
+     * null means inherited, so the migration's own converter turns them into
+     * one — the same code, per question, that the migration task runs in bulk.
+     *
+     * Leaving it for the task to find was the obvious alternative and is not
+     * safe, because of what the half-converted state does in the meantime. A
+     * null overrides document means *this question overrides nothing*, so
+     * `resolve_inherited_fields()` overwrites every inherited column from the
+     * chain, and the sixteen fields CodeRunner 5 read straight from the column
+     * — the penalty regime, the answer box size, the attachment settings and
+     * the rest — are replaced by the prototype's. The question renders and
+     * grades perfectly well with the wrong settings, until something runs the
+     * migration; and nothing does, on a site that is not being upgraded.
+     * Converting here closes the window instead of shortening it.
+     *
+     * **An empty element is not a document.** Moodle backup writes a null
+     * column as an empty element and the restore carries it through as `''`,
+     * which `json_decode()` reads as nothing at all — the same trap the Moodle
+     * XML importer set for the question form, where it was solved with an
+     * explicit marker. So emptiness is tested rather than presence.
+     *
+     * @param \stdClass $data the options row, modified in place.
+     * @param \context $context the context whose course resolves a name.
+     */
+    public static function set_v6_columns(\stdClass $data, \context $context): void {
+        if (($data->prototypetype ?? 0) != 0) {
+            // A legacy prototype question is not a question with a prototype:
+            // it has nothing to inherit and nothing to override, and the
+            // prototype installer converts it into a prototype of its own when
+            // it next runs. Same rule as set_prototype_reference().
+            $data->prototypeid = null;
+            $data->overrides = null;
+            return;
+        }
+
+        $data->prototypeid = (new qtype_coderunner())->resolve_prototype_id(
+            $data->coderunnertype,
+            $context
+        );
+
+        if (($data->overrides ?? '') === '') {
+            $data->overrides = json_encode(
+                \qtype_coderunner\v6\legacy_converter::question_overrides((array) $data)->to_array()
+            );
+        }
     }
 
     // Add the extra methods required by MDL-83541.

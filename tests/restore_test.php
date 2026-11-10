@@ -174,4 +174,115 @@ class restore_test extends \advanced_testcase {
             $this->assertNull($options->template);
         }
     }
+
+    /**
+     * A pre-6.0 backup restores into a question that keeps its own settings.
+     *
+     * The failure this guards is silent. A restored question whose overrides
+     * document was left null means "overrides nothing", so every inherited
+     * column is overwritten from the chain and the sixteen fields CodeRunner 5
+     * read straight from the column take the prototype's values instead of the
+     * question's. It renders and grades, with the wrong settings, which is why
+     * what is asserted is the resolved values and not that the restore
+     * completed.
+     */
+    public function test_a_legacy_backup_keeps_each_questions_own_settings(): void {
+        global $CFG, $DB;
+
+        if ((float) get_config('core', 'release') < 5) {
+            $this->markTestSkipped('This test requires Moodle 5.0 or later.');
+        }
+
+        // A prototype of the name the backup's questions use, as a 6.0 site
+        // has, holding values no question in the backup holds.
+        (new \local_coderunner_manager\prototype_repository())->create(
+            'java_class',
+            (int) SITEID,
+            new \qtype_coderunner\v6\override_set([
+                'template' => 'PROTOTYPE TEMPLATE',
+                'penaltyregime' => '33, 66, ...',
+                'answerboxlines' => 7,
+            ], 'java_class')
+        );
+
+        $this->restore_backup($CFG->dirroot .
+                '/question/type/coderunner/tests/fixtures/backuptester_V5.0.3.mbz');
+
+        [$stored] = $this->load_question_data_by_name('Java Class: bod');
+
+        // Converted during the restore, not left for the migration task.
+        $this->assertNotNull($stored->prototypeid, 'The prototype was not resolved by name.');
+        $this->assertNotNull($stored->overrides, 'The question was left unconverted.');
+
+        $loaded = \question_bank::load_question_data(
+            $DB->get_field('question', 'id', ['name' => 'Java Class: bod'], MUST_EXIST)
+        );
+
+        // Its own, from its own columns.
+        $this->assertSame($stored->penaltyregime, $loaded->options->penaltyregime);
+        $this->assertEquals($stored->answerboxlines, $loaded->options->answerboxlines);
+        $this->assertNotSame('33, 66, ...', $loaded->options->penaltyregime);
+        $this->assertNotEquals(7, $loaded->options->answerboxlines);
+
+        // And still inherited where the question's column is null, which is how
+        // CodeRunner 5 spelt "inherited".
+        $this->assertNull($stored->template);
+        $this->assertSame('PROTOTYPE TEMPLATE', $loaded->options->template);
+    }
+
+    /**
+     * A legacy prototype question restores as one, with neither column set.
+     *
+     * It has nothing to inherit and nothing to override; the prototype
+     * installer turns it into a prototype of its own when it next runs, which
+     * is what keeps the old prototype questions working as a way in to the
+     * prototype manager.
+     */
+    public function test_a_legacy_prototype_question_gets_neither_column(): void {
+        $data = (object) [
+            'coderunnertype' => 'java_class',
+            'prototypetype' => 2,
+            'prototypeid' => 12345,
+            'penaltyregime' => '0, 10, 20, ...',
+        ];
+
+        \restore_qtype_coderunner_plugin::set_v6_columns($data, \context_system::instance());
+
+        $this->assertNull($data->prototypeid);
+        $this->assertNull($data->overrides);
+    }
+
+    /**
+     * An overrides document that travelled in the backup is kept, and an empty
+     * element is not mistaken for one.
+     *
+     * Moodle backup writes a null column as an empty element and the restore
+     * carries it through as the empty string, which `json_decode()` reads as
+     * nothing at all. Testing presence rather than emptiness would leave such a
+     * question overriding nothing, which is the silent failure above.
+     */
+    public function test_an_empty_overrides_element_is_not_a_document(): void {
+        $own = ['penaltyregime' => '0, 10, 20, ...'];
+
+        $carried = (object) [
+            'coderunnertype' => 'java_class',
+            'prototypetype' => 0,
+            'overrides' => json_encode($own),
+        ];
+        \restore_qtype_coderunner_plugin::set_v6_columns($carried, \context_system::instance());
+        $this->assertSame($own, json_decode($carried->overrides, true), 'A real document was overwritten.');
+
+        foreach (['', null] as $empty) {
+            $blank = (object) [
+                'coderunnertype' => 'java_class',
+                'prototypetype' => 0,
+                'overrides' => $empty,
+                'penaltyregime' => '0, 10, 20, ...',
+            ];
+            \restore_qtype_coderunner_plugin::set_v6_columns($blank, \context_system::instance());
+            $decoded = json_decode($blank->overrides, true);
+            $this->assertIsArray($decoded, 'An empty element was taken for a document.');
+            $this->assertSame('0, 10, 20, ...', $decoded['penaltyregime']);
+        }
+    }
 }
