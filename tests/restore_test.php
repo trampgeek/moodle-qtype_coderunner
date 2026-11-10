@@ -231,6 +231,42 @@ class restore_test extends \advanced_testcase {
     }
 
     /**
+     * A restored question that could not be resolved asks for the prototype
+     * sweep, so the course does not stay broken.
+     *
+     * A pre-6.0 backup carries its course's own prototype *questions*, which
+     * become prototypes in the manager only when the install task runs. Until
+     * then nothing of their name exists to resolve against, so every question
+     * built on one arrives broken. The task fixes both halves in the right
+     * order; nothing was asking it to run.
+     */
+    public function test_an_unresolvable_restore_asks_for_the_prototype_sweep(): void {
+        global $CFG, $DB;
+
+        if ((float) get_config('core', 'release') < 5) {
+            $this->markTestSkipped('This test requires Moodle 5.0 or later.');
+        }
+
+        // No prototype of any name the backup uses, which is the state a site
+        // is in for a course whose prototypes travelled with it.
+        $DB->delete_records('task_adhoc');
+
+        $this->restore_backup($CFG->dirroot .
+                '/question/type/coderunner/tests/fixtures/backuptester_V5.0.3.mbz');
+
+        [$stored] = $this->load_question_data_by_name('Java Class: bod');
+        $this->assertNull($stored->prototypeid, 'The fixture is only meaningful while nothing resolves.');
+        $this->assertNotNull($stored->overrides, 'The question is still converted.');
+
+        $queued = $DB->get_records_select(
+            'task_adhoc',
+            $DB->sql_like('classname', '?'),
+            ['%install_prototypes%']
+        );
+        $this->assertCount(1, $queued, 'The sweep was asked for exactly once.');
+    }
+
+    /**
      * A legacy prototype question restores as one, with neither column set.
      *
      * It has nothing to inherit and nothing to override; the prototype

@@ -142,11 +142,47 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
                 $data,
                 \context_course::instance($this->get_task()->get_courseid())
             );
+            $this->request_prototype_sweep_if_unresolved($data);
 
             // Insert the record.
             $DB->insert_record("question_coderunner_options", $data);
         }
         // Nothing to remap if the question already existed.
+    }
+
+    /** @var bool Whether this restore has already asked for the prototype sweep. */
+    protected bool $sweeprequested = false;
+
+    /**
+     * Ask for the prototype sweep when a restored question could not be
+     * resolved.
+     *
+     * A pre-6.0 backup carries its course's own prototype *questions*, and
+     * those become prototypes in the manager only when the install task next
+     * runs. Until then there is nothing of their name to resolve against, so
+     * every question in the restored course that is built on one arrives
+     * broken. The task fixes both halves in the right order — it snapshots the
+     * prototype questions, then sweeps the questions whose prototype id is
+     * null — but nothing was asking it to run: it is queued by the manager's
+     * install and upgrade steps alone, so on a site that is not being upgraded
+     * the restored course stayed broken indefinitely.
+     *
+     * Asked only when a question actually failed to resolve, so a restore
+     * whose prototypes are all present queues nothing, and at most once per
+     * restore. The flag is an instance property rather than a static because
+     * this object belongs to the restore: a static would be shared with every
+     * other restore in the same request, and asking twice is harmless anyway
+     * — `queue_adhoc_task()` is told to check for an existing copy, so the
+     * flag saves a query rather than preventing a duplicate.
+     *
+     * @param \stdClass $data the options row, after its columns are set.
+     */
+    protected function request_prototype_sweep_if_unresolved(\stdClass $data): void {
+        if ($data->prototypeid !== null || $this->sweeprequested) {
+            return;
+        }
+        $this->sweeprequested = true;
+        \local_coderunner_manager\prototype_installer::queue_migration();
     }
 
     /**
