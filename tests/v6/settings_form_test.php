@@ -511,6 +511,31 @@ final class settings_form_test extends \advanced_testcase {
     }
 
     /**
+     * A form the author may only read gets Ace but is asked to unlock nothing.
+     *
+     * Formslib freezes such a form by rendering every control `readonly
+     * disabled` — and the Inherit checkbox as a real input, disabled and
+     * unchecked where the layer overrides the field. `inheritedcode.js` read
+     * that as "not inherited, so unlock it" and handed back a fully editable
+     * Ace editor on a page nobody could save. The script now refuses a
+     * disabled checkbox, and is not asked for in the first place.
+     */
+    public function test_a_read_only_form_is_asked_to_unlock_nothing(): void {
+        global $PAGE;
+
+        $this->resetAfterTest();
+        $PAGE->set_url('/');
+
+        settings_form::require_ace([form_section::TEMPLATE], 'python3', false, true);
+
+        $queued = new \ReflectionProperty($PAGE->requires, 'amdjscode');
+        $amd = implode(' ', $queued->getValue($PAGE->requires));
+        // Ace still arrives: a reader wants the highlighting.
+        $this->assertStringContainsString('qtype_coderunner/userinterfacewrapper', $amd);
+        $this->assertStringNotContainsString('qtype_coderunner/inheritedcode', $amd);
+    }
+
+    /**
      * An overridden field says what it would fall back to.
      *
      * Without this an author who clears the override has no way to see what

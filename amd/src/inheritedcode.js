@@ -73,6 +73,21 @@ define([], function() {
                     return;
                 }
 
+                // A form the author may only read is frozen by formslib, which
+                // renders the checkbox as a real input that is disabled -- and
+                // unchecked, where the layer overrides the field. Reading that
+                // as "not inherited, so unlock it" is how this module came to
+                // undo the freeze and hand back an editable Ace editor on a
+                // page nobody could save. A disabled checkbox is not a
+                // statement about inheritance: it says the author has no say,
+                // so the markup's own state stands.
+                //
+                // The textarea cannot be tested instead: `disabledIf` disables
+                // it on an ordinary form whenever the box is ticked.
+                if (box.disabled) {
+                    return;
+                }
+
                 apply(textarea, box.checked);
                 box.addEventListener('change', function() {
                     apply(textarea, box.checked);

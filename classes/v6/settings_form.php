@@ -889,11 +889,16 @@ class settings_form {
      *      must come from the settings the layer being edited *resolves to*,
      *      not from what it inherits: a prototype that sets its own language
      *      would otherwise get no syntax colouring at all.
+     * @param bool $withinstancefields true when the layer is a question.
+     * @param bool $readonly true when the author may only read the form, in
+     *      which case Ace is still attached — a reader wants the highlighting
+     *      — but nothing is asked to unlock anything.
      */
     public static function require_ace(
         array $sections,
         string $language = '',
-        bool $withinstancefields = false
+        bool $withinstancefields = false,
+        bool $readonly = false
     ): void {
         global $PAGE;
 
@@ -919,7 +924,14 @@ class settings_form {
             }
         }
 
-        if ($inheritable) {
+        if ($inheritable && !$readonly) {
+            // Not asked for on a form the author may only read: there is no
+            // checkbox for it to follow, formslib has locked every control
+            // already, and the script's own guard refuses such a form in any
+            // case. The question form freezes itself the same way when the
+            // author may not save (`edit_question_form.php:301`), which is why
+            // the guard is in the script and not only here.
+            //
             // The one place this component needs JavaScript, and only for the
             // code fields. Every other control is greyed by `disabledIf`,
             // which sets the `disabled` attribute; by then Ace has replaced
