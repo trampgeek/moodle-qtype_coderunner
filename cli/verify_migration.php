@@ -76,6 +76,19 @@ cli_writeln(sprintf(
     $result->differing
 ));
 
+if ($result->unverifiable) {
+    cli_writeln(sprintf(
+        "\n%d questions use a prototype CodeRunner 5 cannot resolve, so there is nothing to compare them",
+        $result->unverifiable
+    ));
+    cli_writeln('against. A question created through the CodeRunner 6 form, on a prototype with no CodeRunner 5');
+    cli_writeln('prototype question behind it, is in that state by construction.');
+    arsort($result->unverifiablebyname);
+    foreach ($result->unverifiablebyname as $name => $count) {
+        cli_writeln(sprintf('  %-34s %d question(s)', $name, $count));
+    }
+}
+
 if ($result->unmigrated) {
     cli_writeln(sprintf(
         '%d questions have not been migrated yet. The prototype manager\'s install task runs on cron.',

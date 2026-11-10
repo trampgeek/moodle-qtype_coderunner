@@ -64,8 +64,10 @@ class migration_verifier {
             'differing' => 0,
             'broken' => 0,
             'unmigrated' => 0,
+            'unverifiable' => 0,
             'differences' => [],
             'brokenbyname' => [],
+            'unverifiablebyname' => [],
         ];
 
         $total = $DB->count_records_select(self::OPTIONS, 'prototypetype = 0');
@@ -120,9 +122,18 @@ class migration_verifier {
 
         $before = $this->resolve_the_old_way($row);
         if ($before === null) {
-            // The old code cannot resolve it although the migration could, which
-            // would be a real disagreement rather than a value difference.
-            $this->record_difference($row, ['prototype' => 'resolvable now but not before']);
+            // CodeRunner 5 cannot resolve this question's type, so there is
+            // nothing to compare the migration against. That is the state of
+            // every question created through the CodeRunner 6 form on a
+            // prototype with no CodeRunner 5 prototype question behind it, and
+            // it is not a fault: the migration never ran on such a question.
+            // It is reported separately rather than counted as a difference,
+            // because a difference is a disagreement between two resolutions
+            // and here there is only one.
+            $this->result['unverifiable']++;
+            $name = $row->coderunnertype;
+            $this->result['unverifiablebyname'][$name] =
+                ($this->result['unverifiablebyname'][$name] ?? 0) + 1;
             return;
         }
         $after = $this->resolve_the_new_way($row);
