@@ -16,7 +16,7 @@ Built and verified on the development site. Everything below is **committed**: t
 
 **The outstanding verifier item is narrower than it reads, and the whole-site run has already been done.** M3's exit criterion was verification reporting zero differences across every question on the development site, and it was met on 5 November on freshly migrated data. What M7 left outstanding is the half of increment 2's criterion that needed a form: does a question saved through the **new form's save path** resolve identically? That is one question, not twelve thousand, and it is still outstanding — see M7.
 
-**One piece of M5 has been pulled forward**, because the risk did not keep: `/options/overrides` is excluded from the identity hash. Left in, it stopped a pre-6.0 backup matching anything on a 6.0 site, which duplicates every question restored — the mechanism that grew one site's bank to 560,000 questions. See M5, and decision 17, which it supersedes in part.
+**Two pieces of M5 have been pulled forward**, because the risk did not keep in either case and both are triggered by restoring an old course. A pre-6.0 question is now **converted as it is restored** rather than left for the migration task: the half-converted state it was left in does not read as *unconverted* but as *overrides nothing*, so the question kept its prototype's penalty regime, answer box size and the rest instead of its own, silently. And `/options/overrides` is excluded from the identity hash. Left in, it stopped a pre-6.0 backup matching anything on a 6.0 site, which duplicates every question restored — the mechanism that grew one site's bank to 560,000 questions. See M5, and decision 17, which it supersedes in part.
 
 The detail of what each milestone built follows.
 
@@ -53,7 +53,7 @@ Two bugs were found and fixed in the writing rather than by a test:
 - Use `~/.config/composer/vendor/bin/phpcs --standard=moodle` (3.13.6 with `moodlehq/moodle-cs`). The `moodle-local_codechecker` copy bundles PHP_CodeSniffer 3.5.8, which reports named arguments as goto labels and carried a high-severity CVE.
 - Thirty-odd lint errors across the new code are all `enum` and `readonly class` blind spots in moodle-cs that Moodle core also trips; none is actionable.
 
-Suites, at M7's fifth increment: **334 tests / 2053 assertions** in `qtype_coderunner_testsuite` (19 skipped, all sandbox-dependent), **120 / 526** in `local_coderunner_manager_testsuite`. After M4’s second increment they were 221 / 1395 and 59 / 337, which were the pre-M4 208 / 1370 and 58 / 333 plus exactly the new tests.
+Suites, at M7's fifth increment and the restore conversion: **337 tests / 2069 assertions** in `qtype_coderunner_testsuite` (19 skipped, all sandbox-dependent), **120 / 526** in `local_coderunner_manager_testsuite`. After M4’s second increment they were 221 / 1395 and 59 / 337, which were the pre-M4 208 / 1370 and 58 / 333 plus exactly the new tests.
 
 One new lint error, in `question.php`: the class comment was `/*` and is now `/**`, which it has to be for the `@property-read` block to mean anything to an IDE, and moodle-cs reports any docblock after a `require_once` as an inline one. Every test file in the plugin already trips the same sniff.
 
@@ -459,6 +459,26 @@ It comes back into the hash in **phase 4**, when the legacy columns go and it be
 **A core trap found in the writing.** `generate_question_identity_hash()` clones the question it is given, but the clone is shallow: `$questiondata->options` is the same object, so removing an excluded field mutates the options of the object you passed in. Nothing in core is harmed by it — `restore_dbops` hashes each question once and then keeps only its id — but anything that hashes a question and then reads its options back will find them altered. Pass a freshly loaded question each time.
 
 **The identity hash has never included inherited values, which narrows this milestone.** The hash is built from `get_question_options()` output on the database side, but the caller sets `export_process = true` first (`backup/util/dbops/restore_dbops.class.php:728-730`), and CodeRunner skips `set_inherited_fields()` on exactly that flag (`questiontype.php:452`). So both sides of the comparison have always used the question's own raw columns, and the existing exclusion list already covers the two things `get_question_options()` adds, `customise` and `prototype`. The identity-hash work here is therefore confined to the new columns; see decision 17 and the revision above.
+
+**Also pulled forward: a pre-6.0 question is converted as it is restored.** The second piece of M5 to come forward, and for the same reason as the first — the trigger is restoring an old course, which is an ordinary start-of-year action, and M5 is last in the order.
+
+The restorer resolved a question's prototype by name and left its overrides document null. That state does not read as *not converted yet* to anything downstream; it reads as *overrides nothing*, because `resolve_inherited_fields()` decodes a null document to an empty override set and then writes every inherited field from the chain onto the options object. So the sixteen fields CodeRunner 5 read straight from the column — the penalty regime, the answer box size, the attachment settings, all-or-nothing and the rest — were replaced by the prototype's. The question rendered and graded perfectly well with settings that were not its own, which is the kind of failure the identity-hash work above is also about: silent, and discovered by someone's marks being wrong.
+
+Demonstrated on the existing `backuptester_V5.0.3.mbz` fixture, with a `java_class` prototype installed as a 6.0 site has:
+
+| Field | The question's column | What it resolved to |
+| --- | --- | --- |
+| `penaltyregime` | `0, 10, 20, ...` | `10, 20, ...` |
+| `answerboxlines` | 25 | 18 |
+| `template` | null, meaning inherited | the prototype's, which is right |
+
+**The obvious alternative was to let the migration task find it**, which is attractive because both the task's criterion and the migrator's own select on `overrides IS NULL` — precisely "arrived from a pre-6.0 backup" — and because it reuses tried code for both halves. It is not safe, for two reasons. The window is not short: nothing queues that task except the manager's install and upgrade steps, so on a site that is not being upgraded the questions stay wrong indefinitely. And the window is not visible: a question with a resolved prototype and no document looks resolvable and resolves wrongly, where a question with *neither* would report itself broken.
+
+So the conversion happens in the restore, by the converter the migration itself uses — `legacy_converter::question_overrides()`, per question, exactly what the task runs in bulk. There is no window rather than a short one, and the task's sweep stays as the recovery path for a site restored on an earlier build. Moodle XML import already did this correctly, through `set_prototype_reference()`.
+
+**Two more faults the reading turned up.** A legacy prototype question was being given a prototype id, which is meaningless for a question that is not a question with a prototype; it now gets neither column, which is what the save path already decided. And emptiness is tested rather than presence, because Moodle backup writes a null column as an empty element and the restore carries it through as `''` — which `json_decode()` reads as nothing at all. That is the same trap the Moodle XML importer set for the question form, where it was solved with an explicit marker; here testing `=== ''` is enough.
+
+Three tests, two of which fail without the fix. What is asserted is the resolved values rather than that the restore completed, because the restore completed before too.
 
 **The question backup needs a portable prototype identity, not just `prototypeid`.** The case that decides the format is a quiz backup from course A restored into course B on another site, where the prototype was never in the backup because it lives in course A's bank or at site level. There is no id mapping to look up, so the question element carries the prototype's **uuid** as well as its id: the id resolves a same-site restore directly, and the uuid finds an existing copy on another site through `find_by_uuid()`. The name is not carried as a new element, because `coderunnertype` already holds it for as long as it exists (decision 18).
 
