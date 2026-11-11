@@ -33,6 +33,7 @@ use qtype_coderunner\v6\field_registry;
 use qtype_coderunner\v6\form_section;
 use qtype_coderunner\v6\override_set;
 use qtype_coderunner\v6\prototype_chain;
+use qtype_coderunner\v6\legacy_prototype_notice;
 use qtype_coderunner\v6\prototype_picker;
 use qtype_coderunner\v6\prototype_promotion;
 use qtype_coderunner\v6\settings_form;
@@ -91,6 +92,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
             $this->acelang = $this->question->options->acelang;
         }
         $this->make_error_div($mform);
+
+        if ($this->is_legacy_prototype_question()) {
+            // Nothing below has anything to say about such a question: it has
+            // no prototype to pick, no chain to inherit from, and its settings
+            // are in its own CodeRunner 5 columns rather than in an overrides
+            // document, so the registry-driven sections would show the
+            // registry's defaults and claim they were the question's.
+            legacy_prototype_notice::add_to_form($mform, $this->question, $this->picker_courseid());
+            parent::definition($mform);
+            $this->freeze_legacy_prototype_question($mform);
+            return;
+        }
+
         $this->make_prototype_panel($mform);
 
         // Ace on every code field. The settings sections get the plain editor;
@@ -295,6 +309,46 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
     /**
+     * Whether this form is editing a question that was a CodeRunner 5
+     * prototype.
+     *
+     * Such a question is a dead artifact. The migration left it in place and
+     * converted it into a prototype of its own, so nothing resolves to it any
+     * more; it is neither a question with a prototype nor a thing the
+     * CodeRunner 6 form can describe, and M8's clean-up script deletes it once
+     * an administrator is satisfied.
+     *
+     * @return bool true for a legacy prototype question.
+     */
+    protected function is_legacy_prototype_question(): bool {
+        return (int) ($this->question->options->prototypetype ?? 0) !== 0;
+    }
+
+    /**
+     * Render a legacy prototype question as something that can be read and not
+     * written.
+     *
+     * The design asks for a banner and says Moodle has no read-only questions,
+     * so the banner is the safeguard. It is the safeguard for the *question
+     * bank*, which goes on listing and offering the question whatever this
+     * form does; but the form itself can decline, and has to. With the
+     * settings sections gone — they have nothing true to show — a save would
+     * write their absence into the question's own columns and erase the very
+     * thing the migration was careful not to touch.
+     *
+     * So the controls are frozen, which is what makes the page read as a view
+     * rather than an invitation, and validation refuses as well, because a
+     * frozen control is simply not submitted rather than defended. Moving the
+     * question to another category is left working, as core leaves it on a
+     * question its author may not edit, and so is Cancel.
+     *
+     * @param MoodleQuickForm $mform the form being built.
+     */
+    protected function freeze_legacy_prototype_question($mform): void {
+        $mform->hardFreezeAllVisibleExcept(['categorymoveto', 'buttonar', 'currentgrp', 'updatebuttonar']);
+    }
+
+    /**
      * The course whose prototypes the picker offers.
      *
      * The question's own course, which is the course of the bank it is being
@@ -426,6 +480,11 @@ class qtype_coderunner_edit_form extends question_edit_form {
     // Defines the bit of the CodeRunner question edit form after the "General"
     // section and before the footer stuff.
     public function definition_inner($mform) {
+        if ($this->is_legacy_prototype_question()) {
+            // The banner is the whole of the page. See definition().
+            return;
+        }
+
         $this->add_sample_answer_field($mform);
         $this->add_preload_answer_field($mform);
 
@@ -1026,6 +1085,15 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+
+        if ($this->is_legacy_prototype_question()) {
+            // The form showed nothing that could be saved, so saving would
+            // write that nothing into the question's columns. See
+            // freeze_legacy_prototype_question().
+            $errors[legacy_prototype_notice::ELEMENT] =
+                get_string('legacyprototypenosave', 'qtype_coderunner');
+            return $errors;
+        }
 
         // The prototype first, and nothing else if it is wrong. Every check
         // below reaches the question's settings — the template parameters are

@@ -620,6 +620,16 @@ Building a question on another course\'s prototype ties the two together: the qu
 $string['prototyperequired'] = 'Choose the prototype this question is built on.';
 $string['prototypeshowcourse'] = 'Show that course\'s prototypes';
 
+// The legacy prototype-question banner.
+$string['legacyprototypeheader'] = 'A CodeRunner 5 question type definition';
+$string['legacyprototypemoved'] = '<p>This question used to define the <strong>{$a->name}</strong> question type. Question types are no longer questions: <strong>{$a->name}</strong> now lives in the <a href="{$a->url}">prototype manager</a>, which is where it is edited.</p>
+<p>Nothing uses this question any more, and nothing you do to it affects any other question or any question type. It is kept only so that the upgrade changed nothing, and an administrator can delete it once they are satisfied. Its settings are not shown here, and this page cannot save changes to them.</p>';
+$string['legacyprototypeelsewhere'] = '<p>This question used to define the <strong>{$a}</strong> question type. Question types are no longer questions: <strong>{$a}</strong> now lives in the prototype manager, and you do not have permission to edit it there. Ask an administrator if it needs changing.</p>
+<p>Nothing uses this question any more, and nothing you do to it affects any other question or any question type. Its settings are not shown here, and this page cannot save changes to them.</p>';
+$string['legacyprototypenoprototype'] = '<p>This question used to define the <strong>{$a}</strong> question type, but no prototype of that name can be found from this course. Either the conversion has not run here yet -- it runs on cron -- or the prototype has since been renamed or deleted.</p>
+<p>Nothing uses this question any more. Its settings are not shown here, and this page cannot save changes to them.</p>';
+$string['legacyprototypenosave'] = 'This question cannot be saved from this form. It used to define a question type, and question types are now edited in the prototype manager.';
+
 // Make prototype from this question.
 $string['promotebutton'] = 'Make prototype from this question...';
 $string['promotename'] = 'New prototype name';
