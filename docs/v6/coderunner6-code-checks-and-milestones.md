@@ -43,11 +43,12 @@ Two bugs were found and fixed in the writing rather than by a test:
 
 **Development site state at that date**, which is transient and recorded only so a fresh session knows what it is looking at:
 
-- Both plugins are committed. The question type's `Version6` branch carries M0 through M7's fourth increment; `public/local/coderunner_manager/` is a git repository of its own, so M2's output and everything since has a commit. Neither is pushed anywhere.
+- Both plugins are committed. The question type's `Version6` branch carries M0 through M7's fifth increment; `public/local/coderunner_manager/` is a git repository of its own, so M2's output and everything since has a commit. Neither is pushed anywhere.
+- **Adding a language string needs `php admin/cli/purge_caches.php`** before the new control renders as anything but `[[mystringname]]`. The CLI sits at the repository root, not under `public/`. It looks exactly like a missing-string bug in the code just written, and cost two false alarms in one session.
 - **Building the AMD modules needs Node 22**: `nvm use 22` (v22.11.0 is installed), because Moodle 5.2 requires `>=22.11 <23` and the system default is 24, which grunt refuses. Run `npx grunt amd` **from the plugin directory**, not the Moodle root, or it stops on an unrelated eslint error in `public/local/o365`.
 - `local_coderunner_manager` is installed and its tables are populated: 72 prototypes, 251 file records.
-- `question_coderunner_options` has `prototypeid` and `overrides` added and filled for all 12,751 rows. Additive only; no pre-existing column was written.
-- `qtype_coderunner` requires Moodle 5.0 and declares the manager as a dependency; `$plugin->release` is still `5.10.9` and wants deciding.
+- `question_coderunner_options` has `prototypeid` and `overrides` added and filled for every row. Additive only; no pre-existing column was written. No question is in the half-converted state a pre-6.0 restore used to leave (`prototypeid` set, `overrides` null), so nothing on the site needs the sweep; and no pre-6.0 backup has been restored here yet.
+- `qtype_coderunner` requires Moodle 5.0 and declares the manager as a dependency; `$plugin->version` is `2026110603` and `$plugin->release` is `6.0.0-dev`, set in M4a because `backup_release_compare()` orders backups by the release string.
 - `default_penalty_regime` is gone from the settings page; its config row is unset by the install task.
 - `tests/fixtures/test-sandbox-config.php` points `jobe_host` at `localhost:4000`; it previously named the unresolvable Docker host `jobe`, which is why the whole suite appeared to fail.
 - Use `~/.config/composer/vendor/bin/phpcs --standard=moodle` (3.13.6 with `moodlehq/moodle-cs`). The `moodle-local_codechecker` copy bundles PHP_CodeSniffer 3.5.8, which reports named arguments as goto labels and carried a high-severity CVE.
