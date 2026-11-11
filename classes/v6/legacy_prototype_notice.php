@@ -89,21 +89,56 @@ class legacy_prototype_notice {
         $prototype = self::prototype_for($name, $courseid);
 
         if ($prototype === null) {
-            $message = get_string('legacyprototypenoprototype', 'qtype_coderunner', s($name));
+            $first = get_string('legacyprototypenoprototype', 'qtype_coderunner', s($name));
         } else if (prototype_candidates::may_edit($prototype)) {
             // The id alone, as the library's own links carry it: `edit.php`
             // takes the prototype's course from the prototype, so a `courseid`
             // beside an `id` is read and then discarded.
             $url = new \moodle_url('/local/coderunner_manager/edit.php', ['id' => $prototype->id]);
-            $message = get_string('legacyprototypemoved', 'qtype_coderunner', [
+            $first = get_string('legacyprototypemoved', 'qtype_coderunner', [
                 'name' => s($name),
                 'url' => $url->out(false),
             ]);
         } else {
-            $message = get_string('legacyprototypeelsewhere', 'qtype_coderunner', s($name));
+            $first = get_string('legacyprototypeelsewhere', 'qtype_coderunner', s($name));
         }
 
-        return \html_writer::div($message, 'alert alert-warning', ['role' => 'alert']);
+        // The second paragraph points at the library rather than at this one
+        // prototype, and at the management page as the way back to it, because
+        // this question is the one thing on that route that will not last.
+        $second = get_string('legacyprototypekept', 'qtype_coderunner', [
+            'libraryurl' => self::library_url($courseid)->out(false),
+            'managementurl' => self::management_url($courseid)->out(false),
+        ]);
+
+        return \html_writer::div($first . $second, 'alert alert-warning', ['role' => 'alert']);
+    }
+
+    /**
+     * The prototype library, in the author's own course.
+     *
+     * @param int $courseid the course the author is working in.
+     * @return \moodle_url the library view.
+     */
+    protected static function library_url(int $courseid): \moodle_url {
+        return new \moodle_url(
+            '/local/coderunner_manager/index.php',
+            ['courseid' => $courseid ?: (int) SITEID]
+        );
+    }
+
+    /**
+     * The CodeRunner management page, which is where the library is reached
+     * from and the route that outlives this question.
+     *
+     * @param int $courseid the course the author is working in.
+     * @return \moodle_url the management page.
+     */
+    protected static function management_url(int $courseid): \moodle_url {
+        return new \moodle_url(
+            '/question/type/coderunner/management.php',
+            ['courseid' => $courseid ?: (int) SITEID]
+        );
     }
 
     /**

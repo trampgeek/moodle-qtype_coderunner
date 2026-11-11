@@ -1084,16 +1084,22 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
     public function validation($data, $files) {
-        $errors = parent::validation($data, $files);
-
         if ($this->is_legacy_prototype_question()) {
             // The form showed nothing that could be saved, so saving would
             // write that nothing into the question's columns. See
             // freeze_legacy_prototype_question().
-            $errors[legacy_prototype_notice::ELEMENT] =
-                get_string('legacyprototypenosave', 'qtype_coderunner');
-            return $errors;
+            //
+            // Refused before the parent is consulted, because the form is
+            // frozen and a frozen control is not submitted: core's own checks
+            // read fields that are therefore absent, and the first of them
+            // hands a null category to strpos(). Nothing it would check
+            // matters on a form that cannot save.
+            return [
+                legacy_prototype_notice::ELEMENT => get_string('legacyprototypenosave', 'qtype_coderunner'),
+            ];
         }
+
+        $errors = parent::validation($data, $files);
 
         // The prototype first, and nothing else if it is wrong. Every check
         // below reaches the question's settings — the template parameters are

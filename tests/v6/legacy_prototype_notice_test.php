@@ -88,6 +88,38 @@ final class legacy_prototype_notice_test extends \advanced_testcase {
     }
 
     /**
+     * The second paragraph points at the library and at the management page,
+     * not at this one prototype.
+     *
+     * Deliberately a different destination from the first paragraph's: this
+     * question is the one thing on the route that will not last, so the way
+     * back has to be one that outlives it. Shown whether or not the prototype
+     * itself can be found or opened.
+     */
+    public function test_the_route_that_outlives_the_question_is_given(): void {
+        $this->repo->create(
+            'cosc131_legacy',
+            (int) $this->course->id,
+            new override_set(['template' => '{{ STUDENT_ANSWER }}'], 'cosc131_legacy')
+        );
+
+        foreach (['cosc131_legacy', 'never_converted'] as $name) {
+            $body = legacy_prototype_notice::body($name, (int) $this->course->id);
+
+            $this->assertStringContainsString(
+                '/local/coderunner_manager/index.php?courseid=' . $this->course->id,
+                $body,
+                "No library link for {$name}."
+            );
+            $this->assertStringContainsString(
+                '/question/type/coderunner/management.php?courseid=' . $this->course->id,
+                $body,
+                "No management page link for {$name}."
+            );
+        }
+    }
+
+    /**
      * A prototype the author may not edit is named without a link, because an
      * author who cannot follow it is better told where to ask than shown a page
      * that refuses them.
@@ -171,6 +203,37 @@ final class legacy_prototype_notice_test extends \advanced_testcase {
         ], []);
 
         $this->assertArrayHasKey(legacy_prototype_notice::ELEMENT, $errors);
+    }
+
+    /**
+     * And the refusal reaches a real submission, with *Validate on save* off.
+     *
+     * Worth asserting through the whole form rather than by calling
+     * validation() directly, because the two are easily confused: CodeRunner's
+     * *Validate on save* decides whether the sample answer is run, and most
+     * prototype questions have it off, but formslib calls `validation()` on
+     * every submission whatever it says — `validate_defined_fields()` does it
+     * unconditionally, and a non-empty return makes `get_data()` give back
+     * nothing for the question bank to save.
+     */
+    public function test_a_real_submission_cannot_save_either(): void {
+        $submitted = [
+            'name' => 'PROTOTYPE_cosc131_legacy',
+            'category' => "{$this->category->id},{$this->category->contextid}",
+            'validateonsave' => 0,
+        ];
+        \qtype_coderunner_edit_form::mock_submit($submitted);
+
+        $form = $this->form();
+
+        $this->assertFalse($form->is_validated(), 'The submission validated.');
+        $this->assertNull($form->get_data(), 'The question bank would have been given data to save.');
+
+        $mform = $this->quickform($form);
+        $this->assertNotEmpty(
+            $mform->getElementError(legacy_prototype_notice::ELEMENT),
+            'The refusal was not attached to anything the author will see.'
+        );
     }
 
     /**
