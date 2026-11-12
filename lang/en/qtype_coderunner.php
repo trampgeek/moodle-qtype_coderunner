@@ -33,7 +33,6 @@ $string['aceui_font_size_descr'] = 'Ace editor font size.';
 $string['aceui_import_from_scratchpad_descr'] = 'True to allow the Ace editor to receive the JSON-format answer used by the scratchpad UI and extract the answer code from it. Facilitates switching UIs. Leave true unless you want Ace to edit JSON objects with an "answer_code" key.';
 $string['aceui_theme_descr'] = 'Ace editor theme. Default is the light theme "textmate". An alternative dark theme is "tomorrow_night". Light theme be overridden by user preferences - see auto_switch_dark.';
 $string['addingcoderunner'] = 'Adding a new CodeRunner Question';
-$string['ajax_error'] = '*** AJAX ERROR. DON\'T SAVE THIS! ***';
 $string['allok'] = 'Passed all tests! ';
 $string['allornone'] = 'Test code must be provided either for all testcases or for none.';
 $string['allornothing'] = 'All-or-nothing grading';
@@ -118,7 +117,6 @@ $string['coderunner:sandboxwsaccess'] = 'Allow access to the Jobe sandbox via we
 $string['coderunner:viewhiddentestcases'] = 'See hidden testcases when reviewing questions';
 $string['coderunner_help'] = 'In response to a question, which is a specification for a program fragment, function or whole program, the respondent enters source code in a specified computer language that satisfies the specification.';
 $string['coderunner_link'] = 'question/type/coderunner';
-$string['coderunner_question_type'] = 'CodeRunner question type: ';
 $string['coderunnersettings'] = 'CodeRunner settings';
 $string['coderunnersummary'] = 'Answer is program code that is executed in the context of a set of test cases to determine its correctness.';
 $string['coderunnertype'] = 'Question type';
@@ -127,7 +125,6 @@ $string['coderunnerwssettings'] = 'Sandbox web-service settings';
 $string['columncontrols'] = 'Result table';
 $string['columncontrols_help'] = 'The checkboxes select which columns of the results table should be displayed to the student after submission';
 
-$string['confirm_proceed'] = 'If you save this question with \'Customise\' unchecked, any customisations made will be lost. Proceed?';
 $string['confirmreset'] = 'Discard all your work on this question and reset answer box to original preloaded value?';
 $string['corruptuiparams'] = 'The UI parameters for this question or its prototype are broken. Proceed with caution.';
 $string['cputime'] = 'TimeLimit (secs)';
@@ -357,7 +354,6 @@ $string['ideone_user'] = 'Ideone server user';
 $string['ideone_user_desc'] = 'The login name to use when connecting to the deprecated Ideone server (if the ideone sandbox is enabled)';
 $string['ideone_pass'] = 'Ideone server password';
 $string['ideone_pass_desc'] = 'The password to use when connecting to the deprecated Ideone server (if the ideone sandbox is enabled)';
-$string['info_unavailable'] = 'Question type information is not available for customised questions.';
 $string['illegalformat'] = 'Illegal format ({$a->format}) in columnformats';
 $string['inputcolhdr'] = 'Input';
 $string['insufficientattachments'] = 'Not enough attachments, {$a} required.';
@@ -410,7 +406,6 @@ $string['languageselectlabel'] = 'Language';
 $string['legacyuiparams'] = 'UI parameters can no longer be defined within the template parameters field. Please move the following to the UI parameters field instead: ';
 $string['legacyuiparams2'] = 'UI parameters can no longer be defined within the template parameters field. Please move the following to the UI parameters field instead, removing the \'{$a->uiname}_\' prefix: ';
 $string['listprototypeduplicates'] = 'Question ID: {$a->id} <ul><li>Name: {$a->name}</li><li>Category: {$a->category}</li></ul>';
-$string['loadprototypeerror'] = 'Reverted to question type: \'{$a->oldtype}\' <br>Could not load question type \'{$a->crtype}\' as the prototype is non-unique in the following questions:</p>{$a->outputstring}';
 $string['mark'] = 'Mark';
 $string['marking'] = 'Mark allocation';
 $string['markinggroup'] = 'Marking';
@@ -559,7 +554,6 @@ Twig parameter {{ IS_PRECHECK }}, which is "1" during precheck runs and
 $string['precheck_only'] = 'Precheck only';
 $string['precheckingemptyset'] = 'Prechecking examples, but there aren\'t any!';
 $string['privacy:metadata'] = 'The CodeRunner question type plugin does not store any personal data.';
-$string['proceed_at_own_risk'] = 'Editing a built-in question prototype?! Proceed at your own risk!';
 $string['prototypecontrols'] = 'Prototyping';
 $string['prototypeexists'] = 'This is a prototype; cannot change question type.';
 $string['prototypeextra'] = 'Prototype extra';
@@ -707,7 +701,6 @@ orphan when imported into another system. Also, you are responsible for keeping
 track of which questions you are using as prototypes; it is strongly recommended
 that you rename the question to something like \'PROTOTYPE_for_my_new_question_type\'
 to make subsequentmaintenance easier.';
-$string['prototype_error'] = '*** PROTOTYPE LOAD FAILURE. DON\'T SAVE THIS! ***';
 $string['prototype_load_failure'] = 'Error loading prototype: ';
 $string['prototype_missing_alert'] = 'Missing prototype: Check if {$a} prototype exists in this context.';
 $string['prototype_duplicate_alert'] = 'Duplicate prototype: Duplicate {$a} prototypes exist. Can only load one.';
@@ -1173,7 +1166,6 @@ for each Jobe sandbox run will be displayed in the output.';
 $string['questionloaderror'] = 'Failed to load question';
 $string['questionpreview'] = 'Question preview';
 $string['questiontype'] = 'Question type';
-$string['question_type_changed'] = 'Changing question type. Click OK to reload customisation fields, Cancel to retain your customised ones.';
 $string['questiontype_help'] = 'Select the particular type of question.
 
 The combo-box selects one of the built-in types, each of which
