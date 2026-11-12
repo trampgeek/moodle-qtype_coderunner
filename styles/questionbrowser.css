@@ -20,10 +20,6 @@
 }
 
 /* Minimal custom styles to work with Moodle theme */
-.qbrowser-filters .form-group {
-    margin-bottom: 1rem;
-}
-
 .qbrowser-grid2 {
     display: grid;
     grid-template-columns: 1fr 1fr;

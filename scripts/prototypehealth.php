@@ -250,7 +250,7 @@ if ($courseid) {
                 $allversions ? 'prototypehealth_showlatestonly' : 'prototypehealth_showolder',
                 'qtype_coderunner'
             ),
-            ['class' => 'btn btn-secondary btn-sm ml-2']
+            ['class' => 'btn btn-secondary btn-sm ms-2']
         )
     );
     display_course_report($courseid, $course->fullname, $versions);

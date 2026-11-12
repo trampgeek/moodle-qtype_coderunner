@@ -439,7 +439,7 @@ if ($contextid > 0) {
 
             echo html_writer::tag('button', 'Proceed with Deletion', [
                 'type' => 'submit',
-                'class' => 'btn btn-danger mr-2',
+                'class' => 'btn btn-danger me-2',
             ]);
             echo html_writer::end_tag('form');
         } else {
@@ -451,7 +451,7 @@ if ($contextid > 0) {
 
             echo html_writer::tag('p', "You are about to delete $totaltodelete old question versions.");
             echo html_writer::tag('p', 'Are you sure you want to continue?');
-            echo html_writer::link($confirmurl, 'Yes, Delete Old Versions', ['class' => 'btn btn-danger mr-2']);
+            echo html_writer::link($confirmurl, 'Yes, Delete Old Versions', ['class' => 'btn btn-danger me-2']);
         }
 
         $backurl = new moodle_url('/question/type/coderunner/scripts/deleteoldquestionversions.php');
@@ -623,7 +623,7 @@ if ($contextid > 0) {
 
     echo <<<HTML
 <style>
-.mr-2 {
+.me-2 {
     margin-right: 0.5rem;
 }
 .mb-3 {

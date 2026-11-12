@@ -228,7 +228,7 @@ function render_browser($contextid) {
             <h5 class="mb-0"><?php echo get_string('qb_filters', 'qtype_coderunner'); ?></h5>
         </div>
         <div class="card-body qbrowser-filters">
-            <div class="form-group">
+            <div class="mb-3">
                 <h6><?php echo get_string('qb_data', 'qtype_coderunner'); ?></h6>
                 <div id="loadStatus" class="text-muted small">
                     <?php echo get_string('qb_loaded_questions', 'qtype_coderunner', count($questions)); ?>
@@ -237,7 +237,7 @@ function render_browser($contextid) {
 
             <hr>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <h6><?php echo get_string('qb_text_filter', 'qtype_coderunner'); ?></h6>
                 <div class="row">
                     <div class="col-md-6">
@@ -278,14 +278,14 @@ function render_browser($contextid) {
 
             <hr>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <h6><?php echo get_string('qb_lines_of_code', 'qtype_coderunner'); ?></h6>
                 <div id="numericFilters"></div>
             </div>
 
             <hr>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <h6><?php echo get_string('qb_coderunner_type', 'qtype_coderunner'); ?></h6>
                 <div id="categoricalFilters"></div>
             </div>
@@ -330,11 +330,11 @@ function render_browser($contextid) {
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <h5 class="mb-0"><?php echo get_string('qb_results', 'qtype_coderunner'); ?></h5>
-                    <span class="text-muted small ml-3" id="count"
+                    <span class="text-muted small ms-3" id="count"
                         ><?php echo get_string('qb_loading', 'qtype_coderunner'); ?></span>
                 </div>
                 <div class="d-flex">
-                    <button id="exportJson" class="btn btn-success btn-sm mr-2" disabled
+                    <button id="exportJson" class="btn btn-success btn-sm me-2" disabled
                         ><?php echo get_string('qb_export_json', 'qtype_coderunner'); ?></button>
                     <button id="exportCsv" class="btn btn-success btn-sm" disabled
                         ><?php echo get_string('qb_export_csv', 'qtype_coderunner'); ?></button>
@@ -345,7 +345,7 @@ function render_browser($contextid) {
             <div id="list" class="qbrowser-list">
                 <div class="text-center p-4">
                     <div class="spinner-border text-secondary" role="status">
-                        <span class="sr-only"><?php echo get_string('qb_loading', 'qtype_coderunner'); ?></span>
+                        <span class="visually-hidden"><?php echo get_string('qb_loading', 'qtype_coderunner'); ?></span>
                     </div>
                     <p class="mt-2 text-muted"><?php echo get_string('qb_loading_questions', 'qtype_coderunner'); ?></p>
                 </div>
