@@ -8,19 +8,29 @@ A companion to `coderunner6-design.md` and `coderunner6-implementation-notes.md`
 2. Lists corrections to the design doc and the notes that came out of that reading.
 3. Proposes a milestone sequence for 6.0, says where each piece should live, and records the decisions taken so far (section 6).
 
-## Status, 11 November 2026
+## Status, 12 November 2026
 
-Built and verified on the development site. Everything below is **committed**: the question type on its `Version6` branch, and `public/local/coderunner_manager/`, which is now a git repository of its own rather than untracked.
+Built and verified on the development site. Everything below is **committed and pushed**: the question type on its `Version6` branch of `github.com/trampgeek/moodle-qtype_coderunner`, and the manager as its own public repository, `github.com/trampgeek/moodle-local_coderunner_manager`. Pushed on 12 November so that a test server has a source to pull from; before that neither was pushed anywhere.
 
 **Where the work stands.** M0 to M4a and M6 are complete. M7 is complete through its fourth increment — the control inventory, the save path, the picker and the form itself — and has had seven rounds of review by its author, each recorded under that milestone. The prototype editor has now been used by an author too, and the four faults that came out of that are recorded under M6 and in M7's fourth round, since one of them was in the shared component and showed on both forms. What remains of M7 is M7's share of the removal inventory and increment 6 (Behat). Increment 5 is otherwise done: ***Make prototype from this question*** and the **legacy prototype-question banner** are both built. Then M5, M8 and M9.
+
+**Increment 2's deferred exit criterion is met**, on 12 November. A question was saved through the new form on `python3` — a prototype CodeRunner 5 also knows, through `BUILT_IN_PROTOTYPE_python3` — edited, and run. All 35 legacy columns the save path wrote match what the chain resolves to.
+
+**The site-wide verifier run cannot settle that criterion on this database, and should not be asked to.** It reported 2857 of 6144 questions changed, and every large group traces to a prototype edited in the manager since the migration: 2444 on `sandbox` to `python3_scratchpad` v6, *Changed sandbox from explicit jobesandbox to DEFAULT*; 406 on `cputimelimitsecs,memlimitmb` to `python3` v3; 2 on `template` to `c_function` v3. That is the chain working, measured by a tool written for a freshly migrated database — the same trap recorded under M7's fourth round. The per-question check above is the interpretable form of the same question, and is what closed it.
+
+**Increment 6 (Behat) is on hold**, by the author's decision on 12 November, and is the last thing in M7. A large proportion of the existing feature files are expected to fail against the new author form, so it is a milestone-sized job rather than a tail.
 
 **The outstanding verifier item is narrower than it reads, and the whole-site run has already been done.** M3's exit criterion was verification reporting zero differences across every question on the development site, and it was met on 5 November on freshly migrated data. What M7 left outstanding is the half of increment 2's criterion that needed a form: does a question saved through the **new form's save path** resolve identically? That is one question, not twelve thousand, and it is still outstanding — see M7.
 
 **Two pieces of M5 have been pulled forward**, because the risk did not keep in either case and both are triggered by restoring an old course. A pre-6.0 question is now **converted as it is restored** rather than left for the migration task: the half-converted state it was left in does not read as *unconverted* but as *overrides nothing*, so the question kept its prototype's penalty regime, answer box size and the rest instead of its own, silently. And `/options/overrides` is excluded from the identity hash. Left in, it stopped a pre-6.0 backup matching anything on a 6.0 site, which duplicates every question restored — the mechanism that grew one site's bank to 560,000 questions. See M5, and decision 17, which it supersedes in part.
 
+**And the restore met a third fault, which was not in the restore.** On 12 November a large pre-6.0 course backup was restored and all 285 of its questions arrived with a null prototype id, presenting in the form as the alphabetically first prototype of their course, so the course read as though every question had changed type. The restore had done its part: `coderunnertype` was intact and the sweep had been queued. The sweep was dying. `qtype_coderunner` lives in the question type's `questiontype.php` rather than its `classes/` directory, so Moodle's class loader cannot find it and it exists only in a process where something required that file — a web request has by the time it reaches a question, and the restore requires it explicitly, but **cron does not**. So the install task threw *Class qtype_coderunner not found* on its first question, seven consecutive runs, backing off each time.
+
+**No test could have caught it, and that shaped the fix.** Every test file touching the class requires `questiontype.php` at the top for its own sake, so by the time any test runs the class is loaded and the dependency is invisible. The guard is therefore structural: `plugin_structure_test` tokenises both plugins' production source and asserts that every file *using* the class also loads it. Tokenised rather than searched, because the docblocks discuss the class in the same `Class::method()` form a call takes and `namespace qtype_coderunner;` heads most of the question type's files. It found the same latent trap in two more places — `qtype_coderunner\v6\migration_verifier` and `qtype_coderunner\prototype_health` — each of which would have thrown in any process that had not already loaded the file.
+
 The detail of what each milestone built follows.
 
-- **M0** prototype health report — 6 checks, 9 tests.
+- **M0** prototype health report — 6 checks, 16 tests. **Mode-aware since 12 November**: see *The health report had to learn which site it is on*, below.
 - **M1** field registry and resolver — 37 tests.
 - **M2** prototype storage, Site defaults, built-in installation, user-prototype snapshot, support files, read-only list page — 72 prototypes and 251 file records snapshotted from the live site.
 - **M3** question schema and migration — 12,346 questions converted in 3.3 seconds, and **all 12,346 verified to resolve exactly as CodeRunner 5 resolves them**. 405 question versions left broken for want of a resolvable prototype, which matches the health report's own count.
@@ -54,7 +64,7 @@ Two bugs were found and fixed in the writing rather than by a test:
 - Use `~/.config/composer/vendor/bin/phpcs --standard=moodle` (3.13.6 with `moodlehq/moodle-cs`). The `moodle-local_codechecker` copy bundles PHP_CodeSniffer 3.5.8, which reports named arguments as goto labels and carried a high-severity CVE.
 - Thirty-odd lint errors across the new code are all `enum` and `readonly class` blind spots in moodle-cs that Moodle core also trips; none is actionable.
 
-Suites, at the end of M7's fifth increment: **348 tests / 2104 assertions** in `qtype_coderunner_testsuite` (19 skipped, all sandbox-dependent), **123 / 539** in `local_coderunner_manager_testsuite`. After M4’s second increment they were 221 / 1395 and 59 / 337, which were the pre-M4 208 / 1370 and 58 / 333 plus exactly the new tests.
+Suites, at 12 November: **361 tests / 2153 assertions** in `qtype_coderunner_testsuite` (19 skipped, all sandbox-dependent), **124 / 541** in `local_coderunner_manager_testsuite`. At the end of M7's fifth increment they were 348 / 2104 and 123 / 539; the difference is exactly the thirteen tests added on 12 November — six for the version deleter, seven for the health report's modes — and the manager's structural check on class loading. After M4’s second increment they were 221 / 1395 and 59 / 337, which were the pre-M4 208 / 1370 and 58 / 333 plus exactly the new tests.
 
 One new lint error, in `question.php`: the class comment was `/*` and is now `/**`, which it has to be for the `@property-read` block to mean anything to an IDE, and moodle-cs reports any docblock after a `require_once` as an inline one. Every test file in the plugin already trips the same sniff.
 
@@ -235,6 +245,16 @@ The design doc's phase 1, and the only thing that ships in the 5.x line. Finds m
 Keeping M0 separate from M1 matters: a comparison script in the 5.x line would be a frozen snapshot of a registry that is still changing in 6.0, and a clean run against a stale registry is worse than no run at all, because it reassures falsely.
 
 **Exit:** run on our production sites; every anomaly it reports is one we can explain.
+
+**The health report had to learn which site it is on** (12 November). It searched for prototype *questions* and matched them by name, which is all a CodeRunner 5 site has. On a migrated site that is the wrong question to ask: a prototype created in the manager has no prototype question of its name, and one with a *parent* can never have one, since a CodeRunner 5 prototype cannot express a parent. So every question built on such a prototype was reported broken while resolving correctly and running fine — two were, on the development site, against a child of `python3_scratchpad`.
+
+`prototype_health::mode()` now decides which rules apply, **from the manager's own tables rather than from a version number**. The two agree on a settled site, but disagree in the window that matters: between an upgrade finishing and the install task running on cron, the manager is installed and its tables are empty, and a version check would call that site migrated and every question in it broken. `qtype_coderunner_util::default_penalty_regime()` already reads the same two conditions for the same reason.
+
+In manager mode the prototype id decides, as `get_question_options()` says it must, and the unresolved questions are **split by what fixes them**: a question never converted is waiting on the install task, which settles the whole site in one run, while a converted question with nothing to point at needs its course's prototype restored, one question at a time. Reported together, they hand an administrator hundreds of rows to chase when the answer is that cron has not caught up. Legacy mode is unchanged, and the prototype-question checks — duplicate, shadowed and ambiguous names, stranded global extra — run in **both** modes, since they describe what the snapshot cannot take.
+
+**Keeping legacy mode is no longer about the 5.x line.** The author decided on 12 November not to backport, so the mode's remaining job is only that upgrade-to-cron window. Still a real state — it is the one the development site was in on 11 November — but the justification has changed and the removal inventory below is restated accordingly.
+
+**The report also named the wrong thing.** It showed a category name under a heading of *Question bank*, so a reader went looking for a bank called *LM5 - Iteration over lists* and found none: the bank was `QB1` and that was the category inside it. Bank and category are separate columns now, the bank taken from the category's context, which is also the unit prototype visibility works in.
 
 ### M1. Field registry and resolver
 
@@ -846,11 +866,19 @@ The `before_course_deleted` handler; the cleanup script for legacy prototype que
 
 **The removal inventory.** The CodeRunner 5 prototype machinery comes out in pieces, as each piece's last caller goes, which risks a remnant surviving because no single milestone owns it. So it is listed here, and M8 is not done while anything on the list is still present.
 
+**Done, 12 November: the dead author-form JavaScript.** `amd/src/authorform.js` and its built copies, and `ajax.php`, which was reached from nothing else. 850 lines, and with them eight language strings that belonged to machinery design section 7 removes: the *Customise* confirmations, the question-type menu's AJAX reload, and the prototype load failures. **Seven strings were deliberately kept** — `uiparamname`, `uiparamdesc`, `uiparamdefault`, `showdetails`, `hidedetails`, `nouiparameters`, `unknownuiplugin` — because they are the column spec for the UI-parameter description table, which the new form does not render and which belongs with the rest of the JavaScript work in increment 6. They are orphaned until then. `badquestionload` needed nothing: the new form never adds it, and the control inventory already records it as removed.
+
+**What is left of M7's share needs decisions, not deletions**, which is why it was separated. `get_prototype()` still has three callers after `ajax.php`: the prototype-name uniqueness check in `clean_question_form()`, still reachable through import and question duplication, so something must decide whether anything replaces it; `export_to_xml()`, which is **M5's**; and the no-chain fallback in `question.php`. `$options->customise` is set in `resolve_inherited_fields()`, read in `clean_question_form()` and declared on the question object, so it unpicks rather than deletes. And `clean_question_form()` itself is still called from `save_question()` and from form validation, so its CodeRunner 5 field-nulling cannot go with the form.
+
+**A correction to this milestone's own claim.** It says the no-chain fallbacks in `question.php` "are now unreachable" because the form resolves through `resolve_settings_in_place()`. Too strong: that does set `chainlayers`, but `resolve_inherited_fields()` returns early with `chainlayers` left null when `prototypeid` is empty, which is every legacy prototype question and every broken question. The comment at `question.php`'s `evaluate_question_for_display()` is correspondingly half-stale. The fallbacks still go, but something has to answer for those two cases first.
+
+**`update_question_types()` is cheaper to remove than it looks.** Its only call is a single unguarded line at the end of `xmldb_qtype_coderunner_upgrade()`, outside every savepoint block, so it runs on every upgrade and there is no historical step to preserve. Removing it takes `db/upgradelib.php` (473 lines), the `qtype_coderunner_setup_question_prototypes` task, and `db/builtin_PROTOTYPES.xml` (1,575) with it — about 2,100 lines, and it leaves the manager's own installer as the only source of built-ins, which M2 already made it. It is the largest behavioural change on the list and wants an install-and-upgrade check, which is why it was not bundled with the deletions above.
+
 | To remove | Last caller goes in |
 | --- | --- |
 | `qtype_coderunner::get_prototype()` | the form and `ajax.php` in M7, `export_to_xml()` in M5, the verifier in phase 4 |
 | `qtype_coderunner::get_all_prototypes()` | the form's type menu in M7, `scripts/prototypeusage.php` in M6 |
-| `qtype_coderunner::prototype_contexts()` | with `get_prototype()`, except the health report, which is 5.x code |
+| `qtype_coderunner::prototype_contexts()` | **not** with `get_prototype()`: the health report's prototype-question checks run in both modes and need it, so its last caller is M8's cleanup script. The earlier reason — "the health report, which is 5.x code" — lapsed when the author decided against backporting on 12 November |
 | `qtype_coderunner::set_inherited_fields()` | already off the run-time path; the form in M7, the verifier in phase 4 |
 | `qtype_coderunner_question::get_prototype()` and `$this->prototype` | the no-chain fallbacks in `question.php`, with the form in M7 |
 | `$options->customise` | computed only for the CodeRunner 5 form's panel; M7 |
