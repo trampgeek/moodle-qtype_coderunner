@@ -570,7 +570,6 @@ $string['fieldchangedlegend'] = 'Marks a setting changed here. The rest are set 
 $string['mergeswith'] = 'Merges with: {$a}';
 $string['mergeswithlayers'] = 'Merges with the values set by {$a}';
 $string['mergeswithparent'] = '(merges with parent)';
-$string['mergesnothing'] = 'Nothing above this sets any';
 
 // The box that says a field takes its value from the prototype chain, and the
 // note beside it saying what that value is. "Parent" rather than "Inherited",

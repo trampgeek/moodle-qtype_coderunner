@@ -976,7 +976,7 @@ final class settings_form_test extends \advanced_testcase {
         // And nothing above contributing anything is said plainly.
         $none = (new prototype_chain([]))->resolve();
         $this->assertStringContainsString(
-            get_string('mergesnothing', 'qtype_coderunner'),
+            get_string('parentnotset', 'qtype_coderunner'),
             $this->merge_note($none, form_section::UI, 'uiparameters')
         );
     }

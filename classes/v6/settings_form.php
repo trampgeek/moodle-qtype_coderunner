@@ -521,7 +521,11 @@ class settings_form {
         }
 
         if (!$contributions) {
-            $text = get_string('mergesnothing', 'qtype_coderunner');
+            // The same words a replacing field uses when nothing above it sets
+            // a value. The note used to read "Nothing above this sets any",
+            // which only completes itself if the reader supplies the field's
+            // name, and alone it is a dangling fragment.
+            $text = get_string('parentnotset', 'qtype_coderunner');
         } else {
             $merged = [];
             $names = [];
