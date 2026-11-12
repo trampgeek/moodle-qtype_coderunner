@@ -24,6 +24,8 @@
 
 namespace qtype_coderunner;
 
+use qtype_coderunner\v6\override_set;
+
 /**
  * Tests that the health report finds each kind of prototype problem.
  *
@@ -250,6 +252,179 @@ final class prototype_health_test extends \qtype_coderunner_testcase {
         $form->prototypetype = 0;
         $form->coderunnertype = $coderunnertype;
         return $this->save_in_course($form);
+    }
+
+    /**
+     * Without the manager's tables populated, the CodeRunner 5 rules apply.
+     *
+     * This is a CodeRunner 5 site, and also a CodeRunner 6 site between the
+     * upgrade finishing and the install task running on cron. Every other test
+     * in this class relies on it, since none of them populates the manager.
+     */
+    public function test_an_unpopulated_manager_means_legacy_mode(): void {
+        $this->assertSame(prototype_health::MODE_LEGACY, prototype_health::mode());
+        $this->assertSame(
+            prototype_health::MODE_LEGACY,
+            prototype_health::analyse($this->courseid)->mode
+        );
+    }
+
+    /**
+     * Once Site defaults exists, the prototype reference decides.
+     */
+    public function test_a_populated_manager_means_manager_mode(): void {
+        $this->install_site_defaults();
+
+        $this->assertSame(prototype_health::MODE_MANAGER, prototype_health::mode());
+        $this->assertSame(
+            prototype_health::MODE_MANAGER,
+            prototype_health::analyse($this->courseid)->mode
+        );
+    }
+
+    /**
+     * A question resolving through the manager is clean with no prototype
+     * question of its name anywhere.
+     *
+     * This is the case that made the report wrong: a prototype created in the
+     * manager, or one given a parent, has no prototype question behind it and
+     * can never have one, because a CodeRunner 5 prototype cannot express a
+     * parent. Judged by name every question built on it is broken; judged by
+     * reference, which is what decides at run time, they are all fine.
+     */
+    public function test_a_manager_only_prototype_leaves_its_questions_clean(): void {
+        global $DB;
+
+        $this->install_site_defaults();
+        $repo = new \local_coderunner_manager\prototype_repository();
+        $parent = $repo->create('manager_parent', $this->courseid, new override_set());
+        $child = $repo->create('manager_child', $this->courseid, new override_set(), $parent->id);
+
+        $question = $this->make_plain_question('manager_child', 'built on a chained prototype');
+
+        // No prototype question of that name exists, which is the whole point.
+        $this->assertFalse($DB->record_exists_select(
+            'question_coderunner_options',
+            'coderunnertype = ? AND prototypetype <> 0',
+            ['manager_child']
+        ));
+        // The save resolved it by name, as the legacy form still does.
+        $this->assertEquals(
+            $child->id,
+            $DB->get_field('question_coderunner_options', 'prototypeid', ['questionid' => $question->id])
+        );
+
+        $result = prototype_health::analyse($this->courseid);
+
+        $this->assertSame([], $result->missing, 'A question that resolves is not broken.');
+        $this->assertSame([], $result->unconverted);
+        $this->assertFalse(prototype_health::has_problems($result));
+    }
+
+    /**
+     * A converted question with nothing to point at is still reported.
+     */
+    public function test_a_converted_question_with_no_prototype_is_missing(): void {
+        global $DB;
+
+        $this->install_site_defaults();
+        $question = $this->make_plain_question('no_such_prototype');
+
+        // Saved against a name the manager does not have, so the reference is
+        // null while the overrides document was written.
+        $row = $DB->get_record('question_coderunner_options', ['questionid' => $question->id]);
+        $this->assertNull($row->prototypeid);
+        $this->assertNotEmpty($row->overrides);
+
+        $result = prototype_health::analyse($this->courseid);
+
+        $this->assertCount(1, $result->missing);
+        $this->assertSame('no_such_prototype', reset($result->missing)->coderunnertype);
+        $this->assertSame([], $result->unconverted);
+        $this->assertTrue(prototype_health::has_problems($result));
+    }
+
+    /**
+     * A question the migration has not reached is reported apart from a broken
+     * one, because a single task run fixes every one of them.
+     */
+    public function test_an_unconverted_question_is_reported_separately(): void {
+        global $DB;
+
+        $this->install_site_defaults();
+        $repo = new \local_coderunner_manager\prototype_repository();
+        $repo->create('waiting_type', $this->courseid, new override_set());
+        $question = $this->make_plain_question('waiting_type');
+
+        // Put the row back into the state the migration has yet to touch: the
+        // CodeRunner 5 columns alone, with neither new column set.
+        $DB->set_field(
+            'question_coderunner_options',
+            'prototypeid',
+            null,
+            ['questionid' => $question->id]
+        );
+        $DB->set_field(
+            'question_coderunner_options',
+            'overrides',
+            null,
+            ['questionid' => $question->id]
+        );
+
+        $result = prototype_health::analyse($this->courseid);
+
+        $this->assertSame([], $result->missing, 'Not broken by the author: waiting on the task.');
+        $this->assertCount(1, $result->unconverted);
+        $this->assertSame('waiting_type', reset($result->unconverted)->coderunnertype);
+        $this->assertTrue(prototype_health::has_problems($result));
+    }
+
+    /**
+     * An empty overrides column counts as unconverted, not as a document.
+     *
+     * Moodle's backup writes a null column as an empty element and the restore
+     * carries it through as '', so a restored question can arrive with '' where
+     * it means null. The same trap is allowed for in the restore and the
+     * migrator, and the SQL here tests emptiness rather than nullness for it.
+     */
+    public function test_an_empty_overrides_column_counts_as_unconverted(): void {
+        global $DB;
+
+        $this->install_site_defaults();
+        $question = $this->make_plain_question('waiting_type');
+        $DB->set_field('question_coderunner_options', 'prototypeid', null, ['questionid' => $question->id]);
+        $DB->set_field('question_coderunner_options', 'overrides', '', ['questionid' => $question->id]);
+
+        $result = prototype_health::analyse($this->courseid);
+
+        $this->assertSame([], $result->missing);
+        $this->assertCount(1, $result->unconverted);
+    }
+
+    /**
+     * Every row carries the bank its category belongs to, beside the category.
+     *
+     * A category name alone sent a reader looking for a question bank of that
+     * name and finding none.
+     */
+    public function test_rows_name_their_question_bank_and_category(): void {
+        $this->make_plain_question('no_such_prototype');
+
+        $result = prototype_health::analyse($this->courseid);
+
+        $row = reset($result->missing);
+        $bankname = \context::instance_by_id($this->bankcontextid)->get_context_name(false, true);
+        $this->assertSame($bankname, $row->bankname);
+        $this->assertNotSame($row->bankname, $row->categoryname);
+    }
+
+    /**
+     * Create Site defaults, which is what marks the manager as populated.
+     *
+     * @return void
+     */
+    private function install_site_defaults(): void {
+        (new \local_coderunner_manager\prototype_installer())->ensure_site_defaults();
     }
 
     /**

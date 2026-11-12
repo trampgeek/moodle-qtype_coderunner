@@ -77,7 +77,8 @@ function display_problem_table($heading, $intro, array $rows, array $columns, $s
         if ($showcandidates) {
             $names = [];
             foreach ($row->candidates ?? [] as $candidate) {
-                $names[] = $candidate->name . ' (' . $candidate->categoryname . ')';
+                $location = trim(($candidate->bankname ?? '') . ' / ' . $candidate->categoryname, ' /');
+                $names[] = $candidate->name . ' (' . $location . ')';
             }
             echo html_writer::tag('td', s(implode('; ', $names)));
         }
@@ -102,6 +103,15 @@ function display_course_report($courseid, $coursename, $versions) {
     $summarykey = $result->allversions ? 'prototypehealth_summary_all' : 'prototypehealth_summary_latest';
     echo html_writer::tag('p', get_string($summarykey, 'qtype_coderunner', $result));
 
+    // Which rules decided the result, since the same course reads differently
+    // under each and the reader cannot otherwise tell which they are seeing.
+    $manager = $result->mode == prototype_health::MODE_MANAGER;
+    $modekey = $manager ? 'prototypehealth_mode_manager' : 'prototypehealth_mode_legacy';
+    // The reason a question has no prototype differs by mode, and so does what
+    // to do about it, so the explanation cannot be shared.
+    $missingintrokey = $manager ? 'prototypehealth_missing_intro_manager' : 'prototypehealth_missing_intro';
+    echo html_writer::tag('p', get_string($modekey, 'qtype_coderunner'), ['class' => 'text-muted']);
+
     if ($result->numquestions == 0) {
         echo html_writer::tag('p', get_string('prototypehealth_noquestions', 'qtype_coderunner'));
         return;
@@ -110,19 +120,29 @@ function display_course_report($courseid, $coursename, $versions) {
     $questioncolumns = [
         'name' => get_string('prototypehealth_questionname', 'qtype_coderunner'),
         'coderunnertype' => get_string('prototypehealth_type', 'qtype_coderunner'),
-        'categoryname' => get_string('prototypehealth_context', 'qtype_coderunner'),
+        'bankname' => get_string('prototypehealth_context', 'qtype_coderunner'),
+        'categoryname' => get_string('prototypehealth_category', 'qtype_coderunner'),
         'version' => get_string('prototypehealth_version', 'qtype_coderunner'),
     ];
     $prototypecolumns = [
         'coderunnertype' => get_string('prototypehealth_prototypename', 'qtype_coderunner'),
         'name' => get_string('prototypehealth_questionname', 'qtype_coderunner'),
-        'categoryname' => get_string('prototypehealth_context', 'qtype_coderunner'),
+        'bankname' => get_string('prototypehealth_context', 'qtype_coderunner'),
+        'categoryname' => get_string('prototypehealth_category', 'qtype_coderunner'),
     ];
 
     display_problem_table(
         get_string('prototypehealth_missing_heading', 'qtype_coderunner', count($result->missing)),
-        get_string('prototypehealth_missing_intro', 'qtype_coderunner'),
+        get_string($missingintrokey, 'qtype_coderunner'),
         $result->missing,
+        $questioncolumns
+    );
+    // Shown before the sections a teacher has to act on, because one task run
+    // clears the whole list and may clear some of those too.
+    display_problem_table(
+        get_string('prototypehealth_unconverted_heading', 'qtype_coderunner', count($result->unconverted ?? [])),
+        get_string('prototypehealth_unconverted_intro', 'qtype_coderunner'),
+        $result->unconverted ?? [],
         $questioncolumns
     );
     display_problem_table(

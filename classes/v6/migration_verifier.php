@@ -175,10 +175,18 @@ class migration_verifier {
      *      cannot resolve the prototype.
      */
     protected function resolve_the_old_way(\stdClass $row): ?\stdClass {
+        global $CFG;
+
         $context = \context::instance_by_id((int) $row->contextid, IGNORE_MISSING);
         if (!$context) {
             return null;
         }
+
+        // Not autoloadable: questiontype.php is outside classes/, so the class
+        // exists only if something required it. The CLI script does, but this
+        // class must not depend on its caller having done so.
+        require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+
         $prototype = \qtype_coderunner::get_prototype($row->coderunnertype, $context);
         if ($prototype === null || is_array($prototype)) {
             return null;

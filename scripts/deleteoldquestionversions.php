@@ -159,29 +159,14 @@ function display_context_with_buttons($contextid, $name, $numcoderunnerquestions
 /**
  * Get all question bank entries with multiple versions in a context.
  *
+ * Delegates to qtype_coderunner\version_deleter, which holds the rule about
+ * which entries are worth planning so that it can be tested.
+ *
  * @param int $contextid Context ID
  * @return array Array of question bank entries with version information
  */
 function get_question_bank_entries_with_multiple_versions($contextid) {
-    global $DB;
-
-    // Find all question bank entries that have more than one version.
-    $sql = "SELECT qbe.id AS entryid,
-                   COUNT(qv.id) AS versioncount,
-                   MAX(qv.version) AS latestversion,
-                   qbe.questioncategoryid,
-                   qc.name AS categoryname,
-                   ctx.id AS contextid
-              FROM {question_bank_entries} qbe
-              JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
-              JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-              JOIN {context} ctx ON ctx.id = qc.contextid
-             WHERE ctx.id = :contextid
-          GROUP BY qbe.id, qbe.questioncategoryid, qc.name, ctx.id
-            HAVING COUNT(qv.id) > 1
-          ORDER BY qc.name, qbe.id";
-
-    return $DB->get_records_sql($sql, ['contextid' => $contextid]);
+    return \qtype_coderunner\version_deleter::entries_with_old_versions((int) $contextid);
 }
 
 /**
@@ -224,17 +209,15 @@ function check_versions_in_use($questionids) {
 /**
  * Delete a question version.
  *
+ * Delegates to qtype_coderunner\version_deleter, which holds the logic so that
+ * it can be tested: this script calls require_admin() below, so a test cannot
+ * include it to reach a function defined here.
+ *
  * @param int $questionid Question ID to delete
- * @return array ['success' => bool, 'error' => string|null]
+ * @return array ['success' => bool, 'error' => string|null, 'cascaded' => bool]
  */
 function delete_question_version($questionid) {
-    try {
-        question_require_capability_on($questionid, 'edit');
-        question_delete_question($questionid);
-        return ['success' => true, 'error' => null];
-    } catch (\Exception $e) {
-        return ['success' => false, 'error' => $e->getMessage()];
-    }
+    return \qtype_coderunner\version_deleter::delete((int) $questionid);
 }
 
 // Main script logic.
@@ -489,6 +472,7 @@ if ($contextid > 0) {
 
     $progress = 0;
     $successcount = 0;
+    $cascadedcount = 0;
     $failcount = 0;
     $errors = []; // Track error messages.
 
@@ -542,7 +526,10 @@ if ($contextid > 0) {
                     echo ' ... ';
                     flush();
                     $result = delete_question_version($version->questionid);
-                    if ($result['success']) {
+                    if ($result['success'] && $result['cascaded']) {
+                        echo '<span style="color: #155724;">✓ Already removed with its parent version</span>';
+                        $cascadedcount++;
+                    } else if ($result['success']) {
                         echo '<span style="color: #155724;">✓ Deleted</span>';
                         $successcount++;
                     } else {
@@ -589,6 +576,14 @@ if ($contextid > 0) {
         echo html_writer::tag('p', html_writer::tag('em', 'This was a dry run. No questions were actually deleted.'));
     } else {
         echo html_writer::tag('p', "Versions deleted: $successcount");
+        if ($cascadedcount > 0) {
+            // Not a failure and not a separate deletion: these went when their
+            // Cloze parent version did, which is the only way they could go.
+            echo html_writer::tag(
+                'p',
+                "Versions already removed with their parent version: $cascadedcount"
+            );
+        }
         if ($totalskipped > 0) {
             echo html_writer::tag('p', "Versions skipped (in use): $totalskipped", ['style' => 'color: #856404;']);
         }
