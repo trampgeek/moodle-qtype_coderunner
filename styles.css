@@ -44,6 +44,17 @@ div.ui_wrapper {
     max-width: 100%;
     box-sizing: border-box;
     background-color: #f0f0f0;
+
+    /* How wide the pane is, is the layout's business and never its contents'.
+       A graph UI's canvas carries its pixel width as an intrinsic width, so a
+       canvas sized to a wide window becomes the minimum width of every
+       ancestor that sizes to its content, and the pane can then grow with the
+       window but never shrink back: a reload was the only way to get it to
+       fit, which loses the drawing. Containment in the inline axis makes this
+       element's width independent of what is inside it. Nothing is hidden by
+       it that was visible before, because overflow is already hidden, so
+       content wider than the pane was never shown anyway. */
+    contain: inline-size;
 }
 
 .ui_wrapper .ace_editor {
