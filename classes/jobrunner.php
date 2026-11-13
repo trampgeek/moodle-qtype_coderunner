@@ -79,9 +79,10 @@ class qtype_coderunner_jobrunner {
     ) {
 
         // A question resolves against a prototype id. The prototype object is
-        // only still present on the authoring form's path, which has no
-        // prototype id of its own, so either standing in for the other is
-        // enough; the form's half goes in M7.
+        // only still present on the test helpers' path, which has no prototype
+        // id of its own, so either standing in for the other is enough. The
+        // authoring form no longer needs the second half: it carries the
+        // question's prototype id like any other save.
         if (empty($question->prototypeid) && empty($question->prototype)) {
             // Missing prototype. We can't run this question.
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);

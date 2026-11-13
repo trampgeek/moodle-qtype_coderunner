@@ -357,10 +357,13 @@ class qtype_coderunner_question extends question_graded_automatically {
     //
     public function evaluate_question_for_display($seed, $step) {
         if (!is_array($this->chainlayers)) {
-            // Only the authoring form and the test helpers reach this, and only
-            // they still need a CodeRunner 5 prototype object. A question loaded
-            // for an attempt has its chain resolved already, so this no longer
-            // runs the five-table prototype lookup on every page load.
+            // Only the test helpers reach this, and only they still need a
+            // CodeRunner 5 prototype object. Every question that is loaded or
+            // submitted has a chain: get_question_options() resolves one, or
+            // records a chain of the question's own one layer when there is
+            // nothing to resolve, and the authoring form resolves through the
+            // same code. So the five-table prototype lookup no longer runs on
+            // any page load of any attempt.
             $this->get_prototype();
         }
         $this->initialisationerrormessage = '';
@@ -450,11 +453,14 @@ class qtype_coderunner_question extends question_graded_automatically {
      * that reading them needs no database access.
      *
      * When they are absent the question was not loaded through
-     * get_question_options() — the authoring form builds a question object
-     * straight from submitted form data, and so do the test helpers. Those
-     * paths still carry a CodeRunner 5 prototype object, so the two-layer
-     * CodeRunner 5 arrangement is reconstructed from it. That fallback goes
-     * when the form does, in M7.
+     * get_question_options() and was not resolved by the authoring form either,
+     * which leaves only the test helpers: they build a question object from the
+     * CodeRunner 5 prototype questions in the database, and carry a prototype
+     * object rather than a chain, so the two-layer CodeRunner 5 arrangement is
+     * reconstructed from it. The fallback goes when the helpers stop doing
+     * that, which is the same job as removing update_question_types(); see the
+     * removal inventory in
+     * docs/v6/coderunner6-code-checks-and-milestones.md.
      *
      * @return array list of ['templateparams' => string, 'templateparamslang' =>
      *      string, 'source' => string, 'evald' => ?string], root first.
@@ -714,8 +720,8 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $uiparams->merge_json($layer['uiparameters']);
             }
         } else if (isset($this->prototype->uiparameters) && strtolower($this->prototype->uiplugin) === $uiplugin) {
-            // The authoring form and the test helpers, which build a question
-            // without resolving a chain. Removed with the form, in M7.
+            // The test helpers, which build a question without resolving a
+            // chain; see parameter_layers().
             $uiparams->merge_json($this->prototype->uiparameters);
         }
 
@@ -1480,8 +1486,7 @@ class qtype_coderunner_question extends question_graded_automatically {
                 $files = array_merge($files, self::files_in_area($area['contextid'], $area['itemid']));
             }
         } else {
-            // The authoring form and the test helpers; see
-            // evaluate_merged_ui_parameters(). Removed with the form, in M7.
+            // The test helpers; see parameter_layers().
             $this->get_prototype();
             $files = self::get_support_files($this->prototype);
         }

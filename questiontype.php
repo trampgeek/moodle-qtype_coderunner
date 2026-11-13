@@ -609,11 +609,18 @@ class qtype_coderunner extends question_type {
         global $DB;
         parent::get_question_options($question);
         $options =& $question->options;
+        // Don't inherit fields, or record a chain, when exporting during quiz
+        // duplication or backup restore: the identity hash is computed from
+        // the question's own raw columns, and anything added here would enter
+        // it.
+        $exporting = $question->export_process ?? false;
         if ($options->prototypetype != 0) { // Question prototype?
             // Yes. It's 100% customised with nothing to inherit.
             $options->customise = true;
-        } else if (!($question->export_process ?? false)) {
-            // Don't inherit fields when exporting during quiz duplication or backup restore.
+            if (!$exporting) {
+                $this->record_own_chain_only($options);
+            }
+        } else if (!$exporting) {
             $this->resolve_inherited_fields($question, $options);
         }
 
@@ -634,31 +641,6 @@ class qtype_coderunner extends question_type {
     }
 
     /**
-     * Fill in a question's inherited field values by resolving its prototype
-     * chain.
-     *
-     * This is the CodeRunner 6 run-time path. The question's `prototypeid` and
-     * `overrides` are resolved through the prototype manager, and every
-     * inherited field the chain produces is written into the options object, so
-     * that everything downstream — the question object, the authoring form, the
-     * renderer — sees the same flattened options it always has.
-     *
-     * `prototypeid` is the single authority on whether a question resolves. A
-     * null one means broken, which is what the design specifies for a question
-     * the migration could not resolve and what a missing prototype has always
-     * looked like. The CodeRunner 5 name lookup is deliberately not consulted
-     * as a fallback: a second resolution path is exactly what this release
-     * removes.
-     *
-     * Resolution is done here, inside get_question_options(), rather than on
-     * the question object, because core caches this object in the
-     * `core/questiondata` application cache. Resolving here means a question is
-     * resolved once per cache lifetime instead of once per attempt.
-     *
-     * @param object $question the question data.
-     * @param object $options the question's options, modified in place.
-     */
-    /**
      * Resolve a question's inherited fields where the question object carries
      * its own options, which is what the authoring form builds.
      *
@@ -676,6 +658,25 @@ class qtype_coderunner extends question_type {
      * Fill in a question's inherited field values by resolving its prototype
      * chain.
      *
+     * This is the CodeRunner 6 run-time path. The question's `prototypeid` and
+     * `overrides` are resolved through the prototype manager, and every
+     * inherited field the chain produces is written into the options object, so
+     * that everything downstream — the question object, the authoring form, the
+     * renderer — sees the same flattened options it always has.
+     *
+     * `prototypeid` is the single authority on whether a question resolves. A
+     * null one means broken, which is what the design specifies for a question
+     * the migration could not resolve and what a missing prototype has always
+     * looked like. The CodeRunner 5 name lookup is deliberately not consulted
+     * as a fallback: a second resolution path is exactly what this release
+     * removes. A question that does not resolve gets a chain of its own one
+     * layer, by record_own_chain_only(), rather than no chain at all.
+     *
+     * Resolution is done here, inside get_question_options(), rather than on
+     * the question object, because core caches this object in the
+     * `core/questiondata` application cache. Resolving here means a question is
+     * resolved once per cache lifetime instead of once per attempt.
+     *
      * See resolve_settings_in_place() for the authoring form's way in, which
      * exists so that the form resolves through this same code rather than a
      * second implementation of it (decision 1's corollary: one resolution
@@ -687,13 +688,13 @@ class qtype_coderunner extends question_type {
     protected function resolve_inherited_fields($question, $options) {
         $options->customise = false;
 
-        $options->chainlayers = null;
-        $options->supportfileareas = [];
-
         if (empty($options->prototypeid)) {
+            $this->record_own_chain_only($options);
             $question->prototype = null;
             return;
         }
+
+        $options->supportfileareas = [];
 
         try {
             $repository = new \local_coderunner_manager\prototype_repository();
@@ -708,6 +709,7 @@ class qtype_coderunner extends question_type {
         } catch (\Exception $e) {
             // Bad stored data: a missing prototype, or parent links that form a
             // cycle. Either way the question cannot resolve, so it is broken.
+            $this->record_own_chain_only($options);
             $question->prototype = null;
             return;
         }
@@ -746,6 +748,41 @@ class qtype_coderunner extends question_type {
         // question any more. The authoring form still sets this for itself,
         // and stops in M7.
         $question->prototype = null;
+    }
+
+    /**
+     * Record a question whose chain is itself: one layer, inheriting nothing.
+     *
+     * Three kinds of question have no chain to resolve. A legacy prototype
+     * question inherits nothing by definition. A question with no prototype id
+     * is broken, and so is one whose stored chain cannot be resolved. All three
+     * still have to be displayed, with their own template and UI parameters and
+     * their own support files and nothing else, which is exactly what one layer
+     * of their own says.
+     *
+     * Saying it, rather than leaving `chainlayers` null, is what keeps the
+     * attempt path off the CodeRunner 5 prototype lookup: question.php falls
+     * back on resolving a prototype by name whenever it finds no chain, and
+     * that lookup is the second resolution path this release removes. The
+     * fallback itself survives only for the test helpers, which build a
+     * question without loading it; see the removal inventory in
+     * docs/v6/coderunner6-code-checks-and-milestones.md.
+     *
+     * @param object $options the question's options, modified in place.
+     */
+    protected function record_own_chain_only($options) {
+        $options->chainlayers = [[
+            'source' => self::QUESTION_LAYER,
+            'templateparams' => (string) ($options->templateparams ?? ''),
+            // A null language is left as the empty string, which means "none",
+            // because that is what CodeRunner 5 made of it for a question with
+            // nothing to inherit. The registry default would be twig, and
+            // would start rendering parameters that have never been rendered.
+            'templateparamslang' => (string) ($options->templateparamslang ?? ''),
+            'uiparameters' => $options->uiparameters ?? null,
+            'uiplugin' => $options->uiplugin ?? null,
+        ]];
+        $options->supportfileareas = [];
     }
 
     /**
@@ -823,43 +860,6 @@ class qtype_coderunner extends question_type {
         if (!isset($target->sandboxparams) || trim($target->sandboxparams ?? '') === '') {
             $target->sandboxparams = null;
         }
-    }
-
-    /**
-     * Get all available prototypes for the given course.
-     * Only the most recent version of each prototype question is returned.
-     * @param int $courseid the ID of the course whose prototypes are required.
-     * @return stdClass[] prototype rows from question_coderunner_options,
-     * including count number of occurrences.
-     */
-    public static function get_all_prototypes($courseid) {
-        global $DB;
-        $coursecontext = context_course::instance($courseid);
-        $contextids = self::prototype_contexts($coursecontext);
-        [$contextcondition, $params] = $DB->get_in_or_equal($contextids, SQL_PARAMS_NAMED, 'ctx');
-        $params['hidden'] = question_version_status::QUESTION_STATUS_HIDDEN;
-        $params['hidden2'] = question_version_status::QUESTION_STATUS_HIDDEN;
-
-        // Hidden versions are excluded, to match get_prototype.
-        $rows = $DB->get_records_sql("
-                SELECT qco.coderunnertype, count(qco.coderunnertype) as count
-                  FROM {question_coderunner_options} qco
-                  JOIN {question} q ON q.id = qco.questionid
-                  JOIN {question_versions} qv ON qv.questionid = q.id
-                  JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                  JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                  WHERE (qv.version = (SELECT MAX(v.version)
-                                        FROM {question_versions} v
-                                        JOIN {question_bank_entries} be ON be.id = v.questionbankentryid
-                                       WHERE be.id = qbe.id
-                                         AND v.status <> :hidden)
-                                     )
-                        AND qv.status <> :hidden2
-                        AND prototypetype != 0
-                        AND qc.contextid $contextcondition
-                  GROUP BY qco.coderunnertype", $params);
-
-        return $rows;
     }
 
     /**
