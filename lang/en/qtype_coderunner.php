@@ -468,10 +468,8 @@ $string['mgmt_tool_downloadattempts_desc'] = 'Export quiz attempt data for analy
 $string['mgmt_tool_downloadattempts_title'] = 'Download Quiz Attempts';
 $string['mgmt_tool_prototypehealth_desc'] = 'Check that every CodeRunner question in a course can find exactly one prototype. Lists questions whose prototype is missing or ambiguous, prototypes whose name clashes with a site prototype, and prototypes with a global extra field that has no effect.';
 $string['mgmt_tool_prototypehealth_title'] = 'Prototype Health Report';
-$string['mgmt_tool_prototypeusage_desc'] = 'Analyze which prototypes are being used in a selected question bank or question context. See usage statistics and identify unused prototypes within the selected context.';
 $string['mgmt_tool_prototypemanager_desc'] = 'Create and edit the prototypes that questions inherit their settings from, and see what depends on each one.';
 $string['mgmt_tool_prototypemanager_title'] = 'Prototype manager';
-$string['mgmt_tool_prototypeusage_title'] = 'Prototype Usage';
 $string['mgmt_tool_questionbrowser_desc'] = 'Browse and search through CodeRunner questions. View question text, answer, tags and quiz usage. Preview questions or edit them in the question bank. Useful for finding and reviewing questions.';
 $string['mgmt_tool_questionbrowser_title'] = 'CodeRunner Question Browser';
 $string['missinganswers'] = 'missing answers';
@@ -682,8 +680,6 @@ $string['prototypehealth_summary_latest'] = 'Checked the latest version of each 
 $string['prototypehealth_title'] = 'Prototype health: {$a}';
 $string['prototypehealth_type'] = 'Question type';
 $string['prototypehealth_version'] = 'Version';
-$string['prototypeusage'] = 'CodeRunner question prototype usage for course {$a}';
-$string['prototypeusageindex'] = 'Available courses';
 $string['prototypecontrols_help'] = 'If \'Is prototype\' is true, this question becomes a prototype for other questions.
 After saving, the specified question type name will appear in the dropdown list
 of question types. New questions based on this type will then by default inherit

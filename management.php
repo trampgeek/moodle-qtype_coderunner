@@ -218,14 +218,6 @@ display_tool_card(
 );
 
 display_tool_card(
-    get_string('mgmt_tool_prototypeusage_title', 'qtype_coderunner'),
-    get_string('mgmt_tool_prototypeusage_desc', 'qtype_coderunner'),
-    '/question/type/coderunner/scripts/prototypeusage.php',
-    'fa fa-pie-chart',
-    'primary'
-);
-
-display_tool_card(
     get_string('mgmt_tool_prototypehealth_title', 'qtype_coderunner'),
     get_string('mgmt_tool_prototypehealth_desc', 'qtype_coderunner'),
     '/question/type/coderunner/scripts/prototypehealth.php',
