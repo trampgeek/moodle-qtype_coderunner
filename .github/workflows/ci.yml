@@ -30,20 +30,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # CodeRunner 6 requires Moodle 5.0 or later (see version.php), so no
+          # branch before MOODLE_500_STABLE is tested. The PHP version on each
+          # row is that branch's own minimum or later: 5.0 and 5.1 require PHP
+          # 8.2, 5.2 requires PHP 8.3.
           - php: '8.4'
             moodle-branch: 'MOODLE_502_STABLE'
-            database: 'mariadb'
-          - php: '8.4'
+            database: 'pgsql'
+          - php: '8.3'
             moodle-branch: 'MOODLE_501_STABLE'
             database: 'mariadb'
-          - php: '8.3'
-            moodle-branch: 'MOODLE_405_STABLE'
-            database: 'mariadb'
           - php: '8.2'
-            moodle-branch: 'MOODLE_404_STABLE'
-            database: 'pgsql'
-          - php: '8.1'
-            moodle-branch: 'MOODLE_403_STABLE'
+            moodle-branch: 'MOODLE_500_STABLE'
             database: 'mariadb'
     services:
       postgres:
@@ -110,6 +108,7 @@ jobs:
       - name: Install Moodle
         run: |
           moodle-plugin-ci add-plugin trampgeek/moodle-qbehaviour_adaptive_adapted_for_coderunner
+          moodle-plugin-ci add-plugin trampgeek/moodle-local_coderunner_manager
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
           moodle-plugin-ci add-config 'define("QTYPE_CODERUNNER_JOBE_HOST", "localhost:4000");'
         env:
@@ -154,7 +153,7 @@ jobs:
         run: moodle-plugin-ci mustache
 
       - name: Grunt
-        if: ${{ matrix.moodle-branch == 'MOODLE_400_STABLE' }}
+        if: ${{ matrix.moodle-branch == 'MOODLE_502_STABLE' }}
         run: moodle-plugin-ci grunt
 
       - name: PHPUnit tests
