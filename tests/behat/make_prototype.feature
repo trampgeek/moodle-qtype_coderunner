@@ -82,6 +82,9 @@ Feature: make_prototype
       """
     And I press "Save as new version"
 
+    # Saving leaves us in the prototype editor, so back to the bank the
+    # question lives in before asking for an action on it.
+    And I am on the "Course 1" "core_question > course question bank" page
     And I choose "Preview" action for "Prototype tester" in the question bank
     And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"

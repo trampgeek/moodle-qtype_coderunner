@@ -56,6 +56,7 @@ Feature: Ace UI convert to Scratchpad UI questions with one click
     Then I should see "Square function"
 
     When I choose "Edit question" action for "Square function" in the question bank
+    And I expand all fieldsets
     And I set the field "id_uiplugin" to "Ace"
     And I should see "def sqr(n): return n * n"
 
