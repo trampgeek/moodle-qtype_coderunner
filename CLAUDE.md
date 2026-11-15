@@ -1,107 +1,173 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code (claude.ai/code) working in the CodeRunner question type.
 
-## Project Overview
+## What this plugin is
 
-CodeRunner is a Moodle question type plugin for creating programming questions. Students write code that gets executed in sandboxes to test correctness. This is a mature plugin (version 5.7.1+) supporting multiple programming languages with sophisticated templating and UI customization.
+CodeRunner lets quiz authors write programming questions. Students submit code, it is executed
+against test cases on a Jobe sandbox server, and a grader scores the result. Multiple languages,
+a Twig templating layer, and a set of answer-box UIs written as AMD modules.
 
-## Core Architecture
+## CodeRunner 6
 
-### Key Components
-- **Question Type**: `questiontype.php` - Main Moodle question type implementation
-- **Question Model**: `question.php` - Question instance representing a CodeRunner question
-- **Sandboxes**: `classes/sandbox.php`, `classes/jobesandbox.php` - Code execution environments
-  - JobeSandbox is the primary sandbox connecting to Jobe servers
-  - Multiple sandbox implementations available (Ideone, local)
-- **Templates**: Twig-based template system for test case generation and grading
-- **UI Plugins**: JavaScript-based interfaces (Ace editor, scratchpad, table, graph, etc.)
-- **Graders**: Different grading mechanisms (equality, regex, template-based)
+Development of version 6 happens on the `Version6` branch, and the design is specified in
+`docs/v6/coderunner6-design.md`, with technical notes and open items in
+`docs/v6/coderunner6-implementation-notes.md` and the running record of what is built in
+`docs/v6/coderunner6-code-checks-and-milestones.md`. **The design doc is the specification; read
+it and the notes before planning work.** The UI mockups under `docs/v6/mockups/` are illustrative
+only and are not a specification of the field set.
 
-### Data Flow
-1. Student submits code through UI plugin
-2. Question processes submission using templates
-3. Code executed in sandbox against test cases  
-4. Results graded and displayed to student
+What changed, and what most of the new code is about:
 
-## Development Commands
+- **A prototype is no longer a question.** Prototypes live in the companion plugin
+  `local_coderunner_manager`, which `version.php` declares as a dependency. A question names one
+  in its `prototypeid` column and records only its own differences from it, as a JSON document in
+  `overrides`. The built-in types are still defined in `db/builtin_PROTOTYPES.xml` here, but it is
+  the manager's `prototype_installer` that reads the file and installs them.
+- **A prototype can inherit from another prototype**, so a question resolves its settings along a
+  chain of layers rather than from a single parent. `classes/v6/prototype_chain.php` resolves it;
+  most fields take the nearest layer that sets them, while the collected fields (template
+  parameters, UI parameters, support files) merge along the chain.
+- **`classes/v6/field_registry.php` is the single source of truth** for the question's settings:
+  each field's type, which section of the form it appears in, whether it is inheritable, whether it
+  merges, and its default. Code that needs to know something about a field asks the registry rather
+  than hard-coding a list. A field name the registry does not know is refused rather than silently
+  dropped, which is what makes a typo in a test or a generator an error.
+- **The author form is built from the registry** by `classes/v6/settings_form.php`, which the
+  manager's prototype editor uses as well, so a question and a prototype are edited by the same
+  component. Each inheritable field renders as its value beside an *Inherit* checkbox, in a group.
 
-### Testing
-- **PHPUnit Tests**: `moodle-plugin-ci phpunit` (requires Moodle plugin CI setup)
-- **Behat Tests**: `moodle-plugin-ci behat --profile chrome` (functional tests)
-- **Individual Test**: Use Moodle's standard PHPUnit runner for specific test classes
+## Architecture
 
-### Code Quality
-- **PHP Lint**: `moodle-plugin-ci phplint`  
-- **Code Checker**: `moodle-plugin-ci codechecker --max-warnings 0`
-- **PHP Mess Detector**: `moodle-plugin-ci phpmd`
-- **Copy/Paste Detector**: `moodle-plugin-ci phpcpd`
-- **PHPDoc Checker**: `moodle-plugin-ci phpdoc`
+### Data flow
 
-### Build Tools
-- **Grunt**: `moodle-plugin-ci grunt` (for minifying AMD modules)
-- **Mustache Lint**: `moodle-plugin-ci mustache`
-- **Validation**: `moodle-plugin-ci validate`
+1. A student submits code through a UI plugin (Ace editor, scratchpad, table, graph, HTML, …).
+2. `question.php` builds the program to run by expanding a Twig template.
+3. `classes/jobrunner.php` sends it to a sandbox, normally `classes/jobesandbox.php`.
+4. A grader scores the result — `classes/grader.php` and its `equality_grader`, `regex_grader`
+   and `template_grader` subclasses.
+5. `classes/testing_outcome.php` and `test_result.php` package the result, and `renderer.php`
+   displays it.
 
-### Local Development Setup
-1. Requires Moodle 4.3+ with PHP 8.1+
-2. Install companion plugin: `qbehaviour_adaptive_adapted_for_coderunner`
-3. Set up Jobe server or JobeInABox for sandbox execution
-4. Configure test sandbox in `tests/fixtures/test-sandbox-config.php`
+### Key source files
 
-## File Structure Highlights
+- `questiontype.php` — the Moodle question-type API entry point: save, load, validate, backup.
+- `question.php` — the run-time question object, and the grading entry point.
+- `edit_coderunner_form.php` — the author form. The settings sections come from
+  `classes/v6/settings_form.php`; this class owns the test cases, the sample answer, the
+  prototype picker and validation.
+- `renderer.php` — the attempt page, including the data attributes a UI plugin reads.
+- `classes/twig.php`, `classes/twigmacros.php` — Twig expansion.
+- `classes/ui_plugins.php` — discovers the UI plugins and their parameter schemas.
 
-### Core Files
-- `version.php` - Plugin version and dependencies
-- `settings.php` - Admin settings for sandbox configuration
-- `db/` - Database schema, caches, tasks, and built-in prototypes
-- `classes/` - Main PHP classes for sandboxes, graders, utilities
+### UI plugins
 
-### UI Components  
-- `amd/src/` - JavaScript AMD modules for UI plugins
-- `templates/` - Mustache templates for rendering
-- `styles.css` - Plugin styles
+Each is a pair under `amd/src/`: a JS module `ui_<name>.js` and a JSON schema `ui_<name>.json`
+describing its parameters. Ace is the default. A UI reads the text it lays out from data attributes
+on the textarea it manages — `data-globalextra`, `data-prototypeextra`, `data-test0` — which
+`renderer.php` sets on the attempt page and `amd/src/answerboxui.js` keeps in step on the author
+form.
 
-### Question Assets
-- `samples/` - Example questions and prototypes
-- `unsupportedquestiontypes/` - Community-contributed question types
-- `ace/` - Ace editor integration files
+### Twig templates
 
-### Testing
-- `tests/` - PHPUnit test classes and Behat features
-- `tests/fixtures/` - Test data and sandbox configuration
+Templates turn test-case data into a runnable program. The context includes `STUDENT_ANSWER`,
+`TEST.testcode`, `TEST.stdin`, `TEST.extra`, `QUESTION.*`, `STUDENT.*` and `QUIZ.*`. A combinator
+template merges every test case into one run; a per-test template runs one case at a time.
 
-## Key Concepts
+## Running the tests
 
-### Prototypes
-Built-in question types are defined as prototypes in `db/builtin_PROTOTYPES.xml`. Custom prototypes can be created through the UI.
+### PHPUnit
 
-### Templates
-Questions use Twig templates to:
-- Generate test code from test cases
-- Process student answers
-- Grade submissions with custom logic
-- Support per-test-case or combinator grading
+From the Moodle root, after initialising the PHPUnit environment:
 
-### UI Plugins
-Multiple UI options available:
-- **Ace**: Syntax-highlighted code editor (default)
-- **Scratchpad**: Ace + in-browser code execution
-- **Table**: Spreadsheet-like interface
-- **Graph**: Visual graph editing
-- **HTML**: Custom HTML interfaces
+```bash
+vendor/bin/phpunit --testsuite="qtype_coderunner_testsuite"
+vendor/bin/phpunit --testsuite="qtype_coderunner_testsuite" --filter=ClassName
+```
 
-### Sandboxes
-Code execution environments:
-- **Jobe**: Default HTTP-based sandbox server
-- **Ideone**: Cloud-based execution (legacy)
-- **Local**: Direct server execution (limited)
+Tests that run code need a reachable Jobe server, configured in
+`tests/fixtures/test-sandbox-config.php` (copy the `-dist` file beside it). Those tests skip
+rather than fail when it is absent.
 
-## Development Notes
+### Behat
 
-- Follow Moodle coding standards
-- Use dependency injection pattern for sandbox selection
-- Template parameters support randomization for unique student questions  
-- Extensive caching system for grading performance
-- Web service API available for external integrations
-- Comprehensive backup/restore support
+The suite is written against the CodeRunner 6 author form and needs these local steps, defined in
+`tests/behat/behat_qtype_coderunner.php`:
+
+- `I override the CodeRunner fields "a, b"` — clears each field's *Inherit* box, expanding the
+  fieldsets first. **An inherited field is greyed by `disabledIf`, so it cannot be set until this
+  has run**, and the override lasts only as long as the page: a field set after a reload needs
+  either a fresh override or to have been overridden and saved earlier.
+- `I choose the CodeRunner prototype "python3"` — picks a type and waits for the form it rebuilds.
+- `I add a CodeRunner question on "python3" filling the form with:` — replaces core's
+  *I add a "CodeRunner" question filling the form with:*, which cannot express this form in one
+  table, because choosing a prototype rebuilds it and discards whatever was filled in first. It
+  overrides whichever fields its own table names, and it **saves the form**, so a scenario that
+  must interact with the form before saving cannot use it.
+- `I set the ace field "x" to:` and `I should see "..." in the ace field "x"` — Ace hides the
+  textarea it manages, so core's field steps cannot see it.
+
+A feature that needs a prototype to exist but is not testing how one is made should say so as
+data rather than build one through the editor:
+
+```gherkin
+And the following "qtype_coderunner > prototypes" exist:
+  | name          | parent  | course | iscombinatortemplate | templatefile      |
+  | python3_mine  | python3 | C1     | 1                    | my_template.py    |
+```
+
+Every column other than `name`, `parent`, `course` and `summary` becomes an override, validated
+against the field registry. A Gherkin cell cannot hold a newline dependably, so a `<field>file`
+column reads that field's value from `tests/fixtures/`.
+
+Two checks worth running before paying for a full Behat run, which takes a long time:
+
+- Parse every feature with the vendored `behat/gherkin` — about a second, and it catches a
+  malformed table or a mis-indented step.
+- Read the features for a field that is set without being overridden anywhere in its scenario.
+  This finds the commonest conversion fault, but it is a lead generator and not an oracle: a field
+  already overridden *and saved* stays editable on the next page load, which the text cannot show.
+
+### Code style and JavaScript
+
+```bash
+phpcs --standard=moodle question/type/coderunner/   # or moodle-plugin-ci codechecker
+npx grunt amd                                       # amd/src → amd/build
+```
+
+The Grunt build needs the Node version Moodle itself requires, run from this directory. A newly
+added AMD module will not load until Moodle's caches are purged, because `lib/requirejs.php`
+serves one cached bundle of every module: the symptom is RequireJS reporting *No define call for
+qtype_coderunner/yourmodule*, which looks like a build error and is not one.
+
+## Diagnosing browser-side bugs
+
+**Reproduce a browser-side symptom headlessly before asking a human to test it.** Nothing
+initialising, a page that "hangs", a UI plugin that never appears: drive the page yourself, with
+whatever headless browser and DevTools Protocol client the environment offers, and collect thrown
+exceptions, console messages and any network request that never finishes. A queue of "try this,
+then try that" is the expensive failure mode.
+
+When the report is "no JavaScript runs and no console errors" — which is nearly
+self-contradictory, since broken JS is loud:
+
+- **Suspect the document never became a DOM.** Compare the served HTML with the live DOM:
+  `document.querySelectorAll('script').length` against the count in the response, and check
+  `typeof require`, `typeof ace`, the `.ace_editor` count and `M.util.pending_js`.
+- **Check the markup's own invariants.** Count `<!--` against `-->`, and look for an unclosed
+  `textarea`, `script` or `style`. An author-supplied value rendered unescaped can comment out the
+  rest of the page, every remaining script tag with it, in complete silence. Anything that puts a
+  question's stored value into the page must escape it.
+- A rendered page served from another origin is not a faithful reproduction: CORS blocks the AJAX
+  and the fonts and fills the console with noise. Drive the real URL.
+
+## Moodle conventions
+
+- **Frankenstyle** naming: `qtype_coderunner`, and `local_coderunner_manager` for the companion.
+- **Strings** live in `lang/en/qtype_coderunner.php`; no user-visible English in PHP or JS. A new
+  string renders as `[[mystringname]]` until the caches are purged.
+- **Schema** in `db/install.xml` (XMLDB), migrations in `db/upgrade.php`, capabilities in
+  `db/access.php`, web services in `db/services.php`.
+- **PHPDoc** on every class and public method, with `@package`, `@copyright` and `@license`.
+- Classes under `classes/` are namespaced `qtype_coderunner\`, and the CodeRunner 6 additions sit
+  in `qtype_coderunner\v6\`.
