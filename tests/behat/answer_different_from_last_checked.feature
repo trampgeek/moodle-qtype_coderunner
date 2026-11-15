@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @sqrfunctests
+@qtype @qtype_coderunner @javascript @sqrfunctests @v6triage
 Feature: Test that answers changed after checking are highlighted as being different to the answer that was checked.
   As a teacher or student
   I must be able to see the "Results below are for a different answer to the answer above." message when an answer has changed after checking.
@@ -29,7 +29,7 @@ Scenario: Preview the Python3 sqr_with_ace function CodeRunner question get it r
     | id_useace      | 0        |
   And I wait "1" seconds
   #And I set the field with xpath "//textarea[contains(@id, 'id_template')]" to multiline:
-  And I set the field "id_template" to multiline:
+  And I set the ace field "template" to:
   """
   {{ STUDENT_ANSWER }}
   {{ TEST.testcode }}
@@ -68,7 +68,7 @@ Scenario: Preview the Python3 sqr_with_ace function CodeRunner question and subm
       | id_useace      | 0          |
     And I wait "3" seconds
     #And I set the field with xpath "//textarea[contains(@id, 'id_template')]" to multiline:
-    And I set the field "id_template" to multiline:
+    And I set the ace field "template" to:
     """
     {{ STUDENT_ANSWER }}
     {{ TEST.testcode }}
@@ -132,7 +132,7 @@ Scenario: Preview the Python3 sqr_with_ace function CodeRunner question and subm
       | id_useace      | 0          |
     And I wait "1" seconds
     #And I set the field with xpath "//textarea[contains(@id, 'id_template')]" to multiline:
-    And I set the field "id_template" to multiline:
+    And I set the ace field "template" to:
     """
     {{ STUDENT_ANSWER }}
     {{ TEST.testcode }}

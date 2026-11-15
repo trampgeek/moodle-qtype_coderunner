@@ -25,17 +25,17 @@ Feature: Test the Ace Gapfiller UI
 
   Scenario: A single-line gap with no maximum width can grow past its default width
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin, template, globalextra"
     And I set the following fields to these values:
-      | customise     | 1             |
       | uiplugin      | Ace_gapfiller |
       | id_expected_0 | A longer answer than ten chars |
-    And I set the field "id_template" to:
+    And I set the ace field "template" to:
       """
       answer = eval('''{{ STUDENT_ANSWER | e('py')}}''')
       assert isinstance(answer, list)
       for element in answer: print(element)
       """
-    And I set the field "id_globalextra" to:
+    And I set the ace field "globalextra" to:
       """
       {[10]}
       """
@@ -51,17 +51,17 @@ Feature: Test the Ace Gapfiller UI
 
   Scenario: A single-line gap with a maximum width truncates further typing at that width
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin, template, globalextra"
     And I set the following fields to these values:
-      | customise     | 1             |
       | uiplugin      | Ace_gapfiller |
       | id_expected_0 | ABCDEFGH      |
-    And I set the field "id_template" to:
+    And I set the ace field "template" to:
       """
       answer = eval('''{{ STUDENT_ANSWER | e('py')}}''')
       assert isinstance(answer, list)
       for element in answer: print(element)
       """
-    And I set the field "id_globalextra" to:
+    And I set the ace field "globalextra" to:
       """
       {[5-8]}
       """
@@ -77,16 +77,16 @@ Feature: Test the Ace Gapfiller UI
 
   Scenario: A multi-line gap with a fixed number of rows and a fixed width
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin, template, globalextra"
     And I set the following fields to these values:
-      | customise | 1             |
       | uiplugin  | Ace_gapfiller |
-    And I set the field "id_template" to:
+    And I set the ace field "template" to:
       """
       answer = eval('''{{ STUDENT_ANSWER | e('py')}}''')
       assert isinstance(answer, list)
       for element in answer: print(element)
       """
-    And I set the field "id_globalextra" to:
+    And I set the ace field "globalextra" to:
       """
       {[3,15]}
       """
@@ -112,16 +112,16 @@ Feature: Test the Ace Gapfiller UI
 
   Scenario: A multi-line gap with a variable number of rows and a variable width
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin, template, globalextra"
     And I set the following fields to these values:
-      | customise | 1             |
       | uiplugin  | Ace_gapfiller |
-    And I set the field "id_template" to:
+    And I set the ace field "template" to:
       """
       answer = eval('''{{ STUDENT_ANSWER | e('py')}}''')
       assert isinstance(answer, list)
       for element in answer: print(element)
       """
-    And I set the field "id_globalextra" to:
+    And I set the ace field "globalextra" to:
       """
       {[2-4, 8-20]}
       """
@@ -150,16 +150,16 @@ Feature: Test the Ace Gapfiller UI
 
   Scenario: A multi-line gap reproduces its leading and trailing text on every row, without it leaking into the answer
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin, template, globalextra"
     And I set the following fields to these values:
-      | customise | 1             |
       | uiplugin  | Ace_gapfiller |
-    And I set the field "id_template" to:
+    And I set the ace field "template" to:
       """
       answer = eval('''{{ STUDENT_ANSWER | e('py')}}''')
       assert isinstance(answer, list)
       for element in answer: print(element)
       """
-    And I set the field "id_globalextra" to:
+    And I set the ace field "globalextra" to:
       """
       if True:
           {[2,10]} # note

@@ -26,9 +26,7 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
       | quiz       | Test quiz | C1     | quiz1    |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
     And I disable UI plugins in the CodeRunner question type
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype       | python3                                    |
-      | id_customise            | 1                                          |
+    And I add a CodeRunner question on "python3" filling the form with:
       | id_name                 | STUDENT variable                           |
       | id_questiontext         | Write a program that prints {{ STUDENT.username }}  |
       | id_answerboxlines       | 5                                          |
@@ -38,7 +36,7 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # This isn't used                          |
       | id_expected_0           | {{ STUDENT.username }}                     |
-      | id_twigall              | true                                       |
+      | id_twigall              | 1                                          |
     And quiz "Test quiz" contains the following questions:
       | question         | page |
       | STUDENT variable | 1    |

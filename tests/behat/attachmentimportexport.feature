@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @_file_upload
+@qtype @qtype_coderunner @javascript @_file_upload @v6triage
 Feature: Test importing and exporting of question with attachments
   In order to use attachments with my CodeRunner questions
   As a teacher
@@ -24,12 +24,12 @@ Feature: Test importing and exporting of question with attachments
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
     And I am on the "Square function" "core_question > edit" page logged in as teacher
-    And I click on "a[aria-controls='id_attachmentoptionscontainer']" "css_element"
+    And I override the CodeRunner fields "attachments, attachmentsrequired, filenamesregex"
     And I set the field "Answer" to "from sqrmodule import sqr"
     And I set the field "Validate on save" to "1"
-    And I set the field "Allow attachments" to "1"
-    And I set the field "Require attachments" to "1"
-    And I set the field "filenamesregex" to "sqrmodule.py"
+    And I set the field "id_attachments" to "1"
+    And I set the field "id_attachmentsrequired" to "1"
+    And I set the field "id_filenamesregex" to "sqrmodule.py"
     And I upload "question/type/coderunner/tests/fixtures/sqrmodule.py" file to "Sample answer attachments" filemanager
     And I press "id_submitbutton"
     Then I should see "Question bank"

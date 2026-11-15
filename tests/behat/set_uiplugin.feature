@@ -25,15 +25,15 @@ Feature: Check that a selected UI plugin is saved
 
   Scenario: Selecting the Graph UI plugin results in a canvas being displayed
     When I am on the "Square function" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise | 1     |
       | id_uiplugin  | graph |
     Then I should see a canvas
 
   Scenario: UI plugin state is saved when question is saved
     When I am on the "Square function" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise | 1     |
       | id_uiplugin  | graph |
     And I press "id_submitbutton"
     When I choose "Edit question" action for "Square function" in the question bank
@@ -41,8 +41,8 @@ Feature: Check that a selected UI plugin is saved
 
   Scenario: UI plugin state is saved for student
     When I am on the "Square function" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise | 1     |
       | id_uiplugin  | graph |
     And I press "id_submitbutton"
     When I choose "Preview" action for "Square function" in the question bank

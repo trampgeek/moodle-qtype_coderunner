@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @resetbuttontest
+@qtype @qtype_coderunner @javascript @resetbuttontest @v6triage
 Feature: Preview the Python 3 sqr function CodeRunner question with a preload
   As a teacher
   I must be able to preview a question with a preloaded answer box

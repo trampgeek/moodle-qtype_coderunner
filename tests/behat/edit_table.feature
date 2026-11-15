@@ -26,14 +26,18 @@ Feature: Test editing a CodeRunner question using the Table UI
 
   Scenario: Edit a CodeRunner printans question into a table question
     When I choose "Edit question" action for "Print answer" in the question bank
-    And I set the following fields to these values:
-      | customise      | 1                             |
-      | id_template    | print('{{ STUDENT_ANSWER }}') |
+    And I override the CodeRunner fields "template, uiplugin"
+    And I set the ace field "template" to:
+      """
+      print('{{ STUDENT_ANSWER }}')
+      """
     And I set the field "uiplugin" to "table"
     Then I should see "Table UI needs parameters"
 
-    And I set the following fields to these values:
-      | uiparameters | {"num_columns": 2,"num_rows": 2,"column_headers": ["Column1Hdr", "Column2Hdr"], "row_labels": ["Row0", "Row1"]} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"num_columns": 2,"num_rows": 2,"column_headers": ["Column1Hdr", "Column2Hdr"], "row_labels": ["Row0", "Row1"]}
+      """
     And I press "id_updatebutton"
     Then I should not see "Table UI needs parameters"
     And I should see "Column1Hdr" in the ".ui_wrapper" "css_element"

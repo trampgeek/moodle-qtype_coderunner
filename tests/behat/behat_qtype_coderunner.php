@@ -15,7 +15,12 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Behat extensions for coderunner.
+ * Behat step definitions and page resolution for CodeRunner.
+ *
+ * Everything a feature needs lives here, including the steps that drive the
+ * prototype manager's own pages: a feature is a robotic teacher, who neither
+ * knows nor cares which plugin rendered the button being pressed. The class is
+ * named for the component so that Moodle can find its page resolvers.
  *
  * @package    qtype_coderunner
  * @copyright  2015 Richard Lobb, University of Canterbury
@@ -26,7 +31,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Facebook\WebDriver\Exception\NoSuchAlertException;
 use Moodle\BehatExtension\Exception\SkippedException;
 
-class behat_coderunner extends behat_base {
+class behat_qtype_coderunner extends behat_base {
     /**
      * Loads the default coderunner settings file for testing.
      * It seems silly that I have to do that. Why is there not
@@ -147,12 +152,7 @@ class behat_coderunner extends behat_base {
     public function i_set_ace_field($elname, $value) {
         $xpath = "//textarea[@name='$elname' or (contains(@name, '$elname') " .
              "and contains(@class, 'edit_code'))]/following-sibling::div[1]/div";
-        $driver = $this->getSession()->getDriver();
-        // Does the div managed by Ace exist?
-        if (!$driver->find($xpath)) {
-            $error = "Ace editor not found!";
-            throw new ExpectationException($error, $this->getSession());
-        }
+        $this->wait_for_ace_editor($xpath, $elname);
         // We inject JS into the browser to set the Ace editor contents...
         // (Gross) JS to take the x-path for the div managed by Ace,
         // open editor for that div, and set the editors value.
@@ -188,6 +188,45 @@ class behat_coderunner extends behat_base {
      */
     public function i_set_ace_field_pystring($elname, $pystring) {
         $this->i_set_ace_field($elname, $pystring->getRaw());
+    }
+
+    /**
+     * Checks that an Ace-managed field contains the given text.
+     *
+     * The counterpart of *I set the ace field*, and the reason one is needed:
+     * Ace hides the textarea it manages and renders the text in its own divs,
+     * so core's *I should see "..." in the "id_template" "field"* finds the
+     * text in the DOM and then rejects it as not visible. The value is read
+     * from the editor rather than from the textarea, because Ace writes back
+     * to the textarea only on change or submit, so a field the author has not
+     * touched still holds whatever the page was rendered with.
+     *
+     * Substring, not equality, matching what the features ask of it.
+     *
+     * @Then /^I should see "(?P<expected>(?:[^"]|\\")*)" in the ace field "(?P<elname>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $expected the text the field should contain.
+     * @param string $elname the name of the textarea Ace manages.
+     */
+    public function i_should_see_in_ace_field($expected, $elname) {
+        $xpath = "//textarea[@name='$elname' or (contains(@name, '$elname') " .
+             "and contains(@class, 'edit_code'))]/following-sibling::div[1]/div";
+        $this->wait_for_ace_editor($xpath, $elname);
+        $javascript = "const editorNode = document.evaluate("
+               . "`$xpath`,"
+               . "document,"
+               . "null,"
+               . "XPathResult.ANY_TYPE,null,"
+               . ");"
+               . "return ace.edit(editorNode.iterateNext()).getValue();";
+        $value = $this->getSession()->evaluateScript("(function() { $javascript })()");
+
+        if (!str_contains((string) $value, $expected)) {
+            throw new ExpectationException(
+                "The ace field '{$elname}' does not contain '{$expected}'. It holds: '{$value}'",
+                $this->getSession()
+            );
+        }
     }
 
     /**
@@ -362,30 +401,6 @@ class behat_coderunner extends behat_base {
         $this->getSession()->getPage()->fillField('id_template', $dfatemplate);
     }
 
-    /**
-     * Sets the given field to a given value and dismisses the expected alert.
-     * @When /^I set the field "(?P<field_string>(?:[^"]|\\")*)" to "(?P<field_value_string>(?:[^"]|\\")*)" and dismiss the alert$/
-     */
-    public function i_set_the_field_and_dismiss_the_alert($field, $value) {
-        // Gets the field.
-        $fielditem = behat_field_manager::get_form_field_from_label($field, $this);
-
-        // Makes sure there is a field before continuing.
-        if ($fielditem) {
-            $fielditem->set_value($value);
-        } else {
-            throw new ExpectationException("No field '{$field}' found.", $this->getSession());
-        }
-        // Gets you to wait for the pending JS alert by sleeping.
-        sleep(1);
-        try {
-            // Gets the alert and its text.
-            $alert = $this->getSession()->getDriver()->getWebDriver()->switchTo()->alert();
-            $alert->accept();
-        } catch (NoSuchAlertException $ex) {
-            throw new ExpectationException("No alert was triggered appropriately", $this->getSession());
-        }
-    }
 
     /**
      * Checks that the page text matches the given PCRE regular expression
@@ -463,5 +478,277 @@ class behat_coderunner extends behat_base {
             // To stop the Behat tests from throwing their own errors.
             $alert->accept();
         }
+    }
+
+    /**
+     * Clears the *Inherit* box on one or more CodeRunner settings, so that the
+     * fields can then be given values.
+     *
+     * CodeRunner 6 has no *Customise* checkbox. Every setting is visible, and
+     * each inheritable one carries its own *Inherit* checkbox
+     * (`inherit_<field>`); the field's own control is rendered readonly while
+     * that box is ticked, and `inheritedcode.js` unlocks it when the box is
+     * cleared. So a scenario that means to supply a value has to clear the box
+     * first, and must be tagged @javascript for the unlocking to happen.
+     *
+     * Takes a list so that a scenario overriding several settings needs one
+     * line rather than one line per field.
+     *
+     * @Given /^I override the CodeRunner fields? "(?P<fields_string>(?:[^"]|\\")*)"$/
+     * @param string $fields comma-separated field names, e.g. "template, iscombinatortemplate".
+     */
+    public function i_override_the_coderunner_fields($fields) {
+        // CodeRunner 6's settings sections are rendered collapsed, and a
+        // checkbox inside a collapsed fieldset is not interactable. The table
+        // form of "I set the following fields" expands them itself, but the
+        // singular form does not and neither does this step, so it has to.
+        $this->execute('behat_forms::i_expand_all_fieldsets');
+
+        foreach (explode(',', $fields) as $name) {
+            $name = trim($name);
+            if ($name === '') {
+                continue;
+            }
+            $node = $this->find('field', 'id_inherit_' . $name);
+            $field = behat_field_manager::get_form_field($node, $this->getSession());
+            $field->set_value('0');
+        }
+    }
+
+    /**
+     * Chooses a prototype in the question type picker, by the name the menu
+     * shows, and waits for the form it rebuilds.
+     *
+     * The picker is a `selectgroups` whose option labels are indented with
+     * non-breaking spaces to show the prototype tree, so an exact match on the
+     * option text fails; the indent is stripped before comparing.
+     *
+     * Changing it makes `prototypereload.js` press a hidden no-submit button,
+     * which rebuilds the whole form from the new prototype. So this step cannot
+     * be folded into a form-filling table the way `id_coderunnertype` could:
+     * anything set before it is discarded by the reload, which is why it has to
+     * come first.
+     *
+     * @Given /^I choose the CodeRunner prototype "(?P<name_string>(?:[^"]|\\")*)"$/
+     * @param string $name the prototype's name, as the menu shows it.
+     */
+    public function i_choose_the_coderunner_prototype($name) {
+        $this->execute('behat_forms::i_expand_all_fieldsets');
+
+        $select = $this->find('field', 'id_' . \qtype_coderunner\v6\prototype_picker::FIELD);
+        $wanted = null;
+        foreach ($select->findAll('xpath', './/option') as $option) {
+            // The indent is a run of non-breaking spaces, four per tree level.
+            $text = trim(str_replace("\xc2\xa0", '', $option->getText()));
+            if ($text === $name) {
+                $wanted = $option->getAttribute('value');
+                break;
+            }
+        }
+        if ($wanted === null) {
+            throw new ExpectationException(
+                "No prototype named '{$name}' is offered by the picker",
+                $this->getSession()
+            );
+        }
+
+        // Nothing to wait for if it is already the choice: prototypereload.js
+        // ignores a change to the value already loaded, so no reload happens.
+        if ($select->getValue() === $wanted) {
+            return;
+        }
+
+        // Mark the page before the change, so that the rebuild can be told
+        // from the page it replaces. Mink's NodeElement holds an xpath and
+        // re-resolves it on every call, so there is no stale reference to
+        // catch; and the chain beside the menu cannot serve either, because
+        // breadcrumb() renders nothing for a chain of fewer than two layers.
+        // An attribute on the document element is destroyed by a real page
+        // load and by nothing else.
+        $this->getSession()->executeScript(
+            "document.documentElement.setAttribute('data-behat-awaiting-reload', '1');"
+        );
+
+        $select->selectOption($wanted);
+
+        // Changing the menu makes prototypereload.js press a hidden no-submit
+        // button and the server rebuilds the whole form from the new
+        // prototype. wait_for_pending_js() can return while that is in flight,
+        // leaving the next step to act on a page being torn down, which
+        // surfaces as "element not interactable" rather than as anything to do
+        // with the picker.
+        $this->spin(
+            function($context) {
+                return $context->getSession()->evaluateScript(
+                    "document.documentElement.getAttribute('data-behat-awaiting-reload') === null"
+                );
+            },
+            false,
+            self::get_extended_timeout(),
+            new ExpectationException(
+                "The form was not rebuilt after choosing the prototype '{$name}'",
+                $this->getSession()
+            )
+        );
+        $this->wait_for_pending_js();
+    }
+
+    /**
+     * The fields that carry an *Inherit* checkbox.
+     *
+     * Not every inheritable field has one: a collected field (template
+     * parameters, UI parameters, support files) merges a layer's contribution
+     * with its parent's instead of replacing it, so {@see settings_form} adds
+     * it through a different path with no checkbox to clear. The predicate here
+     * is the same one that form branches on.
+     *
+     * @return string[] field names.
+     */
+    protected function overridable_fields(): array {
+        $names = [];
+        foreach (\qtype_coderunner\v6\field_registry::inheritable() as $name => $field) {
+            if ($field->resolves_to_one_value()) {
+                $names[] = $name;
+            }
+        }
+        return $names;
+    }
+
+    /**
+     * Adds a CodeRunner question built on a named prototype, filling the rest
+     * of the form from a table.
+     *
+     * Replaces `I add a "CodeRunner" question filling the form with:` and its
+     * `id_coderunnertype` row, which CodeRunner 6 cannot express as one table.
+     * Choosing a prototype rebuilds the form and discards anything already
+     * filled in, so it has to happen first; and an inheritable field the table
+     * sets has to have its *Inherit* box cleared or its control is readonly.
+     * Both are done here, so a scenario still needs only one step.
+     *
+     * @Given /^I add a CodeRunner question on "(?P<prototype_string>(?:[^"]|\\")*)" filling the form with:$/
+     * @param string $prototype the prototype's name, as the picker shows it.
+     * @param \Behat\Gherkin\Node\TableNode $data the remaining fields.
+     */
+    public function i_add_a_coderunner_question_on_filling_the_form_with(
+        $prototype,
+        \Behat\Gherkin\Node\TableNode $data
+    ) {
+        // Open the chooser, then the CodeRunner form, as
+        // behat_core_question::i_add_a_question_filling_the_form_with and
+        // behat_question_base::finish_adding_question do between them. The
+        // press was missing at first, so the step ran against the question
+        // list and found no form at all.
+        $this->execute('behat_forms::press_button', get_string('createnewquestion', 'question'));
+        $this->execute('behat_forms::i_set_the_field_to', [$this->escape('CodeRunner'), 1]);
+        $this->execute('behat_general::i_click_on', ['.submitbutton', 'css_element']);
+
+        $this->i_choose_the_coderunner_prototype($prototype);
+
+        $overridable = $this->overridable_fields();
+        $wanted = [];
+        foreach ($data->getRows() as $row) {
+            $name = trim($row[0]);
+            if (str_starts_with($name, 'id_')) {
+                $name = substr($name, 3);
+            }
+            if (in_array($name, $overridable, true) && !in_array($name, $wanted, true)) {
+                $wanted[] = $name;
+            }
+        }
+        if ($wanted !== []) {
+            $this->i_override_the_coderunner_fields(implode(',', $wanted));
+        }
+
+        $this->execute('behat_forms::i_set_the_following_fields_to_these_values', $data);
+        $this->execute('behat_forms::press_button', 'id_submitbutton');
+    }
+
+    /**
+     * Resolves the pages of a named thing, for `I am on the "X" "qtype_coderunner > Y" page`.
+     *
+     * The prototype library and the prototype editor are served by the
+     * local_coderunner_manager plugin, but they are CodeRunner pages to the
+     * teacher using them, so they are named and resolved here. Nothing about
+     * the framework requires otherwise: the component in the page name is the
+     * name a feature types, not a statement about where any code lives.
+     *
+     * Recognised types:
+     *  - "prototype library"  identified by a course shortname
+     *  - "prototype"          identified by a prototype name
+     *
+     * @param string $type the kind of page.
+     * @param string $identifier what names the thing the page is about.
+     * @return moodle_url
+     */
+    protected function resolve_page_instance_url(string $type, string $identifier): moodle_url {
+        global $DB;
+
+        switch (strtolower($type)) {
+            case 'prototype library':
+                $courseid = $DB->get_field('course', 'id', ['shortname' => $identifier], MUST_EXIST);
+                return new moodle_url('/local/coderunner_manager/index.php', ['courseid' => $courseid]);
+
+            case 'prototype':
+                $prototype = $DB->get_record(
+                    'local_coderunner_manager_prototypes',
+                    ['name' => $identifier],
+                    'id, courseid',
+                    MUST_EXIST
+                );
+                return new moodle_url('/local/coderunner_manager/edit.php', [
+                    'id' => $prototype->id,
+                    'courseid' => $prototype->courseid,
+                ]);
+
+            default:
+                throw new Exception(
+                    "Unrecognised qtype_coderunner page type '{$type}'."
+                );
+        }
+    }
+
+    /**
+     * Resolves the pages that are not about one named thing.
+     *
+     * @param string $page the page name.
+     * @return moodle_url
+     */
+    protected function resolve_page_url(string $page): moodle_url {
+        switch (strtolower($page)) {
+            case 'prototype library':
+                // The site-wide library: no course, so site prototypes only.
+                return new moodle_url('/local/coderunner_manager/index.php');
+
+            default:
+                throw new Exception("Unrecognised qtype_coderunner page '{$page}'.");
+        }
+    }
+
+    /**
+     * Waits for the div Ace manages for a field to appear.
+     *
+     * The editor is attached by `userinterfacewrapper.newUiWrapper`, which
+     * loads over AMD and so is not in place the instant the page is. Checking
+     * once was enough while a form was only ever loaded outright; it is not
+     * enough now that choosing a prototype rebuilds the form, after which the
+     * editors are constructed again and a following step can arrive first.
+     *
+     * @param string $xpath the editor div for the field.
+     * @param string $elname the field, for the error message.
+     * @throws ExpectationException if no editor appears.
+     */
+    protected function wait_for_ace_editor(string $xpath, string $elname): void {
+        $driver = $this->getSession()->getDriver();
+        $this->spin(
+            function() use ($driver, $xpath) {
+                return (bool) $driver->find($xpath);
+            },
+            false,
+            self::get_extended_timeout(),
+            new ExpectationException(
+                "No Ace editor appeared for the field '{$elname}'",
+                $this->getSession()
+            )
+        );
     }
 }

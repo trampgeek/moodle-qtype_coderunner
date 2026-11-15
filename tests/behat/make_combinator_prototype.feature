@@ -19,17 +19,21 @@ Feature: make_combinator_prototype
     And the following "question categories" exist:
       | contextlevel | reference | questioncategory | name          |
       | Course       | C1        | Top              | Behat Testing |
-    And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
-    And I press "Create a new question ..."
-    And I click on "input#item_qtype_coderunner" "css_element"
-    And I press "submitbutton"
-    And I set the field "id_coderunnertype" to "python3"
-    And I set the field "name" to "PROTOTYPE_test_combinator_prototype"
-    And I set the field "id_questiontext" to "Dummy question text"
-    And I set the field "id_customise" to "1"
-    And I set the field "id_useace" to "0"
-    And I set the field "id_uiplugin" to "None"
-    And I set the field "id_template" to:
+    # A combinator template is made in the prototype editor, as any question
+    # type is; see make_prototype.feature, which this follows. The separator
+    # the template prints is what test_splitter_re matches, so one run's
+    # output becomes one row per test case.
+    And I am on the "C1" "qtype_coderunner > prototype library" page logged in as teacher1
+    And I click on "New prototype" "link"
+    And I set the following fields to these values:
+      | Name          | python3_test_combinator_prototype |
+      | Inherits from | python3                           |
+    And I override the CodeRunner fields "useace, uiplugin, template, iscombinatortemplate"
+    And I set the following fields to these values:
+      | id_useace               | 0    |
+      | id_uiplugin             | None |
+      | id_iscombinatortemplate | 1    |
+    And I set the ace field "template" to:
       """
       {{ STUDENT_ANSWER }}
       {% for TEST in TESTCASES %}
@@ -39,15 +43,12 @@ Feature: make_combinator_prototype
       {% endif %}
       {% endfor %}
       """
-    And I set the field "id_iscombinatortemplate" to "1"
-    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
-    And I set the field "prototypetype" to "Yes (user defined)"
-    And I set the field "typename" to "python3_test_combinator_prototype"
-    And I press "id_submitbutton"
+    And I press "Save as new version"
+    Then I should see "python3_test_combinator_prototype"
 
-    # Now try to add a new question of type python3_test_combinator_prototype
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | python3_test_combinator_prototype |
+    # Now a question of that type.
+    And I am on the "Course 1" "core_question > course question bank" page
+    And I add a CodeRunner question on "python3_test_combinator_prototype" filling the form with:
       | name              | Combinator prototype tester       |
       | id_questiontext   | Write the inevitable sqr function |
       | id_testcode_0     | sqr(-11)                          |
@@ -56,7 +57,10 @@ Feature: make_combinator_prototype
       | id_testcode_1     | sqr(9)                            |
       | id_expected_1     | 80                                |
       | id_ordering_1     | 10                                |
-      | id_answer         | def sqr(n): return n * n          |
+    And I set the field "id_answer" to:
+      """
+      def sqr(n): return n * n
+      """
 
     Then I should see "Failed 1 test(s)"
     And I should see "Click on the << button to replace the expected output of this testcase with actual output."

@@ -21,8 +21,7 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
       | Course       | C1        | Top              | Behat Testing |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
     And I disable UI plugins in the CodeRunner question type
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | python3                 |
+    And I add a CodeRunner question on "python3" filling the form with:
       | name              | sqr acceptance question |
       | id_questiontext   | Write a sqr function    |
       | id_answerboxlines | 5                       |
@@ -34,7 +33,7 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
       | id_expected_2     | 9                       |
       | id_display_2      | Hide                    |
     When I choose "Edit question" action for "sqr acceptance question" in the question bank
-    And I set the field "id_customise" to "1"
+    And I override the CodeRunner fields "iscombinatortemplate, template"
     And I set the field "id_iscombinatortemplate" to "1"
 
     # Set up a standard combinator template

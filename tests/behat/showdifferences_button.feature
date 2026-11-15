@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @showdifferences
+@qtype @qtype_coderunner @javascript @showdifferences @v6triage
 Feature: Show differences in CodeRunner questions
   A failing question submission should contain a 'Show differences' button
   that highlights a differences between expected and actual answers when

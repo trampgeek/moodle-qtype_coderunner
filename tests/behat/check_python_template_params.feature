@@ -35,8 +35,8 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
     And I press "submitbutton"
     Then I should see "Adding a CodeRunner question"
 
-    And I set the field "id_coderunnertype" to "python3"
-    And I set the field "id_customise" to "1"
+    And I choose the CodeRunner prototype "python3"
+    And I override the CodeRunner fields "answerboxlines, twigall, template, uiplugin"
     And I set the field "id_name" to "Python preprocessor"
     And I set the field "id_questiontext" to "Write a program that prints True if seed parameter provided, then {{ firstname }} {{ lastname }}"
     And I set the field "id_answerboxlines" to "5"
@@ -83,8 +83,8 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
     And I press "submitbutton"
     Then I should see "Adding a CodeRunner question"
 
-    And I set the field "id_coderunnertype" to "python3"
-    And I set the field "id_customise" to "1"
+    And I choose the CodeRunner prototype "python3"
+    And I override the CodeRunner fields "answerboxlines, twigall, template, uiplugin"
     And I set the field "id_name" to "Python preprocessor"
     And I set the field "id_questiontext" to "Write a program that prints True if seed parameter provided, then {{ firstname }} {{ lastname }}"
     And I set the field "id_answerboxlines" to "5"

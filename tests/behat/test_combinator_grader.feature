@@ -19,48 +19,19 @@ Feature: test_combinator_grader
     And the following "question categories" exist:
       | contextlevel | reference | questioncategory | name          |
       | Course       | C1        | Top              | Behat Testing |
+    # The prototype is scaffolding here: what is under test is that a
+    # combinator template grader's prologue, epilogue and result table reach
+    # the student. Making it through the editor is make_prototype.feature's
+    # subject, so it is stated as data. The template is multi-line and so is
+    # named rather than quoted - see the generator's resolve_fixture_file().
+    And the following "qtype_coderunner > prototypes" exist:
+      | name                                     | parent  | course | useace | uiplugin | iscombinatortemplate | grader         | templatefile                   |
+      | python3_test_combinator_grader_prototype | python3 | C1     | 0      | none     | 1                    | TemplateGrader | combinator_grader_template.py  |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
-    And I press "Create a new question ..."
-    And I click on "input#item_qtype_coderunner" "css_element"
-    And I press "submitbutton"
-    And I set the field "id_coderunnertype" to "python3"
-    And I set the field "name" to "PROTOTYPE_test_combinator_grader_prototype"
-    And I set the field "id_questiontext" to "Dummy question text"
-    And I set the field "id_customise" to "1"
-    And I set the field "id_useace" to "0"
-    And I set the field "id_uiplugin" to "None"
     And I set CodeRunner behat testing flag
-    And I set the field "id_template" to:
-  """
-  import subprocess, json, sys
-  {{ STUDENT_ANSWER | e('py') }}
-  tests = json.loads('''{{ TESTCASES | json_encode | e('py') }}''')
-  test_results = [['Test', 'Expected', 'Got', 'iscorrect']]
-  num_right = 0
-  for test in tests:
-    code = test['testcode']
-    expected = int(test['expected'])
-    got = eval(code)
-    test_results.append([code, expected, got, expected == got])
-    if expected == got:
-      num_right += 1
-  print(json.dumps({
-    'testresults': test_results,
-    'fraction': num_right / len(tests),
-    'prologuehtml': '<h1>I am a prologue</h1>',
-    'epiloguehtml': '<h1>I am an epilogue</h1>'
-  }))
-  """
-    And I set the field "id_iscombinatortemplate" to "1"
-    And I set the field "id_grader" to "TemplateGrader"
-    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
-    And I set the field "prototypetype" to "Yes (user defined)"
-    And I set the field "typename" to "python3_test_combinator_grader_prototype"
-    And I press "id_submitbutton"
 
     # Now try to add a new question of type python3_test_combinator_prototype
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | python3_test_combinator_grader_prototype |
+    And I add a CodeRunner question on "python3_test_combinator_grader_prototype" filling the form with:
       | name              | Combinator prototype grader tester       |
       | id_questiontext   | Write the inevitable sqr function        |
       | id_testcode_0     | sqr(-11)                                 |
@@ -69,7 +40,10 @@ Feature: test_combinator_grader
       | id_testcode_1     | sqr(9)                                   |
       | id_expected_1     | 80                                       |
       | id_ordering_1     | 20                                       |
-      | id_answer         | def sqr(n): return n * n                 |
+    And I set the field "id_answer" to:
+      """
+      def sqr(n): return n * n
+      """
 
     Then I should see "Failed testing"
     And I should see "Click on the << button to replace the expected output of this testcase with actual output."

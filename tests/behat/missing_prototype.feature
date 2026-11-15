@@ -23,13 +23,13 @@ Feature: missing_prototype
     And I press "Create a new question ..."
     And I click on "input#item_qtype_coderunner" "css_element"
     And I press "submitbutton"
-    And I set the field "id_coderunnertype" to "python3"
+    And I choose the CodeRunner prototype "python3"
     And I set the field "name" to "PROTOTYPE_test_prototype"
     And I set the field "id_questiontext" to "Dummy question text"
-    And I set the field "id_customise" to "1"
+    And I override the CodeRunner fields "useace, uiplugin, template, iscombinatortemplate"
     And I set the field "id_useace" to "0"
     And I set the field "id_uiplugin" to "None"
-    And I set the field "id_template" to:
+    And I set the ace field "template" to:
       """
       {{STUDENT_ANSWER}}
 
@@ -42,11 +42,9 @@ Feature: missing_prototype
     And I press "id_submitbutton"
 
     # Now add a new question of type python3_test_prototype
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | python3_test_prototype            |
+    And I add a CodeRunner question on "python3_test_prototype" filling the form with:
       | name              | Prototype tester                  |
       | id_questiontext   | Write the inevitable sqr function |
-      | id_customise      | 1                                 |
       | id_uiplugin       | None                              |
       | id_testcode_0     | print(sqr(-11))                   |
       | id_expected_0     | 121                               |
@@ -70,8 +68,8 @@ Feature: missing_prototype
     Given the Jobe server supports "python3"
     And I am on the "Prototype tester" "core_question > edit" page
     Then I should see "This question was defined to be of type 'python3_test_prototype' but the prototype does not exist, or is unavailable in this context"
-    And I set the field "id_coderunnertype" to "python3"
-    And I set the field "id_customise" to "1"
+    And I choose the CodeRunner prototype "python3"
+    And I override the CodeRunner fields "uiplugin"
     And I set the field "id_uiplugin" to "None"
     And I press "id_submitbutton"
     And I choose "Preview" action for "Prototype tester" in the question bank

@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @sqrfunctests
+@qtype @qtype_coderunner @javascript @sqrfunctests @v6triage
 Feature: Preview the Python 3 sqr function CodeRunner question
   To check the CodeRunner questions I created work
   As a teacher

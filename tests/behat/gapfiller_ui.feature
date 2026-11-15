@@ -25,13 +25,16 @@ Feature: Test the GapFiller_UI
 
   Scenario: Edit a CodeRunner printans question into a gap-filler question
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "template, uiplugin, globalextra"
     And I set the following fields to these values:
-      | customise      | 1                             |
-      | id_template    | print('{{ STUDENT_ANSWER }}') |
       | uiplugin       | Gapfiller                     |
       | id_expected_0  | ["bubble"]                    |
+    And I set the ace field "template" to:
+      """
+      print('{{ STUDENT_ANSWER }}')
+      """
 
-    And I set the field "id_globalextra" to:
+    And I set the ace field "globalextra" to:
      """
      I'm a line of text
      Field: {[10]} rest of line
@@ -48,7 +51,7 @@ Feature: Test the GapFiller_UI
     And I should see "Created by"
 
     When I choose "Edit question" action for "Print answer" in the question bank
-    And I set the field "id_globalextra" to:
+    And I set the ace field "globalextra" to:
      """
      I'm a line of text
      Textarea: {[2, 20]} rest of line
@@ -68,7 +71,7 @@ Feature: Test the GapFiller_UI
      Line 1
      Line 2
      """
-    And I set the field "id_template" to:
+    And I set the ace field "template" to:
      """
 answer = eval('''{{ STUDENT_ANSWER | e('py')}}''')
 assert isinstance(answer, list)
@@ -90,22 +93,31 @@ for element in answer: print(element)
 
   Scenario: Edit and run a gap-filler question using test0 as a source.
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "template, iscombinatortemplate, uiplugin, twigall"
     And I set the following fields to these values:
-      | customise               | 1                             |
-      | id_template             | print({{ STUDENT_ANSWER }}[0])|
       | id_iscombinatortemplate | 0                             |
       | uiplugin                | Gapfiller                     |
       | id_expected_0           | bubble                        |
-      | id_templateparams       | {"gapfiller_ui_source": "test0"} |
       | id_validateonsave       | 0                             |
       | id_twigall              | 1                             |
       | id_testcode_0           | print("{[10]}")               |
+    And I set the ace field "template" to:
+      """
+      print({{ STUDENT_ANSWER }}[0])
+      """
+    And I set the ace field "templateparams" to:
+      """
+      {"gapfiller_ui_source": "test0"}
+      """
 
     And I press "id_updatebutton"
     Then I should see "UI parameters can no longer be defined within the template parameters field"
 
-    When I set the field "id_templateparams" to ""
-    And I set the field "id_uiparameters" to "{\"ui_source\": \"test0\"}"
+    When I set the ace field "templateparams" to ""
+    And I set the ace field "uiparameters" to:
+      """
+      {\"ui_source\": \"test0\"}
+      """
     And I press "id_updatebutton"
     Then "[name='cr_gapfiller_field']" "css_element" should exist
 

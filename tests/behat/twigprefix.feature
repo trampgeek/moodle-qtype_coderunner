@@ -19,30 +19,19 @@ Feature: twigprefix
     And the following "question categories" exist:
       | contextlevel | reference | questioncategory | name          |
       | Course       | C1        | Top              | Behat Testing |
+    # The prototype is this feature's precondition, not its subject: what is
+    # under test is whether a question can use the Twig prefix its prototype
+    # defines. So it is stated as data rather than built through the editor,
+    # which make_prototype.feature covers.
+    And the following "qtype_coderunner > prototypes" exist:
+      | name            | parent  | course | templateparamslang | useace | uiplugin | iscombinatortemplate | template           | templateparams                                                             |
+      | test_twigprefix | python3 | C1     | python3            | 0      | none     | 0                    | {{STUDENT_ANSWER}} | print('{"__twigprefix__": "{% macro blah() %}BingleyBeep{% endmacro %}"}') |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
     And I set CodeRunner behat testing flag
     And I disable UI plugins in the CodeRunner question type
-    And I press "Create a new question ..."
-    And I click on "input#item_qtype_coderunner" "css_element"
-    And I press "submitbutton"
-    And I set the field "id_coderunnertype" to "python3"
-    And I set the field "name" to "PROTOTYPE_test_twigprefix"
-    And I set the field "id_templateparams" to "print('{\"__twigprefix__\": \"{% macro blah() %}BingleyBeep{% endmacro %}\"}')"
-    And I set the field "id_templateparamslang" to "Python3"
-    And I set the field "id_questiontext" to "Dummy question text"
-    And I set the field "id_customise" to "1"
-    And I set the field "id_useace" to "0"
-    And I set the field "id_uiplugin" to "None"
-    And I set the field "id_template" to "{{STUDENT_ANSWER}}"
-    And I set the field "id_iscombinatortemplate" to "0"
-    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
-    And I set the field "prototypetype" to "Yes (user defined)"
-    And I set the field "typename" to "test_twigprefix"
-    And I press "id_submitbutton"
 
     # Now try to add a new question of type test_twigprefix
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | test_twigprefix                   |
+    And I add a CodeRunner question on "test_twigprefix" filling the form with:
       | name              | Prototype tester                  |
       | id_questiontext   | Print BingleyBeep                 |
       | id_testcode_0     |                                   |

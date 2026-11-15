@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @sqrfunctests @coderunnergrading
+@qtype @qtype_coderunner @javascript @sqrfunctests @coderunnergrading @v6triage
 Feature: Check grading with the Python 3 sqr function CodeRunner question
   To check the CodeRunner questions I created are graded correctly in different submission scenarios
   As a teacher

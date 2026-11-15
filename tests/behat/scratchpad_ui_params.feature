@@ -29,11 +29,11 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Edit a CodeRunner Scratchpad UI question, change all available UI params
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise | 1          |
       | id_uiplugin  | Scratchpad |
 
-    And I set the field "id_uiparameters" to:
+    And I set the ace field "uiparameters" to:
     """
     {
         "button_name": "Ran!",
@@ -56,10 +56,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Change UI param for run button name
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                                     |
       | id_uiplugin     | Scratchpad                            |
-      | id_uiparameters | {"button_name": "superuniquename123"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"button_name": "superuniquename123"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -80,10 +83,13 @@ Feature: Test the Scratchpad UI, UI Params
     And I should not see "Prefix Answer?"
 
   Scenario: Change UI param for Scratchpad name
+    And I override the CodeRunner fields "uiplugin"
     When I set the following fields to these values:
-      | id_customise    | 1                                         |
       | id_uiplugin     | Scratchpad                                |
-      | id_uiparameters | {"scratchpad_name": "superuniquename123"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"scratchpad_name": "superuniquename123"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -104,10 +110,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Change UI param for prefix name
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                                     |
       | id_uiplugin     | Scratchpad                            |
-      | id_uiparameters | {"prefix_name": "superuniquename123"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"prefix_name": "superuniquename123"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -129,11 +138,14 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Define wrapper in UI params and click run, insert both answer and Scratchpad code, NO prefix with answer, click run
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, globalextra"
     And I set the following fields to these values:
-      | id_customise    | 1                              |
       | id_uiplugin     | Scratchpad                     |
-      | id_uiparameters | {"wrapper_src": "globalextra"} |
-    And I set the field "globalextra" to:
+    And I set the ace field "uiparameters" to:
+      """
+      {"wrapper_src": "globalextra"}
+      """
+    And I set the ace field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
     {| ANSWER_CODE |}
@@ -153,11 +165,14 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Define wrapper in global extra and click run, insert both answer and Scratchpad code, prefix with answer, click run
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, globalextra"
     And I set the following fields to these values:
-      | id_customise    | 1                              |
       | id_uiplugin     | Scratchpad                     |
-      | id_uiparameters | {"wrapper_src": "globalextra"} |
-    And I set the field "globalextra" to:
+    And I set the ace field "uiparameters" to:
+      """
+      {"wrapper_src": "globalextra"}
+      """
+    And I set the ace field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
     {| ANSWER_CODE |}
@@ -176,21 +191,22 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Define wrapper in prototype extra and click run, insert both answer and Scratchpad code, prefix with answer, click run
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, globalextra, prototypeextra"
     And I set the following fields to these values:
-      | id_customise      | 1                                 |
       | id_uiplugin       | Scratchpad                        |
-      | id_uiparameters   | {"wrapper_src": "prototypeextra"} |
-      | id_prototypetype  | 2                                 |
-      | id_typename       | typename123                       |
       | id_validateonsave | 0                                 |
+    And I set the ace field "uiparameters" to:
+      """
+      {"wrapper_src": "prototypeextra"}
+      """
 
-    And I set the field "globalextra" to:
+    And I set the ace field "globalextra" to:
     """
     print('Hello GlobalExtra', end=' ')
     {| ANSWER_CODE |}
     {| SCRATCHPAD_CODE |}
     """
-    And I set the field "prototypeextra" to:
+    And I set the ace field "prototypeextra" to:
     """
     print('Hello PrototypeExtra', end=' ')
     {| ANSWER_CODE |}
@@ -211,11 +227,14 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, NO prefix with answer, click run
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, globalextra"
     And I set the following fields to these values:
-      | id_customise    | 1                              |
       | id_uiplugin     | Scratchpad                     |
-      | id_uiparameters | {"wrapper_src": "globalextra"} |
-    And I set the field "globalextra" to:
+    And I set the ace field "uiparameters" to:
+      """
+      {"wrapper_src": "globalextra"}
+      """
+    And I set the ace field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
     {| ANSWER_CODE |}
@@ -234,11 +253,14 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Define wrapper in global extra, insert both answer and Scratchpad code, prefix with answer, click run
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, globalextra"
     And I set the following fields to these values:
-      | id_customise    | 1                              |
       | id_uiplugin     | Scratchpad                     |
-      | id_uiparameters | {"wrapper_src": "globalextra"} |
-    And I set the field "globalextra" to:
+    And I set the ace field "uiparameters" to:
+      """
+      {"wrapper_src": "globalextra"}
+      """
+    And I set the ace field "globalextra" to:
     """
     print('Hello Wrapper', end=' ')
     {| ANSWER_CODE |}
@@ -259,10 +281,13 @@ Feature: Test the Scratchpad UI, UI Params
   Scenario: I set UI param invert_prefix to true and prefix_ans to '1' and check serialisation
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                         |
       | id_uiplugin     | Scratchpad                |
-      | id_uiparameters | {"invert_prefix": "true"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"invert_prefix": "true"}
+      """
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -288,10 +313,13 @@ Feature: Test the Scratchpad UI, UI Params
   Scenario: I set UI param invert_prefix to true and prefix_ans to '' and check serialisation
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                         |
       | id_uiplugin     | Scratchpad                |
-      | id_uiparameters | {"invert_prefix": "true"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"invert_prefix": "true"}
+      """
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -308,10 +336,13 @@ Feature: Test the Scratchpad UI, UI Params
   Scenario: I set UI param invert_prefix to true and check prefix run functionality
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                         |
       | id_uiplugin     | Scratchpad                |
-      | id_uiparameters | {"invert_prefix": "true"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"invert_prefix": "true"}
+      """
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -331,10 +362,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set UI param for disabling scratchpad and check serialisation.
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                              |
       | id_uiplugin     | Scratchpad                     |
-      | id_uiparameters | {"disable_scratchpad": "true"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"disable_scratchpad": "true"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -359,10 +393,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set UI param for help text.
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                                    |
       | id_uiplugin     | Scratchpad                           |
-      | id_uiparameters | {"help_text": "superusefulhelptext"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"help_text": "superusefulhelptext"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -374,10 +411,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set output_display_mode to text, 'print' a hidden div to output area
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "text"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "text"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -390,10 +430,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set output_display_mode to text, get no output.
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "text"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "text"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -407,10 +450,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set output_display_mode to text, get a runtime error, get a compile error.
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "text"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "text"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -427,10 +473,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set output_display_mode to json, 'print' a hidden div to output area
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "json"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "json"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -453,10 +502,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set output_display_mode to json, get json parsing error
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "json"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "json"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -475,10 +527,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set output_display_mode to json, get a stderr
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "json"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "json"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -499,10 +554,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set output_display_mode to json, get no output.
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "json"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "json"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -526,10 +584,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set output_display_mode to json, get a runtime error, get a compile error.
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "json"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "json"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -551,10 +612,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set HTML output_display_mode to html, 'print' a button to output area
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "html"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "html"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -567,10 +631,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set HTML output_display_mode to html, get no output.
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "html"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "html"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -584,10 +651,13 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Set output_display_mode to html, get a runtime error, get a compile error.
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise    | 1                               |
       | id_uiplugin     | Scratchpad                      |
-      | id_uiparameters | {"output_display_mode": "html"} |
+    And I set the ace field "uiparameters" to:
+      """
+      {"output_display_mode": "html"}
+      """
 
     And I press "id_submitbutton"
     Then I should see "Print answer"
@@ -604,11 +674,14 @@ Feature: Test the Scratchpad UI, UI Params
 
   Scenario: Create a wrapper with student code in single double-quote string (python) and enter program containing many quotes.
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, globalextra"
     And I set the following fields to these values:
-      | id_customise    | 1                  |
       | id_uiplugin     | Scratchpad         |
-      | id_uiparameters | {"escape": "true", "wrapper_src": "globalextra"} |
-    And I set the field "globalextra" to "exec(\"{| ANSWER_CODE |}\n{| SCRATCHPAD_CODE |}\")"
+    And I set the ace field "uiparameters" to:
+      """
+      {"escape": "true", "wrapper_src": "globalextra"}
+      """
+    And I set the ace field "globalextra" to "exec(\"{| ANSWER_CODE |}\n{| SCRATCHPAD_CODE |}\")"
 
     And I press "id_submitbutton"
     Then I should see "Print answer"

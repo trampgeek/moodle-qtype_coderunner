@@ -26,8 +26,8 @@ Feature: Test the Scratchpad UI
 
   Scenario: Edit a CodeRunner question into a Scratchpad UI question
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
 
@@ -48,8 +48,8 @@ Feature: Test the Scratchpad UI
 
   Scenario: Click the run button with program that outputs nothing.
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
     And I press "id_submitbutton"
@@ -63,8 +63,8 @@ Feature: Test the Scratchpad UI
 
   Scenario: Click the run button with program that outputs in Scratchpad Code
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
 
@@ -80,8 +80,8 @@ Feature: Test the Scratchpad UI
 
   Scenario: Click the run button with program that outputs in Answer Code
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
 
@@ -101,8 +101,8 @@ Feature: Test the Scratchpad UI
 
   Scenario: Click the run button with program that outputs in Answer Code and Scratchpad Code
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
 
@@ -127,12 +127,12 @@ Feature: Test the Scratchpad UI
   Scenario: Get empty UI serialization
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, template"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ""         |
-    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
+    And I set the ace field "template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -147,12 +147,12 @@ Feature: Test the Scratchpad UI
   Scenario: Get UI serialization, with answer code, while Scratchpad Hidden
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, template"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
+    And I set the ace field "template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -168,12 +168,12 @@ Feature: Test the Scratchpad UI
   Scenario: Get UI serialization, answer code entered, Scratchpad shown
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, template"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
+    And I set the ace field "template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -191,8 +191,8 @@ Feature: Test the Scratchpad UI
   Scenario: Get UI serialization, Scratchpad code entered, Scratchpad shown, NO prefix
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
@@ -228,8 +228,8 @@ Feature: Test the Scratchpad UI
   Scenario: Get UI serialization, while Scratchpad Shown and prefix box NOT ticked
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
@@ -250,12 +250,12 @@ Feature: Test the Scratchpad UI
   Scenario: Get UI serialization, answer code and test code entered, Scratchpad shown, prefix NOT ticked
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, template"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
+    And I set the ace field "template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -275,12 +275,12 @@ Feature: Test the Scratchpad UI
   Scenario: Only enter serialization with answer_code value, no other fields. Useful for converting Ace questions to Scratchpad.
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, template"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
+    And I set the ace field "template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -304,12 +304,12 @@ Feature: Test the Scratchpad UI
   Scenario: Enter serialization as string.
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, template"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
+    And I set the ace field "template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -333,12 +333,12 @@ Feature: Test the Scratchpad UI
   Scenario: Enter serialisation missing answer_code.
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin, template"
     And I set the following fields to these values:
-      | id_customise      | 1          |
       | id_uiplugin       | Scratchpad |
       | id_validateonsave | 0          |
       | id_expected_0     | ''         |
-    And I set the field "id_template" to "print('''{| STUDENT_ANSWER |}''')"
+    And I set the ace field "template" to "print('''{| STUDENT_ANSWER |}''')"
     And I press "id_submitbutton"
     Then I should see "Print answer"
 
@@ -355,14 +355,15 @@ Feature: Test the Scratchpad UI
   Scenario: Change question using Scratchpad UI to table UI in authorform, tests destroy method.
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""
+    And I override the CodeRunner fields "uiplugin"
     And I set the following fields to these values:
-      | id_customise      | 1     |
       | id_uiplugin       | Table |
       | id_validateonsave | 0     |
       | id_expected_0     | ''    |
     And I press "id_updatebutton"
 
-    When I set the field "id_uiplugin" to "Scratchpad"
+    When I expand all fieldsets
+    And I set the field "id_uiplugin" to "Scratchpad"
     And I press the CTRL + ALT M key
     Then I set the field "id_answer" to "print('hello world')"
     Then I press the CTRL + ALT M key

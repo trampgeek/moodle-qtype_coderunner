@@ -20,8 +20,7 @@ Feature: Create a CodeRunner question (the sqr function example)
 
   Scenario: As a teacher, I create a Python3 sqr(n) -> n**2 function CodeRunner question
     When I disable UI plugins in the CodeRunner question type
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | python3                 |
+    And I add a CodeRunner question on "python3" filling the form with:
       | name              | sqr acceptance question |
       | id_answer         | def sqr(n): return n * n    |
       | id_validateonsave | 1                       |
@@ -35,7 +34,6 @@ Feature: Create a CodeRunner question (the sqr function example)
       | id_ordering_1     | 10                      |
     Then I should see "Failed 1 test(s)"
     And I should see "Click on the << button to replace the expected output of this testcase with actual output."
-    And the field "Customise" matches value "0"
 
     When I press "<<"
     And I press "id_submitbutton"
@@ -44,8 +42,7 @@ Feature: Create a CodeRunner question (the sqr function example)
     And I should see "sqr acceptance question"
 
     When I choose "Edit question" action for "sqr acceptance question" in the question bank
-    And the field "Customise" matches value "0"
-    And I set the field "id_customise" to "1"
+    And I override the CodeRunner fields "iscombinatortemplate, template"
     And I set the field "id_iscombinatortemplate" to "1"
 
     # Set up a standard combinator template

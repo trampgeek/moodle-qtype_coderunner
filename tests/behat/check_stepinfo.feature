@@ -27,9 +27,7 @@ Feature: Check that the QUESTION.stepinfo record is working.
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
 
     And I disable UI plugins in the CodeRunner question type
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype       | python3                                    |
-      | id_customise            | 1                                          |
+    And I add a CodeRunner question on "python3" filling the form with:
       | id_name                 | Testing stepinfo                           |
       | id_questiontext         | Write a program that does anything.        |
       | id_precheck             | 1                                          |
@@ -42,7 +40,7 @@ Feature: Check that the QUESTION.stepinfo record is working.
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # This isn't used                          |
       | id_expected_0           | "numchecks":2,"numprechecks":3,"fraction":0.*,"preferredbehaviour":"deferredfeedback","coderunnerversion":.*  |
-      | id_twigall              | false                                      |
+      | id_twigall              | 0                                          |
     And quiz "Test quiz" contains the following questions:
       | question         | page |
       | Testing stepinfo | 1    |

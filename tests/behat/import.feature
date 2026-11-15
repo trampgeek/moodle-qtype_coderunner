@@ -43,6 +43,4 @@ Feature: Import CodeRunner questions
     And I press "Continue"
     And I should see "C function: sqr"
     And I choose "Edit question" action for "Java Class: bod" in the question bank
-    And I set the field "id_customise" to "1"
-    And I set the field "id_useace" to "0"
-    And I should see "public class __tester__ {" in the "id_template" "field"
+    And I should see "public class __tester__ {" in the ace field "template"

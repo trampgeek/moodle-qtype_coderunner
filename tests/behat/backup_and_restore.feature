@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @coderunner_backup_and_restore
+@qtype @qtype_coderunner @coderunner_backup_and_restore @v6triage
 Feature: Duplicate a course containing a CodeRunner question
   In order re-use my courses containing CodeRunner questions
   As a teacher
@@ -42,7 +42,7 @@ Feature: Duplicate a course containing a CodeRunner question
       | Question text                  | Write a function sqr(n) that returns n squared. |
       | General feedback               | No feedback available for coderunner questions. |
       | Default mark                   | 31                                              |
-      | Penalty regime                 | 10, 20, ...                                     |
+      | id_penaltyregime               | 10, 20, ...                                     |
       | id_testcode_0                  | print(sqr(0))                                   |
       | id_expected_0                  | 0                                               |
       | id_display_0                   | Show                                            |

@@ -23,8 +23,7 @@ Feature: Check that the directed and undirected graph question types work.
 
   Scenario: Preview a coderunner directed graph question
     When I disable UI plugins in the CodeRunner question type
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | directed_graph                      |
+    And I add a CodeRunner question on "directed_graph" filling the form with:
       | id_name           | Test 2-node directed graph          |
       | id_questiontext   | Dummy question text                 |
       | id_testcode_0     | print(list(sorted(graph.items())))  |
@@ -39,8 +38,7 @@ Feature: Check that the directed and undirected graph question types work.
 
   Scenario: Preview a coderunner undirected graph question
     When I disable UI plugins in the CodeRunner question type
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | undirected_graph                    |
+    And I add a CodeRunner question on "undirected_graph" filling the form with:
       | name              | Test 2-node undirected graph        |
       | id_questiontext   | Dummy question text                 |
       | id_testcode_0     | print(list(sorted(graph.items())))  |

@@ -29,9 +29,7 @@ Feature: Check the QUIZ Twig variable allows access to the current quiz name and
     And I press "Save and display"
     And I am on the "Course 1" "core_question > course question bank" page
     And I disable UI plugins in the CodeRunner question type
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype       | python3                                    |
-      | id_customise            | 1                                          |
+    And I add a CodeRunner question on "python3" filling the form with:
       | id_name                 | QUIZ variable                              |
       | id_questiontext         | Quiz is {{ QUIZ.name }}, tags are {{ QUIZ.tags \| json_encode}} |
       | id_answerboxlines       | 5                                          |
@@ -41,7 +39,7 @@ Feature: Check the QUIZ Twig variable allows access to the current quiz name and
       | id_iscombinatortemplate | 0                                          |
       | id_testcode_0           | # Unused                                   |
       | id_expected_0           | OK though we never run this Q              |
-      | id_twigall              | true                                       |
+      | id_twigall              | 1                                          |
     And quiz "Test quiz" contains the following questions:
       | question         | page |
       | QUIZ variable    | 1    |

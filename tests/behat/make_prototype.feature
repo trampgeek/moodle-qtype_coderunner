@@ -1,8 +1,16 @@
 @qtype @qtype_coderunner @javascript @prototypetests
 Feature: make_prototype
-  In order to to create more sophisticated CodeRunner questions
+  In order to create more sophisticated CodeRunner questions
   As a teacher
-  I must be able to create new question templates
+  I must be able to create new question types
+
+  # Written from the goal above rather than converted from the CodeRunner 5
+  # feature, which made a prototype by setting "Yes (user defined)" on a
+  # question. A prototype is no longer a question, so that journey does not
+  # exist to convert: it is made in the prototype editor, and the editor is
+  # this feature's subject. The second scenario is the journey the suite has
+  # never had - change a prototype, watch an existing question change - which
+  # is the whole point of the chain.
 
   Background:
     Given the CodeRunner test configuration file is loaded
@@ -19,31 +27,30 @@ Feature: make_prototype
     And the following "question categories" exist:
       | contextlevel | reference | questioncategory | name          |
       | Course       | C1        | Top              | Behat Testing |
-    And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
-    And I press "Create a new question ..."
-    And I click on "input#item_qtype_coderunner" "css_element"
-    And I press "submitbutton"
-    And I set the field "id_coderunnertype" to "python3"
-    And I set the field "name" to "PROTOTYPE_test_prototype"
-    And I set the field "id_questiontext" to "Dummy question text"
-    And I set the field "id_customise" to "1"
-    And I set the field "id_useace" to "0"
-    And I set the field "id_uiplugin" to "None"
-    And I set the field "id_template" to:
+
+    # Make the question type.
+    And I am on the "C1" "qtype_coderunner > prototype library" page logged in as teacher1
+    And I click on "New prototype" "link"
+    And I set the following fields to these values:
+      | Name          | python3_test_prototype |
+      | Inherits from | python3                |
+    And I override the CodeRunner fields "useace, uiplugin, template, iscombinatortemplate"
+    And I set the following fields to these values:
+      | id_useace               | 0    |
+      | id_uiplugin             | None |
+      | id_iscombinatortemplate | 0    |
+    And I set the ace field "template" to:
       """
       {{STUDENT_ANSWER}}
 
       print({{TEST.testcode}})
       """
-    And I set the field "id_iscombinatortemplate" to "0"
-    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
-    And I set the field "prototypetype" to "Yes (user defined)"
-    And I set the field "typename" to "python3_test_prototype"
-    And I press "id_submitbutton"
+    And I press "Save as new version"
+    Then I should see "python3_test_prototype"
 
-    # Now try to add a new question of type python3_test_prototype
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | python3_test_prototype            |
+    # Now a question of that type, which is what the type was made for.
+    And I am on the "Course 1" "core_question > course question bank" page
+    And I add a CodeRunner question on "python3_test_prototype" filling the form with:
       | name              | Prototype tester                  |
       | id_questiontext   | Write the inevitable sqr function |
       | id_testcode_0     | sqr(-11)                          |
@@ -51,7 +58,7 @@ Feature: make_prototype
       | id_testcode_1     | sqr(9)                            |
       | id_expected_1     | 81                                |
 
-  Scenario: As a teacher, I get marked right (using per-test-case template) if I submit a correct answer to a CodeRunner question
+  Scenario: A question on a new question type runs on that type's template
     When I choose "Preview" action for "Prototype tester" in the question bank
     And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
@@ -62,30 +69,24 @@ Feature: make_prototype
     And I should not see "Show differences"
     And I should see "Marks for this submission: 1.00/1.00"
 
-  Scenario: As a teacher, I should not be allowed to edit the question type if it IS a user-defined prototype
-    When I am on the "PROTOTYPE_test_prototype" "core_question > edit" page logged in as teacher1
-    Then I should see "This is a prototype; cannot change question type"
+  Scenario: Editing a question type changes the questions already built on it
+    # Nothing touches the question: the only edit is to its type, and the
+    # question has to run on the new template from then on. This is what
+    # inheritance is for, and what no earlier feature has asked of it.
+    When I am on the "python3_test_prototype" "qtype_coderunner > prototype" page
+    And I set the ace field "template" to:
+      """
+      {{STUDENT_ANSWER}}
 
-  Scenario: As a teacher, I should be allowed to edit the question type if it USES a user-defined prototype
-    When I am on the "Prototype tester" "core_question > edit" page logged in as teacher1
-    And I should see "python3_test_prototype"
-    And I set the field "id_coderunnertype" to "python3"
-    Then I should not see "This is a prototype; cannot change question type"
+      print('from version 2:', {{TEST.testcode}})
+      """
+    And I press "Save as new version"
 
-  Scenario: As a teacher, I should be able to toggle the prototyping off and be able to edit the question type
-    When I am on the "PROTOTYPE_test_prototype" "core_question > edit" page logged in as teacher1
-    And I should see "This is a prototype; cannot change question type"
-    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
-    And I set the field "prototypetype" to "No"
-    And I set the field "id_coderunnertype" to "python3" and dismiss the alert
-    Then I should not see "This is a prototype; cannot change question type"
-
-  Scenario: As a teacher, when I try to create the prototype with empty Sandbox language I should see the validation error
-    Given I am on the "PROTOTYPE_test_prototype" "core_question > edit" page logged in as teacher1
-    And I click on "a[aria-controls='id_advancedcustomisationheadercontainer']" "css_element"
-    When I set the field "language" to ""
-    And I press "id_submitbutton"
-    Then I should see "Sandbox language cannot be empty when creating a prototype."
-    And I set the field "language" to "python3"
-    And I press "id_submitbutton"
-    And I should see "Question bank"
+    And I choose "Preview" action for "Prototype tester" in the question bank
+    And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
+    And I set the field "id_behaviour" to "Adaptive mode"
+    And I press "id_saverestart"
+    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
+    And I press "Check"
+    Then I should see "from version 2: 121"
+    And I should not see "Passed all tests!"

@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript
+@qtype @qtype_coderunner @javascript @v6triage
 Feature: Test sandbox web service
   JavaScript should be able to send job requests directly to the sandbox
   server (Jobe) via Ajax.

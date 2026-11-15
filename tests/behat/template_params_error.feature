@@ -19,8 +19,7 @@ Feature: template_params_error
       | contextlevel | reference | questioncategory | name          |
       | Course       | C1        | Top              | Behat Testing |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
-    And I add a "CodeRunner" question filling the form with:
-      | id_coderunnertype | python3             |
+    And I add a CodeRunner question on "python3" filling the form with:
       | name              | Dummy question      |
       | id_questiontext   | Do nothing          |
       | id_testcode_0     | Helloworld          |
@@ -30,6 +29,7 @@ Feature: template_params_error
   Scenario: As a teacher, I should be given an informative Twig error
     Given the Jobe server supports "twig"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
+    And I expand all fieldsets
     And I set the field "id_templateparamslang" to "twig"
     And I set the following fields to these values:
       | id_templateparams      | {{ /error }} |
@@ -42,6 +42,7 @@ Feature: template_params_error
     Given the CodeRunner test configuration file is loaded
     And the Jobe server supports "python3"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
+    And I expand all fieldsets
     And I set the field "id_templateparamslang" to "python3"
     And I set the following fields to these values:
       | id_templateparams      | print("error) |
@@ -53,6 +54,7 @@ Feature: template_params_error
   Scenario: As a teacher, I should be given an informative C error
     Given the Jobe server supports "c"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
+    And I expand all fieldsets
     And I set the field "id_templateparamslang" to "c"
     And I set the following fields to these values:
       | id_templateparams      | #include <stdio |
@@ -64,6 +66,7 @@ Feature: template_params_error
   Scenario: As a teacher, I should be given an informative Java error
     Given the Jobe server supports "java"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
+    And I expand all fieldsets
     And I set the field "id_templateparamslang" to "java"
     And I set the following fields to these values:
       | id_templateparams      | public static void main(String[] ar |
@@ -75,6 +78,7 @@ Feature: template_params_error
   Scenario: As a teacher, I should be given an informative php error
     Given the Jobe server supports "php"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
+    And I expand all fieldsets
     And I set the field "id_templateparamslang" to "php"
     And I set the field "id_templateparams" to:
       """
@@ -90,6 +94,7 @@ Feature: template_params_error
   Scenario: As a teacher, I should be given an informative Octave error
     Given the Jobe server supports "octave"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
+    And I expand all fieldsets
     And I set the field "id_templateparamslang" to "octave"
     And I set the following fields to these values:
       | id_templateparams      | component = [1 3 |
@@ -101,6 +106,7 @@ Feature: template_params_error
   Scenario: As a teacher, I should be given an informative Pascal error
     Given the Jobe server supports "pascal"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
+    And I expand all fieldsets
     And I set the field "id_templateparamslang" to "pascal"
     And I set the following fields to these values:
       | id_templateparams      | program AProgram(output |
