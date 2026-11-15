@@ -432,11 +432,18 @@ class ScratchpadUi {
     resize() {} // Nothing to see here. Move along please.
 
     hasFocus() {
+        // The optional chain has to cover uiInstance as well as the wrapper
+        // holding it: a wrapper's uiInstance is null until its own loadUi has
+        // finished, which is asynchronous. Guarding only the wrapper threw
+        // whenever anything asked a scratchpad whether it had focus before
+        // its inner editors had arrived - which the wrapper does on its way
+        // through stop(), so switching the UI plugin on the author form threw
+        // here instead of switching.
         let focused = false;
-        if (this.answerCodeUi?.uiInstance.hasFocus()) {
+        if (this.answerCodeUi?.uiInstance?.hasFocus()) {
             focused = true;
         }
-        if (this.testCodeUi?.uiInstance.hasFocus()) {
+        if (this.testCodeUi?.uiInstance?.hasFocus()) {
             focused = true;
         }
         return focused;
@@ -444,8 +451,10 @@ class ScratchpadUi {
 
     destroy() {
         this.sync();
-        this.answerCodeUi?.uiInstance.destroy();
-        this.testCodeUiCodeUi?.uiInstance.destroy();
+        this.answerCodeUi?.uiInstance?.destroy();
+        // Was `testCodeUiCodeUi`, which is nothing, so the test code's editor
+        // was never destroyed and leaked an Ace instance on every switch.
+        this.testCodeUi?.uiInstance?.destroy();
         this.outerDiv?.remove();
         this.outerDiv = null;
     }

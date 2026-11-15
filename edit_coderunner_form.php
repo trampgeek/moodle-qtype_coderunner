@@ -137,18 +137,25 @@ class qtype_coderunner_edit_form extends question_edit_form {
     protected function require_answer_box_ui($mform) {
         global $PAGE;
 
-        $uiplugin = (string) $this->resolved_settings()->get('uiplugin');
-        if ($uiplugin === '' || strtolower($uiplugin) === 'none') {
-            return;
+        // Asked for whatever the menu currently says, and asked for first, so
+        // that the UI is on its way before the module below reloads it.
+        $uiplugin = $this->answer_box_ui_plugin();
+        if ($uiplugin !== '') {
+            foreach (['answer', 'answerpreload'] as $field) {
+                $PAGE->requires->js_call_amd(
+                    'qtype_coderunner/userinterfacewrapper',
+                    'newUiWrapper',
+                    [$uiplugin, 'id_' . $field]
+                );
+            }
         }
 
-        foreach (['answer', 'answerpreload'] as $field) {
-            $PAGE->requires->js_call_amd(
-                'qtype_coderunner/userinterfacewrapper',
-                'newUiWrapper',
-                [$uiplugin, 'id_' . $field]
-            );
-        }
+        // And then kept in step with the form. Loaded whatever was chosen
+        // above, including nothing at all: an author who changes the menu
+        // from *None* to a real UI has to see the UI appear, and this is what
+        // starts it. It also supplies `data-test0`, which the server cannot:
+        // see the module's own comment.
+        $PAGE->requires->js_call_amd('qtype_coderunner/answerboxui', 'init');
     }
 
     /**
@@ -768,6 +775,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             'class' => 'answer edit_code',
             'data-params' => $this->get_merged_ui_params(),
             'data-lang' => $this->acelang];
+        $attributes += $this->answer_box_ui_data();
         $mform->addElement(
             'textarea',
             'answer',
@@ -819,6 +827,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             'class' => 'preloadanswer edit_code',
             'data-params' => $this->get_merged_ui_params(),
             'data-lang' => $this->acelang];
+        $attributes += $this->answer_box_ui_data();
         $mform->addElement(
             'textarea',
             'answerpreload',
@@ -1781,5 +1790,76 @@ class qtype_coderunner_edit_form extends question_edit_form {
         }, $error);
 
         return $error;
+    }
+
+    /**
+     * A field's value as the author gave it, falling back to the resolved one.
+     *
+     * Validation reads the resolved question almost everywhere, because a
+     * field this question inherits is greyed by `disabledIf` and a disabled
+     * control is not submitted, so there is no key for it in `$data` — and
+     * what matters is the value the question will use, whoever supplies it.
+     * The exception is a field whose type is lossy on the way through: an
+     * integer box's text becomes `(int)` of itself, which is 0 for anything
+     * unparseable, so the resolved value can no longer tell a typo from a
+     * deliberate zero. Where this layer does supply the field, the submitted
+     * text is the better evidence.
+     *
+     * @param array $data the submitted form data.
+     * @param string $name the field's name.
+     * @return mixed the value to validate.
+     */
+    protected function submitted_or_resolved(array $data, string $name) {
+        return array_key_exists($name, $data) ? $data[$name] : $this->formquestion->$name;
+    }
+
+    /**
+     * The UI plugin to run on the answer and answer preload boxes, if any.
+     *
+     * The HTML UI may declare that it must not run on the author form, by
+     * setting the ui parameter enable_in_editor false. CodeRunner 5 honoured
+     * this in authorform.js's setUis(), and a UI whose definition is written
+     * in Twig needs it: the form shows the definition unexpanded, so the UI
+     * would be handed `{{ testcases | json_encode }}` rather than the tests.
+     * Absent means enabled, as it did in CodeRunner 5; only an explicit false
+     * disables.
+     *
+     * @return string the plugin name, or the empty string for no UI at all.
+     */
+    protected function answer_box_ui_plugin(): string {
+        $uiplugin = (string) $this->resolved_settings()->get('uiplugin');
+        if ($uiplugin === '' || strtolower($uiplugin) === 'none') {
+            return '';
+        }
+
+        if (strtolower($uiplugin) === 'html') {
+            $params = json_decode((string) $this->get_merged_ui_params(), true);
+            if (is_array($params) && ($params['enable_in_editor'] ?? true) === false) {
+                return '';
+            }
+        }
+
+        return $uiplugin;
+    }
+
+    /**
+     * The data attributes a UI plugin reads its given text from.
+     *
+     * Empty when no UI will run on the answer boxes: these carry whole UI
+     * definitions - 86 KB of one, for the RoboTurtle type - and putting that
+     * on two textareas nothing will read is pure page weight.
+     *
+     * @return array attribute name => value, for merging into a textarea's attributes.
+     */
+    protected function answer_box_ui_data(): array {
+        if ($this->answer_box_ui_plugin() === '') {
+            return [];
+        }
+        return [
+            // Whichever of the two its html_src parameter names, as the attempt
+            // page supplies both (see renderer.php).
+            'data-globalextra' => (string) $this->resolved_settings()->get('globalextra'),
+            'data-prototypeextra' => (string) $this->resolved_settings()->get('prototypeextra'),
+        ];
     }
 }

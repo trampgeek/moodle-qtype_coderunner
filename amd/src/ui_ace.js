@@ -329,10 +329,18 @@ define([], function() {
     AceWrapper.prototype.destroy = function () {
         if (this.editor) {
             const focused = this.editor.isFocused();
-            this.textarea.value = this.editor.getSession().getValue();
+            // The textarea is looked up once, in the constructor, so it can be
+            // null: an editor built for an element that was never rendered has
+            // nothing to write back to. The Scratchpad UI's test-code box is
+            // one - it is not in the page until the scratchpad is opened - and
+            // destroying that editor threw here, which also meant the rest of
+            // this method, and of the caller, never ran.
+            if (this.textarea) {
+                this.textarea.value = this.editor.getSession().getValue();
+            }
             this.editor.destroy();
-            this.editNode.remove();
-            if (focused) {
+            this.editNode?.remove();
+            if (focused && this.textarea) {
                 this.textarea.focus();
                 this.textarea.selectionStart = this.textarea.value.length;
             }
