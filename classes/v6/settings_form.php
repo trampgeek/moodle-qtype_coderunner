@@ -554,12 +554,7 @@ class settings_form {
             ? self::changed_marker()
             : '';
 
-        return $mform->createElement(
-            'static',
-            $field->name . '_source',
-            '',
-            $marker . \html_writer::tag('small', $text, ['class' => 'text-muted'])
-        );
+        return self::provenance_static($mform, $field, $text, $marker);
     }
 
     /**
@@ -580,6 +575,39 @@ class settings_form {
         }
         // Both `{}` and `[]` decode to the empty array.
         return json_decode($text, true) === [];
+    }
+
+    /**
+     * The static element that carries a field's provenance note.
+     *
+     * The note quotes things an author wrote - what a field would inherit, and
+     * the name of the layer it would come from - so it is escaped here, where
+     * it becomes markup. Unescaped it was read as markup: RoboTurtle's
+     * prototypeextra opens with an HTML comment, and the 80-character summary
+     * of it carried the `<!--` without the `-->` that closes it, so the rest
+     * of the page became comment text. Every script tag after this element,
+     * including the RequireJS bootstrap, was commented out, and the form
+     * arrived with no JavaScript at all: no Ace editors, no collapsing
+     * sections, and nothing in the console to say why.
+     *
+     * @param \MoodleQuickForm $mform the form being built.
+     * @param field $field the field the note belongs to.
+     * @param string $text the note, as plain text.
+     * @param string $marker the changed marker's HTML, or the empty string.
+     * @return object the static element.
+     */
+    protected static function provenance_static(
+        \MoodleQuickForm $mform,
+        field $field,
+        string $text,
+        string $marker
+    ) {
+        return $mform->createElement(
+            'static',
+            $field->name . '_source',
+            '',
+            $marker . \html_writer::tag('small', s($text), ['class' => 'text-muted'])
+        );
     }
 
     /**
@@ -791,12 +819,7 @@ class settings_form {
             ? self::changed_marker()
             : '';
 
-        return $mform->createElement(
-            'static',
-            $field->name . '_source',
-            '',
-            $marker . \html_writer::tag('small', $text, ['class' => 'text-muted'])
-        );
+        return self::provenance_static($mform, $field, $text, $marker);
     }
 
     /**

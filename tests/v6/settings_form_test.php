@@ -635,6 +635,45 @@ final class settings_form_test extends \advanced_testcase {
     }
 
     /**
+     * The note escapes the value it quotes.
+     *
+     * A prototype's field may hold anything, markup included: RoboTurtle's
+     * prototypeextra opens with an HTML comment. Quoted raw, the summary of it
+     * carried the `<!--` and the truncation dropped the `-->`, so the rest of
+     * the page -- every remaining script tag, the RequireJS bootstrap with
+     * them -- was parsed as comment text. The form then arrived with no
+     * JavaScript running at all and nothing in the console to explain it.
+     */
+    public function test_the_note_escapes_markup_in_the_value_it_quotes(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+        $this->resetAfterTest();
+
+        $inherited = prototype_chain::from_arrays([
+            // Long enough that the 80-character summary keeps the `<!--` and
+            // drops the `-->`, which is the shape RoboTurtle's own value has.
+            ['prototypeextra' => '<!-- The "prototypeextra" field for the CodeRunner '
+                . 'Reeborg question type, which opens with a comment this long. --><b>x</b>'],
+        ])->resolve();
+
+        $mform = new \MoodleQuickForm('t', 'post', '');
+        settings_form::add_section(
+            $mform,
+            form_section::EXTRAS,
+            $inherited,
+            new override_set(['prototypeextra' => 'MINE'], 'q')
+        );
+
+        $note = (string) $this->group_member($mform, 'prototypeextra', 'prototypeextra_source')->_text;
+
+        $this->assertStringContainsString('…', $note, 'The value was not truncated.');
+        $this->assertStringNotContainsString('<!--', $note, 'An unclosed comment was opened.');
+        $this->assertStringNotContainsString('-->', $note);
+        $this->assertStringNotContainsString('<b>', $note);
+        $this->assertStringContainsString('&lt;!--', $note);
+    }
+
+    /**
      * A form submits CRLF whatever the textarea was given, so the submitted
      * value is brought back to newlines before it is stored. Otherwise saving
      * a template rewrites every line of it without changing a character that
