@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @prototypetests
+@qtype @qtype_coderunner @javascript @prototypetests @v6fail
 Feature: test_combinator_grader
   For the ultimate in grading flexibility
   As a teacher

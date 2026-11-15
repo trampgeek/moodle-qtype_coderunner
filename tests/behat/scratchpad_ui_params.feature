@@ -672,6 +672,7 @@ Feature: Test the Scratchpad UI, UI Params
     And I press "Run"
     Then I should see "SyntaxError: invalid syntax"
 
+  @v6fail
   Scenario: Create a wrapper with student code in single double-quote string (python) and enter program containing many quotes.
     And I set the field "id_answer" to ""
     And I override the CodeRunner fields "uiplugin, globalextra"

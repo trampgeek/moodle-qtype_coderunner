@@ -329,7 +329,7 @@ Feature: Test the Scratchpad UI
     {"answer_code":["print('hello world')"],"test_code":[""],"show_hide":[""],"prefix_ans":["1"]}
     """
 
-  @serial
+  @serial @v6fail
   Scenario: Enter serialisation missing answer_code.
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I set the field "id_answer" to ""

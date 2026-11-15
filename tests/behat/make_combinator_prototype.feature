@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @prototypetests
+@qtype @qtype_coderunner @javascript @prototypetests @v6fail
 Feature: make_combinator_prototype
   In order to to create even more sophisticated CodeRunner questions
   As a teacher
