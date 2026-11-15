@@ -1144,16 +1144,21 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // greyed by disabledIf, and a disabled control is not submitted, so
         // the submitted data has no key for it; and what wants validating is
         // the value the question will use, whichever layer supplies it.
-        if (
-            $q->cputimelimitsecs != '' &&
-             (!ctype_digit((string) $q->cputimelimitsecs) || intval($q->cputimelimitsecs) <= 0)
-        ) {
+        // The two integer limits are the exception to reading from the
+        // resolved question: resolution casts an integer field, so whatever
+        // was typed in the box reaches here as `(int)` of it, and `(int)` of
+        // anything unparseable is 0. For the memory limit 0 is a legal value
+        // meaning *no limit imposed*, so a typo passed every check and was
+        // saved as "unlimited" without a word. (The CPU limit escaped only
+        // because 0 is invalid for it, so the cast happened to fail the same
+        // check the text would have.) What wants validating is therefore the
+        // text the author typed, where this layer supplies it.
+        $cputime = $this->submitted_or_resolved($data, 'cputimelimitsecs');
+        if ($cputime != '' && (!ctype_digit((string) $cputime) || intval($cputime) <= 0)) {
             $errors['cputimelimitsecs_group'] = get_string('badcputime', 'qtype_coderunner');
         }
-        if (
-            $q->memlimitmb != '' &&
-             (!ctype_digit((string) $q->memlimitmb) || intval($q->memlimitmb) < 0)
-        ) {
+        $memlimit = $this->submitted_or_resolved($data, 'memlimitmb');
+        if ($memlimit != '' && (!ctype_digit((string) $memlimit) || intval($memlimit) < 0)) {
             $errors['memlimitmb_group'] = get_string('badmemlimit', 'qtype_coderunner');
         }
 

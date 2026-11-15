@@ -396,6 +396,77 @@ final class question_form_test extends \advanced_testcase {
     }
 
     /**
+     * A memory limit that is not a number is refused.
+     *
+     * It reaches validation through a resolved question, and resolution casts
+     * an integer field, so the text arrived as `(int)` of itself — 0, which
+     * for this field is the legal value meaning *no limit imposed*. So the
+     * typo passed every check and was saved as "unlimited" silently. A zero
+     * the author really typed still has to be accepted, which is what makes
+     * the two indistinguishable once cast and why the submitted text is read.
+     *
+     * @param string $submitted what the author typed in the box.
+     * @param bool $refused whether the form should refuse it.
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('memory_limit_provider')]
+    public function test_a_bad_memory_limit_is_refused(string $submitted, bool $refused): void {
+        $this->make_prototype('python3');
+        $questiondata = $this->make_question('python3');
+
+        $form = $this->build_form($questiondata);
+        $errors = $form->validation([
+            'category' => $this->category->id . ',' . $this->category->contextid,
+            'name' => 'Memory limit',
+            'questiontext' => ['text' => 'Write sqr.', 'format' => FORMAT_HTML],
+            'generalfeedback' => ['text' => '', 'format' => FORMAT_HTML],
+            'defaultmark' => 1,
+            prototype_picker::FIELD => $questiondata->options->prototypeid,
+            'memlimitmb' => $submitted,
+            settings_form::INHERIT_PREFIX . 'memlimitmb' => 0,
+            'penaltyregime' => '10, 20, ...',
+            settings_form::INHERIT_PREFIX . 'penaltyregime' => 0,
+            'validateonsave' => 0,
+            // The test case columns, which validation reads whatever else it
+            // is checking.
+            'testcode' => ['print(sqr(2))'],
+            'stdin' => [''],
+            'expected' => ["4\n"],
+            'extra' => [''],
+            'mark' => ['1.0'],
+            'ordering' => ['10'],
+            'useasexample' => ['0'],
+            'display' => ['SHOW'],
+            'hiderestiffail' => ['0'],
+        ], []);
+
+        if ($refused) {
+            $this->assertArrayHasKey('memlimitmb_group', $errors);
+            $this->assertSame(
+                get_string('badmemlimit', 'qtype_coderunner'),
+                $errors['memlimitmb_group']
+            );
+        } else {
+            $this->assertArrayNotHasKey('memlimitmb_group', $errors);
+        }
+    }
+
+    /**
+     * Memory limits, and whether each should be refused.
+     *
+     * @return array the cases.
+     */
+    public static function memory_limit_provider(): array {
+        return [
+            'not a number' => ['notanumber', true],
+            'negative' => ['-5', true],
+            'trailing rubbish' => ['512mb', true],
+            'zero means no limit' => ['0', false],
+            'blank means unset' => ['', false],
+            'a real limit' => ['512', false],
+        ];
+    }
+
+    /**
      * The test case columns a question's chain switches off are not offered,
      * and the ones it leaves on are.
      */
