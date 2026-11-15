@@ -1229,4 +1229,43 @@ final class settings_form_test extends \advanced_testcase {
         );
         $this->assertSame(1, settings_form::changed_count(form_section::TEMPLATE, $own, $inherited));
     }
+
+    /**
+     * Every inheritable control that sits in a group carries an accessible
+     * name.
+     *
+     * Formslib labels a group as a whole and marks that label aria-hidden,
+     * because a group is expected to name its own children. So an input placed
+     * in one alongside its *Inherit* checkbox has no accessible name unless it
+     * supplies its own, and an author using a screen reader meets an unnamed
+     * control. Code fields are added as standalone elements and keep a real
+     * label, so they are exempt and must *not* carry a duplicate.
+     */
+    public function test_every_grouped_control_has_an_accessible_name(): void {
+        $this->resetAfterTest();
+        $mform = new \MoodleQuickForm('test', 'post', '/');
+        $method = new \ReflectionMethod(settings_form::class, 'input_element');
+        $method->setAccessible(true);
+
+        $checked = 0;
+        foreach (field_registry::inheritable() as $field) {
+            $element = $method->invoke(null, $mform, $field, 'python3', false, false);
+            $aria = $element->getAttribute('aria-label');
+            if ($field->iscode) {
+                $this->assertNull(
+                    $aria,
+                    "Code field {$field->name} is standalone and should not carry an aria-label."
+                );
+                continue;
+            }
+            $this->assertNotEmpty(
+                $aria,
+                "Grouped field {$field->name} has no accessible name."
+            );
+            $checked++;
+        }
+
+        // Guards against the loop silently finding nothing to check.
+        $this->assertGreaterThan(20, $checked);
+    }
 }

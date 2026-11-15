@@ -653,8 +653,17 @@ class settings_form {
         $name = $field->name;
         $label = $ownlabel ? self::field_label($field) : '';
 
+        // An element inside a group gets no <label for="...">: formslib labels
+        // the group as a whole and marks that label aria-hidden, because a
+        // group is expected to name its own children. So a grouped control has
+        // to carry its own accessible name, or an author using a screen reader
+        // meets an input with no name at all. Code fields are exempt: they are
+        // added as standalone elements and keep a real label.
+        $grouped = !$ownlabel && !$field->iscode;
+        $aria = $grouped ? ['aria-label' => self::field_label($field)] : [];
+
         if ($field->type === field_type::CHOICE) {
-            return $mform->createElement('select', $name, $label, field_registry::choices($name));
+            return $mform->createElement('select', $name, $label, field_registry::choices($name), $aria);
         }
         if ($field->type === field_type::BOOLEAN) {
             // Not a checkbox: it would sit beside the override checkbox as two
@@ -663,12 +672,12 @@ class settings_form {
             return $mform->createElement('select', $name, $label, [
                 0 => get_string('no'),
                 1 => get_string('yes'),
-            ]);
+            ], $aria);
         }
         if ($field->type === field_type::TEXT || $field->type === field_type::JSON) {
             // A code field carries its own label, since it is not in a group.
             $label = ($field->iscode || $ownlabel) ? self::field_label($field) : '';
-            $attributes = ['rows' => $field->rows ?: ($field->iscode ? 12 : 2)];
+            $attributes = array_merge(['rows' => $field->rows ?: ($field->iscode ? 12 : 2)], $aria);
             if ($field->iscode) {
                 // InterfaceWrapper reads the language from this attribute and
                 // overwrites whatever data-params holds, so this is the only
@@ -693,9 +702,9 @@ class settings_form {
             return $mform->createElement('textarea', $name, $label, $attributes);
         }
         if ($field->type === field_type::INTEGER) {
-            return $mform->createElement('text', $name, $label, ['size' => 6]);
+            return $mform->createElement('text', $name, $label, array_merge(['size' => 6], $aria));
         }
-        return $mform->createElement('text', $name, $label, ['size' => 40]);
+        return $mform->createElement('text', $name, $label, array_merge(['size' => 40], $aria));
     }
 
     /**
