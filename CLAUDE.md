@@ -65,8 +65,12 @@ What changed, and what most of the new code is about:
 Each is a pair under `amd/src/`: a JS module `ui_<name>.js` and a JSON schema `ui_<name>.json`
 describing its parameters. Ace is the default. A UI reads the text it lays out from data attributes
 on the textarea it manages — `data-globalextra`, `data-prototypeextra`, `data-test0` — which
-`renderer.php` sets on the attempt page and `amd/src/answerboxui.js` keeps in step on the author
-form.
+`renderer.php` sets on the attempt page and `edit_coderunner_form.php` sets on the author form.
+**Which UI runs is the server's decision alone**, taken from the resolved settings when the page
+is built. An `answerboxui.js` once re-took that decision in the browser on every load, and after
+the prototype picker rebuilt the form the two disagreed; there is deliberately no JavaScript in
+that path now, so changing the *Student answer* menu by hand shows nothing until the question is
+saved.
 
 ### Twig templates
 

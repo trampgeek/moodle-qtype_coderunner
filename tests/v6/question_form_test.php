@@ -34,6 +34,11 @@ global $CFG;
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+// The form's own base class, which edit_coderunner_form.php does not pull in
+// for itself: without this the file loads only when some other test in the
+// suite has required it first, and running this one alone fails with
+// Class "question_edit_form" not found.
+require_once($CFG->dirroot . '/question/type/edit_question_form.php');
 require_once($CFG->dirroot . '/question/type/coderunner/edit_coderunner_form.php');
 
 /**
@@ -464,6 +469,171 @@ final class question_form_test extends \advanced_testcase {
             'blank means unset' => ['', false],
             'a real limit' => ['512', false],
         ];
+    }
+
+    /**
+     * The value the form holds for an element, as it would be rendered.
+     *
+     * @param \MoodleQuickForm $mform the form.
+     * @param string $name the element's name.
+     * @return string the value, with a select's single selection unwrapped.
+     */
+    private function element_value(\MoodleQuickForm $mform, string $name): string {
+        // The form's own default, read from the bag rather than through
+        // getElementValue(): that is another of the PEAR methods that throw
+        // under PHP 8 -- `PEAR::getStaticProperty() cannot be called
+        // statically` -- as toHtml() does.
+        $property = new \ReflectionProperty(get_class($mform), '_defaultValues');
+        $property->setAccessible(true);
+        $value = $property->getValue($mform)[$name] ?? null;
+        if (is_array($value)) {
+            $value = reset($value);
+        }
+        return (string) $value;
+    }
+
+    /**
+     * A question's own test cases, reloaded after a change behind the form's back.
+     *
+     * @param int $questionid the question.
+     * @return \stdClass the question data.
+     */
+    private function reload_question(int $questionid): \stdClass {
+        \question_bank::notify_question_edited($questionid);
+        return \question_bank::load_question_data($questionid);
+    }
+
+    /**
+     * Drops one field from a question's overrides, so that it is inherited.
+     *
+     * The `sqr` fixture pins `uiplugin` to *None*, as a test question wants to
+     * -- which makes it the overridden case rather than the inherited one.
+     *
+     * @param int $questionid the question.
+     * @param string $field the field to stop overriding.
+     * @return \stdClass the reloaded question data.
+     */
+    private function inherit_field(int $questionid, string $field): \stdClass {
+        global $DB;
+
+        $stored = $DB->get_field('question_coderunner_options', 'overrides', ['questionid' => $questionid]);
+        $overrides = json_decode((string) $stored, true) ?: [];
+        unset($overrides[$field]);
+        $DB->set_field(
+            'question_coderunner_options',
+            'overrides',
+            json_encode($overrides),
+            ['questionid' => $questionid]
+        );
+
+        return $this->reload_question($questionid);
+    }
+
+    /**
+     * Choosing a different prototype re-points the fields the question inherits.
+     *
+     * The picker rebuilds the form server-side, and core's
+     * `question_edit_form::set_data()` flattens the question's *stored* options
+     * onto it afterwards -- so without `repoint_inherited_fields()` every
+     * inherited field answers for the prototype the question was saved with.
+     * It showed as the answer box keeping the old UI, which is why `uiplugin`
+     * is the field asserted here, but it was never confined to that one.
+     */
+    public function test_a_change_of_prototype_repoints_the_inherited_fields(): void {
+        $ace = $this->make_prototype('python3', ['uiplugin' => 'ace', 'language' => 'python3']);
+        $this->make_prototype('python3_scratchpad', ['uiplugin' => 'scratchpad', 'language' => 'python3']);
+        $questiondata = $this->make_question('python3_scratchpad');
+        $questiondata = $this->inherit_field((int) $questiondata->id, 'uiplugin');
+
+        $mform = $this->quickform($this->build_form($questiondata));
+        $this->assertSame(
+            'scratchpad',
+            $this->element_value($mform, 'uiplugin'),
+            'As saved, the question inherits the scratchpad UI.'
+        );
+
+        // As the picker's reload submits it.
+        $_POST['prototypeid'] = (string) $ace->id;
+        try {
+            $form = $this->build_form($questiondata);
+            $form->set_data($questiondata);
+            $this->assertSame(
+                'ace',
+                $this->element_value($this->quickform($form), 'uiplugin'),
+                'After the change it answers for the prototype just chosen.'
+            );
+        } finally {
+            unset($_POST['prototypeid']);
+        }
+    }
+
+    /**
+     * A field the question overrides survives a change of prototype.
+     *
+     * Its value is the question's own, so a new chain does not touch it. This
+     * is the other half of the rule, and the half a careless fix would break.
+     */
+    public function test_a_change_of_prototype_leaves_an_overridden_field_alone(): void {
+        global $DB;
+
+        $ace = $this->make_prototype('python3', ['uiplugin' => 'ace']);
+        $this->make_prototype('python3_scratchpad', ['uiplugin' => 'scratchpad']);
+        $questiondata = $this->make_question('python3_scratchpad');
+
+        $DB->set_field(
+            'question_coderunner_options',
+            'overrides',
+            json_encode(['uiplugin' => 'graph']),
+            ['questionid' => $questiondata->id]
+        );
+        $questiondata = $this->reload_question((int) $questiondata->id);
+
+        $_POST['prototypeid'] = (string) $ace->id;
+        try {
+            $form = $this->build_form($questiondata);
+            $form->set_data($questiondata);
+            $this->assertSame(
+                'graph',
+                $this->element_value($this->quickform($form), 'uiplugin'),
+                "The author's own choice is not replaced by the new chain's."
+            );
+        } finally {
+            unset($_POST['prototypeid']);
+        }
+    }
+
+    /**
+     * A test case column with something in it is offered whatever its switch says.
+     *
+     * The switches govern the form and not the data, so a column turned off
+     * after it was filled in went on reaching the template with no way for its
+     * author to see it or clear it.
+     */
+    public function test_a_test_case_column_in_use_is_offered_despite_its_switch(): void {
+        global $DB;
+
+        $this->make_prototype('python3', ['showstdin' => 0, 'showtestextra' => 0]);
+        $questiondata = $this->make_question('python3');
+
+        $first = reset($questiondata->options->testcases);
+        $DB->set_field(
+            'question_coderunner_tests',
+            'extra',
+            '# this is read by the template',
+            ['id' => $first->id]
+        );
+        $questiondata = $this->reload_question((int) $questiondata->id);
+
+        $mform = $this->quickform($this->build_form($questiondata));
+
+        $this->assertTrue(
+            $mform->elementExists('extra[0]'),
+            'The column holds something, so it is offered however its switch is set.'
+        );
+        $this->assertFalse(
+            $mform->elementExists('stdin[0]'),
+            'The one that is both switched off and empty stays hidden.'
+        );
     }
 
     /**

@@ -737,6 +737,50 @@ class behat_qtype_coderunner extends behat_base {
      * @param string $elname the field, for the error message.
      * @throws ExpectationException if no editor appears.
      */
+    /**
+     * Checks that an Ace field is highlighting the language it should be.
+     *
+     * Asserts the editor's *mode*, which is what syntax colouring is: Ace
+     * picks a mode from the language it is given and colours the text from
+     * that mode's grammar. A field handed no language falls back to plain
+     * text, which renders perfectly well and is not coloured at all -- so a
+     * test that only typed into the field and read the value back would pass
+     * either way. That is how the language came to be dropped on the author
+     * form without any scenario noticing.
+     *
+     * The expected name is matched loosely, because Ace's mode ids are its own
+     * ("ace/mode/python" for every Python) and the question's language is
+     * CodeRunner's ("python3"); ui_ace.js maps between them.
+     *
+     * @Then /^the ace field "(?P<elname>(?:[^"]|\\")*)" should be highlighting "(?P<language>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $elname the name of the textarea Ace manages.
+     * @param string $language the language, or the stem of one, Ace should use.
+     */
+    public function the_ace_field_should_be_highlighting($elname, $language) {
+        $xpath = "//textarea[@name='$elname' or (contains(@name, '$elname') " .
+             "and contains(@class, 'edit_code'))]/following-sibling::div[1]/div";
+        $this->wait_for_ace_editor($xpath, $elname);
+        $javascript = "const editorNode = document.evaluate("
+               . "`$xpath`,"
+               . "document,"
+               . "null,"
+               . "XPathResult.ANY_TYPE,null,"
+               . ");"
+               . "return ace.edit(editorNode.iterateNext()).session.getMode().\$id;";
+        $mode = (string) $this->getSession()->evaluateScript("(function() { $javascript })()");
+
+        $wanted = strtolower(rtrim($language, '0123456789'));
+        if (!str_contains(strtolower($mode), $wanted)) {
+            throw new ExpectationException(
+                "The ace field '{$elname}' is in mode '{$mode}', which is not " .
+                "a mode for '{$language}'. A field with no language falls back " .
+                "to 'ace/mode/text' and is not syntax coloured.",
+                $this->getSession()
+            );
+        }
+    }
+
     protected function wait_for_ace_editor(string $xpath, string $elname): void {
         $driver = $this->getSession()->getDriver();
         $this->spin(

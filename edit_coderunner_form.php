@@ -132,13 +132,20 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * from the settings the question resolves to, so that an author writing a
      * sample answer sees the editor their students will see.
      *
+     * **The server is the only thing that decides which UI runs.** An earlier
+     * `amd/src/answerboxui.js` also decided, from the UI plugin menu, on every
+     * page load -- so after the picker rebuilt the form the two disagreed and
+     * the JavaScript won, leaving the old prototype's UI on the box. It is
+     * gone, and with it the one reason it was needed: `data-test0` is rendered
+     * by {@see answer_box_ui_data()}. The cost, accepted by the author on 16
+     * November, is that changing the UI plugin menu by hand shows nothing
+     * until the question is saved, which is rare beside changing its type.
+     *
      * @param MoodleQuickForm $mform the form being built.
      */
     protected function require_answer_box_ui($mform) {
         global $PAGE;
 
-        // Asked for whatever the menu currently says, and asked for first, so
-        // that the UI is on its way before the module below reloads it.
         $uiplugin = $this->answer_box_ui_plugin();
         if ($uiplugin !== '') {
             foreach (['answer', 'answerpreload'] as $field) {
@@ -149,13 +156,6 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 );
             }
         }
-
-        // And then kept in step with the form. Loaded whatever was chosen
-        // above, including nothing at all: an author who changes the menu
-        // from *None* to a real UI has to see the UI appear, and this is what
-        // starts it. It also supplies `data-test0`, which the server cannot:
-        // see the module's own comment.
-        $PAGE->requires->js_call_amd('qtype_coderunner/answerboxui', 'init');
     }
 
     /**
@@ -442,6 +442,30 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
     /**
+     * The chosen prototype's chain, with the question's overrides on the end.
+     *
+     * {@see resolve_chain()} returns what a chain resolves to; this returns
+     * the chain, which is what the UI-parameter merge needs, because that
+     * merge walks the layers and takes each one's parameters only if the UI
+     * plugin in force at that point is the one finally resolved.
+     *
+     * @return \qtype_coderunner\v6\prototype_chain|null the chain, or null if
+     *      there is no usable prototype.
+     */
+    protected function chosen_chain() {
+        $prototypeid = $this->chosen_prototypeid();
+        if ($prototypeid === null) {
+            return null;
+        }
+        try {
+            $repository = new \local_coderunner_manager\prototype_repository();
+            return $repository->chain_for($prototypeid, $this->own_overrides());
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
+    /**
      * What the question overrides of its chain.
      *
      * @return override_set the question's own overrides.
@@ -553,6 +577,30 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
     /**
+     * Which of the four test case columns hold something, in any row.
+     *
+     * Read from the stored test cases rather than from what was submitted,
+     * because the question being graded on an invisible value is a property of
+     * what is saved. A form rebuilt mid-edit therefore goes on offering a
+     * column the author has just emptied, until the question is saved -- which
+     * is the right way round: the column disappearing from under a part-made
+     * edit would be worse than its staying one save too long.
+     *
+     * @return array column name => true if any row has a value in it.
+     */
+    protected function testcase_columns_in_use(): array {
+        $used = [];
+        foreach ($this->question->options->testcases ?? [] as $testcase) {
+            foreach (['testcode', 'stdin', 'expected', 'extra'] as $column) {
+                if (trim((string) ($testcase->$column ?? '')) !== '') {
+                    $used[$column] = true;
+                }
+            }
+        }
+        return $used;
+    }
+
+    /**
      * Which of the four test case fields this question's prototype asks the
      * form to offer.
      *
@@ -562,15 +610,25 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * the data: a column that is not shown keeps whatever it holds, which
      * get_data() puts back.
      *
+     * **A column with something in it is shown whatever its switch says.**
+     * Because the data survives, a switch turned off after a field was filled
+     * in left the question being graded on a value its author could no longer
+     * see -- reported from the test server on 16 November, where an author set
+     * an *Extra* field, turned the column off, and went on getting the
+     * grading it produced. The switch decides whether a column is *offered*;
+     * it cannot be allowed to hide one that is in use. Clearing the field is
+     * what stops it mattering, and that is only possible while it shows.
+     *
      * @return array field name => true if the column is shown.
      */
     protected function testcase_columns(): array {
         $resolved = $this->resolved_settings();
+        $used = $this->testcase_columns_in_use();
         return [
-            'testcode' => (bool) $resolved->get('showtestcode'),
-            'stdin' => (bool) $resolved->get('showstdin'),
-            'expected' => (bool) $resolved->get('showexpected'),
-            'extra' => (bool) $resolved->get('showtestextra'),
+            'testcode' => (bool) $resolved->get('showtestcode') || !empty($used['testcode']),
+            'stdin' => (bool) $resolved->get('showstdin') || !empty($used['stdin']),
+            'expected' => (bool) $resolved->get('showexpected') || !empty($used['expected']),
+            'extra' => (bool) $resolved->get('showtestextra') || !empty($used['extra']),
             // Which tests a precheck runs is a per-test choice only when the
             // question's precheck is *Selected*. Under every other setting the
             // answer is the same for every test, so the column says the same
@@ -994,12 +1052,62 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
 
+    /**
+     * Re-points the fields the question inherits at the prototype just chosen.
+     *
+     * The one window in which this can be done, and it has to be done here.
+     * `question_edit_form::set_data()` flattens `extra_question_fields()` off
+     * `$question->options` onto the question itself before it calls this
+     * method, and then turns what it finds into the form's defaults. Those
+     * options were resolved when the question was **loaded**, against the
+     * prototype stored in the database -- so after the picker rebuilds the
+     * form for a different prototype, core's flatten overwrites the correct
+     * defaults `settings_form` has just set from the new chain, and every
+     * inherited field shows the old prototype's value. Measured on a question
+     * moved from `python3_scratchpad` to `python3`: the form's default for
+     * `uiplugin` was `ace` after `definition()` and `scratchpad` after
+     * `set_data()`.
+     *
+     * It showed first as the answer box keeping the old UI, which is the
+     * visible half, but it was never confined to `uiplugin`: every inheritable
+     * field answered for the old prototype until the question was saved.
+     *
+     * A field the question **overrides** is left alone. Its value is the
+     * question's own, so a change of prototype does not touch it, and
+     * `resolved_settings()` returns exactly that -- which is why the override
+     * set is consulted rather than simply writing every resolved value.
+     * Nothing is done at all unless the prototype has actually changed, so an
+     * ordinary load is untouched.
+     *
+     * @param stdClass $question the question data core has flattened.
+     */
+    protected function repoint_inherited_fields($question): void {
+        $chosen = $this->chosen_prototypeid();
+        $stored = isset($question->options->prototypeid) ? (int) $question->options->prototypeid : null;
+        if ($chosen === null || $chosen === $stored) {
+            return;
+        }
+
+        $resolved = $this->resolved_settings();
+        $own = $this->own_overrides();
+        $flattened = array_flip(array_slice(qtype_coderunner::extra_question_fields_static(), 1));
+
+        foreach (field_registry::inheritable() as $name => $field) {
+            if (!isset($flattened[$name]) || !$field->resolves_to_one_value() || $own->has($field)) {
+                continue;
+            }
+            $question->$name = $resolved->get($name);
+        }
+    }
+
     public function data_preprocessing($question) {
         // Preprocess the question data to be loaded into the form. Called by set_data after
         // standard stuff all loaded.
         // TODO - consider how much of this can be dispensed with just by
         // calling question_bank::loadquestion($question->id).
         global $COURSE;
+
+        $this->repoint_inherited_fields($question);
 
         if (isset($question->options->testcases)) { // Reloading a saved question?
             // Flatten all the question->options down into the question itself.
@@ -1685,6 +1793,24 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 $qfromdb = question_bank::load_question($q->id);
                 $qfromdb->student = new qtype_coderunner_student($USER);
 
+                // The question loaded from the database is resolved against
+                // the prototype stored there. If the author has just chosen a
+                // different one, the two things the UI-parameter merge reads
+                // from the chain are re-pointed at it, so that the box is
+                // handed the new prototype's parameters rather than none at
+                // all. Without this, switching a question to
+                // python3_scratchpad attached a scratchpad with no wrapper and
+                // no display mode until the question was saved.
+                $chosen = $this->chosen_prototypeid();
+                $stored = isset($q->options->prototypeid) ? (int) $q->options->prototypeid : null;
+                if ($chosen !== null && $chosen !== $stored) {
+                    $chain = $this->chosen_chain();
+                    if ($chain !== null) {
+                        $qfromdb->chainlayers = question_bank::get_qtype('coderunner')->chain_layers($chain);
+                        $qfromdb->uiplugin = $this->resolved_settings()->get('uiplugin');
+                    }
+                }
+
                 // Tricky bug fix follows. Using a fixed seed for the random
                 // number generator, and subsequently setting it with a call to
                 // mt_srand, could result in Moodle allocating the same draftitemid
@@ -1856,6 +1982,39 @@ class qtype_coderunner_edit_form extends question_edit_form {
      *
      * @return array attribute name => value, for merging into a textarea's attributes.
      */
+    /**
+     * The code of the first test case, for a UI whose `ui_source` is `test0`.
+     *
+     * The third of the attributes a UI reads, and the awkward one: it is not a
+     * setting, so it resolves through no chain -- it is a row of
+     * `question_coderunner_tests`, and on this form a repeated element. So it
+     * is read from the submission when there is one, which is what an author
+     * sees after any reload of the form, and from the stored question
+     * otherwise.
+     *
+     * It used to be copied onto the box by `amd/src/answerboxui.js`, which is
+     * gone: that module also re-asserted which UI plugin ran, every time the
+     * page loaded, and so fought the server for control of the box. The server
+     * renders all three attributes now, exactly as `renderer.php` does on the
+     * attempt page, and nothing contradicts it.
+     *
+     * A value rendered before the author edits test 0 is stale as soon as they
+     * do, and that is not new: CodeRunner 5 refreshed these attributes on a
+     * change of UI plugin, of question type or of Ace language, and never as
+     * the fields were typed into.
+     *
+     * @return string the first test case's code, or the empty string.
+     */
+    protected function first_testcase_code(): string {
+        $submitted = optional_param_array('testcode', null, PARAM_RAW);
+        if (is_array($submitted) && array_key_exists(0, $submitted)) {
+            return (string) $submitted[0];
+        }
+
+        $stored = array_values($this->question->options->testcases ?? []);
+        return isset($stored[0]) ? (string) $stored[0]->testcode : '';
+    }
+
     protected function answer_box_ui_data(): array {
         if ($this->answer_box_ui_plugin() === '') {
             return [];
@@ -1865,6 +2024,7 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // page supplies both (see renderer.php).
             'data-globalextra' => (string) $this->resolved_settings()->get('globalextra'),
             'data-prototypeextra' => (string) $this->resolved_settings()->get('prototypeextra'),
+            'data-test0' => $this->first_testcase_code(),
         ];
     }
 }

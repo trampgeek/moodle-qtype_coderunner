@@ -454,9 +454,10 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
     };
 
     /**
-     * Load the specified UI element (which in the case of Ace will need
-     * to know the language, lang, as well - this must be supplied as
-     * a 'lang' attribute of the record params.
+     * Load the specified UI element. An Ace-based UI also needs to know the
+     * language it is editing, and that is read here from the textarea's
+     * data-lang attribute rather than taken from the caller, so that a caller
+     * which rebuilds params from data-params alone cannot drop it.
      * When ui is up and running, this.uiInstance will reference it.
      * To avoid a potential race problem, if this method is already busy
      * with a load, try again in 200 msecs.
@@ -469,6 +470,19 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
         const t = this;
         const errPart1 = 'Failed to load ';
         const errPart2 = ' UI component. If this error persists, please report it to the forum on coderunner.org.nz';
+
+        // The language is not a UI parameter. It travels on the textarea, so
+        // it is read from there on every load, whatever the caller passed. A
+        // caller that rebuilds the params from data-params alone would
+        // otherwise hand Ace no language and the editor would lose its syntax
+        // colouring -- which is exactly what the author form's answerboxui.js
+        // did, universally, until it was removed. Nothing does that now, so
+        // this line is the invariant rather than a fix for a live caller:
+        // whoever loads a UI gets the language the textarea carries. Changing
+        // the language of a *running* UI is a different operation and goes
+        // through the instance's own setLanguage(), which
+        // multilanguagequestion.js uses; nothing passes a language in here.
+        params.lang = t.textArea.getAttribute('data-lang');
 
         /**
          * Get the given language string and plug it into the given
