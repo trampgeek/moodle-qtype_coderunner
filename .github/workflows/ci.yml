@@ -45,7 +45,10 @@ jobs:
             database: 'mariadb'
     services:
       postgres:
-        image: postgres:14
+        # Moodle's own floor: 5.0 requires postgres 14, 5.1 requires 15 and 5.2
+        # requires 16, so the image has to keep pace with the newest branch
+        # tested on pgsql or install.php refuses the environment check.
+        image: postgres:16
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
