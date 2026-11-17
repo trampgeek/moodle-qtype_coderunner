@@ -69,8 +69,10 @@ on the textarea it manages — `data-globalextra`, `data-prototypeextra`, `data-
 **Which UI runs is the server's decision alone**, taken from the resolved settings when the page
 is built. An `answerboxui.js` once re-took that decision in the browser on every load, and after
 the prototype picker rebuilt the form the two disagreed; there is deliberately no JavaScript in
-that path now, so changing the *Student answer* menu by hand shows nothing until the question is
-saved.
+that path now. Both the question type menu and the *Student answer* menu instead **rebuild the
+form through a hidden no-submit button**, so the server decides again with the new choice in
+hand. A no-submit press neither saves nor validates, so a half-written question survives the
+round trip exactly as it was typed.
 
 ### Twig templates
 

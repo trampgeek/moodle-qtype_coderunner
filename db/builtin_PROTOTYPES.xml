@@ -81,7 +81,6 @@ int main() {
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -164,7 +163,6 @@ int main() {
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -226,7 +224,6 @@ int main() {
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -288,7 +285,6 @@ int main() {
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -395,7 +391,6 @@ print(SEPARATOR)
     <uiparameters><![CDATA[{"isdirected": true, "isfsm": false}]]></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -470,7 +465,6 @@ public class __tester__ {
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -551,7 +545,6 @@ public class __tester__ {
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -613,7 +606,6 @@ public class __tester__ {
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -780,7 +772,6 @@ except subprocess.CalledProcessError as e:
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -851,7 +842,6 @@ console.log(SEPARATOR);
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -924,7 +914,6 @@ disp('#<ab@17943918#@>#');
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -991,7 +980,6 @@ end.
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -1053,7 +1041,6 @@ end.
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -1124,7 +1111,6 @@ echo SEPARATOR;
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -1197,7 +1183,6 @@ print(SEPARATOR)
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -1270,7 +1255,6 @@ print(SEPARATOR)
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -1346,7 +1330,6 @@ print(SEPARATOR)
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -1453,7 +1436,6 @@ print(SEPARATOR)
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>
@@ -1563,7 +1545,6 @@ print(SEPARATOR)
     <uiparameters><![CDATA[{"isdirected": false, "isfsm": false}]]></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>0</displayfeedback>

@@ -63,6 +63,17 @@ class settings_form {
      * The sense is therefore inverted from the stored state: `1` means the
      * field is inherited, and so *not* in the overrides document.
      */
+    /**
+     * @var string the UI plugin menu, which both forms render and whose change
+     *      rebuilds the question form.
+     *
+     * Here rather than on `qtype_coderunner_edit_form` because that class is
+     * not autoloaded: a Behat step referring to it died with *Class
+     * "qtype_coderunner_edit_form" not found*, which is the same trap that
+     * stops two test files being run on their own.
+     */
+    const UIPLUGIN_FIELD = 'uiplugin';
+
     const INHERIT_PREFIX = 'inherit_';
 
     /**

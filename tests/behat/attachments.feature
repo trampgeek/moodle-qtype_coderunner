@@ -40,7 +40,10 @@ Feature: Test editing and using attachments to a CodeRunner question
     And I set the field "id_filenamesregex" to "sqr[xm]odu.e.p.+"
     # The above line tests with a simple regular expression that sqrmodule.py is accepted
     And I press "id_submitbutton"
-    Then I should see "Question bank"
+    # The question itself, not the words "Question bank": those appear in the
+    # navbar of the edit page too, so this passed while the save was still
+    # failing and the first real assertion was a scenario away.
+    Then "Square function" "table_row" should exist
 
   @javascript @file_attachments
   Scenario: As a teacher I can preview my question but get an error without attachment.

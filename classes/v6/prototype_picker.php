@@ -289,8 +289,9 @@ class prototype_picker {
             $heading = get_string('prototypegroup_' . $group['key'], 'qtype_coderunner');
             $optgroups[$heading] = [];
             foreach ($group['options'] as $id => $option) {
-                $optgroups[$heading][$id] =
-                    str_repeat('&nbsp;', 4 * $option['depth']) . s($option['label']);
+                // The indentation is the manager's to spell: the same rule
+                // shows the same library in its own *Inherits from* menu.
+                $optgroups[$heading][$id] = prototype_candidates::indented_label($option);
             }
         }
         return $optgroups;

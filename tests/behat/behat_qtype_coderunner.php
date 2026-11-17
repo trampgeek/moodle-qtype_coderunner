@@ -552,31 +552,77 @@ class behat_qtype_coderunner extends behat_base {
             );
         }
 
+        $this->select_and_await_rebuild($select, $wanted, "the prototype '{$name}'");
+    }
+
+    /**
+     * Chooses a value in the UI plugin menu and waits for the form it rebuilds.
+     *
+     * The *Student answer* menu reloads the form through a hidden no-submit
+     * button, exactly as the prototype picker does, because which UI the
+     * answer box runs is the server's decision. So a plain
+     * `I set the field "id_uiplugin" to ...` races the rebuild and the next
+     * step acts on a page being torn down.
+     *
+     * The wanted UI is matched on the option's label or its value, so a
+     * feature may say either *Scratchpad* or `scratchpad`.
+     *
+     * @Given /^I choose the CodeRunner UI "(?P<name_string>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $name the UI's label or value.
+     */
+    public function i_choose_the_coderunner_ui($name) {
+        $this->execute('behat_forms::i_expand_all_fieldsets');
+
+        $select = $this->find('field', 'id_' . \qtype_coderunner\v6\settings_form::UIPLUGIN_FIELD);
+        $wanted = null;
+        foreach ($select->findAll('xpath', './/option') as $option) {
+            $value = $option->getAttribute('value');
+            if (trim($option->getText()) === $name || $value === $name) {
+                $wanted = $value;
+                break;
+            }
+        }
+        if ($wanted === null) {
+            throw new ExpectationException(
+                "No UI named '{$name}' is offered by the Student answer menu",
+                $this->getSession()
+            );
+        }
+
+        $this->select_and_await_rebuild($select, $wanted, "the UI '{$name}'");
+    }
+
+    /**
+     * Selects a value in a menu that rebuilds the form, and waits for it.
+     *
+     * Shared by the two menus that do this, so the waiting is written once.
+     *
+     * The page is marked before the change, so that the rebuild can be told
+     * from the page it replaces. Mink's NodeElement holds an xpath and
+     * re-resolves it on every call, so there is no stale reference to catch;
+     * an attribute on the document element is destroyed by a real page load
+     * and by nothing else. `wait_for_pending_js()` alone can return while the
+     * rebuild is in flight, which surfaces as "element not interactable" in
+     * whichever step runs next rather than as anything to do with the menu.
+     *
+     * @param \Behat\Mink\Element\NodeElement $select the menu.
+     * @param string $wanted the option value to choose.
+     * @param string $what what was chosen, for the error message.
+     */
+    protected function select_and_await_rebuild($select, string $wanted, string $what): void {
         // Nothing to wait for if it is already the choice: prototypereload.js
         // ignores a change to the value already loaded, so no reload happens.
         if ($select->getValue() === $wanted) {
             return;
         }
 
-        // Mark the page before the change, so that the rebuild can be told
-        // from the page it replaces. Mink's NodeElement holds an xpath and
-        // re-resolves it on every call, so there is no stale reference to
-        // catch; and the chain beside the menu cannot serve either, because
-        // breadcrumb() renders nothing for a chain of fewer than two layers.
-        // An attribute on the document element is destroyed by a real page
-        // load and by nothing else.
         $this->getSession()->executeScript(
             "document.documentElement.setAttribute('data-behat-awaiting-reload', '1');"
         );
 
         $select->selectOption($wanted);
 
-        // Changing the menu makes prototypereload.js press a hidden no-submit
-        // button and the server rebuilds the whole form from the new
-        // prototype. wait_for_pending_js() can return while that is in flight,
-        // leaving the next step to act on a page being torn down, which
-        // surfaces as "element not interactable" rather than as anything to do
-        // with the picker.
         $this->spin(
             function($context) {
                 return $context->getSession()->evaluateScript(
@@ -586,7 +632,7 @@ class behat_qtype_coderunner extends behat_base {
             false,
             self::get_extended_timeout(),
             new ExpectationException(
-                "The form was not rebuilt after choosing the prototype '{$name}'",
+                "The form was not rebuilt after choosing {$what}",
                 $this->getSession()
             )
         );

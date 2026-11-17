@@ -57,11 +57,11 @@ Feature: make_combinator_prototype
       | id_testcode_1     | sqr(9)                            |
       | id_expected_1     | 80                                |
       | id_ordering_1     | 10                                |
-    And I set the field "id_answer" to:
-      """
-      def sqr(n): return n * n
-      """
+      | id_answer         | def sqr(n): return n * n          |
 
+    # Expected 80 for sqr(9) on purpose: the save is meant to fail validation
+    # and leave the form standing. The sample answer has to be filled in with
+    # the rest for that to happen, because the step above saves the form.
     Then I should see "Failed 1 test(s)"
     And I should see "Click on the << button to replace the expected output of this testcase with actual output."
     When I press "<<"

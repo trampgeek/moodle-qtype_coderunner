@@ -143,7 +143,11 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->uiplugin = 'none';
         $qdata->options->attachments = 0;
         $qdata->options->attachmentsrequired = 0;
-        $qdata->options->maxfilesize = 0;
+        // 10 kB, the smallest size CodeRunner 5's menu defaulted to and one
+        // of the six it offers. Not 0: that is the column default rather than
+        // a size, it is no longer a value the form will accept, and a question
+        // carrying it rejects every attachment as oversized.
+        $qdata->options->maxfilesize = 10240;
         $qdata->options->filenamesregex = '';
         $qdata->options->filenamesexplain = '';
         $qdata->options->prototypeextra = '';
@@ -210,7 +214,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->uiplugin = 'none';
         $form->attachments = 0;
         $form->attachmentsrequired = 0;
-        $form->maxfilesize = 0;
+        $form->maxfilesize = 10240;
         $form->filenamesregex = '';
         $form->filenamesexplain = '';
         $form->prototypeextra = '';
@@ -304,7 +308,7 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->uiplugin = 'none';
         $form->attachments = 0;
         $form->attachmentsrequired = 0;
-        $form->maxfilesize = 0;
+        $form->maxfilesize = 10240;
         $form->filenamesregex = '';
         $form->filenamesexplain = '';
         $form->prototypeextra = '';
@@ -685,7 +689,7 @@ except ValueError:
         $form->uiplugin = 'none';
         $form->attachments = 0;
         $form->attachmentsrequired = 0;
-        $form->maxfilesize = 0;
+        $form->maxfilesize = 10240;
         $form->filenamesregex = '';
         $form->filenamesexplain = '';
         $form->prototypeextra = '';
@@ -1414,7 +1418,7 @@ EOPROG;
         $coderunner->context = context_system::instance(); // Use system context for testing.
         $coderunner->attachments = 0;
         $coderunner->attachmentsrequired = 0;
-        $coderunner->maxfilesize = 0;
+        $coderunner->maxfilesize = 10240;
         $coderunner->filenamesregex = '';
         $coderunner->filenamesexplain = '';
         $coderunner->prototypeextra = '';

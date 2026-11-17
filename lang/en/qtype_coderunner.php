@@ -1580,6 +1580,7 @@ If \'Template uses ace\' is checked,
 the Ace code editor will manage both the template and the template parameters
 boxes. Otherwise a raw text box will be used.';
 $string['ui_fallback'] = 'Falling back to raw text area.';
+$string['uipluginreload'] = 'Update the form for the chosen user interface';
 $string['uiparametergroup'] = 'UI parameters';
 $string['uiparametergroup_help'] = 'A JSON string defining any User Interface
 parameter values that are either required by the UI plugin or which override the

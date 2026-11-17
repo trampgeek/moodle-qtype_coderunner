@@ -31,7 +31,7 @@ Feature: Test editing a CodeRunner question using the Table UI
       """
       print('{{ STUDENT_ANSWER }}')
       """
-    And I set the field "uiplugin" to "table"
+    And I choose the CodeRunner UI "table"
     Then I should see "Table UI needs parameters"
 
     And I set the ace field "uiparameters" to:

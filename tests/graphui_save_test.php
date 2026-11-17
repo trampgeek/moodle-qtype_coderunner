@@ -31,6 +31,11 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/type/coderunner/tests/test.php');
 require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+// The edit form and its base class, which edit_coderunner_form.php does not
+// pull in for itself: without these the file loads only when some other test
+// in the suite has required them first, and running this one alone fails.
+require_once($CFG->dirroot . '/question/type/edit_question_form.php');
+require_once($CFG->dirroot . '/question/type/coderunner/edit_coderunner_form.php');
 
 /**
  * A simple test that the graph_ui info is saved correctly.

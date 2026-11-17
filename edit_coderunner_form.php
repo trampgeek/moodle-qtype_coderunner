@@ -51,6 +51,9 @@ class qtype_coderunner_edit_form extends question_edit_form {
     const RESULT_COLUMNS_SIZE = 80; // The size of the resultcolumns field.
 
     /** @var string The ace language. */
+    /** @var string the hidden no-submit button that rebuilds it. */
+    const UIPLUGIN_RELOAD_BUTTON = 'uipluginreload';
+
     private $acelang;
 
     /** @var string The language of the question. */
@@ -137,9 +140,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
      * page load -- so after the picker rebuilt the form the two disagreed and
      * the JavaScript won, leaving the old prototype's UI on the box. It is
      * gone, and with it the one reason it was needed: `data-test0` is rendered
-     * by {@see answer_box_ui_data()}. The cost, accepted by the author on 16
-     * November, is that changing the UI plugin menu by hand shows nothing
-     * until the question is saved, which is rare beside changing its type.
+     * by {@see answer_box_ui_data()}. Changing the UI plugin menu asks the
+     * server for the new one instead, through the no-submit button
+     * {@see add_uiplugin_reload()} adds -- the same way a change of question
+     * type already worked.
      *
      * @param MoodleQuickForm $mform the form being built.
      */
@@ -237,6 +241,61 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // with them, from the component.
             settings_form::add_section($mform, $section, $inherited, $own, $language, true);
         }
+
+        $this->add_uiplugin_reload($mform);
+    }
+
+    /**
+     * The no-submit button that rebuilds the form on a change of UI plugin.
+     *
+     * The same mechanism the prototype picker uses, pointed at a second menu,
+     * and for the same reason: the UI a box runs is the server's decision, so
+     * the way to show the author a different one is to ask the server for it.
+     * The browser's part is to press this button, not to choose.
+     *
+     * An earlier `answerboxui.js` switched the UI in the browser instead, and
+     * also re-asserted that choice on every page load, which is how it came to
+     * contradict the server after the picker rebuilt the form. Removing it
+     * cost the immediate switch, and two features that assert it --
+     * `ace_scratchpad_compatibility` and `edit_table` -- failed; this restores
+     * the behaviour by the route the rest of the form already takes.
+     *
+     * The round trip saves nothing and validates nothing: core returns early
+     * from `validate_defined_fields()` when a no-submit button was pressed, so
+     * `get_data()` yields null and a half-written question comes back exactly
+     * as it was typed.
+     *
+     * @param MoodleQuickForm $mform the form being built.
+     */
+    protected function add_uiplugin_reload($mform): void {
+        global $PAGE;
+
+        // An inheritable field is a member of its `<field>_group`, so the
+        // element of that name is the group and not the menu; either spelling
+        // means the menu is on the form.
+        if (
+            !$mform->elementExists(settings_form::UIPLUGIN_FIELD)
+            && !$mform->elementExists(settings_form::UIPLUGIN_FIELD . '_group')
+        ) {
+            // No menu to follow: the field is not offered on this form.
+            return;
+        }
+
+        // Registered before it is created, so that it marks itself as skipping
+        // client-side validation.
+        $mform->registerNoSubmitButton(self::UIPLUGIN_RELOAD_BUTTON);
+        $mform->addElement(
+            'submit',
+            self::UIPLUGIN_RELOAD_BUTTON,
+            get_string('uipluginreload', 'qtype_coderunner'),
+            ['class' => 'visually-hidden']
+        );
+
+        $PAGE->requires->js_call_amd(
+            'qtype_coderunner/prototypereload',
+            'init',
+            ['id_' . settings_form::UIPLUGIN_FIELD, 'id_' . self::UIPLUGIN_RELOAD_BUTTON]
+        );
     }
 
     /**
@@ -1959,6 +2018,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
      */
     protected function answer_box_ui_plugin(): string {
         $uiplugin = (string) $this->resolved_settings()->get('uiplugin');
+
+        // The author's own choice, when they have just made one. The resolved
+        // settings cannot know about it: they are built from the overrides
+        // stored in the database, so until the question is saved they still
+        // say what it used to run. The menu submits nothing while the field is
+        // inherited, because `disabledIf` disables it, so a value here is
+        // always a deliberate override.
+        $submitted = optional_param(settings_form::UIPLUGIN_FIELD, '', PARAM_ALPHANUMEXT);
+        if ($submitted !== '') {
+            $uiplugin = $submitted;
+        }
+
         if ($uiplugin === '' || strtolower($uiplugin) === 'none') {
             return '';
         }

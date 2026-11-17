@@ -32,7 +32,7 @@ Feature: Ace UI convert to Scratchpad UI questions with one click
   Scenario: Edit a CodeRunner Ace UI question, changing it to be a Scratchpad UI question.
     Given the Jobe server supports "python3"
     When I override the CodeRunner fields "uiplugin"
-    And I set the field "id_uiplugin" to "Scratchpad"
+    And I choose the CodeRunner UI "Scratchpad"
     Then I should see "def sqr(n): return n * n"
     And I click on "Scratchpad" "button"
     And I should see "Run"
@@ -57,7 +57,7 @@ Feature: Ace UI convert to Scratchpad UI questions with one click
 
     When I choose "Edit question" action for "Square function" in the question bank
     And I expand all fieldsets
-    And I set the field "id_uiplugin" to "Ace"
+    And I choose the CodeRunner UI "Ace"
     And I should see "def sqr(n): return n * n"
 
     When I press "id_submitbutton"

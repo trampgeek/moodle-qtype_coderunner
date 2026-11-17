@@ -161,7 +161,7 @@ EOTEMPLATE;
     <uiparameters></uiparameters>
     <attachments>0</attachments>
     <attachmentsrequired>0</attachmentsrequired>
-    <maxfilesize>0</maxfilesize>
+    <maxfilesize>10240</maxfilesize>
     <filenamesregex></filenamesregex>
     <filenamesexplain></filenamesexplain>
     <displayfeedback>1</displayfeedback>

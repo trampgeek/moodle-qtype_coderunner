@@ -255,6 +255,42 @@ final class field_registry_test extends \advanced_testcase {
      * Fields stored in a column must have a type that a column can hold, and
      * the one field that is not stored in a column must be the file set.
      */
+    /**
+     * Every choice field defaults to one of the values it offers.
+     *
+     * A default outside the menu cannot be chosen, cannot be restored once
+     * changed, and is whatever the column happened to hold. `maxfilesize`
+     * defaulted to 0 that way: not one of the six sizes CodeRunner offers, and
+     * a question carrying it rejects every attachment as oversized -- while
+     * the file picker, reading the same number as a Moodle `maxbytes` and so
+     * taking 0 for "the site limit", accepts them first. Every attachment
+     * question written under CodeRunner 6 was unusable, and no existing one
+     * was affected, because the migration pins what CodeRunner 5 stored.
+     */
+    public function test_every_choice_field_defaults_to_one_of_its_choices(): void {
+        $checked = 0;
+
+        foreach (field_registry::all() as $name => $field) {
+            if ($field->type !== field_type::CHOICE) {
+                continue;
+            }
+            $choices = field_registry::choices($name);
+            $this->assertIsArray($choices, "The choice field '{$name}' offers no choices.");
+            if ($field->default === null) {
+                // A null default means "not set", which is not a choice.
+                continue;
+            }
+            $this->assertArrayHasKey(
+                $field->default,
+                $choices,
+                "The default for '{$name}' is not one of the values it offers."
+            );
+            $checked++;
+        }
+
+        $this->assertGreaterThan(0, $checked, 'No choice field was checked, so the rule is not held.');
+    }
+
     public function test_file_valued_fields_are_not_columns(): void {
         foreach (field_registry::all() as $field) {
             if ($field->type === field_type::FILES) {

@@ -40,11 +40,14 @@ Feature: test_combinator_grader
       | id_testcode_1     | sqr(9)                                   |
       | id_expected_1     | 80                                       |
       | id_ordering_1     | 20                                       |
-    And I set the field "id_answer" to:
-      """
-      def sqr(n): return n * n
-      """
+      | id_answer         | def sqr(n): return n * n                 |
 
+    # The expected output of the second test is deliberately wrong -- sqr(9)
+    # is 81 -- so saving is *meant* to fail validation and leave the form
+    # standing, with the << button offering the actual output. That only
+    # happens if the sample answer is there to be validated, so it is filled
+    # in with the rest: the step above saves the form, and a separate step
+    # afterwards had no form left to type into.
     Then I should see "Failed testing"
     And I should see "Click on the << button to replace the expected output of this testcase with actual output."
 

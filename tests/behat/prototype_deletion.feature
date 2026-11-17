@@ -43,7 +43,9 @@ Feature: Delete a prototype that nothing depends on
     And I should see "irrecoverably"
     When I press "Continue"
     Then I should see "was deleted"
-    And I should not see "cosc131_spare"
+    # Not "I should not see", because the success notice quotes the name it
+    # has just deleted. The row going is what the assertion is about.
+    And "cosc131_spare" "table_row" should not exist
 
   Scenario: Cancelling the confirmation leaves the prototype alone
     When I am on the "C1" "qtype_coderunner > prototype library" page logged in as teacher1

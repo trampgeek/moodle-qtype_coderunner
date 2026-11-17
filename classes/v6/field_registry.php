@@ -136,6 +136,11 @@ class field_registry {
                     constants::GIVEUP_ALWAYS => get_string('giveup_always', 'qtype_coderunner'),
                 ];
 
+            case 'maxfilesize':
+                // The question type owns the list, as it did for the
+                // CodeRunner 5 form's menu.
+                return \question_bank::get_qtype('coderunner')->attachment_filesize_max();
+
             case 'templateparamslang':
                 // The value None means the parameters are already JSON and
                 // are used as they stand. The rest are evaluated, Twig in process and the
@@ -433,7 +438,13 @@ class field_registry {
                 labelstring: 'allowattachments',
             ),
             new field('attachmentsrequired', field_kind::INHERITED, field_type::CHOICE, form_section::UI, default: 0),
-            new field('maxfilesize', field_kind::INHERITED, field_type::INTEGER, form_section::UI, default: 0),
+            // A choice of the sizes CodeRunner offers, defaulting to 10 kB as
+            // CodeRunner 5's form did. Nothing may default to 0: that is not
+            // one of the offered sizes, and a question carrying it rejects
+            // every attachment as oversized while the file picker, which reads
+            // the same number as a Moodle maxbytes and so treats 0 as "the
+            // site limit", accepts them.
+            new field('maxfilesize', field_kind::INHERITED, field_type::CHOICE, form_section::UI, default: 10240),
             new field(
                 'filenamesregex',
                 field_kind::INHERITED,
