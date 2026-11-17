@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @coderunner_backup_and_restore @v6triage @v6fail
+@qtype @qtype_coderunner @coderunner_backup_and_restore @v6triage
 Feature: Duplicate a course containing a CodeRunner question
   In order re-use my courses containing CodeRunner questions
   As a teacher

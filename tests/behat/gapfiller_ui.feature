@@ -94,9 +94,11 @@ for element in answer: print(element)
   Scenario: Edit and run a gap-filler question using test0 as a source.
     When I am on the "Print answer" "core_question > edit" page logged in as teacher1
     And I override the CodeRunner fields "template, iscombinatortemplate, uiplugin, twigall"
+    # Not a row in the table below: choosing the UI rebuilds the form, and the
+    # rows after it would be set on a page being torn down.
+    And I choose the CodeRunner UI "Gapfiller"
     And I set the following fields to these values:
       | id_iscombinatortemplate | 0                             |
-      | uiplugin                | Gapfiller                     |
       | id_expected_0           | bubble                        |
       | id_validateonsave       | 0                             |
       | id_twigall              | 1                             |

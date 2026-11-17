@@ -153,17 +153,32 @@ class behat_qtype_coderunner extends behat_base {
         $xpath = "//textarea[@name='$elname' or (contains(@name, '$elname') " .
              "and contains(@class, 'edit_code'))]/following-sibling::div[1]/div";
         $this->wait_for_ace_editor($xpath, $elname);
+
+        // Behat's own syntax for this step cannot carry a bare double quote --
+        // the pattern is (?:[^"]|\\")* -- so a feature has to write \" for one,
+        // and that one escape is undone here. Everything else has to reach the
+        // editor verbatim.
+        $value = str_replace('\\"', '"', $value);
+
         // We inject JS into the browser to set the Ace editor contents...
         // (Gross) JS to take the x-path for the div managed by Ace,
         // open editor for that div, and set the editors value.
+        //
+        // Both strings are JSON-encoded rather than wrapped in backticks. A
+        // template literal is not a safe quoting of arbitrary text: it reads
+        // \n as a newline, and a backtick or ${ in the value would rewrite the
+        // script. That cost one scenario -- the wrapper
+        // exec("{| ANSWER_CODE |}\n{| SCRATCHPAD_CODE |}") reached Python with a
+        // real newline inside a one-line string, and died as an unterminated
+        // string literal rather than as anything to do with quoting.
         $javascript = "const editorNode = document.evaluate("
-               . "`$xpath`,"
+               . json_encode($xpath) . ","
                . "document,"
                . "null,"
                . "XPathResult.ANY_TYPE,null,"
                . ");"
                . "const editor = ace.edit(editorNode.iterateNext());"
-               . "editor.setValue(`$value`);";
+               . "editor.setValue(" . json_encode($value) . ");";
         $this->getSession()->executeScript($javascript);
     }
 

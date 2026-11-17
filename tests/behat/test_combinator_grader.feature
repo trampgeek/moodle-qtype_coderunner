@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @prototypetests @v6fail
+@qtype @qtype_coderunner @javascript @prototypetests
 Feature: test_combinator_grader
   For the ultimate in grading flexibility
   As a teacher
@@ -30,7 +30,11 @@ Feature: test_combinator_grader
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
     And I set CodeRunner behat testing flag
 
-    # Now try to add a new question of type python3_test_combinator_prototype
+    # Now try to add a new question of type python3_test_combinator_prototype.
+    # The sample answer has to go in the table below, and the table can only
+    # type into a plain textarea -- Ace hides the one it manages. The editor is
+    # not this feature's subject, so the UI plugins go away for it.
+    And I disable UI plugins in the CodeRunner question type
     And I add a CodeRunner question on "python3_test_combinator_grader_prototype" filling the form with:
       | name              | Combinator prototype grader tester       |
       | id_questiontext   | Write the inevitable sqr function        |

@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @prototypetests @prototypedeletion @v6fail
+@qtype @qtype_coderunner @javascript @prototypetests @prototypedeletion
 Feature: Delete a prototype that nothing depends on
   In order to keep a course's library of question types tidy
   As a teacher

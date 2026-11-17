@@ -1,4 +1,4 @@
-@qtype @qtype_coderunner @javascript @answerboxfollowsform @v6fail
+@qtype @qtype_coderunner @javascript @answerboxfollowsform
 Feature: The author's answer box shows what the student will see
   In order to write a question without saving it to find out what it does
   As a teacher
