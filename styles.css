@@ -9,7 +9,7 @@
 
 #page-question-type-coderunner table,
 .que.coderunner table {
-    width:auto;
+    width: auto;
 }
 
 #page-question-type-coderunner table.coderunner-test-results td,
@@ -189,12 +189,13 @@ div.ui_wrapper {
 }
 
 .que.coderunner div.coderunner-test-results.good.precheck {
-    background-image: repeating-linear-gradient(
-        0deg,
-        rgb(255, 255, 255, 0.5),
-        rgb(255, 255, 255, 0.5) 8px,
-        rgb(248, 241, 249, 0.5) 8px,
-        rgb(248, 241, 249, 0.5) 16px
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgb(255, 255, 255, 0.5),
+            rgb(255, 255, 255, 0.5) 8px,
+            rgb(248, 241, 249, 0.5) 8px,
+            rgb(248, 241, 249, 0.5) 16px
         );
 }
 
@@ -616,7 +617,7 @@ li.bulktest.coderunner.context.quiz {
    are deliberately excluded: their rows must stay flush to read as one box. */
 .ace-gapfiller-spaced .ace-gap-outline,
 .ace-gapfiller-spaced .ace-gap-background-single {
-    height: var(--gap-height) !important;
+    height: var(--gap-height) !important; /* stylelint-disable-line declaration-no-important */
     margin-top: var(--gap-inset);
 }
 

@@ -22,46 +22,44 @@ Feature: Test that answers changed after checking are highlighted as being diffe
       | questioncategory | qtype      | name                        | template     |
       | Test questions   | coderunner | Square function (with Ace)  | sqr_with_ace |
 
-Scenario: Preview the Python3 sqr_with_ace function CodeRunner question get it right then change the answer and wait for changed answer notification
-  When I am on the "Square function (with Ace)" "core_question > edit" page logged in as teacher1
-  # Turn useace off so can change template to correct value (and useace back on after)
-  And I set the following fields to these values:
-    | id_useace      | 0        |
-  And I wait "1" seconds
-  #And I set the field with xpath "//textarea[contains(@id, 'id_template')]" to multiline:
-  And I set the ace field "template" to:
-  """
-  {{ STUDENT_ANSWER }}
-  {{ TEST.testcode }}
-  """
-  And I set the following fields to these values:
-    | id_useace      | 1        |
-  # Need to change question name or else the preview step will find two qids for the same name
-  # That is, it isn't looking for the latest version!!!!
-  And I set the field "id_name" to "Square function (with Ace) v2"
-  And I press "id_submitbutton"
-  And I am on the "Square function (with Ace) v2" "core_question > preview" page logged in as teacher1
-  And I wait until the page is ready
-  # Aha, for scratchpad use "answer_code" but "answer" for ace...
-  And I set the ace field "answer" to "def sqr(n): return n * n"
-  And I press "Check"
-  And I wait until the page is ready
-  Then I should see "Passed all tests!"
-  Then I should not see "Results below are for a different answer to the answer above."
-  And I set the ace field "answer" to "def sqr(n): return n * n * n"
-  # And I wait until the page is ready --- no use as page won't reload
-  # And I wait "1" seconds --- may not wait long enough
-  # So wait for a changed notice to come up
-  #   Of course this wouldn't work if we had multiple elements on the page
-  #   but we can't do this as the prefix to changed-notice would be unique and unknown....
-  And I wait until "[data-id$='-changed-notice']" "css_element" exists
-  Then I should see "Results below are for a different answer to the answer above."
-  # still passing for old answer
-  Then I should see "Passed all tests!"
+  Scenario: Preview the Python3 sqr_with_ace function CodeRunner question get it right then change the answer and wait for changed answer notification
+    When I am on the "Square function (with Ace)" "core_question > edit" page logged in as teacher1
+    # Turn useace off so can change template to correct value (and useace back on after)
+    And I set the following fields to these values:
+      | id_useace      | 0        |
+    And I wait "1" seconds
+    #And I set the field with xpath "//textarea[contains(@id, 'id_template')]" to multiline:
+    And I set the ace field "template" to:
+    """
+    {{ STUDENT_ANSWER }}
+    {{ TEST.testcode }}
+    """
+    And I set the following fields to these values:
+      | id_useace      | 1        |
+    # Need to change question name or else the preview step will find two qids for the same name
+    # That is, it isn't looking for the latest version!!!!
+    And I set the field "id_name" to "Square function (with Ace) v2"
+    And I press "id_submitbutton"
+    And I am on the "Square function (with Ace) v2" "core_question > preview" page logged in as teacher1
+    And I wait until the page is ready
+    # Aha, for scratchpad use "answer_code" but "answer" for ace...
+    And I set the ace field "answer" to "def sqr(n): return n * n"
+    And I press "Check"
+    And I wait until the page is ready
+    Then I should see "Passed all tests!"
+    Then I should not see "Results below are for a different answer to the answer above."
+    And I set the ace field "answer" to "def sqr(n): return n * n * n"
+    # And I wait until the page is ready --- no use as page won't reload
+    # And I wait "1" seconds --- may not wait long enough
+    # So wait for a changed notice to come up
+    #   Of course this wouldn't work if we had multiple elements on the page
+    #   but we can't do this as the prefix to changed-notice would be unique and unknown....
+    And I wait until "[data-id$='-changed-notice']" "css_element" exists
+    Then I should see "Results below are for a different answer to the answer above."
+    # still passing for old answer
+    Then I should see "Passed all tests!"
 
-
-
-Scenario: Preview the Python3 sqr_with_ace function CodeRunner question and submit wrong answer then change and wait for changed notification, then change back and wait for notification to go away.
+  Scenario: Preview the Python3 sqr_with_ace function CodeRunner question and submit wrong answer then change and wait for changed notification, then change back and wait for notification to go away.
     When I am on the "Square function (with Ace)" "core_question > edit" page logged in as teacher1
     # Turn useace off so can change template to correct value (and useace back on after)
     And I set the following fields to these values:
@@ -121,11 +119,10 @@ Scenario: Preview the Python3 sqr_with_ace function CodeRunner question and subm
 #    And I should see "Some hidden test cases failed, too."
 #    And I should see "Marks for this submission: 3.00/31.00"
 
-
 # +++++++++++++++++++++++++++++++++++++++++
 # need to also try with sqr_with_scratchpad
 # +++++++++++++++++++++++++++++++++++++++++
-Scenario: Preview the Python3 sqr_with_ace function CodeRunner question and submit wrong answer then change and wait for changed notification, then change back and wait for notification to go away.
+  Scenario: Preview the Python3 sqr_with_ace function CodeRunner question and submit wrong answer then change and wait for changed notification, then change back and wait for notification to go away.
     When I am on the "Square function (with Ace)" "core_question > edit" page logged in as teacher1
     # Turn useace off so can change template to correct value (and useace back on after)
     And I set the following fields to these values:
