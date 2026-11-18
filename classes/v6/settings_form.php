@@ -940,15 +940,39 @@ class settings_form {
      * @param bool $readonly true when the author may only read the form, in
      *      which case Ace is still attached — a reader wants the highlighting
      *      — but nothing is asked to unlock anything.
+     * @param bool $useace the resolved *Template uses ace* setting. False
+     *      leaves the template a plain textarea, for the case the setting
+     *      exists for: a heavily Twigged template, where a mode reports
+     *      errors that are not there.
+     *
+     *      **The template alone**, by the author's decision on 18 November
+     *      2026. CodeRunner 5 applied it to the template parameters and the
+     *      UI parameters as well, which he judged the anomaly rather than the
+     *      intent: wrongly parsed template parameters are already dealt with
+     *      by {@see ace_language()}, which gives that field no mode at all,
+     *      and UI parameters read equally well as JSON or as plain text. An
+     *      author who really does want every editor on the form gone can
+     *      press ctrl-alt-M, which `userinterfacewrapper` watches for.
+     *
+     *      The answer and the answer preload are not governed by it either:
+     *      those run the question's UI plugin, which is a separate choice,
+     *      and that was true in CodeRunner 5 as well.
      */
     public static function require_ace(
         array $sections,
         string $language = '',
         bool $withinstancefields = false,
-        bool $readonly = false
+        bool $readonly = false,
+        bool $useace = true
     ): void {
         global $PAGE;
 
+        // Unconditional, whatever the checkbox says. This is the only call to
+        // it on the question form's path -- require_answer_box_ui() attaches
+        // the answer box's UI wrapper but never loads Ace itself -- so making
+        // it conditional would take the student answer editor down with the
+        // settings ones. *Template uses ace* governs the code fields here and
+        // never governed the answer box, which runs the question's UI plugin.
         \qtype_coderunner_util::load_ace();
 
         $inheritable = [];
@@ -960,11 +984,13 @@ class settings_form {
                 // Two arguments only: newUiWrapper(uiname, textareaId). The
                 // language travels on the textarea's data-lang attribute,
                 // which InterfaceWrapper reads for itself.
-                $PAGE->requires->js_call_amd(
-                    'qtype_coderunner/userinterfacewrapper',
-                    'newUiWrapper',
-                    ['ace', 'id_' . $name]
-                );
+                if ($useace || $name !== 'template') {
+                    $PAGE->requires->js_call_amd(
+                        'qtype_coderunner/userinterfacewrapper',
+                        'newUiWrapper',
+                        ['ace', 'id_' . $name]
+                    );
+                }
                 if ($field->is_inheritable() && !$field->merges_with_inherited()) {
                     $inheritable[] = $name;
                 }

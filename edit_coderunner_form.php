@@ -110,11 +110,17 @@ class qtype_coderunner_edit_form extends question_edit_form {
 
         $this->make_prototype_panel($mform);
 
-        // Ace on every code field. The settings sections get the plain editor;
-        // the answer and the answer preload get the question's own UI plugin,
-        // which may be the scratchpad, a graph editor or anything else a
-        // prototype chooses, and which is what a student will see.
-        settings_form::require_ace(self::sections(), (string) $this->resolved_settings()->get('language'));
+        // Ace on the code fields, unless *Template uses ace* says otherwise.
+        // The settings sections get the plain editor; the answer and the
+        // answer preload get the question's own UI plugin, which may be the
+        // scratchpad, a graph editor or anything else a prototype chooses,
+        // which is what a student will see, and which the checkbox does not
+        // govern.
+        settings_form::require_ace(
+            self::sections(),
+            (string) $this->resolved_settings()->get('language'),
+            useace: (bool) $this->resolved_settings()->get('useace')
+        );
         $this->require_answer_box_ui($mform);
         $PAGE->requires->js_call_amd('qtype_coderunner/textareas', 'setupAllTAs');
         // The '<<' buttons in the table of failed test cases, which a failed

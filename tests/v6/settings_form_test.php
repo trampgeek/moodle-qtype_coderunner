@@ -511,6 +511,64 @@ final class settings_form_test extends \advanced_testcase {
     }
 
     /**
+     * Clearing *Template uses ace* leaves the template a plain textarea, and
+     * leaves every other code field alone.
+     *
+     * The setting exists for a heavily Twigged template, where a mode reports
+     * errors that are not there. CodeRunner 6 attached Ace to every code field
+     * unconditionally for a while, which left the checkbox doing nothing at
+     * all; CodeRunner 5 went the other way and applied it to the template
+     * parameters and the UI parameters too, which the author judged the
+     * anomaly rather than the intent. Hence a test that pins both edges: the
+     * template loses its editor, and `resultcolumns` -- the other code field
+     * in this same section -- keeps one.
+     *
+     * Ace itself is still loaded. The answer box runs the question's UI plugin
+     * and nothing else on this path loads the scripts, so making them
+     * conditional would take the student answer editor down with it.
+     */
+    public function test_clearing_useace_leaves_only_the_template_plain(): void {
+        global $PAGE;
+
+        $this->resetAfterTest();
+        $PAGE->set_url('/');
+
+        settings_form::require_ace([form_section::TEMPLATE], 'python3', false, false, false);
+
+        $queued = new \ReflectionProperty($PAGE->requires, 'amdjscode');
+        $amd = implode(' ', $queued->getValue($PAGE->requires));
+        $this->assertStringNotContainsString(
+            '"id_template"',
+            $amd,
+            'The template was given an Ace wrapper although the author cleared "Template uses ace".'
+        );
+        $this->assertStringContainsString(
+            '"id_resultcolumns"',
+            $amd,
+            'Clearing "Template uses ace" took the editor off a field it does not govern.'
+        );
+        // The Inherit checkboxes still have to be followed. With Ace off the
+        // textarea is what the author types into, and an inherited one must
+        // stay locked -- which is the half of the job that is not Ace's.
+        $this->assertStringContainsString('qtype_coderunner/inheritedcode', $amd);
+    }
+
+    /**
+     * The checkbox is in the section whose fields it governs.
+     *
+     * It sat under *User interface* until 18 November 2026, beside the UI
+     * plugin menu, which is a different choice entirely: that one picks what
+     * a student sees, this one picks whether the author gets an editor.
+     */
+    public function test_useace_is_in_the_template_section(): void {
+        $this->assertSame(
+            form_section::TEMPLATE,
+            field_registry::all()['useace']->section,
+            'The "Template uses ace" checkbox is not in the section holding the template.'
+        );
+    }
+
+    /**
      * A form the author may only read gets Ace but is asked to unlock nothing.
      *
      * Formslib freezes such a form by rendering every control `readonly

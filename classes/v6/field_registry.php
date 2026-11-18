@@ -420,7 +420,7 @@ class field_registry {
                 default: 'ace',
                 labelstring: 'student_answer',
             ),
-            new field('useace', field_kind::INHERITED, field_type::BOOLEAN, form_section::UI, default: 1),
+            new field('useace', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 1),
             new field(
                 'answerboxlines',
                 field_kind::INHERITED,
