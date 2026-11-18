@@ -111,7 +111,25 @@ The suite is written against the CodeRunner 6 author form and needs these local 
   overrides whichever fields its own table names, and it **saves the form**, so a scenario that
   must interact with the form before saving cannot use it.
 - `I set the ace field "x" to:` and `I should see "..." in the ace field "x"` — Ace hides the
-  textarea it manages, so core's field steps cannot see it.
+  textarea it manages, so core's field steps cannot see it. Both expand the fieldsets first, so
+  they do not depend on an earlier step having opened the form.
+
+**"No Ace editor appeared for the field 'x'"** names Ace, and Ace is rarely the cause. It means
+only that the wait timed out, and the budget is `get_extended_timeout()`, 10 seconds. For scale:
+a warm author form attaches every editor within about 1.6 seconds, but one measured on a cold
+cache took 11.4 seconds to attach the first and 18.6 to drain `M.util.pending_js`. The same
+condition reaches a different waiter as *"Javascript code and/or AJAX requests are not ready
+after 10 seconds (init)"*, so those two messages are worth reading as one symptom.
+
+Before blaming the editor, check three things. Whether the scenario passed on a rerun —
+`moodle-plugin-ci behat` retries failures and the **job then reports success**, so read the first
+pass's `N scenarios (...)` line rather than the job's conclusion, and grep a job log for
+`scenarios (` to see every pass. Whether some earlier step in the same scenario sets a field that
+rebuilds the form, since the prototype picker and the UI menu both reload the page through a
+hidden no-submit button. And the browser console, not just the DOM: a UI plugin whose constructor
+throws can leave no editor *and* no message, because the error path itself can throw — that was
+`9ba3e40b`, where `this.gaps` was read before it was assigned and the gapfiller appeared simply
+never to load.
 
 A feature that needs a prototype to exist but is not testing how one is made should say so as
 data rather than build one through the editor:

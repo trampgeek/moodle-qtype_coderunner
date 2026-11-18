@@ -843,6 +843,19 @@ class behat_qtype_coderunner extends behat_base {
     }
 
     protected function wait_for_ace_editor(string $xpath, string $elname): void {
+        // CodeRunner 6 renders the settings sections collapsed, and every code
+        // field except the answer and the test cases is inside one. Ace does
+        // attach to a textarea in a collapsed fieldset -- the markup is in the
+        // DOM and merely hidden -- so this is not what makes the editor
+        // findable; it is so that the step can act on the field afterwards, and
+        // so that a scenario does not depend on some earlier step having opened
+        // the form. That dependency was real: the three Ace steps were the only
+        // ones here that did not expand, and one scenario reached its template
+        // solely because a stray "I set the following fields to these values"
+        // table expanded the form as a side effect, which made deleting the
+        // stray rows break the scenario.
+        $this->execute('behat_forms::i_expand_all_fieldsets');
+
         $driver = $this->getSession()->getDriver();
         $this->spin(
             function() use ($driver, $xpath) {

@@ -24,18 +24,12 @@ Feature: Test that answers changed after checking are highlighted as being diffe
 
   Scenario: Preview the Python3 sqr_with_ace function CodeRunner question get it right then change the answer and wait for changed answer notification
     When I am on the "Square function (with Ace)" "core_question > edit" page logged in as teacher1
-    # Turn useace off so can change template to correct value (and useace back on after)
-    And I set the following fields to these values:
-      | id_useace      | 0        |
-    And I wait "1" seconds
-    #And I set the field with xpath "//textarea[contains(@id, 'id_template')]" to multiline:
+    And I override the CodeRunner field "template"
     And I set the ace field "template" to:
     """
     {{ STUDENT_ANSWER }}
     {{ TEST.testcode }}
     """
-    And I set the following fields to these values:
-      | id_useace      | 1        |
     # Need to change question name or else the preview step will find two qids for the same name
     # That is, it isn't looking for the latest version!!!!
     And I set the field "id_name" to "Square function (with Ace) v2"
@@ -61,18 +55,12 @@ Feature: Test that answers changed after checking are highlighted as being diffe
 
   Scenario: Preview the Python3 sqr_with_ace function CodeRunner question and submit wrong answer then change and wait for changed notification, then change back and wait for notification to go away.
     When I am on the "Square function (with Ace)" "core_question > edit" page logged in as teacher1
-    # Turn useace off so can change template to correct value (and useace back on after)
-    And I set the following fields to these values:
-      | id_useace      | 0          |
-    And I wait "3" seconds
-    #And I set the field with xpath "//textarea[contains(@id, 'id_template')]" to multiline:
+    And I override the CodeRunner field "template"
     And I set the ace field "template" to:
     """
     {{ STUDENT_ANSWER }}
     {{ TEST.testcode }}
     """
-    And I set the following fields to these values:
-      | id_useace      | 1         |
     # Need to change question name or else the preview step will find two qids for the same name
     # That is, it isn't looking for the latest version!!!!
     And I set the field "id_name" to "Square function (with Ace) v2"
@@ -124,19 +112,14 @@ Feature: Test that answers changed after checking are highlighted as being diffe
 # +++++++++++++++++++++++++++++++++++++++++
   Scenario: Preview the Python3 sqr_with_ace function CodeRunner question and submit wrong answer then change and wait for changed notification, then change back and wait for notification to go away.
     When I am on the "Square function (with Ace)" "core_question > edit" page logged in as teacher1
-    # Turn useace off so can change template to correct value (and useace back on after)
-    And I set the following fields to these values:
-      | id_useace      | 0          |
-    And I wait "1" seconds
-    #And I set the field with xpath "//textarea[contains(@id, 'id_template')]" to multiline:
+    And I override the CodeRunner field "template"
     And I set the ace field "template" to:
     """
     {{ STUDENT_ANSWER }}
     {{ TEST.testcode }}
     """
-    And I set the following fields to these values:
-      | id_useace      | 1          |
-      | id_uiplugin    | Scratchpad |
+    And I override the CodeRunner field "uiplugin"
+    And I choose the CodeRunner UI "Scratchpad"
     # Need to change question name or else the preview step will find two qids for the same name
     # That is, it isn't looking for the latest version!!!!
     And I set the field "id_name" to "Square function (with Ace) v2"
