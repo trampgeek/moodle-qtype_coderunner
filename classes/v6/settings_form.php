@@ -441,6 +441,25 @@ class settings_form {
         }
         $members[] = self::merge_note($mform, $field, $inherited, $own);
 
+        // A box around the field and the controls that travel with it, where
+        // there are any. Reported from the test server on 16 November: the
+        // label *Template params (merges with parent)* read as applying to the
+        // textarea alone, so the language menu and *Evaluate per student*
+        // looked like two unrelated settings that happened to sit below it.
+        // They are one object -- the document, the language it is written in,
+        // and whether it is evaluated per student -- which the registry has
+        // always said through `perlayerwith` and the form never drew.
+        //
+        // Drawn with open and close `html` elements rather than by putting all
+        // three in one group, because a group cannot hold the textarea: Ace
+        // positions its full-screen control against the textarea's own
+        // container and a group wrapper leaves it half visible in the corner,
+        // which is why these are two rows in the first place.
+        $boxed = (bool) $field->perlayerwith;
+        if ($boxed) {
+            $mform->addElement('html', '<div class="coderunner-collected-group">');
+        }
+
         // Where the field's own help goes, and whether that leaves the group
         // free to carry the components'. A help button cannot anchor on an
         // element inside a group, so a component's can only go on the group.
@@ -471,6 +490,10 @@ class settings_form {
                 $mform->addHelpButton($name . '_group', $field->help_identifier(), 'qtype_coderunner');
                 $componenthelp = null;
             }
+        }
+
+        if ($boxed) {
+            $mform->addElement('html', '</div>');
         }
 
         // The components' help, where the group has none of its own. Both of

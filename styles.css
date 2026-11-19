@@ -691,3 +691,32 @@ body#page-question-type-coderunner div[id^=fitem_id_testtype_] {
     background: #f2f2f2;
     opacity: 0.65;
 }
+
+/* The template parameters, the language they are written in and *Evaluate per
+   student* are one object that merges with its parent, not three settings that
+   happen to be adjacent. The box says so. A fieldset and legend would say it
+   more loudly, but formslib already wraps the form in one and Boost styles
+   nested fieldsets as sections, which would read as a new heading.
+
+   Unscoped, because the class is this plugin's own and the selector has to
+   work on both forms: the question editor is page-question-bank-editquestion-
+   question and the prototype editor is a page of the manager's, so there is no
+   body id that covers both and naming one of them silently matched neither.
+
+   The horizontal padding is Bootstrap's gutter, not decoration. The rows
+   inside are .row, which carries margin-inline: -0.75rem, so without it the
+   label column escapes to the left of the border and the box cuts through the
+   field's own name -- which is the very thing it is drawn to gather in. */
+.coderunner-collected-group {
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    padding: 0.75rem 0.75rem 0.25rem;
+
+    /* Inset from the section's own edges, or the vertical borders land exactly
+       on them and the box reads as two horizontal rules instead of a rectangle.
+       Not symmetric: 1em on the left, where there is room, but the Ace editor
+       already sits only about 1em from the right, so the full indent would put
+       the border through it. Half that gap clears the editor and still shows a
+       right-hand edge. */
+    margin: 0 8px 1rem 1em;
+}
