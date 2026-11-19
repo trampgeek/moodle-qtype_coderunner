@@ -135,7 +135,6 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $qdata->options->giveupallowed = 0;
         $qdata->options->extractcodefromjson = 1;
         // Exclude precheck as it defaults to null.
-        $qdata->options->useace = 0;
         $qdata->options->penaltyregime = '10, 20, ...';
         // Exclude answer, defaults to null.
         $qdata->options->validateonsave = 1;
@@ -169,7 +168,6 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->showsource = 0;
         $form->answerboxlines = 5;
         $form->answerboxcolumns = 100;
-        $form->useace = 0;
         $form->precheck = 1;
         $form->hidecheck = 0;
         $form->allornothing = 0;
@@ -228,7 +226,6 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     public function get_coderunner_question_form_data_sqr_with_ace() {
         $form = self::get_coderunner_question_form_data_sqr();  // Starting point.
-        $form->useace = 0; // Don't use Ace for the template.
         $form->name = 'Square function (with Ace)';
         $form->questiontext = ['text' => 'Write a function sqr(n) that returns n squared.', 'format' => FORMAT_HTML];
         $form->uiplugin = 'ace';
@@ -242,7 +239,6 @@ class qtype_coderunner_test_helper extends question_test_helper {
      */
     public function get_coderunner_question_form_data_sqr_with_scratchpad() {
         $form = self::get_coderunner_question_form_data_sqr();  // Starting point.
-        $form->useace = 0;  // Don't use Ace for the template.
         $form->name = 'Square function (with Scratchpad)';
         $form->uiplugin = 'scratchpad';
         return $form;
@@ -266,7 +262,6 @@ class qtype_coderunner_test_helper extends question_test_helper {
         $form->showsource = 0;
         $form->answerboxlines = 5;
         $form->answerboxcolumns = 100;
-        $form->useace = 0;
         $form->precheck = 1;
         $form->hidecheck = 0;
         $form->allornothing = 0;
@@ -648,7 +643,6 @@ except ValueError:
         $form->showsource = 0;
         $form->answerboxlines = 5;
         $form->answerboxcolumns = 100;
-        $form->useace = 0;
         $form->precheck = 1;
         $form->hidecheck = 0;
         $form->allornothing = 0;

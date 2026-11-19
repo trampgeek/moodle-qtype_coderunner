@@ -34,9 +34,8 @@ Feature: make_prototype
     And I set the following fields to these values:
       | Name          | python3_test_prototype |
       | Inherits from | python3                |
-    And I override the CodeRunner fields "useace, uiplugin, template, iscombinatortemplate"
+    And I override the CodeRunner fields "uiplugin, template, iscombinatortemplate"
     And I set the following fields to these values:
-      | id_useace               | 0    |
       | id_uiplugin             | None |
       | id_iscombinatortemplate | 0    |
     And I set the ace field "template" to:
