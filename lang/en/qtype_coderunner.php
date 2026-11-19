@@ -477,6 +477,7 @@ $string['missingorbadfraction'] = 'Bad or missing fraction in output from templa
 $string['missingoutput'] = 'You must supply the expected output from this test case.';
 $string['missingprototype'] = 'This question was defined to be of type \'{$a->crtype}\' but the prototype does not exist, or is unavailable in this context. You should Cancel and try to (re)install the prototype.
 Proceed to edit only if you know what you are doing!';
+$string['missingprototypenosave'] = 'This question cannot be saved until the prototype it needs exists. Saving now would replace the name of the type it wants with whichever type this form is showing, which is not a choice you made.';
 $string['missingprototypes'] = 'Missing prototypes';
 $string['missingprototypewhenrunning'] = 'Broken question (missing or duplicate prototype \'{$a->crtype}\'). Cannot be run.';
 $string['missinguiparams'] = 'The following UI parameters are required but not defined: ';

@@ -108,6 +108,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
             return;
         }
 
+        if ($this->is_missing_prototype_question()) {
+            $this->add_missing_prototype_notice($mform);
+        }
+
         $this->make_prototype_panel($mform);
 
         // Ace on the code fields, unless *Template uses ace* says otherwise.
@@ -394,6 +398,62 @@ class qtype_coderunner_edit_form extends question_edit_form {
      */
     protected function is_legacy_prototype_question(): bool {
         return (int) ($this->question->options->prototypetype ?? 0) !== 0;
+    }
+
+    /** The form element carrying the missing-prototype banner. */
+    const MISSING_PROTOTYPE_ELEMENT = 'missingprototypenotice';
+
+    /**
+     * Whether this question names a prototype that cannot be found.
+     *
+     * A saved, ordinary question whose prototype id is null: the name in
+     * `coderunnertype` resolved to nothing when it was last saved, imported or
+     * restored. A real site has hundreds of these — 405 on the development
+     * site — and they are also the state an import leaves behind until the
+     * sweep has run.
+     *
+     * Not a new question, which has no prototype yet by definition and is
+     * answered by `prototyperequired`; and not a legacy prototype question,
+     * which has its own banner and for which a null id is correct.
+     *
+     * @return bool true if the question is broken in this way.
+     */
+    protected function is_missing_prototype_question(): bool {
+        return !empty($this->question->id)
+            && !$this->is_legacy_prototype_question()
+            && ($this->question->options->prototypeid ?? null) === null;
+    }
+
+    /**
+     * Say loudly that the prototype this question names cannot be found.
+     *
+     * CodeRunner 5 said so through `brokenquestionmessage`, which
+     * `authorform.js` inserted into the form; both went when that file was
+     * deleted on 12 November, leaving the `missingprototype` string with no
+     * caller and the form silently showing the first prototype of the course
+     * as though the author had chosen it.
+     *
+     * The form still loads and every other control still works, because the
+     * question's content is worth reading and rescuing -- its template, its
+     * test cases, its sample answer. What it must not do is save: see
+     * {@see validation()}.
+     *
+     * @param \MoodleQuickForm $mform the form being built.
+     */
+    protected function add_missing_prototype_notice($mform): void {
+        $mform->addElement(
+            'static',
+            self::MISSING_PROTOTYPE_ELEMENT,
+            '',
+            \html_writer::div(
+                get_string(
+                    'missingprototype',
+                    'qtype_coderunner',
+                    ['crtype' => s((string) ($this->question->options->coderunnertype ?? ''))]
+                ),
+                'alert alert-danger'
+            )
+        );
     }
 
     /**
@@ -1278,6 +1338,19 @@ class qtype_coderunner_edit_form extends question_edit_form {
             // matters on a form that cannot save.
             return [
                 legacy_prototype_notice::ELEMENT => get_string('legacyprototypenosave', 'qtype_coderunner'),
+            ];
+        }
+
+        if ($this->is_missing_prototype_question()) {
+            // The picker falls back to the first prototype of the course when
+            // it is handed nothing, so this form is offering a choice the
+            // author did not make. Saving would take it: set_legacy_columns()
+            // writes `coderunnertype` from the chosen prototype, so the name
+            // of the type the question actually wants -- the only record of
+            // it, and what the sweep resolves against -- would be gone.
+            // Refused before the parent is consulted, as above.
+            return [
+                self::MISSING_PROTOTYPE_ELEMENT => get_string('missingprototypenosave', 'qtype_coderunner'),
             ];
         }
 

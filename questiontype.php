@@ -398,14 +398,24 @@ class qtype_coderunner extends question_type {
      * @param object $question the question editing form, already cleaned.
      */
     public function set_prototype_reference($question) {
+        // The form marks its own saves, and only a save that is not one can be
+        // telling us about work the manager has not done yet: the form always
+        // submits a prototype it picked from what exists.
+        $fromform = !empty($question->{self::OVERRIDES_SUPPLIED});
+
         if ($question->prototypetype != 0) {
             // A legacy prototype question is not a question with a prototype.
             $question->prototypeid = null;
             $question->overrides = null;
+            // Imported, it is a prototype waiting to be made: the sweep's
+            // snapshot_user_prototypes() pass is exactly what turns it into one.
+            if (!$fromform) {
+                $this->request_prototype_sweep();
+            }
             return;
         }
 
-        if (!empty($question->{self::OVERRIDES_SUPPLIED})) {
+        if ($fromform) {
             $this->set_legacy_columns($question);
             return;
         }
@@ -416,6 +426,44 @@ class qtype_coderunner extends question_type {
             $question->coderunnertype,
             $this->question_context($question)
         );
+        if ($question->prototypeid === null) {
+            $this->request_prototype_sweep();
+        }
+    }
+
+    /** @var bool Whether this request has already asked for the prototype sweep. */
+    protected bool $sweeprequested = false;
+
+    /**
+     * Ask for the prototype sweep, at most once per request.
+     *
+     * Importing a course's Moodle XML brings its prototype *questions* and the
+     * questions built on them, usually in that order but not dependably so, and
+     * neither half can be resolved until the manager has snapshotted the
+     * prototypes. The sweep does both in the order they need: it installs the
+     * built-ins, snapshots the prototype questions, then gives every question
+     * its prototype id. Nothing was asking it to run after an import, so an
+     * imported question stayed broken until something else — a plugin upgrade,
+     * in practice — happened to queue the task.
+     *
+     * The same reasoning as the restore's own request, and the same shape: see
+     * restore_qtype_coderunner_plugin::request_prototype_sweep_if_unresolved().
+     * `queue_migration_if_needed()` cannot serve here, because its query cannot
+     * tell a question waiting for its prototype from one of the hundreds a real
+     * site has that will never have one.
+     *
+     * Once per request because {@see question_bank::get_qtype()} hands out one
+     * shared instance, so a 500-question import would otherwise make 500 calls.
+     * Each would be harmless — `queue_adhoc_task()` is told to check for an
+     * existing copy — so the flag saves queries rather than preventing a
+     * duplicate.
+     */
+    protected function request_prototype_sweep(): void {
+        if ($this->sweeprequested) {
+            return;
+        }
+        $this->sweeprequested = true;
+        \local_coderunner_manager\prototype_installer::queue_migration();
     }
 
     /**

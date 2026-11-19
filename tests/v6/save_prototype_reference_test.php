@@ -122,6 +122,60 @@ final class save_prototype_reference_test extends \advanced_testcase {
     }
 
     /**
+     * An import that cannot resolve its prototype asks for the migration sweep.
+     *
+     * Importing a course's Moodle XML brings its prototype *questions* and the
+     * questions built on them, and neither half resolves until the manager has
+     * snapshotted the prototypes. The sweep does both passes in the order they
+     * need. Nothing was asking it to run after an import, so an imported
+     * question stayed broken until a plugin upgrade happened to queue the task
+     * -- which is how the gap was found, on 19 November 2026.
+     *
+     * The restore has asked for the same sweep, for the same reason, since the
+     * restore work; this is the other door into the same state.
+     */
+    public function test_an_unresolvable_import_asks_for_the_sweep(): void {
+        global $DB;
+
+        $DB->delete_records('task_adhoc');
+
+        $question = $this->form_question(['coderunnertype' => 'no_such_prototype']);
+        $this->qtype->set_prototype_reference($question);
+
+        $this->assertNull($question->prototypeid);
+        $this->assertTrue(
+            $DB->record_exists('task_adhoc', ['classname' => '\\local_coderunner_manager\\task\\install_prototypes']),
+            'An import that resolved nothing did not ask for the prototype sweep.'
+        );
+    }
+
+    /**
+     * A save from the form never asks for the sweep.
+     *
+     * The form submits a prototype it picked from what exists, so a null there
+     * means something quite different and the manager has no work waiting. The
+     * marker the form sets is what tells the two apart; without the check,
+     * every ordinary question save would queue a task.
+     */
+    public function test_a_form_save_does_not_ask_for_the_sweep(): void {
+        global $DB;
+
+        $this->make_prototype('python3', SITEID);
+        $DB->delete_records('task_adhoc');
+
+        $question = $this->form_question();
+        $question->{\qtype_coderunner::OVERRIDES_SUPPLIED} = 1;
+        $question->prototypeid = $this->make_prototype('python3_other', SITEID);
+        $question->overrides = json_encode([]);
+        $this->qtype->set_prototype_reference($question);
+
+        $this->assertFalse(
+            $DB->record_exists('task_adhoc', ['classname' => '\\local_coderunner_manager\\task\\install_prototypes']),
+            'An ordinary save from the form queued a migration sweep it does not need.'
+        );
+    }
+
+    /**
      * A question whose own value for a CodeRunner 5 inherited field is set
      * overrides the prototype, and the overrides document says so.
      */

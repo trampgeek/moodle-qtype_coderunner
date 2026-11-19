@@ -651,4 +651,50 @@ final class question_form_test extends \advanced_testcase {
         $this->assertFalse($mform->elementExists('stdin[0]'));
         $this->assertFalse($mform->elementExists('extra[0]'));
     }
+
+    /**
+     * A question whose prototype cannot be found says so, and will not save.
+     *
+     * The picker falls back to the first prototype of the course when it is
+     * handed nothing, so such a question presented as though the author had
+     * chosen a type they had not. Saving took that choice:
+     * `set_legacy_columns()` writes `coderunnertype` from the chosen
+     * prototype, so the name of the type the question actually wants -- the
+     * only record of it, and what the migration sweep resolves against --
+     * was overwritten. Silent, and unrecoverable afterwards.
+     *
+     * The banner is checked by rendering; what cannot be seen that way, and
+     * is the half that matters, is that the save is refused.
+     */
+    public function test_a_question_with_no_prototype_says_so_and_will_not_save(): void {
+        $this->make_prototype('python3');
+        $questiondata = $this->make_question('python3');
+        // What an import, or a restore of a course whose prototypes have not
+        // been snapshotted yet, leaves behind.
+        $questiondata->options->prototypeid = null;
+
+        $form = $this->build_form($questiondata);
+
+        $this->assertTrue(
+            $this->quickform($form)->elementExists(\qtype_coderunner_edit_form::MISSING_PROTOTYPE_ELEMENT),
+            'A question with no prototype was shown no banner saying so.'
+        );
+
+        $errors = $form->validation([
+            'category' => $this->category->id . ',' . $this->category->contextid,
+            'name' => 'Broken question',
+            'questiontext' => ['text' => 'Write sqr.', 'format' => FORMAT_HTML],
+            'generalfeedback' => ['text' => '', 'format' => FORMAT_HTML],
+            'defaultmark' => 1,
+            // The first prototype of the course, which is what the picker
+            // offers and what an unwary save would adopt.
+            prototype_picker::FIELD => $this->make_prototype('aaa_first')->id,
+        ], []);
+
+        $this->assertArrayHasKey(
+            \qtype_coderunner_edit_form::MISSING_PROTOTYPE_ELEMENT,
+            $errors,
+            'A question with no prototype was allowed to save, adopting a type nobody chose.'
+        );
+    }
 }
