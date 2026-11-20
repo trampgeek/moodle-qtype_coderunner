@@ -261,7 +261,23 @@ class prototype_picker {
             );
         }
 
-        return $mform->createElement('selectgroups', self::FIELD, '', $optgroups, null, true);
+        // The placeholder is prepended rather than asked for through
+        // `selectgroups`' own $showchoose, which does not work on this path:
+        // its export_for_template() appends the entry to $optionsgroups while
+        // rendering $optiongroups, so the option is silently dropped and the
+        // browser selects the first real prototype. A new question therefore
+        // opened claiming to be built on whichever prototype sorted first,
+        // which the author had not chosen. The toHtml() path has it right, so
+        // the fault shows only where a theme renders through the template --
+        // which is to say everywhere, in Boost.
+        //
+        // Core is not ours to patch, and a group of our own survives either
+        // path. Its heading is empty because the entry is not a group of
+        // prototypes; browsers draw an unlabelled optgroup as a plain
+        // separator above it.
+        $placeholder = ['' => ['' => get_string('choose') . '...']];
+
+        return $mform->createElement('selectgroups', self::FIELD, '', $placeholder + $optgroups);
     }
 
     /**
