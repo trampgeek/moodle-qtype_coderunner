@@ -27,9 +27,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Facebook\WebDriver\Exception\NoSuchAlertException;
 use Moodle\BehatExtension\Exception\SkippedException;
+use qtype_coderunner\v6\field_registry;
 
 class behat_qtype_coderunner extends behat_base {
     /**
@@ -333,27 +335,6 @@ class behat_qtype_coderunner extends behat_base {
     }
 
 
-    /**
-     * Step to set an HTML5 session variable 'disableUis' to true to prevent
-     * loading of the usual Ace (or Graph etc) UI plugin.
-     *
-     * @When /^I disable UI plugins in the CodeRunner question type/
-     */
-    public function i_disable_ui_plugins() {
-        $javascript = "sessionStorage.setItem('disableUis', true);";
-        $this->getSession()->executeScript($javascript);
-    }
-
-    /**
-     * Step to remove the HTML5 session variable 'disableUis' (if present)
-     * to re-enable loading of the usual Ace (or Graph etc) UI plugins.
-     *
-     * @When /^I enable UI plugins in the CodeRunner question type/
-     */
-    public function i_enable_u_plugins() {
-        $javascript = "sessionStorage.removeItem('disableUis');";
-        $this->getSession()->executeScript($javascript);
-    }
 
     /**
      * Sets the contents of a field with multi-line input.
@@ -720,8 +701,114 @@ class behat_qtype_coderunner extends behat_base {
             $this->i_override_the_coderunner_fields(implode(',', $wanted));
         }
 
-        $this->execute('behat_forms::i_set_the_following_fields_to_these_values', $data);
+        // A code field is managed by Ace, which hides the textarea that core's
+        // bulk setter types into, so those rows are set through the editor
+        // instead -- the way an author sets them. Only this step's own table is
+        // treated this way: core's shared "I set the following fields to these
+        // values" is left alone, because teaching it about Ace once hijacked
+        // id_questiontext from TinyMCE and took a run from 5 failures to 28.
+        //
+        // The registry is asked which fields are code rather than a list being
+        // kept here, so a new code field needs no change to this step. Being a
+        // code field is necessary but not sufficient, though: the seven in the
+        // settings sections always get an editor, while "answer" and
+        // "answerpreload" get the question's own UI plugin and so get none at
+        // all when that is empty or "none" (see
+        // edit_coderunner_form::require_answer_box_ui). So the test is whether
+        // the textarea is actually hidden, which is the condition that stops
+        // core's setter working, rather than a guess about which component
+        // attached what. By this point the picker has rebuilt the form and
+        // Behat has waited for its JavaScript, so the editors have attached.
+        $plainrows = [];
+        $codevalues = [];
+        foreach ($data->getRows() as $row) {
+            $name = trim($row[0]);
+            $bare = str_starts_with($name, 'id_') ? substr($name, 3) : $name;
+            $iscode = field_registry::exists($bare) && field_registry::get($bare)->iscode;
+            if ($iscode && $this->is_hidden_by_ui($bare)) {
+                $codevalues[$bare] = $row[1];
+            } else {
+                $plainrows[] = $row;
+            }
+        }
+
+        // The plain fields go first: one of them may rebuild the form through a
+        // no-submit button, which would discard anything already typed into an
+        // editor.
+        if ($plainrows !== []) {
+            $this->execute(
+                'behat_forms::i_set_the_following_fields_to_these_values',
+                new TableNode($plainrows)
+            );
+        }
+        foreach ($codevalues as $bare => $value) {
+            if ($this->has_ace_editor($bare)) {
+                $this->i_set_ace_field($bare, $value);
+            } else {
+                $this->set_serialised_ui_field($bare, $value);
+            }
+        }
+
         $this->execute('behat_forms::press_button', 'id_submitbutton');
+    }
+
+    /**
+     * Has an Ace editor attached itself to the named field?
+     *
+     * @param string $name the field's name attribute.
+     * @return bool
+     */
+    protected function has_ace_editor(string $name): bool {
+        $xpath = "//textarea[@name='$name']/following-sibling::div[1]"
+            . "/div[contains(@class, 'ace_editor')]";
+        return (bool) $this->getSession()->getDriver()->find($xpath);
+    }
+
+    /**
+     * Set a field whose UI plugin is not a text editor, such as the graph UI.
+     *
+     * There is no typing to imitate here: a graph is drawn with a mouse, and no
+     * Behat step can draw one. What the UI plugins do have in common is that
+     * they serialise their state into the textarea they manage, and that is the
+     * value a feature supplies. So the serialisation is written there and the UI
+     * is stopped and restarted, which makes its constructor read the textarea
+     * back -- the same path the UI takes when the form first loads. Writing the
+     * textarea alone would not survive: a live UI syncs its own state over it
+     * when the form is submitted.
+     *
+     * @param string $name the field's name attribute.
+     * @param string $value the UI's serialisation of the wanted state.
+     */
+    protected function set_serialised_ui_field(string $name, string $value) {
+        $js = "(function() {"
+            . "const ta = document.querySelector('textarea[name=' + "
+            . json_encode(json_encode($name)) . " + ']');"
+            . "ta.value = " . json_encode($value) . ";"
+            . "const w = ta.current_ui_wrapper;"
+            . "if (w) { w.stop(); w.restart(); }"
+            . "})();";
+        $this->getSession()->executeScript($js);
+    }
+
+    /**
+     * Is the named field's textarea hidden by a UI plugin that has replaced it?
+     *
+     * A UI wrapper sets the textarea's display to none once its editor loads,
+     * which is exactly what stops core's field steps reaching it. A field with
+     * no UI, or one whose UI declined to load, stays visible and is set the
+     * ordinary way.
+     *
+     * @param string $name the field's name attribute, e.g. "template".
+     * @return bool true if the field must be set through its editor instead.
+     */
+    protected function is_hidden_by_ui(string $name): bool {
+        $node = $this->getSession()->getDriver()->find("//textarea[@name='$name']");
+        if (!$node) {
+            // Not on the form at all: leave it to core, whose error message
+            // about a missing field is the useful one.
+            return false;
+        }
+        return !$node[0]->isVisible();
     }
 
     /**

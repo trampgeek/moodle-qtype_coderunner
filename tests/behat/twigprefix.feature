@@ -28,7 +28,6 @@ Feature: twigprefix
       | test_twigprefix | python3 | C1     | python3            | 0      | none     | 0                    | {{STUDENT_ANSWER}} | print('{"__twigprefix__": "{% macro blah() %}BingleyBeep{% endmacro %}"}') |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
     And I set CodeRunner behat testing flag
-    And I disable UI plugins in the CodeRunner question type
 
     # Now try to add a new question of type test_twigprefix
     And I add a CodeRunner question on "test_twigprefix" filling the form with:

@@ -28,7 +28,6 @@ Feature: Check the QUIZ Twig variable allows access to the current quiz name and
     And I set the field "Tags" to "one, two"
     And I press "Save and display"
     And I am on the "Course 1" "core_question > course question bank" page
-    And I disable UI plugins in the CodeRunner question type
     And I add a CodeRunner question on "python3" filling the form with:
       | id_name                 | QUIZ variable                              |
       | id_questiontext         | Quiz is {{ QUIZ.name }}, tags are {{ QUIZ.tags \| json_encode}} |

@@ -28,7 +28,6 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
 
   Scenario: if evaluate per student is true, both teacher and student should be able to answer with their own names
     When I am on the "Quiz 1" "mod_quiz > Edit" page logged in as "teacher1"
-    And I disable UI plugins in the CodeRunner question type
     And I open the "last" add to quiz menu
     And I follow "a new question"
     And I set the field "item_qtype_coderunner" to "1"
@@ -40,9 +39,9 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
     And I set the field "id_name" to "Python preprocessor"
     And I set the field "id_questiontext" to "Write a program that prints True if seed parameter provided, then {{ firstname }} {{ lastname }}"
     And I set the field "id_answerboxlines" to "5"
-    And I set the field "id_templateparams" to "import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues))"
+    And I set the ace field "templateparams" to "import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues))"
     And I set the field "id_twigall" to "1"
-    And I set the field "id_template" to "print({{seed}} > 0, end=' ');  {{STUDENT_ANSWER}}"
+    And I set the ace field "template" to "print({{seed}} > 0, end=' ');  {{STUDENT_ANSWER}}"
     And I set the field "id_templateparamslang" to "python3"
     And I set CodeRunner behat testing flag
     And I set the field "id_templateparamsevalpertry" to "1"
@@ -76,7 +75,6 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
 
   Scenario: if evaluate per student is unchecked, the teacher's name is displayed not the student's.
     When I am on the "Quiz 1" "mod_quiz > Edit" page logged in as "teacher1"
-    And I disable UI plugins in the CodeRunner question type
     And I open the "last" add to quiz menu
     And I follow "a new question"
     And I set the field "item_qtype_coderunner" to "1"
@@ -88,9 +86,9 @@ Feature: Check that Python and other languages can be used instead of Twig as a 
     And I set the field "id_name" to "Python preprocessor"
     And I set the field "id_questiontext" to "Write a program that prints True if seed parameter provided, then {{ firstname }} {{ lastname }}"
     And I set the field "id_answerboxlines" to "5"
-    And I set the field "id_templateparams" to "import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues))"
+    And I set the ace field "templateparams" to "import sys, json; keyvalues = {param.split('=')[0]: param.split('=')[1] for param in sys.argv[1:]}; print(json.dumps(keyvalues))"
     And I set the field "id_twigall" to "1"
-    And I set the field "id_template" to "print({{seed}} > 0, end=' ');  {{STUDENT_ANSWER}}"
+    And I set the ace field "template" to "print({{seed}} > 0, end=' ');  {{STUDENT_ANSWER}}"
     And I set the field "id_templateparamslang" to "python3"
     And I set CodeRunner behat testing flag
     And I set the field "id_templateparamsevalpertry" to "0"

@@ -47,10 +47,6 @@ Feature: make_combinator_prototype
 
     # Now a question of that type.
     And I am on the "Course 1" "core_question > course question bank" page
-    # The sample answer has to go in the table below, and the table can only
-    # type into a plain textarea -- Ace hides the one it manages. The editor is
-    # not this feature's subject, so the UI plugins go away for it.
-    And I disable UI plugins in the CodeRunner question type
     And I add a CodeRunner question on "python3_test_combinator_prototype" filling the form with:
       | name              | Combinator prototype tester       |
       | id_questiontext   | Write the inevitable sqr function |

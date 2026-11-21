@@ -5,7 +5,6 @@ Feature: Test that answers changed after checking are highlighted as being diffe
 
   Background:
     Given the CodeRunner test configuration file is loaded
-    And I enable UI plugins in the CodeRunner question type
     And the following "users" exist:
       | username | firstname | lastname | email            |
       | teacher1 | Teacher   | 1        | teacher1@asd.com |

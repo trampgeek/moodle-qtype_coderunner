@@ -24,15 +24,16 @@ Feature: template_params_error
       | id_questiontext   | Do nothing          |
       | id_testcode_0     | Helloworld          |
       | id_expected_0     | Helloworld          |
-    And I disable UI plugins in the CodeRunner question type
 
   Scenario: As a teacher, I should be given an informative Twig error
     Given the Jobe server supports "twig"
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I expand all fieldsets
     And I set the field "id_templateparamslang" to "twig"
-    And I set the following fields to these values:
-      | id_templateparams      | {{ /error }} |
+    And I set the ace field "templateparams" to:
+      """
+      {{ /error }}
+      """
     And I should not see "Unexpected token"
     And I press "id_submitbutton"
     And I should see "Template parameters must evaluate to blank or a valid JSON record"
@@ -44,8 +45,10 @@ Feature: template_params_error
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I expand all fieldsets
     And I set the field "id_templateparamslang" to "python3"
-    And I set the following fields to these values:
-      | id_templateparams      | print("error) |
+    And I set the ace field "templateparams" to:
+      """
+      print("error)
+      """
     And I should not see "SyntaxError"
     And I press "id_submitbutton"
     And I should see "Template parameters must evaluate to blank or a valid JSON record"
@@ -56,8 +59,10 @@ Feature: template_params_error
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I expand all fieldsets
     And I set the field "id_templateparamslang" to "c"
-    And I set the following fields to these values:
-      | id_templateparams      | #include <stdio |
+    And I set the ace field "templateparams" to:
+      """
+      #include <stdio
+      """
     And I should not see text matching "/missing terminating ‘?>’? character/u"
     And I press "id_submitbutton"
     And I should see "Template parameters must evaluate to blank or a valid JSON record"
@@ -68,8 +73,10 @@ Feature: template_params_error
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I expand all fieldsets
     And I set the field "id_templateparamslang" to "java"
-    And I set the following fields to these values:
-      | id_templateparams      | public static void main(String[] ar |
+    And I set the ace field "templateparams" to:
+      """
+      public static void main(String[] ar
+      """
     And I should not see "prog.java:1: error:"
     And I press "id_submitbutton"
     And I should see "Template parameters must evaluate to blank or a valid JSON record"
@@ -80,7 +87,7 @@ Feature: template_params_error
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I expand all fieldsets
     And I set the field "id_templateparamslang" to "php"
-    And I set the field "id_templateparams" to:
+    And I set the ace field "templateparams" to:
       """
       <?php
       echo "Hello wo
@@ -96,8 +103,10 @@ Feature: template_params_error
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I expand all fieldsets
     And I set the field "id_templateparamslang" to "octave"
-    And I set the following fields to these values:
-      | id_templateparams      | component = [1 3 |
+    And I set the ace field "templateparams" to:
+      """
+      component = [1 3
+      """
     And I should not see "Run error"
     And I press "id_submitbutton"
     And I should see "Template parameters must evaluate to blank or a valid JSON record"
@@ -108,8 +117,10 @@ Feature: template_params_error
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I expand all fieldsets
     And I set the field "id_templateparamslang" to "pascal"
-    And I set the following fields to these values:
-      | id_templateparams      | program AProgram(output |
+    And I set the ace field "templateparams" to:
+      """
+      program AProgram(output
+      """
     And I should not see "Fatal: Syntax error"
     And I press "id_submitbutton"
     And I should see "Template parameters must evaluate to blank or a valid JSON record"

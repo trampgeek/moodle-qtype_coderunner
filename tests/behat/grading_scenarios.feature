@@ -19,10 +19,12 @@ Feature: Check grading with the Python 3 sqr function CodeRunner question
     And the following "question categories" exist:
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
+    # The generator's default sqr question already sets uiplugin "none" (see
+    # tests/helper.php), so the answer box below is a plain textarea and the
+    # steps that type into it need no UI suppressed.
     And the following "questions" exist:
       | questioncategory | qtype      | name            |
       | Test questions   | coderunner | Square function |
-    And I disable UI plugins in the CodeRunner question type
 
   Scenario: Preview the Python3 sqr function CodeRunner question submit two different wrong answers then the right answer
     When I am on the "Square function" "core_question > preview" page logged in as teacher1

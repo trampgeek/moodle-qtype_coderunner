@@ -19,7 +19,6 @@ Feature: Create a CodeRunner question (the sqr function example)
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
 
   Scenario: As a teacher, I create a Python3 sqr(n) -> n**2 function CodeRunner question
-    When I disable UI plugins in the CodeRunner question type
     And I add a CodeRunner question on "python3" filling the form with:
       | name              | sqr acceptance question |
       | id_answer         | def sqr(n): return n * n    |
@@ -46,7 +45,7 @@ Feature: Create a CodeRunner question (the sqr function example)
     And I set the field "id_iscombinatortemplate" to "1"
 
     # Set up a standard combinator template
-    And I set the field "id_template" to:
+    And I set the ace field "template" to:
       """
       {{ STUDENT_ANSWER }}
       SEPARATOR = '#<ab@17943918#@>#'

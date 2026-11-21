@@ -25,7 +25,6 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
       | activity   | name      | course | idnumber |
       | quiz       | Test quiz | C1     | quiz1    |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
-    And I disable UI plugins in the CodeRunner question type
     And I add a CodeRunner question on "python3" filling the form with:
       | id_name                 | STUDENT variable                           |
       | id_questiontext         | Write a program that prints {{ STUDENT.username }}  |
@@ -46,7 +45,7 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
     And I press "Preview quiz"
     Then I should see "Write a program that prints teacher1"
 
-    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('teacher1')"
+    When I set the ace field "answer" to "print('teacher1')"
     And I press "Check"
     Then I should see "Passed all tests"
 
@@ -54,7 +53,7 @@ Feature: Check the STUDENT Twig variable allows access to current username in Co
     And I am on the "Test quiz" "quiz activity" page logged in as student1
     And I press "Attempt quiz"
     Then I should see "Write a program that prints student1"
-    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "print('student1')"
+    And I set the ace field "answer" to "print('student1')"
     And I press "Check"
     Then I should see "Passed all tests"
 

@@ -539,7 +539,7 @@ define(['core/templates', 'core/notification'], function(Templates, Notification
         this.stop();  // Kill any active UI first
         this.uiname = uiname;
 
-        if (this.uiname === '' || this.uiname === 'none' || sessionStorage.getItem('disableUis')) {
+        if (this.uiname === '' || this.uiname === 'none') {
             this.uiInstance = null;
         } else {
             this.isLoading = true;

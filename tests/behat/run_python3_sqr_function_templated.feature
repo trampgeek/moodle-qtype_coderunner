@@ -20,7 +20,6 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
       | contextlevel | reference | questioncategory | name          |
       | Course       | C1        | Top              | Behat Testing |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
-    And I disable UI plugins in the CodeRunner question type
     And I add a CodeRunner question on "python3" filling the form with:
       | name              | sqr acceptance question |
       | id_questiontext   | Write a sqr function    |
@@ -37,7 +36,7 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
     And I set the field "id_iscombinatortemplate" to "1"
 
     # Set up a standard combinator template
-    And I set the field "id_template" to:
+    And I set the ace field "template" to:
       """
       {{ STUDENT_ANSWER }}
       SEPARATOR = '#<ab@17943918#@>#'
@@ -52,7 +51,7 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
 
   Scenario: As a teacher, I get marked right if I submit a correct answer to a CodeRunner question
     When I choose "Preview" action for "sqr acceptance question" in the question bank
-    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n"
+    And I set the ace field "answer" to "def sqr(n): return n * n"
     And I press "Check"
     Then the following should exist in the "coderunner-test-results" table:
       | Test    |
@@ -66,7 +65,7 @@ Feature: Combinator template is called test-by-test if a runtime error occurs wh
 
   Scenario: As a teacher previewing a CodeRunner question, I should see all tests up to one that gives a runtime error then no more
     When I choose "Preview" action for "sqr acceptance question" in the question bank
-    And I set the field with xpath "//textarea[contains(@name, 'answer')]" to "def sqr(n): return n * n if n != 11 else n[-1]"
+    And I set the ace field "answer" to "def sqr(n): return n * n if n != 11 else n[-1]"
     And I press "Check"
     Then the following should exist in the "coderunner-test-results" table:
       | Test    |

@@ -24,7 +24,6 @@ Feature: edit_question_precheck
       | id_questiontext   | Do nothing          |
       | id_testcode_0     | Helloworld          |
       | id_expected_0     | Helloworld          |
-    And I disable UI plugins in the CodeRunner question type
 
   Scenario: As a teacher, I should be warned if question type was not selected
     When I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
@@ -40,15 +39,17 @@ Feature: edit_question_precheck
 
   Scenario: As a teacher, I should be warned if the template params have invalid JSON
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
-    And I set the following fields to these values:
-      | id_templateparams      | {"half":}  |
+    And I set the ace field "templateparams" to:
+      """
+      {"half":}
+      """
     And I press "id_submitbutton"
     Then I should see "Template parameters must evaluate to blank or a valid JSON record"
 
   Scenario: As a teacher, I should be warned if the result columns have invalid JSON
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I override the CodeRunner fields "resultcolumns"
-    And I set the field "resultcolumns" to "notjson"
+    And I set the ace field "resultcolumns" to "notjson"
     And I press "id_submitbutton"
     Then I should see "Result columns field is not a valid JSON string"
 
@@ -69,6 +70,6 @@ Feature: edit_question_precheck
   Scenario: As a teacher, I should be warned if sandbox parameters are not JSON
     When I am on the "Dummy question" "core_question > edit" page logged in as teacher1
     And I override the CodeRunner fields "sandboxparams"
-    And I set the field "sandboxparams" to "notJson"
+    And I set the ace field "sandboxparams" to "notJson"
     And I press "id_submitbutton"
     Then I should see "'Other' field (sandbox params) must be either blank or a valid JSON record"

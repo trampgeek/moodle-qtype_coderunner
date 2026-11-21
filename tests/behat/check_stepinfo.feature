@@ -26,7 +26,6 @@ Feature: Check that the QUESTION.stepinfo record is working.
       | quiz       | Test quiz | C1     | quiz1    |
     And I am on the "Course 1" "core_question > course question bank" page logged in as teacher1
 
-    And I disable UI plugins in the CodeRunner question type
     And I add a CodeRunner question on "python3" filling the form with:
       | id_name                 | Testing stepinfo                           |
       | id_questiontext         | Write a program that does anything.        |
@@ -50,28 +49,28 @@ Feature: Check that the QUESTION.stepinfo record is working.
     And I press "Preview quiz"
     Then I should see "Write a program that does anything"
 
-    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 1"
+    When I set the ace field "answer" to "# Blah 1"
     And I press "Precheck"
     Then I should see "{\"numchecks\":0,\"numprechecks\":0,\"fraction\":0,"
     And I should see "\"coderunnerversion\":"
 
-    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 2"
+    When I set the ace field "answer" to "# Blah 2"
     And I press "Precheck"
     Then I should see "{\"numchecks\":0,\"numprechecks\":1,\"fraction\":0,"
 
     And I press "Check"
     Then I should see "{\"numchecks\":0,\"numprechecks\":2,\"fraction\":0,"
 
-    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 3"
+    When I set the ace field "answer" to "# Blah 3"
     And I press "Check"
     Then I should see "{\"numchecks\":1,\"numprechecks\":2,\"fraction\":0,"
 
-    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 4"
+    When I set the ace field "answer" to "# Blah 4"
     And I press "Precheck"
     Then I should see "{\"numchecks\":2,\"numprechecks\":2,\"fraction\":0,"
     And I press "Check"
     Then I should see "{\"numchecks\":2,\"numprechecks\":3,\"fraction\":0,"
 
-    When I set the field with xpath "//textarea[contains(@name, 'answer')]" to "# Blah 5"
+    When I set the ace field "answer" to "# Blah 5"
     And I press "Check"
     Then I should see "{\"numchecks\":3,\"numprechecks\":3,\"fraction\":0.8"
