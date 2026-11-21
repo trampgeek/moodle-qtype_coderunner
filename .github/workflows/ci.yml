@@ -33,7 +33,16 @@ jobs:
           # CodeRunner 6 requires Moodle 5.0 or later (see version.php), so no
           # branch before MOODLE_500_STABLE is tested. The PHP version on each
           # row is that branch's own minimum or later: 5.0 and 5.1 require PHP
-          # 8.2, 5.2 requires PHP 8.3.
+          # 8.2, 5.2 and 5.3 require PHP 8.3. No branch supports PHP 8.5 yet --
+          # Moodle's own CI tops out at 8.4 -- so 8.4 is the ceiling here.
+          #
+          # 5.3 runs on pgsql because it is the first branch to require MariaDB
+          # 11.4, and the mariadb service below is deliberately pinned to the
+          # 10.11 that 5.0 to 5.2 declare as their floor, so that the oldest
+          # supported MariaDB keeps being tested.
+          - php: '8.4'
+            moodle-branch: 'MOODLE_503_STABLE'
+            database: 'pgsql'
           - php: '8.4'
             moodle-branch: 'MOODLE_502_STABLE'
             database: 'pgsql'
@@ -45,10 +54,11 @@ jobs:
             database: 'mariadb'
     services:
       postgres:
-        # Moodle's own floor: 5.0 requires postgres 14, 5.1 requires 15 and 5.2
-        # requires 16, so the image has to keep pace with the newest branch
-        # tested on pgsql or install.php refuses the environment check.
-        image: postgres:16
+        # Moodle's own floor: 5.0 requires postgres 14, 5.1 requires 15, 5.2
+        # requires 16 and 5.3 requires 17, so the image has to keep pace with
+        # the newest branch tested on pgsql or install.php refuses the
+        # environment check.
+        image: postgres:17
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -57,6 +67,9 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
       mariadb:
+        # Pinned to the floor that 5.0 to 5.2 declare, so that the oldest
+        # supported MariaDB is exercised. 5.3 needs 11.4 and so is tested on
+        # pgsql instead; bumping this image would silently drop that coverage.
         image: mariadb:10.11
         env:
           MYSQL_USER: 'root'
