@@ -80,7 +80,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        # v2 declares "using: node12" in its action.yml, and Node 12 went
+        # end-of-life in April 2022, so the runs were carrying GitHub's
+        # deprecation annotations. The runtime is removed from runner images
+        # eventually, and when it goes this step fails on every row at once.
+        # v4 is node20: clear of the retired runtimes, and the major that
+        # upload-artifact@v4 below pairs with. v5 exists and wants node24,
+        # which a plain checkout gains nothing from.
+        uses: actions/checkout@v4
         with:
           path: plugin
 
