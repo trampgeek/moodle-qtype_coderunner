@@ -823,6 +823,7 @@ class behat_qtype_coderunner extends behat_base {
      * Recognised types:
      *  - "prototype library"  identified by a course shortname
      *  - "prototype"          identified by a prototype name
+     *  - "prototype usage"    identified by a prototype name
      *
      * @param string $type the kind of page.
      * @param string $identifier what names the thing the page is about.
@@ -844,6 +845,21 @@ class behat_qtype_coderunner extends behat_base {
                     MUST_EXIST
                 );
                 return new moodle_url('/local/coderunner_manager/edit.php', [
+                    'id' => $prototype->id,
+                    'courseid' => $prototype->courseid,
+                ]);
+
+            case 'prototype usage':
+                // The library links this page from a row's question count, and
+                // only when the count is non-zero, so a feature that wants the
+                // empty report has no link to follow and needs the URL.
+                $prototype = $DB->get_record(
+                    'local_coderunner_manager_prototypes',
+                    ['name' => $identifier],
+                    'id, courseid',
+                    MUST_EXIST
+                );
+                return new moodle_url('/local/coderunner_manager/usage.php', [
                     'id' => $prototype->id,
                     'courseid' => $prototype->courseid,
                 ]);
