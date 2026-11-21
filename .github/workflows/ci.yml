@@ -127,6 +127,28 @@ jobs:
           moodle-plugin-ci add-plugin trampgeek/moodle-local_coderunner_manager
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
           moodle-plugin-ci add-config 'define("QTYPE_CODERUNNER_JOBE_HOST", "localhost:4000");'
+          # Behat's "Step 0" visit allows get_extended_timeout() seconds for
+          # M.util.pending_js to drain, and that is 10 by default. The queue has
+          # been measured taking 11.4 seconds to attach the first Ace editor and
+          # 18.6 to drain on a cold cache, which a CI runner is every time, so 10
+          # was always below the real cost. Three times over gives 30.
+          moodle-plugin-ci add-config '$CFG->behat_increasetimeout = 3;'
+          # Nothing in CodeRunner depends on TinyMCE -- which editor renders the
+          # question text is a user preference -- but its initialisation is the
+          # largest single contributor to that queue, and on MOODLE_503_STABLE it
+          # stopped draining at all, failing nearly every scenario in
+          # editor_tiny/editor and defaultConfiguration. The plain textarea takes
+          # it out of the picture so a CodeRunner test fails for CodeRunner
+          # reasons. behat_clean_init_config() discards any config.php setting not
+          # on its allowlist or prefixed behat_, so texteditors has to be added to
+          # it or the Behat site silently keeps its own value.
+          moodle-plugin-ci add-config '$CFG->texteditors = "textarea";'
+          moodle-plugin-ci add-config '$CFG->behat_extraallowedsettings = array_merge($CFG->behat_extraallowedsettings ?? [], ["texteditors"]);'
+          # moodle-plugin-ci reads behat_faildump_path but never sets it, so a
+          # failing job has been writing no screenshots or HTML at all, leaving
+          # only a stack trace to reason from. The directory has to exist.
+          mkdir -p "$GITHUB_WORKSPACE/behatfaildumps"
+          moodle-plugin-ci add-config '$CFG->behat_faildump_path = getenv("GITHUB_WORKSPACE") . "/behatfaildumps";'
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
@@ -178,4 +200,22 @@ jobs:
 
       - name: Behat features
         if: ${{ always() }}
+        # 5.3 is on probation: it failed nearly every scenario on its first two
+        # runs, in TinyMCE rather than in anything of ours, and a flood of
+        # output over two hours is not worth blocking the other three rows for.
+        # If it is still bad with the plain textarea above, drop the row.
+        continue-on-error: ${{ matrix.moodle-branch == 'MOODLE_503_STABLE' }}
         run: moodle-plugin-ci behat --profile chrome
+
+      - name: Upload Behat faildumps
+        # Not failure(): the 5.3 row's Behat step is continue-on-error, so a
+        # failure there does not mark the job failed and failure() would skip
+        # the upload for the row the dumps are most wanted from. With
+        # if-no-files-found: ignore, a passing job costs nothing here.
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: behat-faildumps-${{ matrix.moodle-branch }}-php${{ matrix.php }}
+          path: behatfaildumps
+          retention-days: 7
+          if-no-files-found: ignore
