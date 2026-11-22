@@ -26,6 +26,21 @@ jobs:
   test:
     runs-on: 'ubuntu-latest'
 
+    env:
+      # moodle-plugin-ci serves the site with "php -S", PHP's built-in server,
+      # which handles one request at a time unless this is set. A module whose
+      # initialisation needs a request served while the page load that started
+      # it is still in flight then deadlocks until Behat gives up.
+      #
+      # That is the shape of both failures CI has been showing and local runs
+      # under Apache have not. On MOODLE_503_STABLE core_form/changechecker
+      # never completes -- it awaits getString from core/str, which MDL-88762
+      # converted to ESM for 5.3.0, making 5.3 the only branch affected -- and
+      # 97 of 116 scenarios fail on every pass. On the other branches the Ace
+      # editor intermittently fails to attach, which reruns have been hiding.
+      # Four workers is enough for a browser's concurrent requests.
+      PHP_CLI_SERVER_WORKERS: 4
+
     strategy:
       fail-fast: false
       matrix:
