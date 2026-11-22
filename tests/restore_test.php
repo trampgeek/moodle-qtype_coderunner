@@ -30,6 +30,10 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+// Not autoloaded: the plugin class lives in the question type's backup/moodle2
+// directory rather than its classes/ one, so this file cannot be run on its own
+// without it. The same trap stops question_form_test and graphui_save_test.
+require_once($CFG->dirroot . '/question/type/coderunner/backup/moodle2/restore_qtype_coderunner_plugin.class.php');
 
 
 /**
@@ -264,6 +268,118 @@ class restore_test extends \advanced_testcase {
             ['%install_prototypes%']
         );
         $this->assertCount(1, $queued, 'The sweep was asked for exactly once.');
+    }
+
+    /**
+     * The backed-up prototype id is used only when the uuid agrees with it.
+     *
+     * An id is local and Moodle does not remap these, so the backed-up one
+     * points at whatever holds that id here: right by accident on the same
+     * site, silently wrong across sites. The uuid is what tells those apart,
+     * and it is the route that settles an ordinary same-site restore exactly.
+     */
+    public function test_the_backed_up_id_is_trusted_when_the_uuid_agrees(): void {
+        $this->resetAfterTest();
+        $repo = new \local_coderunner_manager\prototype_repository();
+        $wanted = $repo->create('python3_mine', SITEID, new \qtype_coderunner\v6\override_set([], 'python3_mine'));
+
+        $data = (object) [
+            'coderunnertype' => 'python3_mine',
+            'prototypetype' => 0,
+            'prototypeid' => $wanted->id,
+            'prototypeuuid' => $wanted->uuid,
+            'penaltyregime' => '10, 20, ...',
+        ];
+
+        \restore_qtype_coderunner_plugin::set_v6_columns($data, \context_system::instance());
+
+        $this->assertSame((int) $wanted->id, (int) $data->prototypeid);
+    }
+
+    /**
+     * An id that exists here but names a different prototype is not used.
+     *
+     * The cross-site case: the backup's id happens to be in range on this
+     * site and holds something else entirely. Before the uuid travelled, the
+     * id could not be used at all for this reason; now it can, because the
+     * uuid can refuse it -- and here the uuid then resolves the question
+     * itself, without the name being consulted at all.
+     */
+    public function test_an_id_belonging_to_another_prototype_is_refused(): void {
+        $this->resetAfterTest();
+        $repo = new \local_coderunner_manager\prototype_repository();
+        $impostor = $repo->create('something_else', SITEID, new \qtype_coderunner\v6\override_set([], 'something_else'));
+        $wanted = $repo->create('python3_mine', SITEID, new \qtype_coderunner\v6\override_set([], 'python3_mine'));
+
+        $data = (object) [
+            'coderunnertype' => 'python3_mine',
+            'prototypetype' => 0,
+            // The id the other site used, which here belongs to the impostor.
+            'prototypeid' => $impostor->id,
+            'prototypeuuid' => $wanted->uuid,
+            'penaltyregime' => '10, 20, ...',
+        ];
+
+        \restore_qtype_coderunner_plugin::set_v6_columns($data, \context_system::instance());
+
+        $this->assertNotSame((int) $impostor->id, (int) $data->prototypeid);
+        $this->assertSame((int) $wanted->id, (int) $data->prototypeid);
+    }
+
+    /**
+     * The uuid alone resolves a prototype that was never in the backup.
+     *
+     * A quiz backed up from one course and restored on another site, where
+     * the prototype lives at site level and so travelled with nothing. No id
+     * mapping exists, and the id in the file means nothing here.
+     */
+    public function test_the_uuid_alone_resolves_across_sites(): void {
+        $this->resetAfterTest();
+        $repo = new \local_coderunner_manager\prototype_repository();
+        $wanted = $repo->create('python3_mine', SITEID, new \qtype_coderunner\v6\override_set([], 'python3_mine'));
+
+        $data = (object) [
+            // The name differs too, as it would if the prototype were renamed
+            // here, so only the uuid can settle it.
+            'coderunnertype' => 'a_name_this_site_does_not_have',
+            'prototypetype' => 0,
+            'prototypeid' => 999999,
+            'prototypeuuid' => $wanted->uuid,
+            'penaltyregime' => '10, 20, ...',
+        ];
+
+        \restore_qtype_coderunner_plugin::set_v6_columns($data, \context_system::instance());
+
+        $this->assertSame((int) $wanted->id, (int) $data->prototypeid);
+    }
+
+    /**
+     * A pre-6.0 backup carries no uuid, and still resolves by name.
+     *
+     * The route the restore used before the uuid travelled, and the only one
+     * an old backup can take.
+     */
+    public function test_a_backup_with_no_uuid_still_resolves_by_name(): void {
+        $this->resetAfterTest();
+        $repo = new \local_coderunner_manager\prototype_repository();
+        $wanted = $repo->create('python3_mine', SITEID, new \qtype_coderunner\v6\override_set([], 'python3_mine'));
+
+        $data = (object) [
+            'coderunnertype' => 'python3_mine',
+            'prototypetype' => 0,
+            'penaltyregime' => '10, 20, ...',
+        ];
+
+        // A course context, because resolve_prototype_id() returns null
+        // without one -- the name is resolved against a course's scope plus
+        // the site's, and the system context is in no course.
+        $course = $this->getDataGenerator()->create_course();
+        \restore_qtype_coderunner_plugin::set_v6_columns(
+            $data,
+            \context_course::instance($course->id)
+        );
+
+        $this->assertSame((int) $wanted->id, (int) $data->prototypeid);
     }
 
     /**

@@ -22,7 +22,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2026112000;
+$plugin->version  = 2026112300;
 $plugin->requires = 2025041400; // Moodle 5.0.0 or later.
 $plugin->cron = 0;
 $plugin->component = 'qtype_coderunner';

@@ -144,6 +144,10 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             );
             $this->request_prototype_sweep_if_unresolved($data);
 
+            // Carried by the backup to resolve the prototype, and not a column
+            // of this table, so it goes no further.
+            unset($data->prototypeuuid);
+
             // Insert the record.
             $DB->insert_record("question_coderunner_options", $data);
         }
@@ -227,6 +231,56 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
      * @param \stdClass $data the options row, modified in place.
      * @param \context $context the context whose course resolves a name.
      */
+    /**
+     * The prototype a restored question should point at.
+     *
+     * Three routes, narrowest first.
+     *
+     * **The backed-up id, but only when the uuid agrees.** An id is local and
+     * Moodle does not remap these, so the backed-up one points at whatever
+     * holds that id here: right by accident on the same site, silently wrong
+     * across sites. Checking the uuid is what makes it safe to use, and it is
+     * the route that settles an ordinary same-site restore exactly.
+     *
+     * **The uuid alone**, for a prototype that was never in the backup because
+     * it lives in another course's bank or at site level, restored onto a site
+     * where it exists with a different id. Only when it identifies one
+     * prototype: the column is deliberately not unique -- a restore that
+     * cannot use the original creates a copy carrying the same identifier --
+     * so several matches say the site holds copies and nothing here can choose
+     * between them. The name is a better guide then, because it carries scope.
+     *
+     * **The name**, which is what the restore did before the uuid travelled,
+     * and still the only route for a pre-6.0 backup, which has no uuid at all.
+     *
+     * @param \stdClass $data the options row, as the backup described it.
+     * @param \context $context the context whose course resolves a name.
+     * @return int|null the prototype's local id, or null if nothing matched.
+     */
+    protected static function resolve_prototype(\stdClass $data, \context $context): ?int {
+        $uuid = (string) ($data->prototypeuuid ?? '');
+        $repository = new \local_coderunner_manager\prototype_repository();
+
+        if ($uuid !== '' && !empty($data->prototypeid)) {
+            $atthatid = $repository->get((int) $data->prototypeid);
+            if ($atthatid !== null && $atthatid->uuid === $uuid) {
+                return (int) $atthatid->id;
+            }
+        }
+
+        if ($uuid !== '') {
+            $matches = $repository->find_by_uuid($uuid);
+            if (count($matches) === 1) {
+                return (int) reset($matches)->id;
+            }
+        }
+
+        return (new qtype_coderunner())->resolve_prototype_id(
+            $data->coderunnertype,
+            $context
+        );
+    }
+
     public static function set_v6_columns(\stdClass $data, \context $context): void {
         if (($data->prototypetype ?? 0) != 0) {
             // A legacy prototype question is not a question with a prototype:
@@ -238,10 +292,7 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             return;
         }
 
-        $data->prototypeid = (new qtype_coderunner())->resolve_prototype_id(
-            $data->coderunnertype,
-            $context
-        );
+        $data->prototypeid = self::resolve_prototype($data, $context);
 
         if (($data->overrides ?? '') === '') {
             $data->overrides = json_encode(

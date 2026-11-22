@@ -48,6 +48,19 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $options = new backup_nested_element('coderunner_options');
         $optionfields = $dummycoderunnerq->extra_question_fields(); // It's not static :-(.
         array_shift($optionfields);
+
+        // The prototype's uuid travels beside its id, and is not a column of
+        // question_coderunner_options, so it is computed here rather than
+        // listed in extra_question_fields(). The id settles a same-site
+        // restore directly; the uuid is what finds an existing copy of the
+        // same prototype on another site, where no id mapping exists and the
+        // prototype was never in the backup because it lives in another
+        // course's bank or at site level. The name is not carried as a new
+        // element: `coderunnertype` already holds it for as long as it exists
+        // (decision 18), and being computed at backup time the uuid is current
+        // by construction, which `coderunnertype` is not.
+        $optionfields[] = 'prototypeuuid';
+
         $option = new backup_nested_element(
             'coderunner_option',
             ['id'],
@@ -58,8 +71,18 @@ class backup_qtype_coderunner_plugin extends backup_qtype_plugin {
         $element->add_child($options);
         $options->add_child($option);
 
-        // Set the source.
-        $option->set_source_table('question_coderunner_options', ['questionid' => backup::VAR_PARENTID]);
+        // Set the source. A left join rather than set_source_table(), so a
+        // question whose prototype is missing -- hundreds on a real site --
+        // still backs up, with a null uuid.
+        $columns = 'o.' . implode(', o.', $optionfields);
+        $columns = str_replace('o.prototypeuuid', 'p.uuid AS prototypeuuid', $columns);
+        $option->set_source_sql(
+            "SELECT o.id, {$columns}
+               FROM {question_coderunner_options} o
+          LEFT JOIN {local_coderunner_manager_prototypes} p ON p.id = o.prototypeid
+              WHERE o.questionid = ?",
+            [backup::VAR_PARENTID]
+        );
     }
 
 
