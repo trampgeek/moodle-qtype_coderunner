@@ -390,7 +390,6 @@ final class question_form_test extends \advanced_testcase {
         ];
 
         $method = new \ReflectionMethod($form, 'make_question_from_form_data');
-        $method->setAccessible(true);
         $question = $method->invoke($form, $data);
 
         $this->assertCount(2, $question->testcases);
@@ -484,7 +483,6 @@ final class question_form_test extends \advanced_testcase {
         // under PHP 8 -- `PEAR::getStaticProperty() cannot be called
         // statically` -- as toHtml() does.
         $property = new \ReflectionProperty(get_class($mform), '_defaultValues');
-        $property->setAccessible(true);
         $value = $property->getValue($mform)[$name] ?? null;
         if (is_array($value)) {
             $value = reset($value);

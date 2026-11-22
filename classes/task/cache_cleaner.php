@@ -81,8 +81,9 @@ class cache_cleaner extends \core\task\scheduled_task {
                 // $store->purge_old_entries();
                 // Use reflection to access the private cachestore_file method file_path_for_key
                 $reflection = new \ReflectionClass($store);
+                // See cache_purger: setAccessible() is a no-op since PHP 8.1
+                // and deprecated in 8.5.
                 $filepathmethod = $reflection->getMethod('file_path_for_key');
-                $filepathmethod->setAccessible(true);
 
                 $keys = $store->find_all();
                 $originalcount = count($keys);

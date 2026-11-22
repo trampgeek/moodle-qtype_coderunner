@@ -396,8 +396,10 @@ class cache_purger {
             if ($store instanceof cachestore_file) {
                 // Use reflection to access the private cachestore_file method file_path_for_key.
                 $reflection = new \ReflectionClass($store);
+                // No setAccessible() call: it has been a no-op since PHP 8.1,
+                // where reflection gained access to private members by itself,
+                // and PHP 8.5 deprecates it. Moodle 5.x requires 8.2 or later.
                 $filepathmethod = $reflection->getMethod('file_path_for_key');
-                $filepathmethod->setAccessible(true);
             }
             $isfilestore = $store instanceof cachestore_file;
             $fullcachekeys = $store->find_all();

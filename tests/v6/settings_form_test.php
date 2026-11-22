@@ -1303,7 +1303,6 @@ final class settings_form_test extends \advanced_testcase {
         $this->resetAfterTest();
         $mform = new \MoodleQuickForm('test', 'post', '/');
         $method = new \ReflectionMethod(settings_form::class, 'input_element');
-        $method->setAccessible(true);
 
         $checked = 0;
         foreach (field_registry::inheritable() as $field) {
