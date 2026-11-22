@@ -55,9 +55,26 @@ jobs:
           # 11.4, and the mariadb service below is deliberately pinned to the
           # 10.11 that 5.0 to 5.2 declare as their floor, so that the oldest
           # supported MariaDB keeps being tested.
-          - php: '8.4'
-            moodle-branch: 'MOODLE_503_STABLE'
-            database: 'pgsql'
+          # MOODLE_503_STABLE is commented out rather than deleted, pending a
+          # retry nearer release. Status as of 23 November 2026, run
+          # 44983957416:
+          #
+          #   5.0, 5.1, 5.2   116 scenarios, 115 passed, 1 skipped
+          #   5.3             116 -> 45 passed / 71 failed; reruns 71 -> 17/54
+          #                   and 54 -> 20/34, so 34 still failing
+          #
+          # 159 of the failures are core_form/changechecker "not ready after 30
+          # seconds". PHP_CLI_SERVER_WORKERS: 4 (below) helped materially -- the
+          # first pass went from 97 failures to 71, and reruns now recover some,
+          # so it is no longer a hard deadlock -- but did not fix it. The same
+          # code passes on 5.1 and 5.2 in CI and passes on 5.3 locally under
+          # Apache, so the author's reading on 23 November is that this is a
+          # defect in the CI environment rather than in CodeRunner, and not
+          # worth thrashing at until 6.0 is closer to release.
+          #
+          # - php: '8.4'
+          #   moodle-branch: 'MOODLE_503_STABLE'
+          #   database: 'pgsql'
           - php: '8.4'
             moodle-branch: 'MOODLE_502_STABLE'
             database: 'pgsql'
@@ -222,10 +239,10 @@ jobs:
 
       - name: Behat features
         if: ${{ always() }}
-        # 5.3 is on probation: it failed nearly every scenario on its first two
-        # runs, in TinyMCE rather than in anything of ours, and a flood of
-        # output over two hours is not worth blocking the other three rows for.
-        # If it is still bad with the plain textarea above, drop the row.
+        # Kept for when the 5.3 row is restored. Note what it costs: a step
+        # that fails is reported as `success`, so the job's tick means nothing
+        # and only the "N scenarios (...)" lines in the log say what happened.
+        # That masked 97 failures once already.
         continue-on-error: ${{ matrix.moodle-branch == 'MOODLE_503_STABLE' }}
         run: moodle-plugin-ci behat --profile chrome
 
