@@ -410,6 +410,116 @@ class settings_form {
      * @param override_set $own what this layer contributes.
      * @param string $language the language a template is highlighted in.
      */
+    /**
+     * The documentation for the UI plugin in force, for display beside
+     * `uiparameters`.
+     *
+     * Restores what CodeRunner 5 showed, which the new form lost with
+     * `authorform.js`: a sentence naming the parameters the UI takes, with a
+     * star against each one that is required, and a collapsed table giving each
+     * parameter's description and default.
+     *
+     * Rendered by the server rather than fetched over AJAX as CodeRunner 5's
+     * `ajax.php` did. The form already rebuilds itself through a hidden
+     * no-submit button when the UI plugin changes, so the server gets to decide
+     * again with the new choice in hand -- which is the arrangement design
+     * section 7 settles on, and it leaves nothing for JavaScript to do here.
+     *
+     * Collapsed with `details`/`summary`, so the toggle costs no JavaScript
+     * either. That leaves the `hidedetails` string with no caller: a `details`
+     * element labels itself once and the browser does the rest. It belongs on
+     * M8's removal inventory.
+     *
+     * @param string $uiplugin the resolved UI plugin name.
+     * @return string HTML, or the empty string when there is nothing to say.
+     */
+    public static function ui_parameter_documentation(string $uiplugin): string {
+        // No UI means no parameters to document. "none" is a real plugin with
+        // an empty parameter set, so it would otherwise be described as a UI
+        // that takes no parameters, which is true but not worth a line.
+        if ($uiplugin === '' || $uiplugin === 'none') {
+            return '';
+        }
+
+        $plugins = \qtype_coderunner_ui_plugins::get_instance();
+        if (!in_array($uiplugin, $plugins->all_names(), true)) {
+            // A question can name a UI that is no longer installed. Saying so is
+            // more use than silence, since the parameters below then belong to
+            // nothing.
+            return \html_writer::tag(
+                'div',
+                get_string('unknownuiplugin', 'qtype_coderunner', ['pluginname' => $uiplugin]),
+                ['class' => 'text-muted small']
+            );
+        }
+
+        $parameters = $plugins->parameters($uiplugin);
+        if ($parameters->length() === 0) {
+            return \html_writer::tag(
+                'div',
+                get_string('nouiparameters', 'qtype_coderunner', ['uiname' => $uiplugin]),
+                ['class' => 'text-muted small']
+            );
+        }
+
+        // The sentence CodeRunner 5 showed: the names, starred where required.
+        $sentence = get_string('uiparametertablehead', 'qtype_coderunner', ['uiname' => $uiplugin])
+            . implode(', ', $parameters->all_names_starred()) . '.';
+
+        $header = \html_writer::tag(
+            'tr',
+            \html_writer::tag('th', get_string('uiparamname', 'qtype_coderunner'))
+            . \html_writer::tag('th', get_string('uiparamdesc', 'qtype_coderunner'))
+            . \html_writer::tag('th', get_string('uiparamdefault', 'qtype_coderunner'))
+        );
+
+        $rows = '';
+        foreach ($parameters->table() as $row) {
+            [$name, $description, $default, $isrequired] = $row;
+            $rows .= \html_writer::tag(
+                'tr',
+                \html_writer::tag('td', s($isrequired ? $name . '*' : $name))
+                . \html_writer::tag('td', s($description))
+                . \html_writer::tag('td', \html_writer::tag('code', s(self::default_as_text($default))))
+            );
+        }
+
+        return \html_writer::tag('div', $sentence, ['class' => 'text-muted small'])
+            . \html_writer::tag(
+                'details',
+                \html_writer::tag('summary', get_string('showdetails', 'qtype_coderunner'))
+                . \html_writer::tag(
+                    'table',
+                    $header . $rows,
+                    ['class' => 'table table-sm uiparamtable']
+                ),
+                ['class' => 'uiparamdetails small']
+            );
+    }
+
+    /**
+     * A UI parameter's default, as a reader can see it.
+     *
+     * The defaults come from the plugin's JSON schema, so they are whatever
+     * JSON holds. An unformatted bool prints as 1 or as nothing at all, which
+     * tells a reader the opposite of the truth for false.
+     *
+     * @param mixed $default the default from the schema.
+     * @return string
+     */
+    protected static function default_as_text($default): string {
+        if ($default === null) {
+            return '';
+        }
+        if (is_bool($default)) {
+            return $default ? 'true' : 'false';
+        }
+        if (is_scalar($default)) {
+            return (string) $default;
+        }
+        return json_encode($default);
+    }
+
     protected static function add_collected_field(
         \MoodleQuickForm $mform,
         field $field,
@@ -494,6 +604,21 @@ class settings_form {
 
         if ($boxed) {
             $mform->addElement('html', '</div>');
+        }
+
+        // The UI plugin's own documentation, beside the field it documents.
+        // Keyed on the field name rather than on something the registry says,
+        // because this is documentation of one plugin's parameter schema and
+        // there is no second field it could belong to; a registry flag invented
+        // for a single case would say less than the name does.
+        if ($name === 'uiparameters') {
+            $uiplugin = field_registry::get(self::UIPLUGIN_FIELD);
+            $documentation = self::ui_parameter_documentation((string) (
+                $own->has($uiplugin) ? $own->get($uiplugin) : $inherited->get($uiplugin)
+            ));
+            if ($documentation !== '') {
+                $mform->addElement('static', $name . '_documentation', '', $documentation);
+            }
         }
 
         // The components' help, where the group has none of its own. Both of

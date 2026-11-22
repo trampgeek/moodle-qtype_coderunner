@@ -1326,4 +1326,70 @@ final class settings_form_test extends \advanced_testcase {
         // Guards against the loop silently finding nothing to check.
         $this->assertGreaterThan(20, $checked);
     }
+
+    /**
+     * The documentation names the parameters a UI takes, and tables them.
+     */
+    public function test_ui_parameter_documentation_lists_the_parameters(): void {
+        $html = settings_form::ui_parameter_documentation('ace');
+
+        $this->assertStringContainsString('The ace UI takes the following parameters', $html);
+        $this->assertStringContainsString('font_size', $html);
+        // Collapsed by the browser, so the toggle needs no JavaScript.
+        $this->assertStringContainsString('<details', $html);
+        $this->assertStringContainsString('<summary', $html);
+        $this->assertStringContainsString('<table', $html);
+    }
+
+    /**
+     * A boolean default reads as true or false, not as 1 or as nothing.
+     *
+     * This is the whole reason the defaults are formatted rather than printed:
+     * an unformatted false tells a reader the opposite of the truth.
+     */
+    public function test_ui_parameter_documentation_formats_boolean_defaults(): void {
+        $html = settings_form::ui_parameter_documentation('ace');
+
+        // ace's auto_switch_light_dark defaults to false and
+        // import_from_scratchpad to true.
+        $this->assertStringContainsString('false', $html);
+        $this->assertStringContainsString('true', $html);
+    }
+
+    /**
+     * A required parameter is starred, in the sentence and in the table.
+     */
+    public function test_ui_parameter_documentation_stars_required_parameters(): void {
+        $html = settings_form::ui_parameter_documentation('table');
+
+        // The table UI's num_rows and num_columns are its required ones.
+        $this->assertStringContainsString('num_rows*', $html);
+        $this->assertStringContainsString('num_columns*', $html);
+    }
+
+    /**
+     * No UI means nothing to document, and neither does the "none" plugin.
+     *
+     * "none" is a real plugin with an empty parameter set, so without this it
+     * would be described as a UI that takes no parameters: true, and not worth
+     * a line on the form.
+     */
+    public function test_ui_parameter_documentation_is_silent_without_a_ui(): void {
+        $this->assertSame('', settings_form::ui_parameter_documentation(''));
+        $this->assertSame('', settings_form::ui_parameter_documentation('none'));
+    }
+
+    /**
+     * A UI that is no longer installed is said to be unknown.
+     *
+     * Saying so is more use than silence: whatever parameters the question
+     * carries then belong to nothing.
+     */
+    public function test_ui_parameter_documentation_reports_an_unknown_ui(): void {
+        $html = settings_form::ui_parameter_documentation('nosuchui');
+
+        $this->assertStringContainsString('nosuchui', $html);
+        $this->assertStringNotContainsString('<table', $html);
+    }
+
 }

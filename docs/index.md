@@ -44,15 +44,17 @@ world and as of April 2026 is installed on around 4000 Moodle sites worldwide
 at least some of its language strings translated into 20 other languages (see
 [here](https://moodle.org/plugins/translations.php?plugin=qtype_coderunner])).
 
-CodeRunner supports the following languages: 
-Python3, C, C++, Java, PHP, Pascal, JavaScript (NodeJS), Octave and Matlab.
+CodeRunner jobs run on a separate server called *Jobe* (for JOBEngine). For instructions on installing a Jobe server, or using existing commercial Jobe servers, see [Setting up a Jobe server](#Setting-up-the-Jobe-sandbox-server).
+
+Out of the box, Jobe supports the following languages: 
+Python3, C, C++, Java, PHP, Pascal, JavaScript (NodeJS) and Octave.
 However, other languages are easily supported without altering the source
 code of either CodeRunner or the Jobe server just by scripting
 the execution of the new language within a Python-based question
 (see [supporting new languages](#supporting-or-implementing-new-languages)).
 
 CodeRunner can safely be used on an institutional Moodle server,
-provided that the sandbox software in which code is run ("Jobe")
+provided that the Jobe sandbox software 
 is installed on a separate machine with adequate security and
 firewalling. However, if CodeRunner-based quizzes are to be used for
 tests and final exams, a separate Moodle server is recommended, both for
@@ -94,7 +96,7 @@ expensive.
 Some videos introducing CodeRunner and explaining question authoring
 are available in [this youtube channel](https://coderunner.org.nz/mod/url/view.php?id=472).
 
-## Installation
+## CodeRunner Installation
 
 This chapter describes how to install CodeRunner. It assumes the
 existence of a working Moodle system, version 4.3 or later.
@@ -235,6 +237,44 @@ question types or who need to support non-built-in languages. It is discussed
 in detail in the section
 [Supporting or implementing new languages](#supporting-or-implementing-new-languages).
 
+### Setting up the Jobe sandbox server
+
+Although CodeRunner has a flexible architecture that supports various different
+ways of running student task in a protected ("sandboxed") environment, only
+one sandbox - the Jobe sandbox - is supported by the current version. This
+sandbox makes use of a
+separate server, developed specifically for use by CodeRunner, called *Jobe*.
+
+As explained
+at the end of the section on installing CodeRunner from scratch, the initial
+configuration uses the Jobe server at the University of Canterbury. This is not
+suitable for production use. Please switch
+to using your own Jobe server as soon as possible. 
+
+There are three different ways to set up access to a Jobe server.
+
+1. Use a commercial service. A web search for an on-line Jobe server should find at least one or two commercial services that you can use for running all your CodeRunner tasks. These may give you free runs for low to moderate usage. 
+
+2. Use a *jobeinabox* Podman or Docker server. The Dockerfile for this is available [here](https://github.com/trampgeek/jobeinabox) or you can directly load a prebuilt image from [trampgeek/jobeinabox](https://hub.docker.com/r/trampgeek/jobeinabox).
+
+3. For maximum flexibility you can build your own Jobe server by following the instructions at
+[https://github.com/trampgeek/jobe](https://github.com/trampgeek/jobe). A video walkthrough of the process of setting up a Jobe server
+on a DigitalOcean droplet, and connecting an existing CodeRunner plugin to it, is
+available [here](https://www.youtube.com/watch?v=dGpnQpLnERw).
+
+Whichever option you choose, you will need to use the
+Moodle administrator interface for the CodeRunner plug-in to specify the Jobe
+host name and perhaps port number. Depending on how you've chosen to
+configure your Jobe server, you may also need to supply an API-Key through
+the same interface.
+
+Jobe comes with a test script [testsubmit.py](https://github.com/trampgeek/jobe/blob/master/testsubmit.py) that exercises all the built-in Jobe languages.
+
+Please be aware that
+unless the Moodle server is itself carefully firewalled, Jobe tasks are likely
+to be able to open connections to other machines within your intranet or
+elsewhere.
+
 ### Setting the quiz review options
 
 It is important that students get shown the result table when they click *Check*.
@@ -259,53 +299,6 @@ options are:
 
  1.  Marks and General feedback. These should probably be checked.
 
-### Sandbox Configuration
-
-Although CodeRunner has a flexible architecture that supports various different
-ways of running student task in a protected ("sandboxed") environment, only
-one sandbox - the Jobe sandbox - is supported by the current version. This
-sandbox makes use of a
-separate server, developed specifically for use by CodeRunner, called *Jobe*.
-As explained
-at the end of the section on installing CodeRunner from scratch, the initial
-configuration uses the Jobe server at the University of Canterbury. This is not
-suitable for production use. Please switch
-to using your own Jobe server as soon as possible.
-
-To build a Jobe server, follow the instructions at
-[https://github.com/trampgeek/jobe](https://github.com/trampgeek/jobe). Then use the
-Moodle administrator interface for the CodeRunner plug-in to specify the Jobe
-host name and perhaps port number. Depending on how you've chosen to
-configure your Jobe server, you may also need to supply an API-Key through
-the same interface.
-
-A video walkthrough of the process of setting up a Jobe server
-on a DigitalOcean droplet, and connecting an existing CodeRunner plugin to it, is
-available [here](https://www.youtube.com/watch?v=dGpnQpLnERw).
-
-An alternative and generally much faster way to set up a Jobe server is to use
-the Docker image [*jobeinabox*](https://hub.docker.com/r/trampgeek/jobeinabox).
-Because it is containerised, this version of Jobe is even more secure. The only
-disadvantage is that is is more difficult to manage
-the code or OS features within the Jobe container, e.g. to install new languages in it.
-
-If you intend running unit tests you
-will also need to copy the file `tests/fixtures/test-sandbox-config-dist.php`
-to `tests/fixtures/test-sandbox-config.php`, then edit it to set the correct
-host and any other necessary configuration for the Jobe server.
-
-Assuming you have built *Jobe* on a separate server, suitably firewalled,
-the JobeSandbox fully
-isolates student code from the Moodle server. Some users install Jobe on
-the Moodle server but this is not recommended for security reasons: a student
-who manages to break out of the Jobe security might then run code on the
-Moodle server itself if it is not adequately locked down. If you really want to
-run Jobe on the Moodle server, please at least use the JobeInAbox docker image,
-which should adequately protect the Moodle system from direct damage.
-Do realise, though, that
-unless the Moodle server is itself carefully firewalled, Jobe tasks are likely
-to be able to open connections to other machines within your intranet or
-elsewhere.
 
 ### Running the unit tests
 
