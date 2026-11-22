@@ -990,6 +990,31 @@ The prototype picker with its grouping, and the capability check on save as well
 
     **And one gap that is not Behat's.** Discarding `missing_prototype.feature` left nothing asserting `missingprototype` or `missingprototypewhenrunning`, the two messages a broken question shows. That belongs in a walkthrough test, which renders a question without a browser, rather than in an acceptance test — 405 questions on the development site are in exactly that state.
 
+    **Held back, by the author's decision on 22 November 2026.** It is not to be
+    written yet: a broken question is not a state CodeRunner 6 produces in normal
+    use, so an acceptance test for one would assert against a situation the design
+    is meant to prevent. Wanted later if issues arise, not mainstreamed now.
+
+    The premise is the design's, and the design holds it. Under *Export and import*,
+    the default *Reference only* flavour says that if no prototype matches by
+    identifier or by name, "the import reports the missing prototype as an error",
+    and with Moodle's default *Stop on error* the import stops before anything is
+    saved, so no broken questions are created. The `uuid` column that makes
+    identifier matching possible already exists, with built-ins given deterministic
+    uuids from a fixed namespace, so this is implementation against a settled design
+    rather than an open question.
+
+    What is **not** yet implemented is that path: `set_prototype_reference()` knows
+    only the legacy shape, importing a question with a null `prototypeid` and queuing
+    the prototype sweep. That is right for legacy XML, and its docblock says why
+    refusing there is not viable — a course's CodeRunner 5 XML carries prototype
+    questions and the questions built on them in no dependable order, so the
+    dependant cannot be rejected on arrival. The V6-format refusal is M5's.
+
+    So until M5 lands, a question imported from a legacy file whose prototype never
+    appears does stay broken. That is a migration-shaped situation, which is what the
+    decision above assumes, so it does not argue for the test.
+
     **The six features that needed a restart rather than a repair**, by the author's decision on 14 November, were each to be written from the goal its own narrative states rather than from its CodeRunner 5 steps. `make_prototype` is the pattern: *I must be able to create new question types*, with scenarios that the prototype can be used and then subsequently edited. That second scenario is a journey **nothing in the suite has ever tested** — no feature file so much as mentions inheritance, and every prototype-touching feature has the shape *make a prototype, make a question on it, attempt it*, never *change a prototype, watch an existing question change*. It is the whole point of the chain.
 
     Of the six: `make_prototype` and `make_combinator_prototype` have been **rewritten** around the prototype editor, `twigprefix` and `test_combinator_grader` now take their prototype from the **generator**, and one of `scratchpad_ui_params`'s twenty-six scenarios needed only its two CodeRunner 5 rows dropped, since `prototypeextra` is an ordinary inheritable field now and the scenario already overrides it. `missing_prototype` has been discarded rather than rewritten, for the reasons recorded above.
