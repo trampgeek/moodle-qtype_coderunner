@@ -242,6 +242,35 @@ final class save_prototype_reference_test extends \advanced_testcase {
     }
 
     /**
+     * Importing a CodeRunner 5 prototype question asks for the sweep, which is
+     * what turns it into a prototype in the manager.
+     *
+     * The other half of the rule above. Nulling both columns is right -- a
+     * prototype question is not a question with a prototype -- but on its own
+     * it would leave a file's prototypes as inert prototype *questions* that
+     * nothing resolves against, so every question imported beside them stays
+     * broken. The installer's `snapshot_user_prototypes()` pass is what makes
+     * them real, and nothing else asks for it after an import.
+     *
+     * Asserted separately from the columns because the two can be got right
+     * independently, and the sweep is the half that is invisible: the columns
+     * are wrong loudly, the missing sweep is wrong quietly.
+     */
+    public function test_importing_a_legacy_prototype_question_asks_for_the_sweep(): void {
+        global $DB;
+
+        $DB->delete_records('task_adhoc');
+
+        $question = $this->form_question(['prototypetype' => 2, 'coderunnertype' => 'imported_prototype']);
+        $this->qtype->set_prototype_reference($question);
+
+        $this->assertTrue(
+            $DB->record_exists('task_adhoc', ['classname' => '\\local_coderunner_manager\\task\\install_prototypes']),
+            'An imported prototype question did not ask for the sweep, so it never becomes a prototype.'
+        );
+    }
+
+    /**
      * Both columns are extra question fields, so that get_question_options()
      * loads them and save_question_options() writes them.
      */
@@ -289,6 +318,11 @@ final class save_prototype_reference_test extends \advanced_testcase {
      */
     public function test_prototypeid_is_excluded_from_the_identity_hash(): void {
         global $CFG;
+        // restore_includes.php first, for `restore_plugin` itself: the two
+        // files below declare its subclasses, so without it this test passed
+        // only when some earlier file in the suite happened to have loaded it,
+        // and failed whenever this one was run on its own.
+        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
         require_once($CFG->dirroot . '/backup/moodle2/restore_qtype_plugin.class.php');
         require_once($CFG->dirroot .
             '/question/type/coderunner/backup/moodle2/restore_qtype_coderunner_plugin.class.php');

@@ -26,6 +26,17 @@ namespace qtype_coderunner\v6;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+// Not autoloaded, and this file is run on its own as well as in the suite:
+// without these it passes only when some earlier file happens to have
+// loaded the class, which is how four test files came to be broken in
+// isolation while the suite stayed green.
+// qtype_coderunner_question lives in question.php rather than classes/,
+// so Moodle's class loader cannot find it.
+require_once($CFG->dirroot . '/question/type/coderunner/question.php');
+// question.php needs the question type beside it.
+require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+
 /**
  * The 39 question settings are reached through __get() rather than being
  * declared properties, so the only thing telling an IDE, a type checker or a

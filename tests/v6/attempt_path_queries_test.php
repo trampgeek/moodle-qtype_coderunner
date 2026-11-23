@@ -28,6 +28,17 @@ use local_coderunner_manager\prototype_repository;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+// Not autoloaded, and this file is run on its own as well as in the suite:
+// without these it passes only when some earlier file happens to have
+// loaded the class, which is how four test files came to be broken in
+// isolation while the suite stayed green.
+// qtype_coderunner lives in questiontype.php rather than classes/, so
+// Moodle's class loader cannot find it.
+require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+// qtype_coderunner_question likewise lives in question.php.
+require_once($CFG->dirroot . '/question/type/coderunner/question.php');
+
 /**
  * Decision 16: everything the collected fields need is resolved when a question
  * is loaded, and the attempt path merges it without touching the prototype

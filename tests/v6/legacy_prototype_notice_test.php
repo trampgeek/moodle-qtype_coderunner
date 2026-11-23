@@ -29,6 +29,19 @@ use local_coderunner_manager\prototype_repository;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+// Not autoloaded, and this file is run on its own as well as in the suite:
+// without these it passes only when some earlier file happens to have
+// loaded the class, which is how four test files came to be broken in
+// isolation while the suite stayed green.
+// qtype_coderunner lives in questiontype.php rather than classes/, so
+// Moodle's class loader cannot find it.
+require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
+// question_edit_form, the base the author form extends, which must load first.
+require_once($CFG->dirroot . '/question/type/edit_question_form.php');
+// The author form is not autoloaded either.
+require_once($CFG->dirroot . '/question/type/coderunner/edit_coderunner_form.php');
+
 /**
  * A legacy prototype question is a dead artifact, and the form says so.
  *
