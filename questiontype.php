@@ -525,6 +525,52 @@ class qtype_coderunner extends question_type {
     }
 
     /**
+     * Blank the inherited fields of a question with no overrides document, by
+     * comparing it against its CodeRunner 5 prototype question.
+     *
+     * The export path before decision 32, kept for the one kind of question
+     * that still reaches it: one built by `tests/helper.php`, which makes its
+     * questions from the CodeRunner 5 prototype *questions* that
+     * `update_question_types()` installs and so gives them neither a prototype
+     * id nor an overrides document. On a real site every question has a
+     * document -- the migration wrote one for every row and the save path
+     * writes one for every save -- so nothing in production comes here.
+     *
+     * It goes when the test helpers get real prototypes in the manager, which
+     * the removal inventory records as one job with removing
+     * `update_question_types()`. Until then, removing it would leave the
+     * helpers' questions exporting every inherited value, which is what
+     * `prototype_test::test_export()` exists to catch.
+     *
+     * @param object $questiontoexport the copy being exported, modified in place.
+     * @param object $question the question as loaded, read for its values.
+     */
+    protected function blank_inherited_fields_from_prototype_question($questiontoexport, $question): void {
+        global $COURSE;
+
+        // An array of candidates comes back when a name is ambiguous, and null
+        // when there is none, so only an object is usable here.
+        $row = self::get_prototype(
+            $question->options->coderunnertype,
+            context_course::instance($COURSE->id)
+        );
+        if (!is_object($row)) {
+            return;
+        }
+
+        $extrafields = $this->extra_question_fields();
+        array_shift($extrafields); // Discard the table name.
+        // The inherited field names are iterated rather than the prototype's
+        // properties, because a question's settings are reached through
+        // __get() and so are not properties to iterate over.
+        foreach (array_diff($extrafields, $this->noninherited_fields()) as $field) {
+            if ($question->options->$field === $row->$field) {
+                $questiontoexport->options->$field = null;
+            }
+        }
+    }
+
+    /**
      * The manager prototype of the given name that the given context can see.
      *
      * Name-based lookup survives only at boundaries like this one — a save
@@ -1319,7 +1365,6 @@ class qtype_coderunner extends question_type {
     // are not equal in value to the field from the prototype.
 
     public function export_to_xml($question, qformat_xml $format, $extra = null) {
-        global $COURSE;
         if ($extra !== null) {
             throw new coding_exception("coderunner:export_to_xml: Unexpected parameter");
         }
@@ -1332,26 +1377,35 @@ class qtype_coderunner extends question_type {
         $questiontoexport = clone $question;
         $questiontoexport->options = clone $question->options;
 
-        $qtype = $question->options->coderunnertype;
-        $coursecontext = context_course::instance($COURSE->id);
-        $row = self::get_prototype($qtype, $coursecontext);
-
-        // Clear all inherited fields equal in value to the corresponding Prototype field
-        // (but only if we found a prototype and this is not a prototype question itself).
-        // get_prototype() returns an array of candidates when a name is
-        // ambiguous, and null when there is none, so only an object is usable.
-        // The inherited field names are iterated rather than the prototype's
-        // properties, because a question's settings are reached through
-        // __get() and so are not properties to iterate over.
-        if (is_object($row) && $questiontoexport->options->prototypetype == 0) {
-            $extrafields = $this->extra_question_fields();
-            array_shift($extrafields); // Discard the table name.
-            $inheritedfields = array_diff($extrafields, $this->noninherited_fields());
-            foreach ($inheritedfields as $field) {
-                if ($question->options->$field === $row->$field) {
-                    $questiontoexport->options->$field = null;
-                }
-            }
+        // The legacy columns are derived from the prototype chain, not read off
+        // the row and not compared against a CodeRunner 5 prototype question
+        // (decision 32). The same set_legacy_columns() that the save path uses,
+        // so there is one derivation and export cannot drift from what save
+        // writes -- and so that when the columns are dropped from the table in
+        // phase 4, the export format does not move.
+        //
+        // What it replaces was wrong in two ways, not merely dated. It looked
+        // the prototype up by name among CodeRunner 5 prototype *questions*, so
+        // a question built on a prototype created in the manager -- which has no
+        // such question -- found nothing and fell through to exporting the row
+        // verbatim. And where it did find one, it nulled every field whose value
+        // equalled the prototype's, including the fields CodeRunner 5 read
+        // directly and 6 therefore pins on every question: those came back as
+        // inherited on import, quietly taking the importing site's value in
+        // place of the author's.
+        //
+        // Two questions are left alone. A legacy prototype question is not a
+        // question with a prototype -- it has no overrides document and nothing
+        // to inherit -- so deriving would null the very columns that are its
+        // content. And a question with no document at all, which on a migrated
+        // site means only one built by the test helpers, has nothing to derive
+        // from; its row is still the authority. Both keep their columns verbatim.
+        $isquestion = $questiontoexport->options->prototypetype == 0;
+        $hasdocument = ($questiontoexport->options->overrides ?? '') !== '';
+        if ($isquestion && $hasdocument) {
+            $this->set_legacy_columns($questiontoexport->options);
+        } else if ($isquestion) {
+            $this->blank_inherited_fields_from_prototype_question($questiontoexport, $question);
         }
 
         // Neither of the CodeRunner 6 columns belongs in a shareable file. The
