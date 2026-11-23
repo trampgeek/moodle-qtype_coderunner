@@ -1149,6 +1149,14 @@ Taken:
 
     The one part of resolution that can go stale is the prototype-to-current-version map, and the manager purges that alongside the `questiondata` purge it must do anyway when a prototype is saved. So deferring the cache removes an invalidation path rather than creating one. Prototype saves are rare — days with none, and at most one every ten minutes while a prototype is being developed — so the existing purge-the-children mechanism is adequate and is kept, including the bulk-purge threshold added for the 400,000-question site.
 
+    **The purge this depends on was not written until 23 November 2026, and its absence was a release-blocking fault.** Decision 15 is only sound while *something* clears `questiondata` when a prototype changes; CodeRunner 5's `notify_prototype_children_if_any()` survived into 6 but matches children by `coderunnertype` name, which is exactly the tie 6 replaces, so no CodeRunner 6 question was ever reached by it. The manager changed prototypes and told nobody.
+
+    What that looked like: an Ubuntu upgrade took Python to 3.14, which dropped an `ast` operation `__pystylechecker.py` used, so every `python3_scratchpad` question failed. The support file was corrected in the prototype and every question went on failing — because `supportfileareas` is cached as a *version id*, so the questions kept reading the old version's files. Each question only recovered when it was opened and saved with no change, that save being what purged its own entry. 400 questions, one at a time.
+
+    The purge now lives in `qtype_coderunner\v6\question_cache`, one implementation shared by all three callers: `prototype_repository::notify_dependent_questions()` for a prototype change, `question_migrator::migrate()` for the restore sweep, which writes `prototypeid` in a bulk `UPDATE` that core cannot see, and the CodeRunner 5 path, which keeps its name-matched selection. The threshold rule and the `CACHE_DISABLE_ALL` guard are stated once there.
+
+    Which operations purge is decided by whether they change what a question resolves to, not by whether they write a row: `save_new_version`, `publish_draft`, `restore_version`, `split_builtin` and `rename` do — `rename` because the name is the layer label the resolved chain records. `save_draft` and `discard_draft` deliberately do not, a draft being nothing any question resolves against, which is why `save_version_inside_transaction()` exists; `delete` does not, because it refuses while anything depends on the prototype.
+
     Nothing is foreclosed: the cache would sit behind the resolver and needs no data migration, so it can be added whenever a measurement asks for it. Decision 7's retained analysis predates this and refers to the cache as a given.
 
 16. **No prototype or version table access on the per-attempt path.** This is the condition that makes decision 15 safe, and it is a requirement on M4 rather than an optimisation.

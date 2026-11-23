@@ -47,7 +47,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/question/engine/bank.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
 
-use qtype_coderunner\constants;
 use core_question\local\bank\question_bank_helper;
 use core_question\local\bank\question_edit_contexts;
 use core_question\local\bank\question_version_status;
@@ -1100,32 +1099,15 @@ class qtype_coderunner extends question_type {
     // Function to notify any children of a given question (if it is a
     // prototype) that the parent has been edited (or perhaps deleted).
     private function notify_prototype_children_if_any($question) {
-        global $DB;
-
-        if (defined('CACHE_DISABLE_ALL') && CACHE_DISABLE_ALL !== false) {
-            return;  // If caching is off, nothing to do.
-        }
         if ($question->prototypetype != 0) {
-            $select = 'prototypetype = 0 AND coderunnertype = ?';
-            $params = [$question->coderunnertype];
-            $childcount = $DB->count_records_select('question_coderunner_options', $select, $params);
-            if ($childcount > constants::BULK_CACHE_PURGE_THRESHOLD) {
-                // Too many children to uncache one at a time (loading and
-                // iterating them all can exhaust memory or time out), so just
-                // purge the whole question cache instead. Purging more than is
-                // strictly necessary is safe, as the cache is reloaded on demand.
-                cache_helper::purge_by_definition('core', 'questiondata');
-            } else {
-                $childids = $DB->get_fieldset_select(
-                    'question_coderunner_options',
-                    'questionid',
-                    $select,
-                    $params
-                );
-                foreach ($childids as $childid) {
-                    question_bank::notify_question_edited($childid);
-                }
-            }
+            // A CodeRunner 5 child is matched by name, which is all that tied
+            // it to its prototype. The CodeRunner 6 equivalent, for a question
+            // holding a prototype id, is
+            // local_coderunner_manager\prototype_repository::notify_dependent_questions().
+            \qtype_coderunner\v6\question_cache::uncache_matching(
+                'prototypetype = 0 AND coderunnertype = ?',
+                [$question->coderunnertype]
+            );
         }
     }
 
