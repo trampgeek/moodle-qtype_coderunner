@@ -150,6 +150,32 @@ final class identity_hash_test extends \advanced_testcase {
     }
 
     /**
+     * A 6.0 backup matches, although it carries the prototype's uuid.
+     *
+     * The uuid was added to the `coderunner_options` element so that a
+     * cross-site restore can find the prototype, and
+     * `convert_backup_to_questiondata()` merges that whole element onto the
+     * question. It is not a column, so the database side never has it -- which
+     * makes it one extra *value* on one side of the comparison, and core
+     * reduces a question to a sorted multiset of its values. One extra value
+     * changes the hash, no match means the restore copies, and copying every
+     * question in a backup is the mechanism that grew one site's bank to
+     * 560,000 questions.
+     */
+    public function test_a_6_0_backup_matches_although_it_carries_the_prototype_uuid(): void {
+        $indatabase = $this->database_side();
+
+        $inbackup = $this->database_side();
+        $inbackup->options->prototypeuuid = 'd1e0b2c4-5f6a-4b8c-9d0e-1f2a3b4c5d6e';
+
+        $this->assertSame(
+            $this->hash($indatabase),
+            $this->hash($inbackup),
+            'A 6.0 backup does not match, so a restore would copy every question in it.'
+        );
+    }
+
+    /**
      * The order of the keys in the overrides document does not change the hash.
      *
      * It would if the document were hashed: core reduces a question to a sorted

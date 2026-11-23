@@ -340,6 +340,19 @@ class restore_qtype_coderunner_plugin extends restore_qtype_plugin {
             '/prototype',
             '/options/customise',
             '/options/prototypeid',
+            // The prototype's uuid travels in the backup so that a cross-site
+            // restore can find the prototype, and is not a column, so the
+            // database side of the comparison never has it. That makes it one
+            // extra *value* on one side, and core reduces a question to a
+            // sorted multiset of its values -- so leaving it in meant no 6.0
+            // backup matched anything, and a restore copied every question in
+            // it. That is the duplication bug this list exists to prevent, and
+            // it was re-armed by adding the element. Excluded for the same
+            // reason as prototypeid beside it: both are pointers at a
+            // prototype rather than anything about the question, and
+            // `coderunnertype` already carries the prototype's name as
+            // content.
+            '/options/prototypeuuid',
             // The overrides document is excluded for as long as the CodeRunner
             // 5 columns are still written, because those columns carry the same
             // content and this does not: a pre-6.0 backup has no overrides
