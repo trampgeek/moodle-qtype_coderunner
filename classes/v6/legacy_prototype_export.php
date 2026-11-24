@@ -177,7 +177,14 @@ class legacy_prototype_export {
      * @return array column name => value.
      */
     private static function columns(question_settings $resolved): array {
+        global $CFG;
+
         $columns = ['answerboxcolumns' => 100, 'templateparamsevald' => null];
+
+        // Not autoloadable: questiontype.php is outside classes/, so the class
+        // exists only if something required it. A web request has, and cron has
+        // not, and this class must not depend on its caller.
+        require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 
         $fields = \qtype_coderunner::extra_question_fields_static();
         array_shift($fields);
