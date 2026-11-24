@@ -578,7 +578,32 @@ A plan the restore made easier: because the restore reuses by uuid, **writing a 
 
 Four tests, each verified to fail when the question point's source is emptied: a borrowed prototype travels with its question; a borrowed *chain* travels whole; a prototype shared by three questions is written once, asserted against `questions.xml` itself; and a quiz-only backup carries its prototypes, restored with `TARGET_CURRENT_ADDING`. The manager's suite is 163 / 696.
 
-**Still outstanding in M5:** legacy conversion in `convert_backup_to_questiondata()`, the Moodle XML work, and the seven scenario tests, of which the quiz-only and borrowed-bank shapes are now covered in part.
+**Done, 24 November: Moodle XML carries the chain, both ways.** `v6\chain_transport` writes
+`<prototypeuuid>` on every question and `<prototypechain>` in the first question of a file that
+needs it, and reads both back; `import_from_xml()` hangs the uuid and the chain on the question
+object, because `save_question_options()` -- which resolves them, adopting on a uuid match and
+creating what the file defined, parents first -- is given no format object to ask. The per-file
+record of what has been written is keyed by the `qformat_xml` object, since that is the only thing
+that identifies one file: the question type instance behind the calls is the single one
+`question_bank::get_qtype()` hands out for the whole request.
+
+Two things learned in the writing. **`qformat_default::error()` is protected**, so the
+implementation notes' instruction to report a missing prototype with `$format->error()` was never
+possible; the refusal instead raises the public `importerrors`, which is what the stop-on-error
+gate reads, and sends its message through `\core\notification::error()`. And **a uuid match
+deliberately reaches across courses** (`find_one_by_uuid()` falls back to any course's copy, as the
+restore does), so a test cannot simulate a receiving site with a second course on the same site:
+the first three import tests failed until they presented uuids the site had never seen.
+
+Fourteen tests across `v6/chain_transport_test` and `v6/chain_import_test`: the definition written
+once per file and again in a second export, a built-in ancestor named but not carried, a two-level
+chain root first, support files out and back, adoption rather than duplication on a uuid match,
+creation of a whole chain, the CodeRunner 5 shape still resolving by name, and an unsatisfiable
+prototype refusing the import with nothing written.
+
+**Still outstanding in M5:** legacy conversion in `convert_backup_to_questiondata()`, the
+prototype export in the manager (including the CodeRunner 5 compatible flavour), and the seven
+scenario tests, of which the quiz-only and borrowed-bank shapes are now covered in part.
 
 `backup_local_coderunner_manager_plugin` with the course and question structures and write-once recording through `backup_ids_temp`; `restore_local_coderunner_manager_plugin` with both structure methods and linking in `after_restore_question()` per section 1.3; **excluding `/options/overrides` from the identity hash**, which is the first thing to do here and the smallest, and legacy conversion in `convert_backup_to_questiondata()`; then the single Moodle XML format, with each chain's definition carried once per file, and legacy prototype-question import. If attempts are pinned, this also carries the `recode_response()` extension of section 1.4 and backup of each prototype's whole version history.
 
