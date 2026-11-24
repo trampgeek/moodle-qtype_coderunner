@@ -1391,19 +1391,21 @@ class qtype_coderunner extends question_type {
             $qo->prototypeuuid = $chain['uuid'];
             $qo->prototypechain = $chain['chain'];
 
-            // A prototype this site cannot supply refuses the import rather
-            // than saving a broken question. `qformat_default::error()` is
-            // protected, so the two halves of what it does are raised
-            // separately: `importerrors` is public and is what the stop-on-error
-            // gate reads, and a notification carries the reason to whoever ran
-            // the import. The gate sits between the parse and the first write,
-            // so nothing is saved.
-            $missing = \qtype_coderunner\v6\chain_transport::unsatisfied_prototype($qo, $format);
-            if ($missing !== null) {
+            // What this site has to say about that chain (decision 34): a
+            // refusal where the file cannot be honoured, a warning where a
+            // local prototype of the same uuid holds different settings.
+            // `qformat_default::error()` is protected, so the two halves of
+            // what it does are raised separately: `importerrors` is public and
+            // is what the stop-on-error gate reads, and a notification carries
+            // the reason to whoever ran the import. The gate sits between the
+            // parse and the first write, so a refusal saves nothing.
+            $report = \qtype_coderunner\v6\chain_transport::import_report($qo, $format);
+            foreach ($report['refusals'] as $refusal) {
                 $format->importerrors++;
-                \core\notification::error(
-                    get_string('importmissingprototype', 'qtype_coderunner', $missing)
-                );
+                \core\notification::error($refusal);
+            }
+            foreach ($report['warnings'] as $warning) {
+                \core\notification::warning($warning);
             }
         }
 

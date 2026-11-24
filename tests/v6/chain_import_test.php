@@ -261,6 +261,117 @@ final class chain_import_test extends \advanced_testcase {
     }
 
     /**
+     * A name already taken by another lineage refuses the import.
+     *
+     * Two unrelated question types of one name. Renaming the incoming one, as
+     * a restore does, would quietly duplicate the type and leave an author
+     * guessing which of the two their questions use, so decision 34 refuses
+     * and names both.
+     */
+    public function test_a_name_taken_by_another_lineage_refuses_the_import(): void {
+        $prototype = $this->repo->create(
+            'contested_name',
+            $this->sourcecourseid,
+            new override_set(['template' => 'INCOMING TEMPLATE'], 'contested_name')
+        );
+        $xml = $this->export($this->make_question($prototype->id, 'contested_name'));
+        [$xml, $uuids] = $this->from_another_site($xml, [$prototype]);
+
+        // The receiving course has its own, unrelated, question type of that
+        // name: same name, different identifier.
+        $target = (int) $this->getDataGenerator()->create_course()->id;
+        $local = $this->repo->create(
+            'contested_name',
+            $target,
+            new override_set(['template' => 'LOCAL TEMPLATE'], 'contested_name')
+        );
+
+        $this->import($xml, $target, true);
+
+        $messages = $this->notifications();
+        $this->assertStringContainsString('contested_name', $messages);
+        $this->assertStringContainsString($uuids[$prototype->uuid], $messages, 'Both lineages must be named.');
+        $this->assertStringContainsString($local->uuid, $messages, 'Both lineages must be named.');
+        $this->assertCount(
+            1,
+            $this->repo->list_for_course($target),
+            'A refused import must leave the receiving course exactly as it was.'
+        );
+    }
+
+    /**
+     * An ancestor that is neither in the file nor here refuses the import.
+     *
+     * The missing built-in case. Rooting the orphan instead would change what
+     * every question beneath it resolves to, silently.
+     */
+    public function test_a_missing_ancestor_refuses_the_import(): void {
+        $builtin = $this->repo->create(
+            'absent_builtin',
+            SITEID,
+            new override_set(['template' => 'BUILT-IN TEMPLATE'], 'absent_builtin'),
+            null,
+            '',
+            '',
+            true
+        );
+        $child = $this->repo->create(
+            'orphaned_child',
+            $this->sourcecourseid,
+            new override_set(['penaltyregime' => '10, 20, ...'], 'orphaned_child'),
+            $builtin->id
+        );
+        $xml = $this->export($this->make_question($child->id, 'orphaned_child'));
+        // The built-in is named but never carried, so rewriting its uuid is
+        // enough to make it a built-in the receiving site has never heard of.
+        [$xml] = $this->from_another_site($xml, [$child, $builtin]);
+
+        $target = (int) $this->getDataGenerator()->create_course()->id;
+        $this->import($xml, $target, true);
+
+        $this->assertStringContainsString('orphaned_child', $this->notifications());
+        $this->assertNull(
+            $this->repo->find_by_name_for_course('orphaned_child', $target),
+            'A refused import must write nothing at all.'
+        );
+    }
+
+    /**
+     * A local prototype of the same uuid but different settings warns.
+     *
+     * Not a refusal: the local one is used, and the importer is told, in both
+     * directions. Version order carries no information about whether a
+     * question will run, because that depends on the sandbox.
+     */
+    public function test_differing_settings_warn_but_import(): void {
+        $prototype = $this->repo->create(
+            'drifted_type',
+            SITEID,
+            new override_set(['template' => 'AS EXPORTED'], 'drifted_type')
+        );
+        $xml = $this->export($this->make_question($prototype->id, 'drifted_type'));
+
+        // The site's own copy moves on, as a prototype author's would.
+        $this->repo->save_new_version(
+            $prototype,
+            new override_set(['template' => 'AS IT IS NOW'], 'drifted_type'),
+            $prototype->currentversion->parentid
+        );
+
+        $target = (int) $this->getDataGenerator()->create_course()->id;
+        [$imported] = $this->import($xml, $target);
+
+        $this->assertSame(
+            $prototype->id,
+            $this->prototypeid_of($imported),
+            "The site's own prototype is used, so the question must point at it."
+        );
+        $messages = $this->notifications();
+        $this->assertStringContainsString('drifted_type', $messages);
+        $this->assertStringContainsString('bulk tester', $messages, 'The warning has to say what to do next.');
+    }
+
+    /**
      * Everything the notification queue has been told, as one string.
      *
      * @return string the queued messages.

@@ -130,6 +130,13 @@ class chain_transport {
             $definitions[] = (object) [
                 'uuid' => $prototype->uuid,
                 'name' => $prototype->name,
+                // The exporting site's version number, which is that site's
+                // own counting and no authority here. It travels so that a
+                // warning about a local copy holding different settings can
+                // name both, which decision 34 asks for: version order says
+                // nothing about whether a question will run, so the number is
+                // there to be read by a person, not compared by the code.
+                'version' => $version->version,
                 'parentuuid' => $parent?->uuid ?? '',
                 'parentissitedefaults' => $parent?->issitedefaults ? 1 : 0,
                 'overrides' => json_encode($version->overrides->to_array()),
@@ -155,6 +162,7 @@ class chain_transport {
         foreach ($definitions as $definition) {
             $expout .= "      <prototype>\n";
             $expout .= "        <uuid>{$definition->uuid}</uuid>\n";
+            $expout .= "        <version>{$definition->version}</version>\n";
             $expout .= "        <name>\n" . $format->writetext($definition->name, 5) . "        </name>\n";
             $expout .= "        <parentuuid>{$definition->parentuuid}</parentuuid>\n";
             $expout .= "        <parentissitedefaults>{$definition->parentissitedefaults}"
@@ -205,6 +213,7 @@ class chain_transport {
             }
             $state->definitions[$uuid] = (object) [
                 'uuid' => $uuid,
+                'version' => (int) $format->getpath($prototype, ['#', 'version', 0, '#'], 0),
                 'name' => $format->getpath($prototype, ['#', 'name', 0, '#', 'text', 0, '#'], '', true),
                 'parentuuid' => $format->getpath($prototype, ['#', 'parentuuid', 0, '#'], ''),
                 'parentissitedefaults' => (int) $format->getpath(
@@ -261,48 +270,187 @@ class chain_transport {
     }
 
     /**
-     * The prototype a file names and the receiving site cannot supply, if any.
+     * What the receiving site has to say about a question's chain.
      *
-     * Three routes are tried, in the order the save path will try them: a local
-     * prototype with that uuid, a definition the file carried, and the name in
-     * `coderunnertype`. If none can answer, the question would be saved broken,
-     * so the import is refused instead.
+     * Everything decision 34 asks an import to check, all of it while the file
+     * is parsed and before anything is written: Moodle's stop-on-error gate
+     * sits between the parse and the first save, so a refusal costs nothing.
      *
-     * Checked while the file is parsed, before anything is written: Moodle's
-     * stop-on-error gate sits between the parse and the first save, which is
-     * what makes the refusal cost nothing (decision 32).
+     * **Refusals.** No route to the question's own prototype -- no local uuid
+     * match, no definition in the file, no prototype of that name either -- so
+     * the question would be saved broken. A definition whose *name* is already
+     * taken here by a prototype of a different uuid, which is two unrelated
+     * question types of one name: renaming the incoming one would quietly
+     * duplicate the type, so both are named and the author decides. And a
+     * definition whose parent is neither in the file nor here, which is the
+     * missing built-in ancestor: rooting it instead would change what every
+     * question beneath it resolves to.
      *
-     * Null for a file carrying no uuid at all -- a CodeRunner 5 file, or a
-     * course archive full of legacy prototype questions. Those resolve by name
-     * after the prototype sweep, exactly as they always have, and refusing them
-     * here would break every such import.
+     * **A warning**, not a refusal, where a local prototype of the same uuid
+     * holds different settings from the file's. The local one is used, and both
+     * versions are named, in both directions: version order says nothing about
+     * whether a question will run, because that depends on the sandbox, so the
+     * importer is told and left to decide. The bulk tester is the only thing
+     * that can answer the question it raises.
+     *
+     * Everything is empty for a file carrying no uuid at all -- a CodeRunner 5
+     * file, or a course archive full of legacy prototype questions. Those
+     * resolve by name after the prototype sweep, exactly as they always have,
+     * and refusing them here would break every such import.
+     *
+     * Each message is raised once per file, however many questions share the
+     * chain that provoked it.
      *
      * @param object $qo the question as the import has built it so far.
      * @param \qformat_xml $format the format reading the file.
-     * @return string|null the name to complain about, or null if all is well.
+     * @return array{refusals: string[], warnings: string[]} what to tell the user.
      */
-    public static function unsatisfied_prototype(object $qo, \qformat_xml $format): ?string {
+    public static function import_report(object $qo, \qformat_xml $format): array {
+        $report = ['refusals' => [], 'warnings' => []];
         $uuid = (string) ($qo->prototypeuuid ?? '');
         if ($uuid === '') {
-            return null;
-        }
-
-        foreach ($qo->prototypechain ?? [] as $definition) {
-            if ($definition->uuid === $uuid) {
-                return null;
-            }
+            return $report;
         }
 
         $courseid = self::target_courseid($format);
         $repo = new prototype_repository();
-        if ($repo->find_one_by_uuid($uuid, $courseid) !== null) {
-            return null;
+        $chain = $qo->prototypechain ?? [];
+        $carried = [];
+        foreach ($chain as $definition) {
+            $carried[$definition->uuid] = true;
         }
-        if ($repo->find_by_name_for_course((string) $qo->coderunnertype, $courseid) !== null) {
+
+        if (!isset($carried[$uuid])
+                && $repo->find_one_by_uuid($uuid, $courseid) === null
+                && $repo->find_by_name_for_course((string) $qo->coderunnertype, $courseid) === null) {
+            $report['refusals'][] = get_string(
+                'importmissingprototype',
+                'qtype_coderunner',
+                $qo->coderunnertype
+            );
+        }
+
+        foreach ($chain as $definition) {
+            $here = $repo->find_one_by_uuid($definition->uuid, $courseid);
+            if ($here !== null) {
+                $differs = self::differing_settings($definition, $here);
+                if ($differs !== null) {
+                    $report['warnings'][] = $differs;
+                }
+                continue;
+            }
+
+            $samename = $repo->find_by_name_for_course($definition->name, $courseid);
+            if ($samename !== null) {
+                $report['refusals'][] = get_string('importprototypenameclash', 'qtype_coderunner', (object) [
+                    'name' => $definition->name,
+                    'incoming' => $definition->uuid,
+                    'local' => $samename->uuid,
+                ]);
+                continue;
+            }
+
+            if (!self::parent_is_available($definition, $carried, $courseid, $repo)) {
+                $report['refusals'][] = get_string('importprototypenoancestor', 'qtype_coderunner', (object) [
+                    'name' => $definition->name,
+                    'parent' => $definition->parentuuid,
+                ]);
+            }
+        }
+
+        return self::only_new($report, self::state_for($format));
+    }
+
+    /**
+     * Whether a definition's parent can be found, or it has none.
+     *
+     * The three routes a parent can arrive by, and no fourth: another
+     * definition in the same file, *Site defaults* by its flag -- the only
+     * thing about it that crosses a site boundary, since each site's copy has
+     * its own random uuid -- and any local prototype by uuid, which is how a
+     * built-in is found.
+     *
+     * @param object $definition the definition whose parent is wanted.
+     * @param array $carried uuid to true, for every definition in the file.
+     * @param int $courseid the course being imported into.
+     * @param prototype_repository $repo the repository to read through.
+     * @return bool true if the parent is available, or there is no parent.
+     */
+    private static function parent_is_available(
+        object $definition,
+        array $carried,
+        int $courseid,
+        prototype_repository $repo
+    ): bool {
+        if ($definition->parentuuid === '') {
+            return true;
+        }
+        if (isset($carried[$definition->parentuuid])) {
+            return true;
+        }
+        if ($definition->parentissitedefaults) {
+            return $repo->site_defaults() !== null;
+        }
+
+        return $repo->find_one_by_uuid($definition->parentuuid, $courseid) !== null;
+    }
+
+    /**
+     * The warning for a local prototype whose settings differ from the file's.
+     *
+     * Compared on the overrides alone, which are the settings a question
+     * actually resolves from; a difference of summary or documentation changes
+     * nothing a student or an author would run into. Decoded first, because two
+     * equal documents can be written in any key order.
+     *
+     * @param object $definition the definition the file carried.
+     * @param prototype $here the local prototype of the same uuid.
+     * @return string|null the warning, or null if the two agree.
+     */
+    private static function differing_settings(object $definition, prototype $here): ?string {
+        $version = $here->currentversion;
+        if ($version === null) {
             return null;
         }
 
-        return (string) $qo->coderunnertype;
+        $incoming = json_decode($definition->overrides, true) ?: [];
+        $local = $version->overrides->to_array();
+        ksort($incoming);
+        ksort($local);
+        if ($incoming == $local) {
+            return null;
+        }
+
+        return get_string('importprototypediffers', 'qtype_coderunner', (object) [
+            'name' => $here->name,
+            'fileversion' => $definition->version,
+            'localversion' => $version->version,
+        ]);
+    }
+
+    /**
+     * The messages this file has not already given, recording them as given.
+     *
+     * A chain shared by two hundred questions would otherwise raise the same
+     * complaint two hundred times.
+     *
+     * @param array $report the refusals and warnings just worked out.
+     * @param object $state the per-file state.
+     * @return array{refusals: string[], warnings: string[]} the new ones only.
+     */
+    private static function only_new(array $report, object $state): array {
+        foreach ($report as $kind => $messages) {
+            $report[$kind] = [];
+            foreach ($messages as $message) {
+                if (isset($state->reported[$message])) {
+                    continue;
+                }
+                $state->reported[$message] = true;
+                $report[$kind][] = $message;
+            }
+        }
+
+        return $report;
     }
 
     /**
@@ -459,7 +607,7 @@ class chain_transport {
     private static function state_for(\qformat_xml $format): object {
         self::$files ??= new \SplObjectStorage();
         if (!isset(self::$files[$format])) {
-            self::$files[$format] = (object) ['emitted' => [], 'definitions' => []];
+            self::$files[$format] = (object) ['emitted' => [], 'definitions' => [], 'reported' => []];
         }
 
         return self::$files[$format];
