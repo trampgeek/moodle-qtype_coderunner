@@ -421,13 +421,46 @@ class qtype_coderunner extends question_type {
 
         $overrides = \qtype_coderunner\v6\legacy_converter::question_overrides((array) $question);
         $question->overrides = json_encode($overrides->to_array());
-        $question->prototypeid = $this->resolve_prototype_id(
-            $question->coderunnertype,
-            $this->question_context($question)
-        );
+        $question->prototypeid = $this->resolve_imported_prototype($question);
         if ($question->prototypeid === null) {
             $this->request_prototype_sweep();
         }
+    }
+
+    /**
+     * The prototype a question arriving from outside the form should use.
+     *
+     * By uuid first, which is what a CodeRunner 6 Moodle XML file carries: a
+     * prototype already here with that uuid is adopted, and otherwise the
+     * definition the file carried is created, parents before children
+     * (decision 32). The uuid is the only identifier that means the same thing
+     * on two sites, so it is tried before the name.
+     *
+     * By name second, which is both the CodeRunner 5 shape and the fallback
+     * for a file whose definitions have been edited away. Null from here means
+     * neither route found anything, and the caller records the question as
+     * broken and asks for the prototype sweep, exactly as before.
+     *
+     * @param object $question the question being saved.
+     * @return int|null the prototype's local id, or null if there is none.
+     */
+    protected function resolve_imported_prototype($question): ?int {
+        $context = $this->question_context($question);
+        $uuid = (string) ($question->prototypeuuid ?? '');
+
+        if ($uuid !== '') {
+            $coursecontext = $context->get_course_context(false);
+            $resolved = \qtype_coderunner\v6\chain_transport::adopt_or_create(
+                $uuid,
+                $question->prototypechain ?? [],
+                $coursecontext ? (int) $coursecontext->instanceid : SITEID
+            );
+            if ($resolved !== null) {
+                return $resolved;
+            }
+        }
+
+        return $this->resolve_prototype_id($question->coderunnertype, $context);
     }
 
     /** @var bool Whether this request has already asked for the prototype sweep. */
@@ -1348,6 +1381,32 @@ class qtype_coderunner extends question_type {
             }
         }
 
+        // The prototype's uuid, and whatever the file carries of its chain
+        // (decision 32). Both ride on the question object because
+        // save_question_options(), which resolves them against this site, is
+        // given no format object to ask. Nothing is set for a CodeRunner 5
+        // file, which names its prototype by name alone.
+        $chain = \qtype_coderunner\v6\chain_transport::read_for($data, $format);
+        if ($chain !== null) {
+            $qo->prototypeuuid = $chain['uuid'];
+            $qo->prototypechain = $chain['chain'];
+
+            // A prototype this site cannot supply refuses the import rather
+            // than saving a broken question. `qformat_default::error()` is
+            // protected, so the two halves of what it does are raised
+            // separately: `importerrors` is public and is what the stop-on-error
+            // gate reads, and a notification carries the reason to whoever ran
+            // the import. The gate sits between the parse and the first write,
+            // so nothing is saved.
+            $missing = \qtype_coderunner\v6\chain_transport::unsatisfied_prototype($qo, $format);
+            if ($missing !== null) {
+                $format->importerrors++;
+                \core\notification::error(
+                    get_string('importmissingprototype', 'qtype_coderunner', $missing)
+                );
+            }
+        }
+
         return $qo;
     }
 
@@ -1463,6 +1522,12 @@ class qtype_coderunner extends question_type {
             $expout .= $format->write_files($sampleanswerfiles);
             $expout .= "    </answerfiles>\n";
         }
+
+        // The prototype's uuid, and its chain's definition if this is the first
+        // question in the file to need it (decision 32). Read from $question
+        // rather than the exported copy, whose prototype id has just been
+        // blanked. Nothing is written for a question with no prototype.
+        $expout .= \qtype_coderunner\v6\chain_transport::write_for($question, $format);
 
         return $expout;
     }
