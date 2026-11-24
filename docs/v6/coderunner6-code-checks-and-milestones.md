@@ -601,9 +601,41 @@ chain root first, support files out and back, adoption rather than duplication o
 creation of a whole chain, the CodeRunner 5 shape still resolving by name, and an unsatisfiable
 prototype refusing the import with nothing written.
 
+**Done, 24 November: the CodeRunner 5 compatible prototype export.** `v6\legacy_prototype_export`
+resolves a chain into one prototype question -- `prototypetype` 2, `coderunnertype` the leaf's
+name, every inherited field set, both CodeRunner 6 columns blank -- and the manager offers it as
+*Export for CodeRunner 5* on each row of the library, through `exportlegacy.php`. It is written
+through `qformat_xml::writequestion()` rather than by hand, so the element set cannot drift from
+what the importer at the far end expects; the question type's own `export_to_xml()` sees
+`prototypetype` 2 and leaves the columns alone, which is what its legacy branch is for. The one
+thing the reused writer cannot produce is the support files, since it looks in
+`qtype_coderunner/datafile` under the question's own id while a prototype's files live in the
+manager's area under its version's, so they are spliced into the `<testcases>` element the writer
+always emits -- which is where CodeRunner 5 reads a question's files from. *Site defaults* is not
+offered: flattened, it would arrive as a question type that defines nothing.
+
+**A judgement call inside it, for the author to overturn if he disagrees.** Template and UI
+parameters are *collected* from every layer rather than resolved to one value, so flattening has
+to combine them: each layer's document is merged over the ones above it, a child's keys winning,
+which is the order `question.php` merges them in at run time. The two qualifiers -- the language
+the parameters are written in, and whether they are evaluated per try -- belong to a layer and
+not to the merged document, and a CodeRunner 5 prototype question has only one of each, so the
+leaf-most contributing layer supplies them. Where two contributing layers disagree about the
+*language* there is no honest single answer, so the export **refuses**, naming both languages, on
+the library page rather than as an error page. Evaluating each layer in its own language and
+merging the results -- what the run time does -- was rejected: it would bake evaluated values into
+a prototype meant to be reused, losing both the templating and per-try evaluation.
+
+Six tests, reading each file back through the same `import_from_xml()` a 5.x site would use, since
+what matters is not the shape of the file but what an importer makes of it. The download itself
+was driven against the development site, which is the only way to exercise a page that ends in
+`send_file()`: `PROTOTYPE_cpp_function.xml`, with `coderunnertype` `cpp_function` and
+`prototypetype` 2.
+
 **Still outstanding in M5:** legacy conversion in `convert_backup_to_questiondata()`, the
-prototype export in the manager (including the CodeRunner 5 compatible flavour), and the seven
-scenario tests, of which the quiz-only and borrowed-bank shapes are now covered in part.
+prototype *library* export and its import through the manager (decision 32's "importing a newer
+release of a library updates each prototype with a matching identifier"), and the seven scenario
+tests, of which the quiz-only and borrowed-bank shapes are now covered in part.
 
 `backup_local_coderunner_manager_plugin` with the course and question structures and write-once recording through `backup_ids_temp`; `restore_local_coderunner_manager_plugin` with both structure methods and linking in `after_restore_question()` per section 1.3; **excluding `/options/overrides` from the identity hash**, which is the first thing to do here and the smallest, and legacy conversion in `convert_backup_to_questiondata()`; then the single Moodle XML format, with each chain's definition carried once per file, and legacy prototype-question import. If attempts are pinned, this also carries the `recode_response()` extension of section 1.4 and backup of each prototype's whole version history.
 
