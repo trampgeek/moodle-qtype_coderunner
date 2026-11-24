@@ -43,9 +43,9 @@ Technical details and gotchas found while checking the design against Moodle and
 
 ## Export and import
 
-- **Export.** A question's Moodle XML holds its overrides plus its prototype's name and identifier. *Include prototypes* adds the chain (each prototype with only its current version); *Flatten* writes the resolved settings into the old columns' format so older CodeRunner versions can import it.
-- **Refusing an import.** Resolve each question's prototype while the file is parsed (the qtype's `import_from_xml()`), and report a missing one with `$format->error()`. `qformat_default::importprocess()` (`question/format.php`) checks `importerrors` before writing anything when *Stop on error* is set, which is the default, so nothing is saved.
-- **Within one file.** Prototypes in the file (*Include prototypes* or legacy prototype questions) must be resolvable at parse time, so collect them in a first pass over the parsed questions, or resolve against the file's own prototypes before the site's.
+- **Export.** A question's Moodle XML holds its overrides, its prototype's name and identifier, and the definition of each prototype in its chain (current version only), written once per file in the first question that needs it. One format, and no `qformat` plugin: the legacy columns are derived from the chain, so the same file imports into CodeRunner 5, which needs a prototype export from the manager as well to supply the prototype question.
+- **Refusing an import.** Resolve each question's prototype while the file is parsed (the qtype's `import_from_xml()`), and report a missing one with `$format->error()`. `qformat_default::importprocess()` (`question/format.php`) checks `importerrors` before writing anything when *Stop on error* is set, which is the default, so nothing is saved. Creating a prototype the file carries happens later, in `save_question_options()`, which runs per question after that gate — never during the parse.
+- **Within one file.** A chain's definition appears once, in the first question that uses it, so collect definitions during the parse — they arrive in document order — and resolve against the file's own before the site's. The same pass covers legacy prototype questions.
 
 ## Course deletion and permissions
 
