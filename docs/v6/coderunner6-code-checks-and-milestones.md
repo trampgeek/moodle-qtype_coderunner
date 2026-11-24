@@ -614,20 +614,33 @@ manager's area under its version's, so they are spliced into the `<testcases>` e
 always emits -- which is where CodeRunner 5 reads a question's files from. *Site defaults* is not
 offered: flattened, it would arrive as a question type that defines nothing.
 
-**A judgement call inside it, for the author to overturn if he disagrees.** Template and UI
-parameters are *collected* from every layer rather than resolved to one value, so flattening has
-to combine them: each layer's document is merged over the ones above it, a child's keys winning,
-which is the order `question.php` merges them in at run time. The two qualifiers -- the language
-the parameters are written in, and whether they are evaluated per try -- belong to a layer and
-not to the merged document, and a CodeRunner 5 prototype question has only one of each, so the
-leaf-most contributing layer supplies them. Where two contributing layers disagree about the
-*language* there is no honest single answer, so the export **refuses**, naming both languages, on
-the library page rather than as an error page. Evaluating each layer in its own language and
-merging the results -- what the run time does -- was rejected: it would bake evaluated values into
-a prototype meant to be reused, losing both the templating and per-try evaluation.
+**Flattening the collected fields, corrected by the author the same day.** The first attempt
+merged each layer's template parameters as documents, and he objected: template parameters are a
+*program*, not a document. Only the language `None` means the text already is the JSON; Twig is
+rendered in process against the attempt's seed, and every other language is evaluated on the
+sandbox server, which is why the run time evaluates each layer in its own language and merges the
+*results* (`question.php::evaluate_parameter_layers()`). An export has no seed, no sandbox, and no
+business baking one attempt's values into a question type meant to be reused. So there are three
+cases: nothing contributes and nothing is carried; **one** layer contributes and its parameters,
+language and per-try flag travel verbatim, which is sound whatever the language because nothing is
+combined, and is all but the rarest chain; **two or more** contribute and combining is possible
+only where every one of them is `None`, so anything else is refused, naming the layer and its
+language, on the library page rather than as an error page.
 
-Six tests, reading each file back through the same `import_from_xml()` a 5.x site would use, since
-what matters is not the shape of the file but what an importer makes of it. The download itself
+Looking for that found a second fault in the same method. **UI parameters are a document**, so
+merging them is sound, but a layer counts only if the UI plugin in force at that point in the
+chain is the one finally resolved -- parameters meant for the graph UI must not be handed to Ace,
+which is the rule `evaluate_merged_ui_parameters()` applies and the first attempt ignored
+altogether. Both merges now go through the run time's own `qtype_coderunner_util::merge_json()`,
+so neither can drift from it.
+
+A third fault, found by a test's own failure message: `qtype_coderunner_exception` takes a string
+*identifier* and its placeholders and calls `get_string()` itself, so handing it a rendered
+message produces `qtype_coderunner/<the whole message>` and a trailing `$a contents:`.
+
+Eight tests, reading each file back through the same `import_from_xml()` a 5.x site would use,
+since what matters is not the shape of the file but what an importer makes of it; the three
+parameter rules were each checked to fail with their rule neutered. The download itself
 was driven against the development site, which is the only way to exercise a page that ends in
 `send_file()`: `PROTOTYPE_cpp_function.xml`, with `coderunnertype` `cpp_function` and
 `prototypetype` 2.

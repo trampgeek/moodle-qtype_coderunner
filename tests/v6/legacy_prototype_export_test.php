@@ -147,21 +147,28 @@ final class legacy_prototype_export_test extends \advanced_testcase {
     }
 
     /**
-     * Template parameters are merged along the chain, a child's keys winning.
+     * Plain JSON parameters are merged along the chain, a child's keys winning.
+     *
+     * The only case where combining two layers' parameters is possible at all:
+     * with the language None, the text already is the document.
      */
-    public function test_template_parameters_are_merged_along_the_chain(): void {
+    public function test_plain_json_parameters_are_merged_along_the_chain(): void {
         $parent = $this->repo->create(
             'params_parent',
             $this->courseid,
             new override_set([
                 'template' => 'T',
                 'templateparams' => '{"n": 1, "fromparent": true}',
+                'templateparamslang' => 'None',
             ], 'params_parent')
         );
         $child = $this->repo->create(
             'params_child',
             $this->courseid,
-            new override_set(['templateparams' => '{"n": 2}'], 'params_child'),
+            new override_set([
+                'templateparams' => '{"n": 2}',
+                'templateparamslang' => 'None',
+            ], 'params_child'),
             $parent->id
         );
 
@@ -170,57 +177,135 @@ final class legacy_prototype_export_test extends \advanced_testcase {
         $params = json_decode($columns->templateparams, true);
         $this->assertSame(2, $params['n'], "The child's value must win.");
         $this->assertTrue($params['fromparent'], "The parent's other keys must survive.");
+        $this->assertSame('None', $columns->templateparamslang);
     }
 
     /**
-     * Two layers writing their parameters in different languages is refused.
+     * One layer's parameters are carried whatever their language.
      *
-     * A CodeRunner 5 prototype question has one `templateparamslang`, so there
-     * is no honest single answer; picking one quietly would change what the
-     * parameters mean.
+     * Nothing is combined, so nothing needs evaluating: a Python3 set travels
+     * as it stands and is evaluated on the recipient's own sandbox, exactly as
+     * it is here.
      */
-    public function test_layers_disagreeing_on_the_parameter_language_are_refused(): void {
+    public function test_a_single_layers_parameters_travel_in_their_own_language(): void {
+        $parent = $this->repo->create(
+            'quiet_parent',
+            $this->courseid,
+            new override_set(['template' => 'T'], 'quiet_parent')
+        );
+        $child = $this->repo->create(
+            'python_params_child',
+            $this->courseid,
+            new override_set([
+                'templateparams' => 'import json; print(json.dumps({"n": 1}))',
+                'templateparamslang' => 'python3',
+                'templateparamsevalpertry' => 1,
+            ], 'python_params_child'),
+            $parent->id
+        );
+
+        $columns = $this->import(legacy_prototype_export::file($child, $this->repo));
+
+        $this->assertSame('import json; print(json.dumps({"n": 1}))', $columns->templateparams);
+        $this->assertSame('python3', $columns->templateparamslang);
+        $this->assertSame('1', (string) $columns->templateparamsevalpertry);
+    }
+
+    /**
+     * Two layers whose parameters need evaluating cannot be combined.
+     *
+     * The author's objection to the first attempt at this, and he was right:
+     * template parameters are a program, not a document, unless the language
+     * is None. Twig is rendered against an attempt's seed and everything else
+     * runs on the sandbox, so merging two layers' source texts is meaningless.
+     */
+    public function test_two_layers_needing_evaluation_are_refused(): void {
         $parent = $this->repo->create(
             'twig_parent',
             $this->courseid,
             new override_set([
                 'template' => 'T',
-                'templateparams' => '{"a": 1}',
+                'templateparams' => '{"a": "{{ seed }}"}',
                 'templateparamslang' => 'twig',
             ], 'twig_parent')
         );
         $child = $this->repo->create(
-            'python_child',
+            'json_child',
             $this->courseid,
             new override_set([
                 'templateparams' => '{"b": 2}',
-                'templateparamslang' => 'python3',
-            ], 'python_child'),
+                'templateparamslang' => 'None',
+            ], 'json_child'),
             $parent->id
         );
 
         $this->expectException(\qtype_coderunner_exception::class);
-        $this->expectExceptionMessageMatches('/twig.*python3|python3.*twig/');
+        $this->expectExceptionMessageMatches('/[Tt]wig/');
         legacy_prototype_export::file($child, $this->repo);
     }
 
     /**
-     * One layer's parameter language is carried, not silently defaulted.
+     * UI parameters from a layer on another UI are not merged in.
+     *
+     * The rule evaluate_merged_ui_parameters() applies at run time:
+     * parameters meant for the graph UI must not be handed to Ace.
      */
-    public function test_the_parameter_language_of_the_contributing_layer_is_kept(): void {
-        $prototype = $this->repo->create(
-            'python_params',
+    public function test_ui_parameters_from_another_ui_are_left_behind(): void {
+        $parent = $this->repo->create(
+            'graph_parent',
             $this->courseid,
             new override_set([
                 'template' => 'T',
-                'templateparams' => '{"a": 1}',
-                'templateparamslang' => 'python3',
-            ], 'python_params')
+                'uiplugin' => 'graph',
+                'uiparameters' => '{"isdirected": false}',
+            ], 'graph_parent')
+        );
+        $child = $this->repo->create(
+            'ace_child',
+            $this->courseid,
+            new override_set([
+                'uiplugin' => 'ace',
+                'uiparameters' => '{"theme": "dark"}',
+            ], 'ace_child'),
+            $parent->id
         );
 
-        $columns = $this->import(legacy_prototype_export::file($prototype, $this->repo));
+        $columns = $this->import(legacy_prototype_export::file($child, $this->repo));
 
-        $this->assertSame('python3', $columns->templateparamslang);
+        $params = json_decode($columns->uiparameters, true);
+        $this->assertSame('dark', $params['theme'], "The resolved UI's own parameters must travel.");
+        $this->assertArrayNotHasKey(
+            'isdirected',
+            $params,
+            'Parameters written for the graph UI must not be handed to Ace.'
+        );
+    }
+
+    /**
+     * UI parameters from a layer on the same UI are merged in.
+     */
+    public function test_ui_parameters_on_the_resolved_ui_are_merged(): void {
+        $parent = $this->repo->create(
+            'ace_parent',
+            $this->courseid,
+            new override_set([
+                'template' => 'T',
+                'uiplugin' => 'ace',
+                'uiparameters' => '{"theme": "light", "fromparent": true}',
+            ], 'ace_parent')
+        );
+        $child = $this->repo->create(
+            'ace_child_two',
+            $this->courseid,
+            new override_set(['uiparameters' => '{"theme": "dark"}'], 'ace_child_two'),
+            $parent->id
+        );
+
+        $columns = $this->import(legacy_prototype_export::file($child, $this->repo));
+
+        $params = json_decode($columns->uiparameters, true);
+        $this->assertSame('dark', $params['theme'], "The child's value must win.");
+        $this->assertTrue($params['fromparent'], "The parent's other keys must survive.");
     }
 
     /**

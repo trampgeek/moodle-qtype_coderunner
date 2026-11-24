@@ -56,6 +56,13 @@ class legacy_prototype_export {
     private const USER_PROTOTYPE = 2;
 
     /**
+     * @var string The one template parameter language that needs no evaluating:
+     *      the text already is the JSON document. Twig is rendered in process
+     *      and the rest on the sandbox server.
+     */
+    private const NO_PREPROCESSOR = 'None';
+
+    /**
      * The whole Moodle XML file for one prototype.
      *
      * @param prototype $prototype the prototype to write.
@@ -192,56 +199,156 @@ class legacy_prototype_export {
      * The four columns CodeRunner 5 took whole from a question's prototype.
      *
      * Template and UI parameters are collected from every layer of a chain
-     * rather than resolved to one value, so flattening has to combine them:
-     * each layer's document is merged over the ones above it, a child's keys
-     * winning, which is the order `question.php` merges them in at run time.
+     * rather than resolved to one value, and the two kinds cannot be flattened
+     * by the same rule.
      *
-     * The two qualifiers -- the language the parameters are written in, and
-     * whether they are evaluated per try -- belong to a layer rather than to
-     * the merged document, and a single V5 prototype has only one of each. The
-     * leaf-most layer that contributes parameters supplies them. Where two
-     * contributing layers disagree about the language, nothing here can be
-     * right, so the export refuses rather than quietly picking one.
+     * **Template parameters are a program, not a document.** Only the language
+     * `None` means the text already *is* the JSON; Twig is rendered in process
+     * against the attempt's seed, and every other language is evaluated on the
+     * sandbox server. So the run time evaluates each layer in its own language
+     * and merges the *results* (`question.php::evaluate_parameter_layers()`),
+     * which an export cannot do: it has no seed, no sandbox, and no business
+     * baking one attempt's values into a question type meant to be reused.
+     *
+     * That leaves three cases. No layer contributes, and there is nothing to
+     * carry. **One** layer contributes, and its parameters, language and
+     * per-try flag are carried verbatim -- sound whatever the language, because
+     * nothing is combined; this is all but the rarest chain. **Two or more**
+     * contribute, and combining them is only possible where no evaluation
+     * stands in the way, which means every one of them is `None`. Anything
+     * else is refused, because a CodeRunner 5 question type holds one set of
+     * parameters in one language and there is no honest way to reduce two
+     * programs to that.
+     *
+     * **UI parameters are a document**, so merging them is sound, but a layer
+     * counts only if the UI plugin in force at that point in the chain is the
+     * one finally resolved: parameters meant for the graph UI must not be
+     * handed to Ace. That is the rule `evaluate_merged_ui_parameters()`
+     * applies, and the merge is the same `merge_json()` the run time uses, so
+     * neither can drift from it.
      *
      * @param question_settings $resolved what the chain resolves to.
      * @return array column name => value.
-     * @throws \qtype_coderunner_exception if two layers disagree on the language.
+     * @throws \qtype_coderunner_exception if two layers' parameters would have
+     *      to be evaluated to be combined.
      */
     private static function collected_columns(question_settings $resolved): array {
-        $merged = [];
-        $lang = null;
-        $pertry = 0;
+        return self::template_parameter_columns($resolved)
+            + ['uiparameters' => self::merged_ui_parameters($resolved)];
+    }
 
-        foreach (['templateparams', 'uiparameters'] as $name) {
-            $document = [];
-            foreach ($resolved->layers_of($name) as $layer) {
-                $document = array_merge($document, json_decode((string) $layer['value'], true) ?: []);
+    /**
+     * The three template parameter columns, flattened.
+     *
+     * @param question_settings $resolved what the chain resolves to.
+     * @return array column name => value.
+     * @throws \qtype_coderunner_exception where combining would need evaluating.
+     */
+    private static function template_parameter_columns(question_settings $resolved): array {
+        $contributors = [];
+        foreach ($resolved->layers_of('templateparams') as $layer) {
+            if (trim((string) $layer['value']) !== '') {
+                $contributors[] = $layer;
             }
-            $merged[$name] = $document ? json_encode($document) : '';
         }
 
-        foreach ($resolved->layers_of('templateparams') as $layer) {
+        if (!$contributors) {
+            // The language cannot matter: empty parameters are never evaluated.
+            return [
+                'templateparams' => '',
+                'templateparamslang' => self::NO_PREPROCESSOR,
+                'templateparamsevalpertry' => 0,
+            ];
+        }
+
+        if (count($contributors) === 1) {
+            $only = $contributors[0];
+
+            return [
+                'templateparams' => (string) $only['value'],
+                'templateparamslang' => self::language_of($only),
+                'templateparamsevalpertry' => self::pertry_of($only),
+            ];
+        }
+
+        $merged = '';
+        foreach ($contributors as $layer) {
+            $lang = strtolower(self::language_of($layer));
+            if ($lang !== '' && $lang !== strtolower(self::NO_PREPROCESSOR)) {
+                // The identifier and its placeholders, not a rendered
+                // message: qtype_coderunner_exception passes them to
+                // get_string() itself.
+                throw new \qtype_coderunner_exception(
+                    'legacyprototypeunmergeableparams',
+                    (object) ['source' => $layer['source'], 'lang' => self::language_of($layer)]
+                );
+            }
+            $merged = $merged === ''
+                ? (string) $layer['value']
+                : \qtype_coderunner_util::merge_json($merged, (string) $layer['value']);
+        }
+
+        return [
+            'templateparams' => $merged,
+            // Merged documents are JSON as they stand, whatever the layers
+            // called their language, and nothing is left to evaluate.
+            'templateparamslang' => self::NO_PREPROCESSOR,
+            'templateparamsevalpertry' => 0,
+        ];
+    }
+
+    /**
+     * Every layer's UI parameters, merged, root first.
+     *
+     * @param question_settings $resolved what the chain resolves to.
+     * @return string the merged document, or '' if no layer has any.
+     */
+    private static function merged_ui_parameters(question_settings $resolved): string {
+        $uiplugin = strtolower((string) ($resolved->get('uiplugin') ?: 'ace'));
+        $merged = '';
+
+        foreach ($resolved->layers_of('uiparameters') as $layer) {
             if (trim((string) $layer['value']) === '') {
                 continue;
             }
             $set = $layer['layer'];
-            $thislang = $set->has('templateparamslang') ? (string) $set->get('templateparamslang') : 'twig';
-            if ($lang !== null && $lang !== $thislang) {
-                throw new \qtype_coderunner_exception(get_string(
-                    'legacyprototypemixedlangs',
-                    'qtype_coderunner',
-                    (object) ['first' => $lang, 'second' => $thislang]
-                ));
+            $layerui = $set->has('uiplugin') ? strtolower((string) $set->get('uiplugin')) : $uiplugin;
+            if ($layerui !== $uiplugin) {
+                // Written for a different UI, and the resolved one would not
+                // know what to do with them.
+                continue;
             }
-            $lang = $thislang;
-            $pertry = $set->has('templateparamsevalpertry')
-                ? (int) $set->get('templateparamsevalpertry')
-                : $pertry;
+            $merged = $merged === ''
+                ? (string) $layer['value']
+                : \qtype_coderunner_util::merge_json($merged, (string) $layer['value']);
         }
 
-        $merged['templateparamslang'] = $lang ?? 'twig';
-        $merged['templateparamsevalpertry'] = $pertry;
-
         return $merged;
+    }
+
+    /**
+     * The language a layer writes its template parameters in.
+     *
+     * @param array $layer one entry from layers_of('templateparams').
+     * @return string the language, or the no-preprocessor default.
+     */
+    private static function language_of(array $layer): string {
+        $set = $layer['layer'];
+
+        return $set->has('templateparamslang')
+            ? (string) $set->get('templateparamslang')
+            : self::NO_PREPROCESSOR;
+    }
+
+    /**
+     * Whether a layer asks for its parameters to be evaluated on every try.
+     *
+     * @param array $layer one entry from layers_of('templateparams').
+     * @return int 1 or 0.
+     */
+    private static function pertry_of(array $layer): int {
+        $set = $layer['layer'];
+
+        return $set->has('templateparamsevalpertry') ? (int) $set->get('templateparamsevalpertry') : 0;
     }
 }
