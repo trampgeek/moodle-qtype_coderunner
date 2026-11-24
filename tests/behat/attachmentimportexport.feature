@@ -39,7 +39,12 @@ Feature: Test importing and exporting of question with attachments
     When I am on the "Course 1" "core_question > course question export" page logged in as teacher
     And I set the field "id_format_xml" to "1"
     And I press "Export questions to file"
-    Then following "click here" should download between "4500" and "5000" bytes
+    # The band tracks the export format, not the attachment, and has been
+    # widened five times as the format grew -- most recently when every
+    # exported question gained its prototype's uuid. A lost attachment is only
+    # 148 base64 bytes and is not what this catches; the import scenario below
+    # is what checks the attachment survives.
+    Then following "click here" should download between "4800" and "5400" bytes
     # If the download step is the last in the scenario then we can sometimes run
     # into the situation where the download page causes an http redirect but behat
     # has already conducted its reset (generating an error). By putting a logout

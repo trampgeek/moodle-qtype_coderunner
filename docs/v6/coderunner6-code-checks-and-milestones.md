@@ -645,10 +645,56 @@ was driven against the development site, which is the only way to exercise a pag
 `send_file()`: `PROTOTYPE_cpp_function.xml`, with `coderunnertype` `cpp_function` and
 `prototypetype` 2.
 
-**Still outstanding in M5:** legacy conversion in `convert_backup_to_questiondata()`, the
-prototype *library* export and its import through the manager (decision 32's "importing a newer
-release of a library updates each prototype with a matching identifier"), and the seven scenario
-tests, of which the quiz-only and borrowed-bank shapes are now covered in part.
+**Done, 25 November: the seven exit scenarios, each with a test.** Where they live, and what each
+one turned out to be about:
+
+| Scenario | Test |
+| --- | --- |
+| Same-site course restore | `backup_restore_test::test_a_same_site_restore_reuses_the_prototype` |
+| Cross-site course restore | `test_a_cross_site_restore_creates_the_prototype` |
+| Quiz duplication | `test_duplicating_a_quiz_does_not_copy_its_questions` |
+| Course copy | `test_a_course_copy_reuses_the_prototype` |
+| Course import | `test_a_course_import_reuses_the_prototype` |
+| Pre-6.0 legacy backup restore | the question type's `restore_test::test_restore_from_v5_0_3` over a real `.mbz`, with `test_a_legacy_backup_keeps_each_questions_own_settings` and `identity_hash_test::test_a_pre_6_0_backup_matches_the_question_it_describes` |
+| Quiz borrowing another course's shared bank | `test_a_quiz_borrowing_another_courses_bank_keeps_its_prototypes` |
+
+**A course import cannot double a question, and the first version of its test wrongly asserted
+that it could.** *Import course data* restores with `TARGET_CURRENT_ADDING`, and core matches an
+incoming question against an existing one only within one category -- but an import recreates the
+backup's question *bank module* in the target, so the incoming question lands in a category of its
+own. Measured rather than assumed: two imports leave two `qbank` modules, each with its own copy,
+which is ordinary Moodle behaviour and not a CodeRunner fault. So the import test asserts what an
+import does promise -- the prototype reused, the question resolving through it -- and the
+duplication the identity hash guards is quiz duplication, which has its own test.
+
+**Two things the scenarios needed that an ordinary restore does not.** A course copy is MODE_COPY
+on both halves, and the restore controller refuses to be constructed without the copy data,
+leaves a *file* rather than an unzipped directory, and needs `prepare_copy()` before a precheck
+will run -- the sequence is `asynchronous_copy_task::execute()`'s, which is the only authority on
+it. And each new test was checked to fail with its subject neutered, which found that the import
+scenario exercises the *question type's* `resolve_prototype()` rather than the manager's course
+point: neutering the manager's uuid reuse leaves it passing, and neutering the resolver fails it.
+
+**The borrowed-bank scenario confirms the out-of-course file limitation**, which is now pinned by
+an assertion rather than left out: the borrowed prototype's rows travel and its support files do
+not, so `assertArrayNotHasKey` records the gap and will fail when phase 4's file scoping closes
+it.
+
+**And the legacy conversion in `convert_backup_to_questiondata()` is not needed after all.** Its
+reason was that the conversion to overrides JSON changes the hash, so a pre-6.0 backup had to be
+converted before the comparison. Excluding `/options/overrides` from the hash removed that
+premise, and all three things the conversion was for are now covered without it: the hash matches
+both ways (`test_a_pre_6_0_backup_matches_the_question_it_describes`), a real pre-6.0 `.mbz`
+restores (`test_restore_from_v5_0_3`), and a restored legacy question keeps its own settings
+rather than taking the prototype's (`test_a_legacy_backup_keeps_each_questions_own_settings`),
+because the conversion happens in the restore step instead. Recorded here for the author to
+contradict if he wanted it for something else.
+
+**Still outstanding beside M5:** the prototype *library* export and its import through the manager
+(decision 32's "importing a newer release of a library updates each prototype with a matching
+identifier, after showing the author what will change"). That is design section 9's, assigned to
+no milestone, and it carries choices -- the file format, and what the author is shown -- that are
+the author's to make.
 
 `backup_local_coderunner_manager_plugin` with the course and question structures and write-once recording through `backup_ids_temp`; `restore_local_coderunner_manager_plugin` with both structure methods and linking in `after_restore_question()` per section 1.3; **excluding `/options/overrides` from the identity hash**, which is the first thing to do here and the smallest, and legacy conversion in `convert_backup_to_questiondata()`; then the single Moodle XML format, with each chain's definition carried once per file, and legacy prototype-question import. If attempts are pinned, this also carries the `recode_response()` extension of section 1.4 and backup of each prototype's whole version history.
 
