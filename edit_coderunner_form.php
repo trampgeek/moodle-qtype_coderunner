@@ -228,8 +228,10 @@ class qtype_coderunner_edit_form extends question_edit_form {
                 continue;
             }
             if ($section === form_section::FILES) {
-                // A set of files rather than a value; definition_inner() gives
-                // it a file manager of its own.
+                // A set of files rather than a value, so the registry-driven
+                // component has nothing to render: a file manager of its own
+                // goes here, in the section's own place in the order.
+                $this->add_support_files_section($mform);
                 continue;
             }
 
@@ -311,20 +313,14 @@ class qtype_coderunner_edit_form extends question_edit_form {
     /**
      * The sections this form shows, in the order design section 7 sets out.
      *
+     * The enum's own order, not a copy of it: the prototype editor shows the
+     * same sections (design section 8) and kept a second list, which had
+     * drifted into a different order by the time the author noticed.
+     *
      * @return form_section[] the sections.
      */
     public static function sections(): array {
-        return [
-            form_section::QUESTION,
-            form_section::PARAMETERS,
-            form_section::TESTCASEFIELDS,
-            form_section::GRADING,
-            form_section::UI,
-            form_section::TEMPLATE,
-            form_section::SANDBOX,
-            form_section::EXTRAS,
-            form_section::FILES,
-        ];
+        return form_section::cases();
     }
 
     /**
@@ -681,12 +677,18 @@ class qtype_coderunner_edit_form extends question_edit_form {
         // asks.
         $this->make_settings_sections($mform);
 
-        // Support files, which are copied into the working directory when the
-        // expanded template is executed. A set of files rather than a value, so
-        // the registry-driven component leaves them out and they get a file
-        // manager of their own; the question's own files are merged with each
-        // layer's by filename when it runs. Last of the sections, as the design
-        // numbers them.
+    }
+
+    /**
+     * The support files section: a file manager rather than a set of values.
+     *
+     * The files are copied into the working directory when the expanded
+     * template is executed, and the question's own are merged with each
+     * layer's by filename when it runs.
+     *
+     * @param MoodleQuickForm $mform the form being built.
+     */
+    protected function add_support_files_section($mform) {
         $options = $this->fileoptions;
         $options['subdirs'] = false;
         $mform->addElement('header', self::section_header(form_section::FILES), form_section::FILES->label());

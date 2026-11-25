@@ -210,6 +210,16 @@ final class question_form_test extends \advanced_testcase {
                 $this->assertTrue($mform->elementExists('datafiles'));
                 continue;
             }
+            if (!$field->informs) {
+                // Deliberately not offered, and asserted so rather than
+                // skipped: `sandbox` is still resolved, stored and run, and
+                // only the menu has gone.
+                $this->assertFalse(
+                    $mform->elementExists($name),
+                    "The form offers {$name}, which the registry says it should not."
+                );
+                continue;
+            }
             if (isset($components[$name])) {
                 // A component is offered inside the group of the field it
                 // belongs to — the language and the per-try switch sit beside
@@ -311,15 +321,23 @@ final class question_form_test extends \advanced_testcase {
         $questiondata = $this->make_question('python3');
         $questiondata->options->overrides = json_encode([
             'template' => 'MY TEMPLATE',
+            'iscombinatortemplate' => 1,
             'grader' => 'TemplateGrader',
         ]);
 
         $mform = $this->quickform($this->build_form($questiondata));
-        $header = $mform->getElement('section_' . form_section::TEMPLATE->value);
 
         $this->assertStringContainsString(
             get_string('sectionchanged', 'qtype_coderunner', 2),
-            (string) $header->_text
+            (string) $mform->getElement('section_' . form_section::TEMPLATE->value)->_text
+        );
+
+        // And the grader is counted under Grading, which is where it moved to
+        // on 26 November: counted in the wrong section, a change would be
+        // hidden by the very header meant to reveal it.
+        $this->assertStringContainsString(
+            get_string('sectionchanged', 'qtype_coderunner', 1),
+            (string) $mform->getElement('section_' . form_section::GRADING->value)->_text
         );
     }
 

@@ -203,14 +203,35 @@ How well indentation and *Used in this course* hold up as the library grows is b
 
 **The form.** The question text, test cases, sample answer and answer preload are open at the top. Everything else sits in collapsible sections, closed by default:
 
-1. Template parameters (open when the question overrides any)
-2. Test case fields
-3. Grading and penalties
-4. User interface, including the answer box size
-5. Template and grader
-6. Sandbox, languages and limits
-7. Extras (global extra and prototype extra)
-8. Support files
+1. Template and result table
+2. Template parameters (open when the question overrides any)
+3. Grading and penalties, the grader among them
+4. User interface and attachments, including the answer box size
+5. Support files
+6. Test case fields
+7. Sandbox, languages and limits
+8. Extras (global extra and prototype extra)
+
+Revised on 26 November 2026 at the author's request, after writing questions with the form. This
+is the **prototype editor's** order, and the question form was changed to match it: section 8 has
+always said the editor shows the same sections as this form, and in fact each form kept its own
+list, which had drifted. Both now walk `form_section::cases()`, so the order exists in one place.
+The editor shows all of this except the question's own fields, and adds *This change* at the end.
+
+Within it, four things moved or were renamed because an author could not find them. The template
+comes first and its parameters follow it, rather than the parameters leading. The grader left the
+template section, since what a grader does is grade. The template section says *result table*, so
+that `resultcolumns` can be found, and the user interface section says *attachments*, because they
+are in it. Support files moved up beside the user interface, a question's files being something an
+author touches while writing it. Three labels changed with them: *Student answer* became *Student
+answer UI* and now precedes the UI parameters that qualify it, *Rows* became *Student answer
+rows*, and the sandbox section's *Parameters* became *Sandbox parameters*.
+
+**The sandbox menu is gone from both forms.** Jobe has been the only workable sandbox for years,
+so the choice was clutter. The field is still resolved, stored and read by the run time, and the
+code supporting more than one sandbox stays; only the control went. A layer that already overrides
+it keeps what it has, because the write path treats a field the form does not ask about as one the
+form says nothing about.
 
 Inside a section, an inherited field is shown greyed with a small label such as *from python3\_scratchpad*. Clicking it makes it an override: the field turns normal, is marked as changed, and gains a *Revert to inherited* button. A section header shows how many overrides it holds (for example *Template parameters · 3 changed*), so a closed section never hides a change.
 

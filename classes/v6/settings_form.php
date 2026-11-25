@@ -280,6 +280,7 @@ class settings_form {
             field_registry::all(),
             fn($field) => $field->section === $section
                 && $field->type !== field_type::FILES
+                && $field->informs
                 && ($withinstancefields || $field->is_inheritable())
         );
     }

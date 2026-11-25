@@ -352,18 +352,6 @@ class field_registry {
                 helpstring: 'twigcontrols_help',
             ),
             new field(
-                'uiparameters',
-                field_kind::COLLECTED,
-                field_type::JSON,
-                form_section::UI,
-                default: '',
-                merge: merge_rule::IF_SAME_UI,
-                twigable: true,
-                iscode: true,
-                helpstring: 'uiparametergroup_help',
-                rows: 6,
-            ),
-            new field(
                 'supportfiles',
                 field_kind::COLLECTED,
                 field_type::FILES,
@@ -410,6 +398,17 @@ class field_registry {
                 default: 0,
                 labelstring: 'giveup',
             ),
+            // In Grading rather than beside the template, which is where it
+            // used to be: what a grader does is grade, and an author looking
+            // for it looks here (author's request, 26 November).
+            new field(
+                'grader',
+                field_kind::INHERITED,
+                field_type::CHOICE,
+                form_section::GRADING,
+                default: 'EqualityGrader',
+                helpstring: 'gradingcontrols_help',
+            ),
 
             // User interface.
             new field(
@@ -418,7 +417,19 @@ class field_registry {
                 field_type::CHOICE,
                 form_section::UI,
                 default: 'ace',
-                labelstring: 'student_answer',
+                labelstring: 'student_answer_ui',
+            ),
+            new field(
+                'uiparameters',
+                field_kind::COLLECTED,
+                field_type::JSON,
+                form_section::UI,
+                default: '',
+                merge: merge_rule::IF_SAME_UI,
+                twigable: true,
+                iscode: true,
+                helpstring: 'uiparametergroup_help',
+                rows: 6,
             ),
             new field('useace', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 1),
             new field(
@@ -472,14 +483,6 @@ class field_registry {
                 default: 0,
                 helpstring: 'templatecontrols_help',
             ),
-            new field(
-                'grader',
-                field_kind::INHERITED,
-                field_type::CHOICE,
-                form_section::TEMPLATE,
-                default: 'EqualityGrader',
-                helpstring: 'gradingcontrols_help',
-            ),
             new field('resultcolumns', field_kind::INHERITED, field_type::JSON, form_section::TEMPLATE, default: '', iscode: true, rows: 4),
             new field('testsplitterre', field_kind::INHERITED, field_type::CHAR, form_section::TEMPLATE, default: ''),
             new field('allowmultiplestdins', field_kind::INHERITED, field_type::BOOLEAN, form_section::TEMPLATE, default: 0),
@@ -511,12 +514,17 @@ class field_registry {
                 default: '',
                 labelstring: 'ace-language',
             ),
+            // Resolved, stored and read as before, but not offered: Jobe has
+            // been the only workable sandbox for years, so the menu was
+            // clutter (author's request, 26 November). The code that supports
+            // more than one sandbox stays.
             new field(
                 'sandbox',
                 field_kind::INHERITED,
                 field_type::CHOICE,
                 form_section::SANDBOX,
                 helpstring: 'sandboxcontrols_help',
+                informs: false,
             ),
             new field(
                 'sandboxparams',

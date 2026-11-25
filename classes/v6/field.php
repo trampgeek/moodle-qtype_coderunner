@@ -88,6 +88,15 @@ final readonly class field {
         public string $helpstring = '',
         /** @var int How many lines its editor gets, when the default is wrong. */
         public int $rows = 0,
+        /**
+         * @var bool False for a field that is still resolved, stored and read
+         *      by the run time, but not offered in either authoring form.
+         *      `sandbox` is the case: Jobe has been the only workable choice
+         *      for years, so the menu was clutter. The write path keeps
+         *      whatever a layer already overrode, because a field the form did
+         *      not ask about is one the form says nothing about.
+         */
+        public bool $informs = true,
     ) {
     }
 

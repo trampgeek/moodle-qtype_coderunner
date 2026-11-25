@@ -27,36 +27,44 @@ namespace qtype_coderunner\v6;
 /**
  * The section of the authoring forms in which a field appears.
  *
- * The order of the cases is the order the sections appear in the form, as set
- * out in the design document.
+ * The order of the cases is the order the sections appear in **both** forms:
+ * the prototype editor's order, which the question form was changed to match
+ * on 26 November at the author's request. Before that each form kept its own
+ * list and the two had drifted apart.
  */
 enum form_section: string {
     /** Fields belonging to the question itself, shown at the top and open by default. */
     case QUESTION = 'question';
 
+    /** Template, result table and the rest of what runs a test. */
+    case TEMPLATE = 'template';
+
     /** Template parameters. */
     case PARAMETERS = 'parameters';
 
-    /** Which test case fields the question form offers. */
-    case TESTCASEFIELDS = 'testcasefields';
-
-    /** Grading and penalties. */
+    /** Grading and penalties, the grader among them. */
     case GRADING = 'grading';
 
-    /** User interface, including the answer box size. */
+    /** User interface, the answer box size and attachments. */
     case UI = 'ui';
 
-    /** Template and grader. */
-    case TEMPLATE = 'template';
+    /**
+     * Support files.
+     *
+     * Beside the user interface, at the author's request of 26 November: a
+     * question's files are something an author touches while writing it, and
+     * the sections below it are mostly inherited.
+     */
+    case FILES = 'files';
+
+    /** Which test case fields the question form offers. */
+    case TESTCASEFIELDS = 'testcasefields';
 
     /** Sandbox, languages and limits. */
     case SANDBOX = 'sandbox';
 
     /** Global extra and prototype extra. */
     case EXTRAS = 'extras';
-
-    /** Support files. */
-    case FILES = 'files';
 
     /**
      * The heading this section is shown under.

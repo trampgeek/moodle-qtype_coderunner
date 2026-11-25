@@ -55,14 +55,15 @@ use qtype_coderunner\coderunner_files;
  * @property-read ?string $templateparams
  * @property-read ?string $templateparamslang
  * @property-read ?bool $templateparamsevalpertry
- * @property-read ?string $uiparameters
  * @property-read ?bool $allornothing
  * @property-read ?string $penaltyregime
  * @property-read ?int $precheck
  * @property-read ?bool $hidecheck
  * @property-read ?int $displayfeedback
  * @property-read ?int $giveupallowed
+ * @property-read ?string $grader
  * @property-read ?string $uiplugin
+ * @property-read ?string $uiparameters
  * @property-read ?bool $useace
  * @property-read ?int $answerboxlines
  * @property-read ?int $attachments
@@ -72,7 +73,6 @@ use qtype_coderunner\coderunner_files;
  * @property-read ?string $filenamesexplain
  * @property-read ?string $template
  * @property-read ?bool $iscombinatortemplate
- * @property-read ?string $grader
  * @property-read ?string $resultcolumns
  * @property-read ?string $testsplitterre
  * @property-read ?bool $allowmultiplestdins

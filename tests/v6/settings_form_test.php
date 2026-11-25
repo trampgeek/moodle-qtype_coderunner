@@ -192,9 +192,12 @@ final class settings_form_test extends \advanced_testcase {
             $offered = array_merge($offered, array_keys(settings_form::fields_of($section, true)));
         }
 
+        // A field with `informs` false is deliberately absent from both forms
+        // -- `sandbox`, whose menu offered a choice that has not been real for
+        // years -- so it is not expected in any section. Everything else is.
         $expected = array_keys(array_filter(
             field_registry::all(),
-            fn($f) => $f->type !== field_type::FILES
+            fn($f) => $f->type !== field_type::FILES && $f->informs
         ));
 
         $this->assertSame([], array_values(array_diff($expected, $offered)));
@@ -612,7 +615,7 @@ final class settings_form_test extends \advanced_testcase {
         $mform = new \MoodleQuickForm('t', 'post', '');
         settings_form::add_section(
             $mform,
-            form_section::TEMPLATE,
+            form_section::GRADING,
             $inherited,
             new override_set(['grader' => 'RegexGrader'], 'q')
         );
@@ -646,7 +649,7 @@ final class settings_form_test extends \advanced_testcase {
         // was not. It answers one question — what ticking Inherit would give
         // you — so it says the same thing in the same words either way.
         $plain = new \MoodleQuickForm('t', 'post', '');
-        settings_form::add_section($plain, form_section::TEMPLATE, $inherited, new override_set([], 'q'));
+        settings_form::add_section($plain, form_section::GRADING, $inherited, new override_set([], 'q'));
         $this->assertStringContainsString(
             get_string('templategrader', 'qtype_coderunner'),
             (string) $this->group_member($plain, 'grader', 'grader_source')->_text
@@ -657,7 +660,7 @@ final class settings_form_test extends \advanced_testcase {
         $overridden = new \MoodleQuickForm('t2', 'post', '');
         settings_form::add_section(
             $overridden,
-            form_section::TEMPLATE,
+            form_section::GRADING,
             $inherited,
             new override_set(['grader' => 'EqualityGrader'], 'q')
         );

@@ -58,7 +58,7 @@ $string['ace-language'] = 'Ace language';
 $string['advanced_customisation'] = 'Advanced customisation';
 $string['answer'] = 'Answer';
 $string['answerbox_group'] = 'Answer box';
-$string['answerboxlines'] = 'Rows';
+$string['answerboxlines'] = 'Student answer rows';
 $string['answerbox_group_help'] = 'Set the number of rows to allocate for the answer box. This sets the minimum height of the User Interface element (e.g. Ace) that controls the answer box. The width is set to fit the window. If the answer overflows the box vertically or horizontally, scrollbars will appear.';
 $string['answerpreload'] = 'Answer box preload';
 $string['answerpreload_help'] = 'Text supplied here will be preloaded into the student\'s answer box.';
@@ -598,9 +598,9 @@ $string['sectiongrading'] = 'Grading and penalties';
 $string['sectionparameters'] = 'Template parameters';
 $string['sectionquestion'] = 'Answer';
 $string['sectionsandbox'] = 'Sandbox, languages and limits';
-$string['sectiontemplate'] = 'Template and grader';
+$string['sectiontemplate'] = 'Template and result table';
 $string['sectiontestcasefields'] = 'Test case fields';
-$string['sectionui'] = 'User interface';
+$string['sectionui'] = 'User interface and attachments';
 $string['sectionchanged'] = '{$a} changed';
 
 // The question form's prototype picker.
@@ -1292,7 +1292,7 @@ $string['enable_sandbox_ws'] = "Enable sandbox web service";
 $string['enable_sandbox_ws_desc'] = 'Enable the web service allowing direct
 access to the sandbox server (usually Jobe).';
 $string['sandboxerror'] = 'Error from the sandbox [{$a->sandbox}]: {$a->message}';
-$string['sandboxparams'] = 'Parameters';
+$string['sandboxparams'] = 'Sandbox parameters';
 $string['seethisquestioninthequestionbank'] = 'See this question in the question bank';
 $string['SHOW'] = 'Show';
 $string['showcolumns'] = 'Show columns:';
@@ -1306,6 +1306,7 @@ $string['sourcecodeallruns'] = 'Debug: source code from all test runs';
 $string['stdin'] = 'Standard Input';
 $string['stdin_help'] = 'The standard input to the test, seen by the template as {{TEST.stdin}}';
 $string['student_answer'] = 'Student answer';
+$string['student_answer_ui'] = 'Student answer UI';
 $string['submitbuttons'] = 'Submit buttons';
 $string['supportscripts'] = 'Support scripts';
 $string['supportscripts_desc'] = 'The <a href="{$a->link}">CodeRunner management page</a> provides links to several support scripts for managing CodeRunner questions, including a bulk tester that tests that sample answers for all questions in a given context are marked right.';

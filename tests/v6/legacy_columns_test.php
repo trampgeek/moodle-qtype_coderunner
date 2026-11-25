@@ -277,16 +277,29 @@ final class legacy_columns_test extends \advanced_testcase {
         $this->assertSame('DEFAULT', legacy_converter::cast('grader', 'DEFAULT'));
         $this->assertSame('jobesandbox', legacy_converter::cast('sandbox', 'jobesandbox'));
 
-        // So a layer that chooses it says "whichever sandbox claims the
-        // language", which is what the author meant, rather than naming one
-        // that does not exist.
+        // The cast is what still matters, because the *form* no longer offers
+        // the sandbox at all: Jobe has been the only workable choice for
+        // years, so the menu went on 26 November and only the stored column,
+        // the resolver and the run-time path remain. A submission naming one
+        // is therefore ignored rather than stored, which is what keeps a
+        // hand-made POST -- or the field creeping back into a section --
+        // from writing a value no author was shown.
         $overrides = settings_form::overrides_from(
             ['sandbox' => 'DEFAULT', settings_form::INHERIT_PREFIX . 'sandbox' => 0],
             [form_section::SANDBOX],
             new override_set([], 'the question'),
             'the question'
         );
-        $this->assertTrue($overrides->has('sandbox'));
-        $this->assertNull($overrides->get('sandbox'));
+        $this->assertFalse($overrides->has('sandbox'));
+
+        // And a layer that already overrides it keeps what it has, because a
+        // field the form does not ask about is one it says nothing about.
+        $kept = settings_form::overrides_from(
+            [],
+            [form_section::SANDBOX],
+            new override_set(['sandbox' => 'jobesandbox'], 'the question'),
+            'the question'
+        );
+        $this->assertSame('jobesandbox', $kept->get('sandbox'));
     }
 }
