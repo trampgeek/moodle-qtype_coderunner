@@ -835,6 +835,21 @@ class qtype_coderunner extends question_type {
         } catch (\Exception $e) {
             // Bad stored data: a missing prototype, or parent links that form a
             // cycle. Either way the question cannot resolve, so it is broken.
+            //
+            // Recorded, because the run-time path cannot tell otherwise. A
+            // question that resolved has `prototype` null too -- it is nulled a
+            // few lines below -- and its `prototypeid` is set exactly as this
+            // one's is, so neither of those says whether the chain was found.
+            // Without this, a question whose prototype has gone (its course
+            // deleted, say) runs with its own layer and no template, and fails
+            // obscurely instead of reporting itself broken.
+            //
+            // `initialise_question_instance()` copies every option onto the
+            // question, so the flag reaches the run-time object with no
+            // plumbing. It is never stored: save writes only the columns in
+            // `extra_question_fields()`, and the identity hash is taken with
+            // `export_process` set, which skips resolution altogether.
+            $options->prototypeunresolved = 1;
             $this->record_own_chain_only($options);
             $question->prototype = null;
             return;

@@ -1538,6 +1538,41 @@ Open:
 
     **No version-ordering test, and no force.** An earlier proposal refused when the local prototype was older than the file's and adopted silently when it was newer. The author's objection on 23 November is decisive and general: a prototype upgraded to use Python 3.14 features breaks a question imported onto a site whose Jobe runs 3.12, and the converse applies equally, so **version order carries no information about whether a question will run**. Compatibility depends on the sandbox, which is outside anything CodeRunner holds. So the warning is emitted in both directions and the importer decides whether to run with what they got; it names both versions and points at the bulk tester, which is the only thing that can actually answer the question it raises. A `--force` was considered and rejected with it: expressed as an extra import format it would be a category error, since a format describes the file and not the policy, and what it would do — adopt a prototype the questions were not written for, silently — is the failure mode the identity-hash work exists to prevent.
 
+35. **A prototype is deleted with its course, and a question that cannot find its prototype says so.**
+    Taken by the author on 25 November, reversing section 9's rule that such a prototype moves to site
+    scope and the administrators are notified. His argument: anything shared out of a course stops being
+    shared when the course is deleted, and a shared thing outliving its course would be the surprising
+    behaviour -- "almost a bug". So the course's prototypes go, whoever else was using them, and the
+    questions built on them report themselves broken, exactly as anything else borrowed from a deleted
+    course does.
+
+    **What the old rule was actually producing** was neither model. Nothing handled course deletion at
+    all, so the rows survived with `courseid` naming a course that no longer existed, while Moodle's
+    `remove_course_contents()` had deleted every file in that context -- `file_contextid()` is
+    `context_course::instance($prototype->courseid)`, which raises on a missing course, and it is reached
+    from `file_areas_for()` at a point *outside* the try/catch that handles bad stored data. So every
+    question using that prototype, in any course, died on load with a database exception rather than
+    reporting anything.
+
+    **The `course_deleted` event rather than the `before_course_deleted` hook**, on the author's query
+    about an aborted deletion: the hook would have the file context still intact, but a deletion that then
+    failed would have taken the prototypes with it irrecoverably. By the time the event fires the context
+    and its files are gone, so only rows are left to delete -- which is all that is wanted. There is no
+    after-deletion hook; `before_course_deleted` is the only one Moodle defines.
+
+    **And the run-time guard had to be fixed for any of this to be legible.** It read
+    `empty($question->prototypeid) && empty($question->prototype)`, and neither half distinguishes a
+    question that resolved from one that could not: resolution nulls `prototype` on success too, and a
+    question whose prototype has gone still has its id. So such a question ran with its own layer and no
+    template, failing obscurely instead of reporting *Broken question (missing or duplicate prototype)*.
+    Resolution now records that it could not build the chain, and the job runner reads that;
+    `initialise_question_instance()` carries the flag to the run-time object for free, and it is never
+    stored, because save writes only the columns in `extra_question_fields()` and the identity hash is
+    taken with `export_process` set, which skips resolution altogether.
+
+    The three tests were each checked to fail with their subject neutered. Nothing needed cleaning up on
+    the development site: 0 of its 121 prototypes had a course that had gone.
+
 Decision 7, below, is retained for its analysis.
 
 7. **~~Does 6.0 pin attempts to prototype versions?~~** Settled as decision 11: no.

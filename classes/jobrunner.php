@@ -83,7 +83,12 @@ class qtype_coderunner_jobrunner {
         // id of its own, so either standing in for the other is enough. The
         // authoring form no longer needs the second half: it carries the
         // question's prototype id like any other save.
-        if (empty($question->prototypeid) && empty($question->prototype)) {
+        // Either no prototype was ever recorded, or one was and could not be
+        // found: `prototypeunresolved` is what resolution sets when the chain
+        // could not be built, which a present prototype id does not rule out.
+        $unresolved = !empty($question->prototypeunresolved)
+            || (empty($question->prototypeid) && empty($question->prototype));
+        if ($unresolved) {
             // Missing prototype. We can't run this question.
             $outcome = new qtype_coderunner_testing_outcome(0, 0, false);
             if ($question->prototypetype != 0) {
