@@ -90,7 +90,6 @@ final class prototype_promotion_test extends \advanced_testcase {
                 'penaltyregime' => '10, 20, ...',
             ], 'python3')
         );
-        prototype_candidates::reset_caches();
     }
 
     /**

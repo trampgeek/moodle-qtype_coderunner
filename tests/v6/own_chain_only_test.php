@@ -24,7 +24,6 @@
 
 namespace qtype_coderunner\v6;
 
-use local_coderunner_manager\prototype_candidates;
 use local_coderunner_manager\prototype_repository;
 
 defined('MOODLE_INTERNAL') || die();
@@ -73,7 +72,6 @@ final class own_chain_only_test extends \advanced_testcase {
             'category' => $category->id,
             'coderunnertype' => 'python3',
         ]);
-        prototype_candidates::reset_caches();
 
         $this->questionid = (int) $question->id;
     }

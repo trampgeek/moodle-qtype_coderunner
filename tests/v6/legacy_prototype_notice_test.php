@@ -24,7 +24,6 @@
 
 namespace qtype_coderunner\v6;
 
-use local_coderunner_manager\prototype_candidates;
 use local_coderunner_manager\prototype_repository;
 
 defined('MOODLE_INTERNAL') || die();
@@ -77,7 +76,6 @@ final class legacy_prototype_notice_test extends \advanced_testcase {
             ->create_question_category([
                 'contextid' => \context_course::instance($this->course->id)->id,
             ]);
-        prototype_candidates::reset_caches();
     }
 
     /**
@@ -263,7 +261,6 @@ final class legacy_prototype_notice_test extends \advanced_testcase {
                 'category' => $this->category->id,
                 'coderunnertype' => 'python3',
             ]);
-        prototype_candidates::reset_caches();
 
         $mform = $this->quickform($this->form(\question_bank::load_question_data($question->id)));
 

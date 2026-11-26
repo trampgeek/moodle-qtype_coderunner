@@ -552,6 +552,44 @@ class behat_qtype_coderunner extends behat_base {
     }
 
     /**
+     * Chooses which course's library the prototype menu offers, and waits for
+     * the form it rebuilds.
+     *
+     * The picker is two menus: this one says whose prototypes the other holds.
+     * It is drawn only for an author who has somewhere to borrow from, so a
+     * feature that never leaves its own course never needs this step — and one
+     * that does needs it before *I choose the CodeRunner prototype*, because
+     * until the scope has changed the prototype it wants is not in the menu.
+     *
+     * The question's own course is named *This course* rather than by its
+     * shortname, as the menu names it.
+     *
+     * @Given /^I choose the CodeRunner prototype source "(?P<name_string>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $name the course's short name, as the menu shows it.
+     */
+    public function i_choose_the_coderunner_prototype_source($name) {
+        $this->execute('behat_forms::i_expand_all_fieldsets');
+
+        $select = $this->find('field', 'id_' . \qtype_coderunner\v6\prototype_picker::COURSE_FIELD);
+        $wanted = null;
+        foreach ($select->findAll('xpath', './/option') as $option) {
+            if (trim($option->getText()) === $name) {
+                $wanted = $option->getAttribute('value');
+                break;
+            }
+        }
+        if ($wanted === null) {
+            throw new ExpectationException(
+                "No course named '{$name}' is offered as a prototype source",
+                $this->getSession()
+            );
+        }
+
+        $this->select_and_await_rebuild($select, $wanted, "the prototype source '{$name}'");
+    }
+
+    /**
      * Chooses a value in the UI plugin menu and waits for the form it rebuilds.
      *
      * The *Student answer* menu reloads the form through a hidden no-submit

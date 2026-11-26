@@ -25,7 +25,6 @@
 namespace qtype_coderunner\v6;
 
 use local_coderunner_manager\prototype;
-use local_coderunner_manager\prototype_candidates;
 use local_coderunner_manager\prototype_repository;
 
 defined('MOODLE_INTERNAL') || die();
@@ -39,6 +38,10 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
  * Tests that the picker renders what the manager's candidate list produces:
  * the groups as headings, the tree as indentation, the chain as a breadcrumb,
  * and the capability as a refusal.
+ *
+ * And that the two menus agree with each other — which course's library is
+ * showing, and which prototype that scope can show as the selection — since
+ * that is the part formslib does not do for itself.
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(prototype_picker::class)]
 #[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
@@ -55,7 +58,6 @@ final class prototype_picker_test extends \advanced_testcase {
         $this->setAdminUser();
         $this->repo = new prototype_repository();
         $this->course = $this->getDataGenerator()->create_course();
-        prototype_candidates::reset_caches();
     }
 
     /**
@@ -145,7 +147,6 @@ final class prototype_picker_test extends \advanced_testcase {
 
         // And with a prototype of its own, the menu is grouped again.
         $this->make_prototype('cosc131_python3', (int) $this->course->id);
-        prototype_candidates::reset_caches();
         $grouped = $this->build_picker((int) $this->course->id);
         $this->assertSame('selectgroups', $this->menu($grouped)->getType());
     }
@@ -292,13 +293,13 @@ final class prototype_picker_test extends \advanced_testcase {
 
         $mform = $this->build_picker($courseid, $prototype->id);
 
-        // The menu and the trail share one row, so the group is what the form
-        // holds and the menu is inside it.
+        // The menus and the trail share one row, so the group is what the form
+        // holds and the menus are inside it.
         $this->assertTrue($mform->elementExists(prototype_picker::GROUP));
-        // The first step: a button, and no course menu until it is pressed.
-        $this->assertTrue($mform->elementExists(prototype_picker::OTHER_COURSE_BUTTON));
-        $this->assertFalse($mform->elementExists(prototype_picker::COURSE_FIELD));
-        $this->assertTrue($mform->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON));
+        $this->assertNotNull($this->menu($mform));
+        // Nothing to borrow from, so no course menu: one control, which is
+        // what nearly every author sees.
+        $this->assertNull($this->grouped($mform, prototype_picker::COURSE_FIELD));
 
         // And the prototype is among the options offered.
         $this->assertContains((string) $prototype->id, $this->menu_values($mform));
@@ -340,8 +341,39 @@ final class prototype_picker_test extends \advanced_testcase {
      * @return object the menu element.
      */
     private function menu(\MoodleQuickForm $mform) {
-        [$menu] = $mform->getElement(prototype_picker::GROUP)->getElements();
-        return $menu;
+        return $this->grouped($mform, prototype_picker::FIELD);
+    }
+
+    /**
+     * One element of the picker's group, by name.
+     *
+     * By name and not by position: the course menu comes first where it is
+     * drawn at all, so the prototype menu is the first element for one author
+     * and the second for another.
+     *
+     * @param \MoodleQuickForm $mform the built form.
+     * @param string $name the element wanted.
+     * @return object|null the element, or null if the group has no such one.
+     */
+    private function grouped(\MoodleQuickForm $mform, string $name) {
+        foreach ($mform->getElement(prototype_picker::GROUP)->getElements() as $element) {
+            if ($element->getName() === $name) {
+                return $element;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * What a menu of the picker's group is showing as its selection.
+     *
+     * @param object $element the menu.
+     * @return string the selected value, or '' for none.
+     */
+    private function selection($element): string {
+        $values = method_exists($element, 'getSelected') ? $element->getSelected() : $element->getValue();
+        $values = array_values((array) $values);
+        return $values === [] ? '' : (string) $values[0];
     }
 
     /**
@@ -369,84 +401,206 @@ final class prototype_picker_test extends \advanced_testcase {
     }
 
     /**
-     * Pressing *From another course…* brings up the course menu, and the one
-     * query that has to resolve a capability over every course runs only then.
+     * The course menu is drawn when there is a course to choose, and not when
+     * the only entry would be the question's own course.
+     *
+     * No step of its own to reach it: the entries are there from the first
+     * build, which is what makes a borrowed prototype findable rather than
+     * hidden behind a button whose effect is invisible.
      */
-    public function test_the_course_menu_appears_once_it_is_asked_for(): void {
+    public function test_the_course_menu_is_drawn_only_when_it_offers_a_choice(): void {
+        $alone = $this->build_picker((int) $this->course->id);
+        $this->assertNull(
+            $this->grouped($alone, prototype_picker::COURSE_FIELD),
+            'One scope is no choice of scope, so the menu would say nothing.'
+        );
+
         $other = $this->getDataGenerator()->create_course(['shortname' => 'COSC122-26S1']);
         $this->make_prototype('theirs', (int) $other->id);
 
-        $_POST[prototype_picker::OTHER_COURSE_BUTTON] = 'Use a prototype from another course';
-
-        $mform = $this->build_picker((int) $this->course->id);
-
-        $this->assertTrue($mform->elementExists(prototype_picker::COURSE_FIELD));
-        // And it is remembered, so the menu does not vanish on the next
-        // submission of the form.
-        $this->assertTrue($mform->elementExists(prototype_picker::OTHER_COURSE_WANTED));
+        $menu = $this->grouped($this->build_picker((int) $this->course->id), prototype_picker::COURSE_FIELD);
+        $this->assertNotNull($menu);
 
         $courses = [];
-        foreach ($mform->getElement(prototype_picker::COURSE_FIELD)->_options as $option) {
-            $courses[] = (string) $option['attr']['value'];
+        foreach ($menu->_options as $option) {
+            $courses[(string) $option['attr']['value']] = $option['text'];
         }
-        $this->assertContains((string) $other->id, $courses);
-    }
-
-    /**
-     * Once a course has been chosen, its prototypes are offered as a further
-     * group, labelled with the course so that two of the same name stay
-     * distinguishable.
-     */
-    public function test_the_chosen_courses_prototypes_become_a_group(): void {
-        $other = $this->getDataGenerator()->create_course(['shortname' => 'COSC122-26S1']);
-        $theirs = $this->make_prototype('scratchpad', (int) $other->id);
-
-        $_POST[prototype_picker::COURSE_FIELD] = (string) $other->id;
-
-        $groups = prototype_picker::optgroups((int) $this->course->id, null, (int) $other->id);
-        $heading = get_string('prototypegroup_othercourse', 'qtype_coderunner');
-
-        $this->assertArrayHasKey($heading, $groups);
-        $this->assertArrayHasKey($theirs->id, $groups[$heading]);
-        $this->assertStringContainsString('scratchpad (COSC122-26S1)', $groups[$heading][$theirs->id]);
-    }
-
-    /**
-     * An author with no other course to borrow from is told so, rather than
-     * being given an empty menu — and the press that got them there is still a
-     * no-submit press.
-     *
-     * The second assertion is the one with teeth, and this test was here
-     * without it while the bug it describes was live. Pressing the button
-     * saved the question: the press arrives on a request that takes the
-     * second branch of the step, that branch returned early for an author
-     * with nowhere to borrow from, and the early return skipped the
-     * registration — so formslib saw an ordinary submission, validated the
-     * question, ran the sample answer against the sandbox and saved a new
-     * version. The registration is unconditional now.
-     */
-    public function test_an_author_with_nowhere_to_borrow_from_is_told(): void {
-        $teacher = $this->getDataGenerator()->create_user();
-        $this->getDataGenerator()->enrol_user($teacher->id, $this->course->id, 'editingteacher');
-        $this->setUser($teacher);
-
-        $_POST[prototype_picker::OTHER_COURSE_BUTTON] = 'x';
-
-        $mform = $this->build_picker((int) $this->course->id);
-
-        $this->assertFalse($mform->elementExists(prototype_picker::COURSE_FIELD));
-        $this->assertTrue($mform->elementExists(prototype_picker::COURSE_FIELD . '_none'));
-        $this->assertTrue(
-            $mform->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON),
-            'The press that asked for another course was not recorded as a no-submit press, '
-                . 'so formslib would save the question instead of rebuilding the form.'
+        $this->assertSame(
+            [
+                (string) $this->course->id => get_string('prototypescope_thiscourse', 'qtype_coderunner'),
+                (string) $other->id => 'COSC122-26S1',
+            ],
+            $courses,
+            "The question's own course first, named for its relation to the question; then the rest by name."
         );
     }
 
     /**
-     * Every state of the step keeps the button registered, whether or not it
-     * renders one, because the press always arrives on a later request than
-     * the render.
+     * *Site* is not one of the course menu's entries: the built-ins are
+     * site-scope, and a course that writes most of its questions directly on
+     * python3 would otherwise be changing scope on the ordinary path.
+     */
+    public function test_the_site_is_not_a_scope_of_its_own(): void {
+        $other = $this->getDataGenerator()->create_course();
+        $this->make_prototype('theirs', (int) $other->id);
+        $sitewide = $this->make_prototype('python3');
+
+        $menu = $this->grouped($this->build_picker((int) $this->course->id), prototype_picker::COURSE_FIELD);
+        $courses = [];
+        foreach ($menu->_options as $option) {
+            $courses[] = (string) $option['attr']['value'];
+        }
+
+        $this->assertNotContains((string) SITEID, $courses);
+        // And the site library is offered in the question's own scope instead.
+        $this->assertContains((string) $sitewide->id, $this->menu_values($this->build_picker((int) $this->course->id)));
+    }
+
+    /**
+     * Choosing a course **replaces** what the prototype menu holds.
+     *
+     * The author has just said which library they want; offering their own
+     * course's prototypes alongside it would make them read past the list they
+     * asked not to see, and appending a group to a closed menu is a change
+     * with nothing visible about it.
+     */
+    public function test_a_chosen_course_replaces_the_list(): void {
+        $other = $this->getDataGenerator()->create_course(['shortname' => 'COSC122-26S1']);
+        $theirs = $this->make_prototype('scratchpad', (int) $other->id);
+        $mine = $this->make_prototype('mine', (int) $this->course->id);
+        $sitewide = $this->make_prototype('python3');
+
+        $_POST[prototype_picker::COURSE_FIELD] = (string) $other->id;
+        $values = $this->menu_values($this->build_picker((int) $this->course->id));
+
+        $this->assertContains((string) $theirs->id, $values);
+        $this->assertNotContains((string) $mine->id, $values);
+        $this->assertNotContains((string) $sitewide->id, $values);
+    }
+
+    /**
+     * One course's library is one group, so it renders as a plain menu with no
+     * heading, and the names in it carry no course: the course menu beside it
+     * is already saying which course this is.
+     */
+    public function test_a_chosen_courses_list_is_plain(): void {
+        $other = $this->getDataGenerator()->create_course(['shortname' => 'COSC122-26S1']);
+        $theirs = $this->make_prototype('scratchpad', (int) $other->id);
+
+        $groups = prototype_picker::optgroups((int) $this->course->id, null, (int) $other->id);
+
+        $this->assertCount(1, $groups);
+        $options = reset($groups);
+        $this->assertSame('scratchpad', $options[$theirs->id]);
+    }
+
+    /**
+     * An existing question opens on the scope that holds its own prototype,
+     * with the prototype selected, however the author got there.
+     */
+    public function test_the_scope_opens_on_the_questions_own_prototype(): void {
+        $other = $this->getDataGenerator()->create_course(['shortname' => 'COSC122-26S1']);
+        $theirs = $this->make_prototype('scratchpad', (int) $other->id);
+        $this->make_prototype('mine', (int) $this->course->id);
+
+        $mform = $this->build_picker((int) $this->course->id, $theirs->id);
+        prototype_picker::settle_selection($mform, (int) $this->course->id, $theirs->id);
+
+        $this->assertSame(
+            (string) $other->id,
+            $this->selection($this->grouped($mform, prototype_picker::COURSE_FIELD))
+        );
+        $this->assertSame((string) $theirs->id, $this->selection($this->menu($mform)));
+    }
+
+    /**
+     * A question built on a prototype of a course the author may not browse
+     * keeps it: the scope is reachable, and offers that one prototype.
+     *
+     * Without this an author with rights only in their own course could not
+     * edit such a question at all — the menu would not hold the question's own
+     * value, so saving the form would either re-point the question or fail the
+     * picker's own required rule.
+     */
+    public function test_a_prototype_in_use_stays_reachable_without_the_capability(): void {
+        $other = $this->getDataGenerator()->create_course(['shortname' => 'COSC122-26S1']);
+        $theirs = $this->make_prototype('scratchpad', (int) $other->id);
+        $this->make_prototype('also_theirs', (int) $other->id);
+        $teacher = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($teacher->id, $this->course->id, 'editingteacher');
+        $this->setUser($teacher);
+
+        $mform = $this->build_picker((int) $this->course->id, $theirs->id);
+        prototype_picker::settle_selection($mform, (int) $this->course->id, $theirs->id);
+
+        $courses = [];
+        foreach ($this->grouped($mform, prototype_picker::COURSE_FIELD)->_options as $option) {
+            $courses[] = (string) $option['attr']['value'];
+        }
+        $this->assertContains((string) $other->id, $courses, 'The scope holding the value must be reachable.');
+        $this->assertSame((string) $theirs->id, $this->selection($this->menu($mform)));
+        $this->assertSame(
+            ['', (string) $theirs->id],
+            $this->menu_values($mform),
+            'The placeholder and the prototype in use, and nothing else of that course.'
+        );
+    }
+
+    /**
+     * Nothing is preselected on a new question: not the first prototype, not
+     * the most recently used, not anything. The author chooses.
+     */
+    public function test_a_new_question_starts_at_the_placeholder(): void {
+        $this->make_prototype('python3');
+        $this->make_prototype('mine', (int) $this->course->id);
+
+        $mform = $this->build_picker((int) $this->course->id);
+        prototype_picker::settle_selection($mform, (int) $this->course->id, null);
+
+        $this->assertSame('', $this->selection($this->menu($mform)));
+        $this->assertSame('', $this->menu_values($mform)[0], 'The placeholder is the first option.');
+    }
+
+    /**
+     * While another course's library is showing, the prototype menu shows the
+     * placeholder rather than a value the author cannot see in it; and coming
+     * back to the scope that holds it shows it again.
+     *
+     * The second half is the one formslib would get wrong on its own: on a
+     * no-submit reload it fills every element from a submission that is one
+     * render out of date, which is the placeholder the author was shown while
+     * they were away.
+     */
+    public function test_the_selection_follows_the_scope(): void {
+        $other = $this->getDataGenerator()->create_course();
+        $this->make_prototype('theirs', (int) $other->id);
+        $mine = $this->make_prototype('mine', (int) $this->course->id);
+
+        // Away: the value is out of scope, so the menu offers the placeholder.
+        $_POST[prototype_picker::COURSE_FIELD] = (string) $other->id;
+        $away = $this->build_picker((int) $this->course->id, $mine->id);
+        prototype_picker::settle_selection($away, (int) $this->course->id, $mine->id);
+        $this->assertSame('', $this->selection($this->menu($away)));
+
+        // Back, with the stale placeholder submitted as the prototype.
+        $_POST[prototype_picker::COURSE_FIELD] = (string) $this->course->id;
+        $_POST[prototype_picker::FIELD] = '';
+        $back = $this->build_picker((int) $this->course->id, $mine->id);
+        prototype_picker::settle_selection($back, (int) $this->course->id, $mine->id);
+        $this->assertSame((string) $mine->id, $this->selection($this->menu($back)));
+    }
+
+    /**
+     * The reload button is registered as a no-submit button in every state of
+     * the picker, whether or not the form draws a course menu.
+     *
+     * Unconditionally, and that is the lesson of a bug with teeth: the press
+     * arrives on a *different* request from the one that drew the button, and
+     * a name missing from the form's no-submit list exactly when the button
+     * has been pressed makes formslib take the press for an ordinary
+     * submission — it validated the question, ran the sample answer against
+     * the sandbox, saved a new version and redirected as a successful save
+     * does.
      *
      * Asserted through `isNoSubmitButton()` rather than
      * `no_submit_button_pressed()`: that method caches its answer in a static,
@@ -454,28 +608,26 @@ final class prototype_picker_test extends \advanced_testcase {
      * so the first test to call it would decide the answer for every test
      * after it.
      */
-    public function test_the_button_is_registered_in_every_state(): void {
+    public function test_the_reload_button_is_registered_in_every_state(): void {
+        // With one scope, where no course menu is drawn.
+        $alone = $this->build_picker((int) $this->course->id);
+        $this->assertTrue($alone->isNoSubmitButton(prototype_picker::RELOAD_BUTTON));
+
+        // With a course to borrow from, where one is.
         $other = $this->getDataGenerator()->create_course();
         $this->make_prototype('theirs', (int) $other->id);
+        $withscopes = $this->build_picker((int) $this->course->id);
+        $this->assertNotNull($this->grouped($withscopes, prototype_picker::COURSE_FIELD));
+        $this->assertTrue($withscopes->isNoSubmitButton(prototype_picker::RELOAD_BUTTON));
 
-        // Before it has been asked for, which is when the button is rendered.
-        $fresh = $this->build_picker((int) $this->course->id);
-        $this->assertTrue($fresh->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON));
-
-        // On the press, where the course menu replaces the button.
-        $_POST[prototype_picker::OTHER_COURSE_BUTTON] = 'x';
-        $pressed = $this->build_picker((int) $this->course->id);
-        $this->assertTrue($pressed->elementExists(prototype_picker::COURSE_FIELD));
-        $this->assertTrue($pressed->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON));
-
-        // And on the second press, which asks for a course's prototypes.
-        $_POST[prototype_picker::COURSE_FIELD] = (int) $other->id;
+        // And while another course's library is showing.
+        $_POST[prototype_picker::COURSE_FIELD] = (string) $other->id;
         $chosen = $this->build_picker((int) $this->course->id);
-        $this->assertTrue($chosen->isNoSubmitButton(prototype_picker::OTHER_COURSE_BUTTON));
+        $this->assertTrue($chosen->isNoSubmitButton(prototype_picker::RELOAD_BUTTON));
     }
 
     /**
-     * Each no-submit button marks itself as skipping the form's client-side
+     * The reload button marks itself as skipping the form's client-side
      * validation, which it can only do if it was registered before it was
      * created.
      *
@@ -488,19 +640,17 @@ final class prototype_picker_test extends \advanced_testcase {
      */
     public function test_a_no_submit_button_skips_client_validation(): void {
         $mform = $this->build_picker((int) $this->course->id);
+        $button = $mform->getElement(prototype_picker::RELOAD_BUTTON);
 
-        foreach ([prototype_picker::RELOAD_BUTTON, prototype_picker::OTHER_COURSE_BUTTON] as $name) {
-            $button = $mform->getElement($name);
-            $this->assertSame(
-                1,
-                $button->getAttribute('data-no-submit'),
-                "$name was registered after it was created, so it does not skip client validation."
-            );
-            $this->assertStringContainsString(
-                'skipClientValidation',
-                (string) $button->getAttribute('onclick'),
-                "$name does not set skipClientValidation."
-            );
-        }
+        $this->assertSame(
+            1,
+            $button->getAttribute('data-no-submit'),
+            'The reload button was registered after it was created, so it does not skip client validation.'
+        );
+        $this->assertStringContainsString(
+            'skipClientValidation',
+            (string) $button->getAttribute('onclick'),
+            'The reload button does not set skipClientValidation.'
+        );
     }
 }

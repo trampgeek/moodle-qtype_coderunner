@@ -25,7 +25,6 @@
 namespace qtype_coderunner\v6;
 
 use local_coderunner_manager\prototype;
-use local_coderunner_manager\prototype_candidates;
 use local_coderunner_manager\prototype_repository;
 
 defined('MOODLE_INTERNAL') || die();
@@ -79,7 +78,6 @@ final class question_form_test extends \advanced_testcase {
         $this->category = $generator->create_question_category([
             'contextid' => \context_course::instance($this->course->id)->id,
         ]);
-        prototype_candidates::reset_caches();
     }
 
     /**
@@ -157,7 +155,6 @@ final class question_form_test extends \advanced_testcase {
             'category' => $this->category->id,
             'coderunnertype' => $prototypename,
         ]);
-        prototype_candidates::reset_caches();
 
         return \question_bank::load_question_data($question->id);
     }
@@ -485,6 +482,63 @@ final class question_form_test extends \advanced_testcase {
             'zero means no limit' => ['0', false],
             'blank means unset' => ['', false],
             'a real limit' => ['512', false],
+        ];
+    }
+
+    /**
+     * An unchosen prototype is refused, and *Validate on save* has nothing to
+     * do with it.
+     *
+     * The refusal is the form's own, not the picker's required rule: that rule
+     * is handed the submitted placeholder after `PARAM_INT` has cleaned it to
+     * `0`, and "0" is a non-empty string, so it passes. `validation()` reads
+     * the same 0 with `empty()` and refuses, before the sample answer is made
+     * into a question and run — which is why an author who has chosen no type
+     * never waits on the sandbox to be told so.
+     *
+     * The submitted value is both forms it can take: `''` from a form built
+     * without the type cleaner, and `0` from the real submission.
+     *
+     * @param string|int $submitted what the prototype menu posted.
+     * @param array $extra the *Validate on save* state, as the form posts it.
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('unchosen_prototype_provider')]
+    public function test_an_unchosen_prototype_is_refused($submitted, array $extra): void {
+        $this->make_prototype('python3');
+
+        $form = $this->build_form();
+        $errors = $form->validation([
+            'category' => $this->category->id . ',' . $this->category->contextid,
+            'name' => 'No type chosen',
+            'questiontext' => ['text' => 'Write sqr.', 'format' => FORMAT_HTML],
+            'generalfeedback' => ['text' => '', 'format' => FORMAT_HTML],
+            prototype_picker::FIELD => $submitted,
+        ] + $extra, []);
+
+        $this->assertArrayHasKey(
+            prototype_picker::GROUP,
+            $errors,
+            'A question with no prototype was accepted.'
+        );
+        $this->assertSame(
+            get_string('prototyperequired', 'qtype_coderunner'),
+            $errors[prototype_picker::GROUP]
+        );
+    }
+
+    /**
+     * Every combination of what the menu posts and whether *Validate on save*
+     * is ticked.
+     *
+     * @return array the cases.
+     */
+    public static function unchosen_prototype_provider(): array {
+        return [
+            'placeholder, validate on save unticked' => ['', []],
+            'placeholder, validate on save ticked' => ['', ['validateonsave' => 1]],
+            'placeholder, validate on save posted as 0' => ['', ['validateonsave' => 0]],
+            'cleaned to zero, unticked' => [0, []],
+            'cleaned to zero, ticked' => [0, ['validateonsave' => 1]],
         ];
     }
 

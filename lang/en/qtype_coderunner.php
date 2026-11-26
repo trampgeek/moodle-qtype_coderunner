@@ -120,7 +120,11 @@ $string['coderunner_link'] = 'question/type/coderunner';
 $string['coderunnersettings'] = 'CodeRunner settings';
 $string['coderunnersummary'] = 'Answer is program code that is executed in the context of a set of test cases to determine its correctness.';
 $string['coderunnertype'] = 'Question type';
-$string['coderunnertype_help'] = 'Select the programming language and question type. Once a type has been selected, details can be seen in the Question type details panel below.';
+$string['coderunnertype_help'] = 'Select the programming language and question type. Once a type has been selected, details can be seen in the Question type details panel below.
+
+Where a second menu is offered, it chooses whose prototypes the question type menu lists: this course and the site prototypes, or another course. Only courses in which you may manage CodeRunner questions, and which have prototypes of their own, are listed.
+
+Building a question on another course\'s prototype ties the two together: the question follows later changes to that prototype, and the prototype cannot be deleted while the question uses it.';
 $string['coderunnerwssettings'] = 'Sandbox web-service settings';
 $string['columncontrols'] = 'Result table';
 $string['columncontrols_help'] = 'The checkboxes select which columns of the results table should be displayed to the student after submission';
@@ -605,19 +609,14 @@ $string['sectionchanged'] = '{$a} changed';
 
 // The question form's prototype picker.
 $string['prototypereload'] = 'Update the form for this question type';
-$string['prototypefromanothercourse'] = 'Use a prototype from another course...';
-$string['prototypegroup_borrowed'] = 'Borrowed from another course';
-$string['prototypegroup_othercourse'] = 'From the course you chose';
+$string['prototypegroup_othercourse'] = 'Another course';
 $string['prototypegroup_site'] = 'Site';
 $string['prototypegroup_thiscourse'] = 'This course';
-$string['prototypenoothercourses'] = 'There is no other course whose prototypes you may use.';
 $string['prototypenotallowed'] = 'You do not have permission to build a question on that course\'s prototypes.';
-$string['prototypeothercourse'] = 'Course';
-$string['prototypeothercourse_help'] = 'Only courses in which you may manage CodeRunner questions are listed, and only those that have prototypes of their own.
-
-Building a question on another course\'s prototype ties the two together: the question follows later changes to that prototype, and the prototype cannot be deleted while the question uses it.';
 $string['prototyperequired'] = 'Choose the prototype this question is built on.';
-$string['prototypeshowcourse'] = 'Show that course\'s prototypes';
+$string['prototypescope'] = 'Prototypes from';
+$string['prototypescope_thiscourse'] = 'This course';
+$string['prototypescopeuse'] = 'use';
 
 // The legacy prototype-question banner.
 $string['legacyprototypeheader'] = 'A CodeRunner 5 question type definition';

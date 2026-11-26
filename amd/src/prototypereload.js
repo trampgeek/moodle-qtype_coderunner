@@ -38,12 +38,19 @@ define([], function() {
     return {
         /**
          * Submit the form through its no-submit reload button whenever the
-         * prototype menu changes.
+         * prototype menu or the course menu beside it changes.
+         *
+         * The course menu is only drawn for an author who has somewhere to
+         * borrow a prototype from, so it is optional here. A change of course
+         * reloads unconditionally: every value it holds is a real course, and
+         * reloading is the whole point of choosing one, where a change of
+         * prototype has a placeholder to ignore.
          *
          * @param {string} menuid the id of the prototype menu.
          * @param {string} buttonid the id of the form's no-submit reload button.
+         * @param {string} [scopeid] the id of the course menu, if there is one.
          */
-        init: function(menuid, buttonid) {
+        init: function(menuid, buttonid, scopeid) {
             const menu = document.getElementById(menuid);
             const button = document.getElementById(buttonid);
             if (!menu || !button) {
@@ -61,6 +68,18 @@ define([], function() {
                 loaded = menu.value;
                 button.click();
             });
+
+            const scope = scopeid ? document.getElementById(scopeid) : null;
+            if (scope) {
+                let loadedscope = scope.value;
+                scope.addEventListener('change', function() {
+                    if (scope.value === loadedscope) {
+                        return;
+                    }
+                    loadedscope = scope.value;
+                    button.click();
+                });
+            }
         }
     };
 });

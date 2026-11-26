@@ -173,6 +173,23 @@ class qtype_coderunner_edit_form extends question_edit_form {
     }
 
     /**
+     * Settle what the picker's menus show, now that the form holds its data.
+     *
+     * The picker is two menus whose contents depend on each other, and on a
+     * no-submit reload formslib fills both from a submission that is one render
+     * out of date. {@see prototype_picker::settle_selection()} says why that
+     * cannot be left to the defaults.
+     */
+    public function definition_after_data() {
+        parent::definition_after_data();
+        prototype_picker::settle_selection(
+            $this->_form,
+            $this->picker_courseid(),
+            $this->chosen_prototypeid()
+        );
+    }
+
+    /**
      * The prototype picker, and what the chosen prototype documents about
      * itself.
      *

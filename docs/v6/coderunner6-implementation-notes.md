@@ -68,7 +68,7 @@ Today's name-based lookup is needed only once per question, during the migration
 - **Both forms render from the registry** through the shared editor component, so a field present in one is present in the other.
 - **Template debugging** is the `showsource` column, and so an ordinary instance field of the registry. An earlier draft of this note called it a per-session author option that would stay outside the registry; it is neither (see M7's first increment).
 - **Help strings.** Existing `_help` strings in `lang/en/qtype_coderunner.php` should be kept and attached to the corresponding registry entries; the mockups show the opening sentences of them.
-- **Picker group "already used in this course".** Needs the prototype ids used by the course's CodeRunner questions: one query joining `question_coderunner_options` through `question_versions`, `question_bank_entries` and `question_categories` to the contexts of the course's banks and quizzes. Cache it per course for the session.
+- **Picker group "already used in this course".** Dropped. The picker's groups are drawn by scope (decision 30), and another course's library is reached through the course menu beside the prototype menu, so nothing in the question form asks which prototypes a course's questions use. The query this note specified, and its cache, are gone with it.
 
 ## Migration
 
