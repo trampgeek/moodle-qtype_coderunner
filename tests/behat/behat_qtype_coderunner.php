@@ -555,7 +555,7 @@ class behat_qtype_coderunner extends behat_base {
      * Chooses a prototype's parent in the prototype editor, and waits for the
      * form it rebuilds.
      *
-     * *Inherits from* is the same pair of menus as the question form's
+     * The editor's *Parent* is the same pair of menus as the question form's
      * question type, so it cannot be set from a form-filling table: the label
      * belongs to the row and the menus carry none, and a change of parent
      * rebuilds the whole form from the new chain, discarding anything typed

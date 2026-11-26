@@ -9,10 +9,10 @@ Feature: A question type made in one course, used in two
   # From the author's outline of 26 November 2026. Its first half -- a type
   # made in CourseA, a question built on it, the attempt -- passed on
   # 26 November. The inheritance across courses, in both directions, was
-  # written when *Inherits from* became the same pair of menus as the question
-  # form's question type, and has not been run. The one step still marked
-  # "# CHECK" is where the control is a guess rather than something another
-  # feature already does.
+  # written when the editor's *Parent* became the same pair of menus as the
+  # question form's question type, and has not been run. The one step still
+  # marked "# CHECK" is where the control is a guess rather than something
+  # another feature already does.
   #
   # Why one long scenario rather than several: the point is the journey, and
   # each stage depends on the last. A prototype has to exist before a question
