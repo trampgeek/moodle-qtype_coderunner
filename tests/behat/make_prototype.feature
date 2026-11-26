@@ -31,9 +31,9 @@ Feature: make_prototype
     # Make the question type.
     And I am on the "C1" "qtype_coderunner > prototype library" page logged in as teacher1
     And I click on "New prototype" "link"
+    And I choose the parent prototype "python3"
     And I set the following fields to these values:
-      | Name          | python3_test_prototype |
-      | Inherits from | python3                |
+      | Name | python3_test_prototype |
     And I override the CodeRunner fields "uiplugin, template, iscombinatortemplate"
     And I set the following fields to these values:
       | id_uiplugin             | None |

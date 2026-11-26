@@ -609,14 +609,8 @@ $string['sectionchanged'] = '{$a} changed';
 
 // The question form's prototype picker.
 $string['prototypereload'] = 'Update the form for this question type';
-$string['prototypegroup_othercourse'] = 'Another course';
-$string['prototypegroup_site'] = 'Site';
-$string['prototypegroup_thiscourse'] = 'This course';
 $string['prototypenotallowed'] = 'You do not have permission to build a question on that course\'s prototypes.';
 $string['prototyperequired'] = 'Choose the prototype this question is built on.';
-$string['prototypescope'] = 'Prototypes from';
-$string['prototypescope_thiscourse'] = 'This course';
-$string['prototypescopeuse'] = 'use';
 
 // The legacy prototype-question banner.
 $string['legacyprototypeheader'] = 'A CodeRunner 5 question type definition';

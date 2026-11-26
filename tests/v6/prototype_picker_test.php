@@ -124,8 +124,8 @@ final class prototype_picker_test extends \advanced_testcase {
 
         $this->assertSame(
             [
-                get_string('prototypegroup_thiscourse', 'qtype_coderunner'),
-                get_string('prototypegroup_site', 'qtype_coderunner'),
+                get_string('scopegroup_thiscourse', 'local_coderunner_manager'),
+                get_string('scopegroup_site', 'local_coderunner_manager'),
             ],
             array_keys($groups),
             "The course's own prototypes come first, then the site's."
@@ -427,7 +427,7 @@ final class prototype_picker_test extends \advanced_testcase {
         }
         $this->assertSame(
             [
-                (string) $this->course->id => get_string('prototypescope_thiscourse', 'qtype_coderunner'),
+                (string) $this->course->id => get_string('scopethiscourse', 'local_coderunner_manager'),
                 (string) $other->id => 'COSC122-26S1',
             ],
             $courses,

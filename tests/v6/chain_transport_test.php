@@ -256,7 +256,7 @@ final class chain_transport_test extends \advanced_testcase {
         );
 
         $xml = $this->export([$this->make_question($prototype->id, 'parsed_type')]);
-        $data = (new \core\xml_parser())->parse('<quiz>' . $xml . '</quiz>', 0, 'UTF-8', true);
+        $data = $this->parse_xml('<quiz>' . $xml . '</quiz>');
         $question = $data['quiz']['#']['question'][0];
 
         $this->assertSame(
@@ -348,5 +348,27 @@ final class chain_transport_test extends \advanced_testcase {
         \question_bank::notify_question_edited($question->id);
 
         return (int) $question->id;
+    }
+
+    /**
+     * Parse XML the way the importing site's own reader would.
+     *
+     * `core\xml_parser` arrived in Moodle 5.1 (MDL-86256 moved the XML
+     * parsing classes into autoloaded namespaces), and the plugin supports
+     * 5.0, where the class does not exist and six tests died on
+     * *Class "core\xml_parser" not found* -- in CI only, since the
+     * development site is 5.3. `xmlize()` is no use as the single call for
+     * both: it survives in 5.1+ only as a deprecated wrapper that emits a
+     * deprecation, and an unexpected debugging message fails a Moodle unit
+     * test. So the version decides, as it does in `qformat_xml` itself.
+     *
+     * @param string $xml the XML to parse.
+     * @return array the parsed tree, in xmlize's shape.
+     */
+    private function parse_xml(string $xml): array {
+        if (class_exists('\\core\\xml_parser')) {
+            return (new \core\xml_parser())->parse($xml, 0, 'UTF-8', true);
+        }
+        return xmlize($xml, 0, 'UTF-8', true);
     }
 }

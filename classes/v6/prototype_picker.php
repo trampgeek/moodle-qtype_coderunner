@@ -26,47 +26,22 @@ namespace qtype_coderunner\v6;
 
 use local_coderunner_manager\prototype_candidates;
 use local_coderunner_manager\prototype_repository;
+use local_coderunner_manager\scope_picker;
 
 /**
  * The control by which a question author chooses the prototype their question
  * is built on, replacing CodeRunner 5's *Question type* menu.
  *
- * The scope and ordering rules belong to the manager
- * ({@see prototype_candidates}); what is here is the rendering, which is the
- * question type's (design section 5).
+ * **The pair of menus itself is the manager's**
+ * ({@see \local_coderunner_manager\scope_picker}), because the prototype
+ * editor's *Inherits from* shows the same control over the same library and
+ * the two were allowed to drift apart once already. The scope and ordering
+ * rules are the manager's too ({@see prototype_candidates}). What is here is
+ * everything that is about a *question*: the label and the help, the chain's
+ * breadcrumb and the chosen prototype's summary beside the menus, the rule
+ * that a question must be built on something, and the no-submit button that
+ * rebuilds the question form when the choice changes.
  *
- * **A `selectgroups`, which is what Moodle's own question category selector
- * is.** The design asked for an `autocomplete`, for its filter box. Built that
- * way it read badly: `autocomplete` puts the current selection in a panel of
- * its own *above* a search box, where every other selector in Moodle puts the
- * menu beside its label with the current value showing in it. It also has no
- * option groups — `form-autocomplete.js` rebuilds its suggestions from the
- * select's direct children, so anything inside an `optgroup` vanishes once the
- * JavaScript loads — which forced the groups to be faked with disabled
- * options. `MoodleQuickForm_questioncategory` extends `selectgroups`, so
- * following it gives real option groups, the conventional layout, and a native
- * select's keyboard type-ahead in place of the filter box. If the library
- * grows past what type-ahead can cope with, that is the point to revisit it.
- *
- * Option text is written into the select unescaped, by `selectgroups` exactly
- * as by `select`, so the indentation that shows the tree works and every label
- * has to be escaped here: a prototype's name is author-supplied text.
- *
- * **Two menus, reading as a sentence: _from_ ‹course› _use_
- * ‹prototype›.** The second is the picker proper; the first says whose
- * library it offers, and is drawn only where it would hold more than one
- * entry, so an author with rights in one course sees a single menu. The course
- * menu holds the question's own course and every other course that owns
- * prototypes and that the author may borrow from; *Site* is not among them,
- * because the built-ins are site-scope and are offered in the question's own
- * scope, where a course that writes most of its questions directly on
- * `python3` needs them.
- *
- * Choosing a course rebuilds the form, and the prototype menu then holds that
- * course's library and nothing else. What it offers is the manager's to say
- * ({@see prototype_candidates::for_other_course()}), including the one case
- * that is not a plain list: a prototype the question already uses is offered
- * even where the author may not browse its course.
  */
 class prototype_picker {
     /** @var string The field holding the chosen prototype, which is the column it is saved to. */
@@ -94,6 +69,15 @@ class prototype_picker {
     const RELOAD_BUTTON = 'pickerreload';
 
     /**
+     * The shared control, configured for a question's prototype.
+     *
+     * @return \local_coderunner_manager\scope_picker the pair of menus.
+     */
+    protected static function picker(): scope_picker {
+        return new scope_picker(self::FIELD, self::COURSE_FIELD);
+    }
+
+    /**
      * Add the pair of menus and the breadcrumb that says what the choice
      * inherits from.
      *
@@ -102,35 +86,11 @@ class prototype_picker {
      * @param int|null $selectedid the prototype the question currently uses.
      */
     public static function add_to_form(\MoodleQuickForm $mform, int $courseid, ?int $selectedid = null): void {
-        $candidates = new prototype_candidates();
-        $scopes = self::scope_options($candidates, $courseid, $selectedid);
-        $scopeid = self::scope_courseid($candidates, $courseid, $selectedid, $scopes);
-
-        // The menus and the chain the choice inherits through, on one row,
-        // where every Moodle selector puts a menu: beside its label, with the
-        // current value showing in it.
-        //
-        // None of them carries a label of its own: the group carries it, and an
-        // element that repeats it renders the words a second time, above the
-        // menu. Each menu is given an `aria-label` instead, because a group
-        // label names the row rather than the controls in it, and two unnamed
-        // menus side by side would be two unnamed menus to a screen reader.
-        $elements = [];
-        $separators = [];
-
-        if (count($scopes) > 1) {
-            $elements[] = $mform->createElement(
-                'select',
-                self::COURSE_FIELD,
-                '',
-                $scopes,
-                ['aria-label' => get_string('prototypescope', 'qtype_coderunner')]
-            );
-            $separators[] = '&nbsp;' . get_string('prototypescopeuse', 'qtype_coderunner') . '&nbsp;';
-        }
-
-        $elements[] = self::menu_element($mform, self::optgroups($courseid, $selectedid, $scopeid));
-        $separators[] = '&nbsp;&nbsp;';
+        // The menus, and then the chain the choice inherits through, on one
+        // row: the menus where every Moodle selector puts a menu, and the
+        // chain beside the value it describes rather than in a panel of its
+        // own. The group carries the label, so no element repeats it.
+        [$elements, $separators] = self::picker()->elements($mform, $courseid, $selectedid);
         $elements[] = $mform->createElement('static', self::FIELD . '_chain', '', self::breadcrumb($selectedid));
 
         $mform->addGroup(
@@ -141,7 +101,6 @@ class prototype_picker {
             false
         );
         $mform->setType(self::FIELD, PARAM_INT);
-        $mform->setType(self::COURSE_FIELD, PARAM_INT);
 
         // `addGroupRule()` naming the element, not `addRule()` on the group:
         // a rule on a group is handed the group's whole value, which with two
@@ -150,7 +109,7 @@ class prototype_picker {
         // menu is.
         //
         // **The required rule is not what refuses an unchosen prototype,
-        // though, and cannot be.** `setType()` below cleans the submitted
+        // though, and cannot be.** `setType()` above cleans the submitted
         // placeholder with `PARAM_INT`, so the rule is asked about `0` rather
         // than about `''`, and "0" is a non-empty string. The refusal is
         // {@see validation_error()}, called from the form's `validation()`,
@@ -191,141 +150,16 @@ class prototype_picker {
     /**
      * Settle what each menu shows, once the form holds its data.
      *
-     * Called from the form's `definition_after_data()`, and it has to be: on a
-     * no-submit reload formslib populates every element from the submission, in
-     * preference to the question's stored values, and the submission is one
-     * render out of date. An author who looks at another course and comes back
-     * submits the *placeholder* as the prototype, because that is what the menu
-     * showed them while they were away, and the stored prototype would then
-     * read as *Choose…* in a scope that holds it.
-     *
-     * So the selection is decided here rather than inherited: the chosen
-     * prototype where the current scope holds it, and the placeholder where it
-     * does not. This settles the rendering only. What is saved is whatever the
-     * author submits, and a placeholder submitted as the prototype fails
-     * {@see validation_error()} as an unanswered required field, which is the
-     * right answer for someone who pressed *Save changes* while reading another
-     * course's library.
+     * Called from the form's `definition_after_data()`; see
+     * {@see \local_coderunner_manager\scope_picker::settle()} for why a
+     * default cannot do it.
      *
      * @param \MoodleQuickForm $mform the form, with its data.
      * @param int $courseid the course the question belongs to.
      * @param int|null $selectedid the prototype the question currently uses.
      */
     public static function settle_selection(\MoodleQuickForm $mform, int $courseid, ?int $selectedid = null): void {
-        if (!$mform->elementExists(self::GROUP)) {
-            return;
-        }
-
-        $candidates = new prototype_candidates();
-        $scopes = self::scope_options($candidates, $courseid, $selectedid);
-        $scopeid = self::scope_courseid($candidates, $courseid, $selectedid, $scopes);
-        $inscope = self::selected_in_scope($selectedid, self::optgroups($courseid, $selectedid, $scopeid));
-
-        foreach ($mform->getElement(self::GROUP)->getElements() as $element) {
-            switch ($element->getName()) {
-                case self::FIELD:
-                    $element->setSelected($inscope === null ? '' : (string) $inscope);
-                    break;
-                case self::COURSE_FIELD:
-                    $element->setSelected((string) $scopeid);
-                    break;
-            }
-        }
-    }
-
-    /**
-     * The courses whose libraries this author may offer the question, in the
-     * order the course menu lists them.
-     *
-     * The question's own course first, named for its relation to the question
-     * rather than by its shortname, because that is the entry an author who
-     * never borrows anything will use. Then the courses that own prototypes and
-     * that the author may borrow from, by name.
-     *
-     * **And the course that owns the question's current prototype, whatever the
-     * author's rights in it.** A question built on another course's prototype
-     * must stay editable by an author with rights only in its own course, and a
-     * course menu that could not reach the scope holding the question's own
-     * value would make the value unreachable.
-     *
-     * @param prototype_candidates $candidates the manager's scope rules.
-     * @param int $courseid the course the question belongs to.
-     * @param int|null $selectedid the prototype the question currently uses.
-     * @return array course id => the name to show.
-     */
-    protected static function scope_options(
-        prototype_candidates $candidates,
-        int $courseid,
-        ?int $selectedid
-    ): array {
-        $scopes = [$courseid => get_string('prototypescope_thiscourse', 'qtype_coderunner')];
-        foreach ($candidates->borrowable_courses($courseid) as $id => $name) {
-            $scopes[$id] = $name;
-        }
-
-        $owner = $candidates->course_of($selectedid);
-        if ($owner !== null && $owner !== (int) SITEID && !isset($scopes[$owner])) {
-            $scopes[$owner] = $candidates->course_name($owner);
-        }
-
-        return $scopes;
-    }
-
-    /**
-     * The course whose library the prototype menu is showing.
-     *
-     * The author's own choice while they have made one, and otherwise the
-     * course that owns the question's prototype, so that an existing question
-     * opens on the scope its own value is in. A site prototype needs no scope
-     * of its own: the site library is offered within the question's own course.
-     *
-     * Read with `optional_param()` rather than from the form's data, because
-     * the options have to be in place before formslib will accept the submitted
-     * value, which is to say before the form's data can be read at all. This is
-     * the same reason a repeated element's count is read this way.
-     *
-     * @param prototype_candidates $candidates the manager's scope rules.
-     * @param int $courseid the course the question belongs to.
-     * @param int|null $selectedid the prototype the question currently uses.
-     * @param array $scopes the courses on offer, as {@see scope_options()}.
-     * @return int the course id.
-     */
-    protected static function scope_courseid(
-        prototype_candidates $candidates,
-        int $courseid,
-        ?int $selectedid,
-        array $scopes
-    ): int {
-        $submitted = optional_param(self::COURSE_FIELD, 0, PARAM_INT);
-        if ($submitted) {
-            return isset($scopes[$submitted]) ? $submitted : $courseid;
-        }
-
-        $owner = $candidates->course_of($selectedid);
-        if ($owner !== null && $owner !== (int) SITEID && isset($scopes[$owner])) {
-            return $owner;
-        }
-
-        return $courseid;
-    }
-
-    /**
-     * The chosen prototype, if the menu as built is offering it.
-     *
-     * @param int|null $selectedid the prototype the question currently uses.
-     * @param array $optgroups the menu, as {@see optgroups()} builds it.
-     * @return int|null the prototype id, or null if this scope does not hold it.
-     */
-    protected static function selected_in_scope(?int $selectedid, array $optgroups): ?int {
-        if (!$selectedid) {
-            return null;
-        }
-        foreach ($optgroups as $options) {
-            if (isset($options[$selectedid])) {
-                return $selectedid;
-            }
-        }
-        return null;
+        self::picker()->settle($mform, self::GROUP, $courseid, $selectedid);
     }
 
     /**
@@ -346,60 +180,13 @@ class prototype_picker {
     }
 
     /**
-     * The menu itself: grouped when there is more than one group to choose
-     * between, and a plain menu when there is not.
-     *
-     * @param \MoodleQuickForm $mform the form being built.
-     * @param array $optgroups group heading => [prototype id => label].
-     * @return object the form element.
-     */
-    protected static function menu_element(\MoodleQuickForm $mform, array $optgroups) {
-        if (count($optgroups) === 1) {
-            // One group is no choice between groups, so the heading would be an
-            // unselectable row at the top of the menu saying nothing. A site
-            // whose courses add no prototypes of their own — most sites, for a
-            // while — sees a plain menu of the built-ins.
-            return $mform->createElement(
-                'select',
-                self::FIELD,
-                '',
-                ['' => get_string('choose') . '...'] + reset($optgroups),
-                ['aria-label' => get_string('coderunnertype', 'qtype_coderunner')]
-            );
-        }
-
-        // The placeholder is prepended rather than asked for through
-        // `selectgroups`' own $showchoose, which does not work on this path:
-        // its export_for_template() appends the entry to $optionsgroups while
-        // rendering $optiongroups, so the option is silently dropped and the
-        // browser selects the first real prototype. A new question therefore
-        // opened claiming to be built on whichever prototype sorted first,
-        // which the author had not chosen. The toHtml() path has it right, so
-        // the fault shows only where a theme renders through the template --
-        // which is to say everywhere, in Boost.
-        //
-        // Core is not ours to patch, and a group of our own survives either
-        // path. Its heading is empty because the entry is not a group of
-        // prototypes; browsers draw an unlabelled optgroup as a plain
-        // separator above it.
-        $placeholder = ['' => ['' => get_string('choose') . '...']];
-
-        return $mform->createElement(
-            'selectgroups',
-            self::FIELD,
-            '',
-            $placeholder + $optgroups,
-            ['aria-label' => get_string('coderunnertype', 'qtype_coderunner')]
-        );
-    }
-
-    /**
      * The picker's option groups, each holding its prototypes in tree order,
      * indented by their depth.
      *
-     * One scope's library: the question's own course, which is two groups —
-     * the course's own prototypes, then the site's — or another course, which
-     * is one group and so renders as a plain menu with no heading at all.
+     * The shared control's, by way of this one: kept as a method of the picker
+     * because the question type's tests read the menu through it, and because
+     * a caller here asks about a *question's* course rather than about a
+     * scope.
      *
      * @param int $courseid the course the question belongs to.
      * @param int|null $selectedid the prototype the question currently uses.
@@ -408,27 +195,7 @@ class prototype_picker {
      * @return array group heading => [prototype id => label].
      */
     public static function optgroups(int $courseid, ?int $selectedid = null, int $scopecourseid = 0): array {
-        $candidates = new prototype_candidates();
-        $scopecourseid = $scopecourseid ?: $courseid;
-
-        if ($scopecourseid === $courseid) {
-            $groups = $candidates->groups_for_course($courseid);
-        } else {
-            $group = $candidates->for_other_course($scopecourseid, $selectedid);
-            $groups = $group ? [$group] : [];
-        }
-
-        $optgroups = [];
-        foreach ($groups as $group) {
-            $heading = get_string('prototypegroup_' . $group['key'], 'qtype_coderunner');
-            $optgroups[$heading] = [];
-            foreach ($group['options'] as $id => $option) {
-                // The indentation is the manager's to spell: the same rule
-                // shows the same library in its own *Inherits from* menu.
-                $optgroups[$heading][$id] = prototype_candidates::indented_label($option);
-            }
-        }
-        return $optgroups;
+        return self::picker()->optgroups($courseid, $selectedid, $scopecourseid ?: $courseid);
     }
 
     /**

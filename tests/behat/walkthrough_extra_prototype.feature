@@ -2,12 +2,17 @@
 Feature: A question type made in one course, used in two
   In order to trust the CodeRunner 6 design end to end
   As a teacher with two courses
-  I need to make a question type, build a question on it, borrow it from
-  another course, and be stopped from deleting it while questions use it
+  I need to make a question type, build a question on it, inherit from it in
+  another course and back again, and be stopped from deleting a type that
+  something else is built on
 
-  # From the author's outline of 26 November 2026, and passing as of that date.
-  # The one step still marked "# CHECK" is where the control is a guess rather
-  # than something another feature already does.
+  # From the author's outline of 26 November 2026. Its first half -- a type
+  # made in CourseA, a question built on it, the attempt -- passed on
+  # 26 November. The inheritance across courses, in both directions, was
+  # written when *Inherits from* became the same pair of menus as the question
+  # form's question type, and has not been run. The one step still marked
+  # "# CHECK" is where the control is a guess rather than something another
+  # feature already does.
   #
   # Why one long scenario rather than several: the point is the journey, and
   # each stage depends on the last. A prototype has to exist before a question
@@ -35,7 +40,7 @@ Feature: A question type made in one course, used in two
       | Course       | CA        | Top              | Behat Testing |
       | Course       | CB        | Top              | Behat Testing |
 
-  Scenario: A borrowed question type runs in both courses and cannot be deleted
+  Scenario: A question type inherited across two courses runs, and what it is built on cannot be deleted
     # ---------------------------------------------------------------- CourseA
     # The question type. The library page is reached by its own page resolver
     # rather than through More > CodeRunner Management > Prototype manager,
@@ -43,9 +48,9 @@ Feature: A question type made in one course, used in two
     # clicks if the navigation itself is part of what is being tested.
     Given I am on the "CA" "qtype_coderunner > prototype library" page logged in as teacher1
     And I click on "New prototype" "link"
+    And I choose the parent prototype "python3"
     And I set the following fields to these values:
       | Name             | python3_do_extra                                 |
-      | Inherits from    | python3                                          |
       | One-line summary | Executes whatever code is in extra (1 test case) |
 
     # Each inheritable field has to have its Inherit box cleared before its
@@ -113,31 +118,41 @@ Feature: A question type made in one course, used in two
       | activity   | name  | course | idnumber |
       | quiz       | QuizB | CB     | quizB    |
 
-    # The same type, borrowed. Two menus: the first says whose prototypes the
-    # second offers, so borrowing is one extra choice rather than a step of
-    # its own. CourseA is named by its short name, CA, as the menu names it.
-    When I am on the "CourseB" "core_question > course question bank" page
-    And I press "Create a new question ..."
-    And I set the field "CodeRunner" to "1"
-    And I click on ".submitbutton" "css_element"
-
-    And I choose the CodeRunner prototype source "CA"
-    And I choose the CodeRunner prototype "python3_do_extra"
-
-    # The form rebuilds on that choice, so everything else is filled after it.
+    # CourseB writes its own question type on top of CourseA's. *Inherits
+    # from* is the same pair of menus as the question form's question type, so
+    # a parent in another course is one extra choice: the first menu says
+    # whose library the second offers, and CourseA is named by its short name,
+    # CA, as the menu names it.
+    #
+    # It overrides nothing. Everything cosc_b_extra does comes from CourseA,
+    # which is what makes the question below a test of the chain rather than of
+    # CourseB: if the cross-course link broke, the question would run the
+    # student's answer instead of the code in Extra.
+    When I am on the "CB" "qtype_coderunner > prototype library" page
+    And I click on "New prototype" "link"
+    And I choose the parent prototype source "CA"
+    And I choose the parent prototype "python3_do_extra"
     And I set the following fields to these values:
-      | name            | test_do_extra2                           |
-      | id_questiontext | Executing code in extra from Course A    |
-      | id_extra_0      | print("I'm more extra stuff")            |
-      | id_expected_0   | I'm more extra stuff                     |
-    And I set the ace field "answer" to "print('This should not print either')"
-    And I press "id_submitbutton"
-    Then I should see "test_do_extra2"
+      | Name             | cosc_b_extra                              |
+      | One-line summary | CourseA's extra type, borrowed as a parent |
+    And I press "Save as new version"
+    Then I should see "CodeRunner prototypes"
+    And I should see "cosc_b_extra"
 
+    # A question in CourseB on CourseB's own type, which runs CourseA's
+    # template through it.
+    And I am on the "CourseB" "core_question > course question bank" page
+    And I add a CodeRunner question on "cosc_b_extra" filling the form with:
+      | name            | test_b_extra                  |
+      | id_questiontext | Executing code in extra       |
+      | id_answer       | print("This shouldn't print") |
+      | id_extra_0      | print("I'm B's extra stuff")  |
+      | id_expected_0   | I'm B's extra stuff           |
     And quiz "QuizB" contains the following questions:
-      | question       | page |
-      | test_do_extra2 | 1    |
-    And I choose "Preview" action for "test_do_extra2" in the question bank
+      | question     | page |
+      | test_b_extra | 1    |
+
+    And I choose "Preview" action for "test_b_extra" in the question bank
     And I click on "a[aria-controls='id_attemptoptionsheadercontainer']" "css_element"
     And I set the field "id_behaviour" to "Adaptive mode"
     And I press "id_saverestart"
@@ -148,13 +163,33 @@ Feature: A question type made in one course, used in two
     And I press "Check"
     Then I should see "Passed all tests!"
     And I should see "Marks for this submission: 1.00/1.00"
-    And I should see "I'm more extra stuff"
+    And I should see "I'm B's extra stuff"
 
     # ------------------------------------------------- back to CourseA's library
-    # Two courses' questions now depend on the type, so it may not be deleted.
-    # The button is shown disabled rather than hidden, with the reason on its
-    # title, which is how prototype_deletion.feature reads it.
+    # And the other way round: a type in CourseA built on CourseB's, so the
+    # chain crosses courses twice over -- python3 (site), python3_do_extra
+    # (CourseA), cosc_b_extra (CourseB), a_from_b (CourseA).
     When I am on the "CA" "qtype_coderunner > prototype library" page
-    Then I should see "python3_do_extra"
-    And "Delete" "link" should not exist in the "python3_do_extra" "table_row"
-    And "//tr[contains(., 'python3_do_extra')]//span[contains(@title, 'question(s) use it')]" "xpath_element" should exist
+    And I click on "New prototype" "link"
+    And I choose the parent prototype source "CB"
+    And I choose the parent prototype "cosc_b_extra"
+    And I set the following fields to these values:
+      | Name             | a_from_b                                  |
+      | One-line summary | CourseB's type, inherited back into CourseA |
+    And I press "Save as new version"
+    Then I should see "CodeRunner prototypes"
+    And I should see "a_from_b"
+
+    # CourseB's type is built on CourseA's, so CourseA's may not be deleted --
+    # and the reason is the one a dependent *prototype* gives, which is
+    # checked before any question's, so it is what an author sees even though
+    # test_do_extra uses it too. The button is shown disabled rather than
+    # hidden, with the reason on its title, which is how
+    # prototype_deletion.feature reads it.
+    Then "Delete" "link" should not exist in the "python3_do_extra" "table_row"
+    And "//tr[contains(., 'python3_do_extra')]//span[contains(@title, 'derive from it')]" "xpath_element" should exist
+
+    # The new leaf is the end of the chain, so nothing stands in the way of
+    # deleting it. The contrast is the point: the guard is about what depends
+    # on a prototype, not about prototypes.
+    And "Delete" "link" should exist in the "a_from_b" "table_row"

@@ -552,6 +552,81 @@ class behat_qtype_coderunner extends behat_base {
     }
 
     /**
+     * Chooses a prototype's parent in the prototype editor, and waits for the
+     * form it rebuilds.
+     *
+     * *Inherits from* is the same pair of menus as the question form's
+     * question type, so it cannot be set from a form-filling table: the label
+     * belongs to the row and the menus carry none, and a change of parent
+     * rebuilds the whole form from the new chain, discarding anything typed
+     * into a field that the new parent does not offer.
+     *
+     * A parent in another course needs *I choose the parent prototype source*
+     * first, for the same reason the question form does.
+     *
+     * @Given /^I choose the parent prototype "(?P<name_string>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $name the prototype's name, as the menu shows it.
+     */
+    public function i_choose_the_parent_prototype($name) {
+        $this->execute('behat_forms::i_expand_all_fieldsets');
+
+        $select = $this->find('field', 'id_' . \local_coderunner_manager\form\prototype_form::PARENT_FIELD);
+        $wanted = null;
+        foreach ($select->findAll('xpath', './/option') as $option) {
+            // The indent is a run of non-breaking spaces, four per tree level.
+            $text = trim(str_replace("\xc2\xa0", '', $option->getText()));
+            if ($text === $name) {
+                $wanted = $option->getAttribute('value');
+                break;
+            }
+        }
+        if ($wanted === null) {
+            throw new ExpectationException(
+                "No prototype named '{$name}' is offered as a parent",
+                $this->getSession()
+            );
+        }
+
+        $this->select_and_await_rebuild($select, $wanted, "the parent '{$name}'");
+    }
+
+    /**
+     * Chooses which course's library the parent menu offers, and waits for the
+     * form it rebuilds.
+     *
+     * The editor's half of *I choose the CodeRunner prototype source*: a
+     * prototype may inherit from another course's prototype exactly as a
+     * question may be built on one. The menu is drawn only for an author who
+     * has somewhere to borrow from, and the course the prototype belongs to is
+     * named *This course* rather than by its shortname.
+     *
+     * @Given /^I choose the parent prototype source "(?P<name_string>(?:[^"]|\\")*)"$/
+     * @throws ExpectationException
+     * @param string $name the course's short name, as the menu shows it.
+     */
+    public function i_choose_the_parent_prototype_source($name) {
+        $this->execute('behat_forms::i_expand_all_fieldsets');
+
+        $select = $this->find('field', 'id_' . \local_coderunner_manager\form\prototype_form::PARENT_COURSE_FIELD);
+        $wanted = null;
+        foreach ($select->findAll('xpath', './/option') as $option) {
+            if (trim($option->getText()) === $name) {
+                $wanted = $option->getAttribute('value');
+                break;
+            }
+        }
+        if ($wanted === null) {
+            throw new ExpectationException(
+                "No course named '{$name}' is offered as a parent source",
+                $this->getSession()
+            );
+        }
+
+        $this->select_and_await_rebuild($select, $wanted, "the parent source '{$name}'");
+    }
+
+    /**
      * Chooses which course's library the prototype menu offers, and waits for
      * the form it rebuilds.
      *
