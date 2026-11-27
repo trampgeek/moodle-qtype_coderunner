@@ -33,7 +33,7 @@
 // Thanks to Ulrich Dangel for the initial implementation of Ace within
 // CodeRunner.
 
-define([], function() {
+define(['core_form/changechecker'], function(ChangeChecker) {
     const GLOBAL_THEME_KEY = 'qtype_coderunner.ace.theme';
     const ACE_DARK_THEME = 'ace/theme/tomorrow_night';
     const ACE_LIGHT_THEME = 'ace/theme/textmate';
@@ -279,6 +279,27 @@ define([], function() {
         this.editor.getSession().on('change', function() {
             textarea.value = t.editor.getSession().getValue();
             t.contents_changed = true;
+
+            // **Tell Moodle the form has changed**, which nothing else will.
+            // `core_form/changechecker` watches for `change` events delegated
+            // on the document, and the line above is a programmatic write,
+            // which fires no event at all. So an author could edit a template
+            // or a test case, navigate away, and lose the lot with no
+            // "leaving this page" warning -- reported on 27 November for the
+            // question form and the prototype editor both.
+            //
+            // Said here rather than from the editor's `blur` handler below,
+            // which already dispatches a `change` on the textarea: that event
+            // does not bubble, so a delegated listener never sees it, and
+            // making it bubble would change what a *student's* page does with
+            // Ace edits as well -- a quiz autosave listening the same way
+            // would start firing. This call cannot: it marks a form dirty and
+            // does nothing else.
+            //
+            // Safe on any page, because `markFormChangedFromNode()` returns
+            // early unless the node is inside a form the checker is watching,
+            // and honours `.ignoredirty` as it does for every other field.
+            ChangeChecker.markFormChangedFromNode(textarea);
         });
 
         this.editor.on('blur', function() {
