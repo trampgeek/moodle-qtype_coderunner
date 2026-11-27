@@ -693,8 +693,181 @@ contradict if he wanted it for something else.
 **Still outstanding beside M5:** the prototype *library* export and its import through the manager
 (decision 32's "importing a newer release of a library updates each prototype with a matching
 identifier, after showing the author what will change"). That is design section 9's, assigned to
-no milestone, and it carries choices -- the file format, and what the author is shown -- that are
-the author's to make.
+no milestone. **The file format is now settled as decision 36** -- one file carrying both the
+resolved CodeRunner 5 payload and the CodeRunner 6 chain, selected by checkbox on the library
+page. What is still the author's is **what the import preview shows**.
+
+The work decomposes into five pieces, in this order:
+
+1. **Done, 27 November: one emitter.** `v6\legacy_prototype_export` is now `v6\prototype_export`
+   (class, file and test renamed with `git mv`, so the history follows). `chain_transport` grew
+   `write_for_prototype()` beside `write_for()`, so a prototype carries its chain through the same
+   code and the same per-file state as a question -- which is what makes the deduplication cover a
+   whole selection rather than one file's single question. `prototype_export::file_for()` writes a
+   selection into one file and `file()` is a one-prototype wrapper on it. The selection is sorted by
+   chain depth, so parents are written before children whatever order the boxes were ticked in; the
+   leaf's own definition sits in the chain beside its ancestors, as a question's does.
+
+   Three tests: both halves in one file, with the chain saying which layer owns what; parents-first
+   ordering from a reversed selection; a shared ancestor written once while each prototype still
+   stands alone for CodeRunner 5. Checked against real data too -- three of course 15's prototypes
+   selected in the wrong order came out ordered, with four definitions for three prototypes, the
+   fourth being the site ancestor carried once.
+2. **Done, 27 November: the library page.** A checkbox per row, in a toggle group named *export* for
+   the ones *Select all* covers and *shipped* for the built-ins it does not. The group names must
+   not share a prefix: `getToggleGroupElements()` matches targets with `[data-togglegroup^=...]`, so
+   *builtin* under *export* would be toggled with it. The togglers are `core/checkbox-toggleall`
+   links with `data-checkall` 1 and 0, so *Select all* and *Select none* need no script of this
+   plugin's; `data-toggle="toggler"`/`"target"` rather than the deprecated `"master"`/`"slave"`,
+   which is safe back to 4.5 and so on every version CI tests. The *Export selected* button is
+   **not** a `data-toggle="action"` element, which would disable itself until something is ticked:
+   that watches one group, and a selection of built-ins alone would leave it disabled. An empty
+   selection is refused by `export.php` instead.
+
+   `exportlegacy.php` is now `export.php` and takes `ids[]` by POST, because a library selection
+   does not fit a URL. It refuses an empty selection and a hand-posted *Site defaults* rather than
+   silently dropping either, and names the file for the one prototype where that is what was asked
+   for, and otherwise for **the course whose library it came from**. That was a count until the
+   author read `coderunner_prototypes_6.xml` as course 6 and went looking there for prototypes that
+   had come from course 15: a bare number after an underscore reads as an id, and how many things
+   are inside a file is the one number the person who asked for it already knows. A selection from
+   the site page is named for the site's own shortname, which tells a recipient which site it came
+   from. `exportlegacy` and `exportlegacy_help` are gone; what the help string said that is still
+   true -- import the prototypes **before** the questions that use them, or `jobrunner.php` refuses
+   every one of them -- is now in `exportselected_help` on the button.
+2a. **Done, 27 November: navigation into the library.** Reaching it took three clicks from a
+   question -- out to the course, into *CodeRunner management*, then on -- and the site-scope
+   library could only be reached by deleting the course id from the URL by hand, since the site
+   home had no CodeRunner link at all. Both reported by the author.
+
+   `qtype_coderunner_extend_navigation_frontpage()` puts the dashboard on the site home, gated on
+   the capability **at system level**, which is what `management.php` asks for when it is given no
+   course id; in practice that means administrators, which is what a page anybody may read needs.
+
+   The direct library link is the **manager's**, in a new `local/coderunner_manager/lib.php`,
+   because the question type cannot reach a question edit page at all: `extend_navigation_course()`
+   reaches a course's administration node, and a question is edited in a question bank *module*,
+   whose secondary navigation is that activity's. Of the hooks that run for every context,
+   `extend_settings_navigation()` is offered to `local` plugins alone
+   (`settings_navigation::load_local_plugin_settings()`).
+
+   **Two things about that hook cost a round trip each.** A node added at the root of the settings
+   tree appears *nowhere*: the secondary navigation does not render that tree, it copies nodes out
+   of one branch chosen by page type (`modulesettings`, `courseadmin`, `frontpage`), so the node
+   must be hung under the right one -- the first attempt ran, built the node, and showed no link on
+   any of three pages. And the capability check was wrong for the one case that mattered: the front
+   page's context **is** a `context_course`, for the site course, so a front-page teacher would have
+   been offered a link the destination refuses. The rule is now the destination's own -- system
+   level when the link carries no course id, the course otherwise.
+
+   The node is placed **directly after** *CodeRunner management* rather than appended. The hook runs
+   last of all and the secondary navigation appends what it does not recognise, so the author found
+   the two entries eighth and twelfth with ten unrelated items between a pair that explain each
+   other when adjacent. `add_node()` can only insert *before* a key, so the placement names the
+   management node's successor; and the management node had to be given a key, having had none.
+
+   **Two entries into one library, kept deliberately.** The dashboard is a hub of ten tools -- bulk
+   tester, question browser, prototype health, cache purge, analytics, attempt downloads -- of which
+   the library is one, and the one an author opens daily. So this is a shortcut to the most-used
+   child rather than a second path to the same page, which is what Moodle does with *Grades* beside
+   *Gradebook setup*. If it is ever to be one entry, the principled cut is to drop the library link
+   where the dashboard appears and keep it only where the dashboard cannot, which is one early
+   return in the hook.
+
+3. **Built, 27 November, except the author's verdict on the preview: the manager's import page.**
+   `v6\prototype_import` holds it, in the question type and symmetrically with `prototype_export`,
+   for the same reason: the file is Moodle XML for questions and reading a chain out of it is
+   `chain_transport`'s. `plan()` and `apply()` are separate calls over the same file rather than one
+   call that remembers -- a preview and its confirmation are two requests, the file waits in the
+   author's draft area between them, and `apply()` re-plans rather than trusting the preview, so a
+   library changed underneath is seen. A refusal anywhere imports nothing, which is Moodle's own
+   stop-on-error rule: half a library is worse than none. `chain_transport`'s
+   `create_from_definition()` and `write_files()` became public to serve both doors, and the commit
+   message is now a parameter so the history says which door a version came through.
+
+   **The preview as built is a table of rows, not a diff of fields** -- name, the version here, the
+   version in the file, and what will happen as a coloured badge (*New*, *New version*, *Unchanged*,
+   *Refused*). The reasoning, for the author to overrule: a prototype's content is a template of
+   some hundreds of lines and a set of support files, so a field-level diff of a release would be
+   pages an author scrolls past, which is the same as not showing it. What is needed before saying
+   yes is the *shape* of the change -- which of my prototypes gain a version, which arrive new,
+   which are left alone -- and the per-version detail is already one click away in each prototype's
+   own history.
+
+   **Two bugs came out of rendering it against the development site's real library**, neither
+   reachable from a unit test written against a fixture:
+
+   - `find_one_by_uuid()` falls back to **any** course's copy, deliberately, because a restore that
+     cannot find the original would otherwise duplicate it. For an import that is wrong and
+     dangerous: importing into course A and matching a copy in course B adds a version to *B's*
+     prototype and changes every question in B that resolves against it. The preview for a course
+     holding neither prototype reported both as already here. `find_in_scope_by_uuid()` is the
+     strict counterpart, and the import uses it. **The question-import door still uses the loose
+     one**, which is the restore-shaped choice and is left alone here, but it means a question
+     imported into course A can be pointed at course B's prototype -- worth a decision of its own.
+   - A **trailing space** in a stored summary made an unchanged prototype read as changed for ever.
+     The file carries text through `writetext()` and it returns through `getpath(..., true)`, which
+     trims, so an untrimmed local value is not representable in a file. `python3` on the development
+     site has exactly that, so a file exported from that very site read back as a new version of it.
+     Both strings are now compared trimmed.
+
+   Eight tests, every fixture a real export file rather than hand-written XML, so that the two
+   halves of decision 36 are tested against each other: a file the emitter would not produce proves
+   nothing about an import. They cover creation parents-first, a newer release adding one version,
+   idempotent re-import, a name clash refusing the whole file, a question file refused as a library,
+   an empty file, and the two bugs above.
+
+   **The upload path was then driven end to end**, by seeding the admin's draft area with an export
+   file as the picker would and posting the form against it: stage one rendered the preview, stage
+   two redirected to the library with *Import finished: 0 added, 0 updated, 3 already up to date*,
+   and the database held 122 prototypes and 217 versions both before and after -- which is what
+   says an all-*Unchanged* import writes nothing. A file of prototypes course 6 already had was
+   used deliberately, so that exercising the write path on the development site could not mutate it.
+
+   **Three faults the author found by using it, 27 November.**
+
+   - **A file exported from a course and imported straight back reported three of its six
+     prototypes as *New version*.** The cause is the same class as the trailing space found the day
+     before, and the second instance is what made the rule worth naming: **compare what the
+     transport preserves, not what the database holds.** XML 1.0 requires a parser to normalise
+     `\r\n` to `\n` (section 2.11), so a `\r` cannot survive the round trip, and documentation typed
+     into a browser arrives as CRLF -- the ordinary case, not an edge one. `as_carried()` now
+     normalises line endings and trims, and is the one place either is done. The overrides need none
+     of it: they travel as JSON inside the XML text, so `json_encode()` has already turned every
+     control character into an escape sequence the parser never sees as a line ending, which is why
+     a template with CRLF in it compared equal and these did not.
+   - **A file of built-ins was reported as holding no prototypes.** It holds three; decision 34 is
+     why none is *defined* in it. `definitions_in()` now counts the prototypes a file names as well
+     as the ones it defines, and the two differing is the signal: names without definitions is a
+     file of built-ins, which a CodeRunner 5 site may well need and a 6.0 site can do nothing with.
+     A built-in beside a real prototype is reported in the preview too, so the table cannot have
+     fewer rows than the file has prototypes without saying why.
+   - **The delete buttons did not look like Moodle's** and the enabled/disabled pair differed by a
+     shade the author could not see. They are now `action_icon()` with `t/delete` and `text-danger`,
+     which is what `qbank_deletequestion\delete_action` uses, and the unavailable one is a faded
+     grey icon rather than a disabled button of the same colour -- a difference nobody has to look
+     for, and not one carried by colour alone, since the live one is a link and the other is not.
+
+   **The fixture the author asked for is `tests/fixtures/prototype_export_c_function.xml`,** and it
+   is not the file he offered. His was 1.6 MB -- ten times everything else in that directory, in a
+   repository people clone -- and emptying the base64 payloads still left 312 KB. `c_function` is
+   the smallest genuine export on the development site that carries the real-world oddity that
+   mattered, CRLF documentation, with no support files: 6 KB. The test imports it into a course that
+   has never seen it, then re-plans the same file and requires *Unchanged*, which is the property
+   that broke twice.
+4. **Done, 27 November: the question-import door.** `set_prototype_reference()`'s prototype branch
+   now calls `adopt_imported_prototype()` before falling back to the sweep: a prototype question
+   carrying a uuid goes straight into the manager through `chain_transport::adopt_or_create()`,
+   which was already written for questions and needed nothing new. **It never changes a prototype
+   already here** -- it adopts on a uuid match and writes nothing -- so a second import of the same
+   file changes nothing, which is the whole of what makes this door tolerable. Adding incoming
+   content as a new version stays with the manager's import, which has an author to show it to.
+   Nothing is reported to whoever ran the import, deliberately: see decision 36 on `$result->notice`.
+
+   One test, which deletes the fixture prototypes and imports the file into a site that has neither:
+   the prototype and its ancestor are created, the chain resolves as it did, and a second import
+   adds no duplicate and no version.
+5. This note, replaced by what was built.
 
 `backup_local_coderunner_manager_plugin` with the course and question structures and write-once recording through `backup_ids_temp`; `restore_local_coderunner_manager_plugin` with both structure methods and linking in `after_restore_question()` per section 1.3; **excluding `/options/overrides` from the identity hash**, which is the first thing to do here and the smallest, and legacy conversion in `convert_backup_to_questiondata()`; then the single Moodle XML format, with each chain's definition carried once per file, and legacy prototype-question import. If attempts are pinned, this also carries the `recode_response()` extension of section 1.4 and backup of each prototype's whole version history.
 
@@ -1594,6 +1767,81 @@ Open:
 
     The three tests were each checked to fail with their subject neutered. Nothing needed cleaning up on
     the development site: 0 of its 121 prototypes had a course that had gone.
+
+36. **One prototype export file, selected by checkbox, and the CodeRunner 5 payload rides along in it.**
+    Taken with the author on 27 November, settling the file-format half of what the M5 note left to him
+    and superseding the two-format plan of 26 November (*a dropdown offering Moodle 5 or Moodle 6
+    format*). The resolved CodeRunner 5 prototype question and the CodeRunner 6 `<prototypeuuid>` /
+    `<prototypechain>` travel in **one** file, by the trick the question export already uses one level
+    down: each side reads only what it knows and ignores the rest. Only the importer differs, and on 5.x
+    there is no importer of ours at all. So there is no format to choose, `legacy_prototype_export` stops
+    being "legacy", and the button becomes *Export XML*.
+
+    **The author's argument, and the measurements that supported it.** His case was that compression is
+    not worth its cost for prototypes, since a prototype rarely has many descendants. The measurements
+    agree and sharpen it: on the development site a whole-library export of course 15's 24 prototypes is
+    3137 KB of chain deduplicated against 4106 KB replicated, and the entire 969 KB difference is
+    `python3_scratchpad` written five times instead of once, because the ancestors that would otherwise
+    repeat are the built-ins and *Site defaults*, which decision 34 already excludes. **But the
+    deduplication is not a second format and costs nothing**: it is `chain_transport`'s per-file
+    `emitted` state, keyed by the `qformat_xml` object, so a prototype export writing through it gets the
+    24% for free. The question "is the compression worth it?" therefore does not arise.
+
+    **What one file costs, recorded because the file is bigger for it:** about 2x. `python3_scratchpad`
+    is 245 KB of CodeRunner 5 payload beside 242 KB of chain, and a 24-prototype library export comes to
+    roughly 7 MB, which starts to matter against a recipient's `maxbytes`. If that is ever judged too
+    much, the minimal distinction is **one checkbox**, not a second format, because the CodeRunner 5
+    payload is exactly what the existing emitter already produces.
+
+    **The misnomer was not one yet.** *Export for CodeRunner 5* is accurate today: the file is flattened,
+    carries no uuid and no chain, and is one-way. The author's premise -- that a CodeRunner 6 file imports
+    into 5.x anyway -- is true of *question* files and documented, but was not true of prototype files
+    because there were none. The rename follows this decision rather than preceding it.
+
+    **A prototype file fed to Moodle's own question import on a 6.0 site is tolerated rather than
+    prevented**, which the author accepted and thought might even help early in the transition, while
+    users are still looking for prototype questions. Decision 34 already established why it cannot be
+    diverted cleanly, and that analysis was rediscovered from the code on 27 November and matched it.
+    What is added here is the remedy: the payload is recognised in `save_question_options()` and the
+    prototype matched **by uuid**, which makes the mistake idempotent -- a version added, not a duplicate
+    created, and no name clash -- leaving one stray prototype question per prototype, which already
+    renders with the banner saying it defines nothing. That also retires the duplicate-and-clash hazard
+    raised against the single format, which had assumed the file would travel the name-keyed legacy
+    migration. **`$result->notice` must not carry the explanation:** `importprocess()` returns inside its
+    own `foreach` when a question type sets it (`question/format.php:538`), abandoning the rest of the
+    file while reporting success.
+
+    **The checkbox is governed by what a recipient needs, not by what the viewer may edit.** Export is a
+    read, and the content is already readable: the editor shows a non-admin every field of a site
+    prototype, deliberately, and a question export already carries the definitions of non-builtin site
+    prototypes -- measured, a question in TestCourse built on `python3_do_extra` carries the site
+    prototype `python3`. Gating export on `may_edit()` would withhold nothing while stopping a teacher
+    sending a colleague on 5.x the site-level type their questions need, which is the RoboTurtle case that
+    raised prototype export in the first place. Today's gate is an accident of the export link living in
+    `prototype_actions_cell()`, which returns early for anything not editable with a comment reasoning
+    about *deletion*. So: a checkbox wherever exporting produces something worth sending -- none for
+    *Site defaults*, since flattened it arrives as a type that defines nothing; one for built-ins, since a
+    recipient on an older CodeRunner 5 may lack a type a later release added and `builtin_uuid()` makes
+    the 6.0 import a no-op; but *Select all* leaves built-ins out, because every other recipient has them
+    and they are the bulk of a library's bytes. *Site defaults*' box is disabled with its reason rather
+    than absent, following the Delete button's own precedent on that page.
+
+    **Amended by the author on 27 November, the same day: *Select all* selects all.** The built-in
+    exclusion above is withdrawn. His reasoning: the common export is one prototype and its
+    descendants, a whole library is rare, and a control that visibly does not do what it says is
+    worse than the bytes it would save -- "in the rare event of having to select all prototypes in a
+    course, one will have to click every one individually, perhaps 30 secs work that most users will
+    never do." So every row with a checkbox is in one toggle group and the explanatory note beside
+    the togglers is gone. *Site defaults* is still the one row whose box is disabled, which is about
+    the data and not about bulk.
+
+    **The preview was accepted as built** -- a table of rows with a badge each, not a field-level
+    diff.
+
+    Three faults in it were reported by the author on the same day and are fixed under M5's import
+    entry: *New version* against identical versions (CRLF), "no prototypes" for a file of built-ins,
+    and the delete buttons. A fourth, the missing *leaving this page* warning, turned out not to
+    belong to this work at all; see below.
 
 Decision 7, below, is retained for its analysis.
 

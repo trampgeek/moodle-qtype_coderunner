@@ -64,12 +64,34 @@ class chain_transport {
      * @return string the XML, or '' if there is nothing to write.
      */
     public static function write_for(object $question, \qformat_xml $format): string {
-        $prototypeid = (int) ($question->options->prototypeid ?? 0);
+        return self::write_for_prototype((int) ($question->options->prototypeid ?? 0), $format);
+    }
+
+    /**
+     * The same elements, for a caller that has a prototype rather than a
+     * question.
+     *
+     * {@see \qtype_coderunner\v6\prototype_export} is that caller: a prototype
+     * export carries its chain exactly as a question does, and goes through
+     * here so that the per-file deduplication is the same state. A library
+     * export whose prototypes share an ancestor writes that ancestor once,
+     * which is where the saving in decision 36 comes from.
+     *
+     * @param int $prototypeid the leaf of the chain, or 0 for none.
+     * @param \qformat_xml $format the format writing the file.
+     * @param prototype_repository|null $repo the repository to read through.
+     * @return string the XML, or '' if there is nothing to write.
+     */
+    public static function write_for_prototype(
+        int $prototypeid,
+        \qformat_xml $format,
+        ?prototype_repository $repo = null
+    ): string {
         if ($prototypeid === 0) {
             return '';
         }
 
-        $repo = new prototype_repository();
+        $repo ??= new prototype_repository();
         $leaf = $repo->get($prototypeid);
         if ($leaf === null) {
             return '';
@@ -514,17 +536,29 @@ class chain_transport {
      * leaves the chain shorter than it was rather than failing, the same
      * degradation a missing prototype has always produced.
      *
+     * **Public because both import doors use it** (decision 36): this one,
+     * where a question's file carried a prototype it needs, and the manager's
+     * own import page through {@see prototype_import}. Creating a prototype
+     * from a definition is the same act either way, and a second
+     * implementation of it is the second resolution path decision 1 forbids.
+     *
      * @param object $definition the definition to create from.
      * @param array $created uuid to local id, for prototypes made just now.
      * @param int $courseid the course being imported into.
      * @param prototype_repository $repo the repository to write through.
+     * @param string $commitmessage what the history records, since the two
+     *      doors arrive by different routes and a history that cannot say
+     *      which is a history missing the useful part. Defaults to the
+     *      question import's wording, which is what this class's own caller
+     *      means.
      * @return int the new prototype's id.
      */
-    private static function create_from_definition(
+    public static function create_from_definition(
         object $definition,
         array $created,
         int $courseid,
-        prototype_repository $repo
+        prototype_repository $repo,
+        string $commitmessage = ''
     ): int {
         $parentid = $created[$definition->parentuuid] ?? null;
         if ($parentid === null && $definition->parentissitedefaults) {
@@ -546,7 +580,9 @@ class chain_transport {
                 'summary' => $definition->summary,
                 'documentation' => $definition->documentation,
                 'documentationformat' => $definition->documentationformat,
-                'commitmessage' => get_string('importedprototypecommit', 'qtype_coderunner'),
+                'commitmessage' => $commitmessage !== ''
+                    ? $commitmessage
+                    : get_string('importedprototypecommit', 'qtype_coderunner'),
             ]],
             $courseid,
             1
@@ -560,11 +596,15 @@ class chain_transport {
     /**
      * Store a created prototype's support files.
      *
-     * @param prototype $prototype the prototype just created.
+     * Public for the same reason as `create_from_definition()`: the manager's
+     * import page writes a new *version's* files with it, where this class
+     * writes a new prototype's.
+     *
+     * @param prototype $prototype the prototype whose current version it is.
      * @param array $files the `<file>` elements the definition carried.
      * @param prototype_repository $repo the repository owning the file area.
      */
-    private static function write_files(prototype $prototype, array $files, prototype_repository $repo): void {
+    public static function write_files(prototype $prototype, array $files, prototype_repository $repo): void {
         if (!$files || $prototype->currentversion === null) {
             return;
         }

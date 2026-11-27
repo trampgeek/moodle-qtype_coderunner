@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 0  -->
+  <question type="coderunner">
+    <name>
+      <text>PROTOTYPE_c_function</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>A question type for C write-a-function questions. The student answer is expected to be a complete C function, but it can optionally be preceded by other self-contained C code such as preprocessor directives and support functions.</p>
+<p>The test code for such questions typically calls the student function with some test arguments and prints the result, such as</p>
+<pre>printf("%d\n", someIntFunction(blah1, blah2))</pre>
+<p>The test case's <i>Expected</i> field is the expected output from the test.</p>
+<p></p>
+<p>If there is no standard input supplied for any of the test cases, a single test program is constructed, consisting of:</p>
+<ol>
+<li>The following standard #includes: stdlib.h, ctype.h, string.h, stdbool.h, math.h</li>
+<li>The student answer.</li>
+<li>A sequence of blocks wrapped in braces for each of the given test cases. Each block contains just the test case's test code. There is also a <i>printf</i> statement added between code blocks to print a special separator that is used to split the output back into individual test case outputs.</li>
+</ol>
+<p>However, if any of the test cases has non-empty standard input, multiple test programs are run, one for each test case.</p>
+<p>The test case's <i>extra</i> field is ignored.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>0</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <coderunnertype>c_function</coderunnertype>
+    <prototypetype>2</prototypetype>
+    <allornothing>1</allornothing>
+    <penaltyregime>10, 20, ...</penaltyregime>
+    <precheck>0</precheck>
+    <hidecheck>0</hidecheck>
+    <showsource>0</showsource>
+    <answerboxlines>18</answerboxlines>
+    <answerboxcolumns>100</answerboxcolumns>
+    <answerpreload></answerpreload>
+    <globalextra></globalextra>
+    <useace>1</useace>
+    <resultcolumns></resultcolumns>
+    <template><![CDATA[// TESTING 1 2 3 4
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
+#include <math.h>
+#define SEPARATOR "#<ab@17943918#@>#"
+
+{{ STUDENT_ANSWER }}
+
+int main() {
+{% for TEST in TESTCASES %}
+   {
+    {{ TEST.testcode }};
+   }
+    {% if not loop.last %}printf("%s\n", SEPARATOR);{% endif %}
+{% endfor %}
+    return 0;
+}]]></template>
+    <iscombinatortemplate>1</iscombinatortemplate>
+    <allowmultiplestdins>0</allowmultiplestdins>
+    <answer></answer>
+    <validateonsave>1</validateonsave>
+    <testsplitterre><![CDATA[|#<ab@17943918#@>#\n|ms]]></testsplitterre>
+    <language>C</language>
+    <acelang></acelang>
+    <sandbox></sandbox>
+    <grader>EqualityGrader</grader>
+    <cputimelimitsecs></cputimelimitsecs>
+    <memlimitmb></memlimitmb>
+    <sandboxparams><![CDATA[{"linkargs": ["-lm"]}]]></sandboxparams>
+    <templateparams></templateparams>
+    <hoisttemplateparams>1</hoisttemplateparams>
+    <extractcodefromjson>1</extractcodefromjson>
+    <templateparamslang>None</templateparamslang>
+    <templateparamsevalpertry>0</templateparamsevalpertry>
+    <templateparamsevald></templateparamsevald>
+    <twigall>0</twigall>
+    <uiplugin>ace</uiplugin>
+    <uiparameters></uiparameters>
+    <attachments>0</attachments>
+    <attachmentsrequired>0</attachmentsrequired>
+    <maxfilesize>10240</maxfilesize>
+    <filenamesregex></filenamesregex>
+    <filenamesexplain></filenamesexplain>
+    <displayfeedback>1</displayfeedback>
+    <giveupallowed>0</giveupallowed>
+    <prototypeextra></prototypeextra>
+    <prototypeid></prototypeid>
+    <overrides></overrides>
+    <testcases>
+    </testcases>
+      <prototypeuuid>85142c46-38ad-4304-a3c8-84ae70a7f3d8</prototypeuuid>
+    <prototypechain>
+      <prototype>
+        <uuid>85142c46-38ad-4304-a3c8-84ae70a7f3d8</uuid>
+        <version>4</version>
+        <name>
+          <text>c_function</text>
+        </name>
+        <parentuuid>a121db3d-a103-5e7d-8a6f-99fcef843002</parentuuid>
+        <parentissitedefaults>0</parentissitedefaults>
+        <overrides>
+          <text><![CDATA[{"template":"\/\/ TESTING 1 2 3 4\n#include <stdio.h>\n#include <stdlib.h>\n#include <ctype.h>\n#include <string.h>\n#include <stdbool.h>\n#include <math.h>\n#define SEPARATOR \"#<ab@17943918#@>#\"\n\n{{ STUDENT_ANSWER }}\n\nint main() {\n{% for TEST in TESTCASES %}\n   {\n    {{ TEST.testcode }};\n   }\n    {% if not loop.last %}printf(\"%s\\n\", SEPARATOR);{% endif %}\n{% endfor %}\n    return 0;\n}","iscombinatortemplate":1,"testsplitterre":"|#<ab@17943918#@>#\\n|ms","language":"C","sandboxparams":"{\"linkargs\": [\"-lm\"]}"}]]></text>
+        </overrides>
+        <summary>
+          <text>C: the student writes one or more functions, called by each test.</text>
+        </summary>
+        <documentation format="1">
+          <text><![CDATA[<p>A question type for C write-a-function questions. The student answer is expected to be a complete C function, but it can optionally be preceded by other self-contained C code such as preprocessor directives and support functions.</p>
+<p>The test code for such questions typically calls the student function with some test arguments and prints the result, such as</p>
+<pre>printf("%d\n", someIntFunction(blah1, blah2))</pre>
+<p>The test case's <i>Expected</i> field is the expected output from the test.</p>
+<p></p>
+<p>If there is no standard input supplied for any of the test cases, a single test program is constructed, consisting of:</p>
+<ol>
+<li>The following standard #includes: stdlib.h, ctype.h, string.h, stdbool.h, math.h</li>
+<li>The student answer.</li>
+<li>A sequence of blocks wrapped in braces for each of the given test cases. Each block contains just the test case's test code. There is also a <i>printf</i> statement added between code blocks to print a special separator that is used to split the output back into individual test case outputs.</li>
+</ol>
+<p>However, if any of the test cases has non-empty standard input, multiple test programs are run, one for each test case.</p>
+<p>The test case's <i>extra</i> field is ignored.</p>]]></text>
+        </documentation>
+      </prototype>
+    </prototypechain>
+</question>
+</quiz>

@@ -33,16 +33,19 @@ require_once($CFG->dirroot . '/question/type/coderunner/questiontype.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
 
 /**
- * Tests the one place flattening happens: a prototype export for 5.x.
+ * Tests the one prototype export file, which both CodeRunner versions read.
  *
- * A chain resolved into a single prototype question, which is what a 5.x site
- * needs because `get_prototype()` does not recurse. Read back here through the
+ * Its CodeRunner 5 half is the one place flattening happens: a chain resolved
+ * into a single prototype question, which is what a 5.x site needs because
+ * `get_prototype()` does not recurse. That half is read back here through the
  * same `import_from_xml()` a 5.x site would use, since what matters is not the
- * shape of the file but what an importer makes of it.
+ * shape of the file but what an importer makes of it. Its CodeRunner 6 half is
+ * `<prototypeuuid>` and `<prototypechain>`, which the same file carries beside
+ * the resolved columns (decision 36).
  */
-#[\PHPUnit\Framework\Attributes\CoversClass(legacy_prototype_export::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(prototype_export::class)]
 #[\PHPUnit\Framework\Attributes\Group('qtype_coderunner')]
-final class legacy_prototype_export_test extends \advanced_testcase {
+final class prototype_export_test extends \advanced_testcase {
     /** @var prototype_repository the manager's repository. */
     private prototype_repository $repo;
 
@@ -81,7 +84,7 @@ final class legacy_prototype_export_test extends \advanced_testcase {
             $parent->id
         );
 
-        $columns = $this->import(legacy_prototype_export::file($child, $this->repo));
+        $columns = $this->import(prototype_export::file($child, $this->repo));
 
         $this->assertSame('cosc_child', $columns->coderunnertype, 'The frozen type takes the leaf\'s name.');
         $this->assertSame('2', (string) $columns->prototypetype, 'It has to arrive as a user prototype.');
@@ -106,7 +109,7 @@ final class legacy_prototype_export_test extends \advanced_testcase {
             new override_set(['template' => 'T'], 'bare_type')
         );
 
-        $xml = legacy_prototype_export::file($prototype, $this->repo);
+        $xml = prototype_export::file($prototype, $this->repo);
 
         $this->assertStringContainsString('<prototypeid></prototypeid>', $xml);
         $this->assertStringContainsString('<overrides></overrides>', $xml);
@@ -133,7 +136,7 @@ final class legacy_prototype_export_test extends \advanced_testcase {
         $this->write_file($parent, 'from_parent.py', 'PARENT FILE');
         $this->write_file($child, 'from_child.py', 'CHILD FILE');
 
-        $xml = legacy_prototype_export::file($child, $this->repo);
+        $xml = prototype_export::file($child, $this->repo);
 
         $this->assertStringContainsString('name="from_parent.py"', $xml, 'An inherited file must travel too.');
         $this->assertStringContainsString('name="from_child.py"', $xml);
@@ -172,7 +175,7 @@ final class legacy_prototype_export_test extends \advanced_testcase {
             $parent->id
         );
 
-        $columns = $this->import(legacy_prototype_export::file($child, $this->repo));
+        $columns = $this->import(prototype_export::file($child, $this->repo));
 
         $params = json_decode($columns->templateparams, true);
         $this->assertSame(2, $params['n'], "The child's value must win.");
@@ -204,7 +207,7 @@ final class legacy_prototype_export_test extends \advanced_testcase {
             $parent->id
         );
 
-        $columns = $this->import(legacy_prototype_export::file($child, $this->repo));
+        $columns = $this->import(prototype_export::file($child, $this->repo));
 
         $this->assertSame('import json; print(json.dumps({"n": 1}))', $columns->templateparams);
         $this->assertSame('python3', $columns->templateparamslang);
@@ -241,7 +244,7 @@ final class legacy_prototype_export_test extends \advanced_testcase {
 
         $this->expectException(\qtype_coderunner_exception::class);
         $this->expectExceptionMessageMatches('/[Tt]wig/');
-        legacy_prototype_export::file($child, $this->repo);
+        prototype_export::file($child, $this->repo);
     }
 
     /**
@@ -270,7 +273,7 @@ final class legacy_prototype_export_test extends \advanced_testcase {
             $parent->id
         );
 
-        $columns = $this->import(legacy_prototype_export::file($child, $this->repo));
+        $columns = $this->import(prototype_export::file($child, $this->repo));
 
         $params = json_decode($columns->uiparameters, true);
         $this->assertSame('dark', $params['theme'], "The resolved UI's own parameters must travel.");
@@ -301,7 +304,7 @@ final class legacy_prototype_export_test extends \advanced_testcase {
             $parent->id
         );
 
-        $columns = $this->import(legacy_prototype_export::file($child, $this->repo));
+        $columns = $this->import(prototype_export::file($child, $this->repo));
 
         $params = json_decode($columns->uiparameters, true);
         $this->assertSame('dark', $params['theme'], "The child's value must win.");
@@ -345,6 +348,244 @@ final class legacy_prototype_export_test extends \advanced_testcase {
             'filepath' => '/',
             'filename' => $filename,
         ], $content);
+    }
+
+    /**
+     * The same file carries the CodeRunner 6 chain beside the resolved columns.
+     *
+     * Decision 36: there is no CodeRunner 5 export and no CodeRunner 6 export.
+     * A 5.x site reads the columns and cannot see these two elements; a 6.0
+     * site reads these and treats the columns as write-only. Both halves have
+     * to be in the one file or the decision is not implemented.
+     */
+    public function test_the_file_carries_both_halves(): void {
+        $parent = $this->repo->create(
+            'cosc_base',
+            $this->courseid,
+            new override_set(['template' => 'PARENT TEMPLATE'], 'cosc_base')
+        );
+        $child = $this->repo->create(
+            'cosc_child',
+            $this->courseid,
+            new override_set(['penaltyregime' => '10, 20, ...'], 'cosc_child'),
+            $parent->id
+        );
+
+        $xml = prototype_export::file($child, $this->repo);
+
+        // The CodeRunner 6 half: this prototype named by uuid, and the chain
+        // it needs, the leaf's own definition included.
+        $this->assertStringContainsString("<prototypeuuid>{$child->uuid}</prototypeuuid>", $xml);
+        $this->assertStringContainsString('<prototypechain>', $xml);
+        $this->assertStringContainsString("<uuid>{$parent->uuid}</uuid>", $xml);
+        $this->assertStringContainsString(
+            "<uuid>{$child->uuid}</uuid>",
+            $xml,
+            "The leaf's own definition travels too, as a question's does."
+        );
+
+        // The CodeRunner 5 half, unaffected by the company it now keeps.
+        $columns = $this->import($xml);
+        $this->assertSame('PARENT TEMPLATE', $columns->template);
+        $this->assertSame('2', (string) $columns->prototypetype);
+
+        // And the chain says what the columns cannot: which layer owns what.
+        $tree = $this->parse_xml($xml);
+        $definitions = $tree['quiz']['#']['question'][0]['#']['prototypechain'][0]['#']['prototype'];
+        $overrides = [];
+        foreach ($definitions as $definition) {
+            $name = $definition['#']['name'][0]['#']['text'][0]['#'];
+            $overrides[$name] = json_decode($definition['#']['overrides'][0]['#']['text'][0]['#'], true);
+        }
+        $this->assertSame('PARENT TEMPLATE', $overrides['cosc_base']['template'] ?? null);
+        $this->assertArrayNotHasKey(
+            'template',
+            $overrides['cosc_child'],
+            'The child must not claim its parent\'s template as its own override.'
+        );
+        $this->assertSame('10, 20, ...', $overrides['cosc_child']['penaltyregime'] ?? null);
+    }
+
+    /**
+     * A selection is written parents first, whatever order it was made in.
+     *
+     * An importer takes the file in document order, so a child's
+     * `<parentuuid>` has to name something it has already seen. The library
+     * page does not list in that order -- remotely-parented roots come first,
+     * then the tree -- and an author ticks boxes in any order at all, so the
+     * emitter sorts rather than trusting the selection.
+     */
+    public function test_a_selection_is_written_parents_first(): void {
+        $parent = $this->repo->create(
+            'base',
+            $this->courseid,
+            new override_set(['template' => 'T'], 'base')
+        );
+        $child = $this->repo->create(
+            'middle',
+            $this->courseid,
+            new override_set([], 'middle'),
+            $parent->id
+        );
+        $grandchild = $this->repo->create(
+            'leaf',
+            $this->courseid,
+            new override_set([], 'leaf'),
+            $child->id
+        );
+
+        // Deliberately the wrong way round.
+        $xml = prototype_export::file_for([$grandchild, $child, $parent], $this->repo);
+
+        preg_match_all('|<coderunnertype>([^<]*)</coderunnertype>|', $xml, $matches);
+        $this->assertSame(['base', 'middle', 'leaf'], $matches[1]);
+    }
+
+    /**
+     * A shared ancestor's definition is written once for the whole file.
+     *
+     * This is what makes the single format affordable for a library export
+     * (decision 36): the ancestors are where the support files are, and
+     * repeating them per child is what made a 200-question export unusable on
+     * the question side. The resolved columns are still written per prototype,
+     * because each has to stand alone for CodeRunner 5.
+     */
+    public function test_a_shared_ancestor_is_written_once(): void {
+        $parent = $this->repo->create(
+            'shared_base',
+            $this->courseid,
+            new override_set(['template' => 'T'], 'shared_base')
+        );
+        $first = $this->repo->create(
+            'first_child',
+            $this->courseid,
+            new override_set([], 'first_child'),
+            $parent->id
+        );
+        $second = $this->repo->create(
+            'second_child',
+            $this->courseid,
+            new override_set([], 'second_child'),
+            $parent->id
+        );
+
+        $xml = prototype_export::file_for([$parent, $first, $second], $this->repo);
+
+        $this->assertSame(
+            1,
+            substr_count($xml, "<uuid>{$parent->uuid}</uuid>"),
+            'The shared ancestor was written more than once.'
+        );
+        $this->assertSame(
+            3,
+            substr_count($xml, '<prototypeuuid>'),
+            'Every prototype still names itself, however few definitions the file holds.'
+        );
+        $this->assertSame(
+            3,
+            substr_count($xml, '<prototypetype>2</prototypetype>'),
+            'Each prototype still stands alone for CodeRunner 5.'
+        );
+    }
+
+    /**
+     * A prototype file fed to Moodle's own question import lands in the
+     * manager, and does so idempotently.
+     *
+     * Decision 36 tolerates this door rather than preventing it, because core
+     * gives a question type no way to refuse a question and act instead
+     * (decision 34). What makes it tolerable is the uuid: the prototype is
+     * adopted where this site has it and created where it does not, so a
+     * second import of the same file changes nothing. The stray prototype
+     * question core insists on creating is cleanup, not the authority.
+     */
+    public function test_a_prototype_file_imported_as_a_question_reaches_the_manager(): void {
+        $parent = $this->repo->create(
+            'imported_base',
+            $this->courseid,
+            new override_set(['template' => 'BASE TEMPLATE'], 'imported_base')
+        );
+        $child = $this->repo->create(
+            'imported_child',
+            $this->courseid,
+            new override_set(['penaltyregime' => '5, 10, ...'], 'imported_child'),
+            $parent->id
+        );
+        $xml = prototype_export::file($child, $this->repo);
+        $childuuid = $child->uuid;
+        $parentuuid = $parent->uuid;
+
+        // A receiving site that has neither: the rows go, the file stays.
+        $this->repo->delete($this->repo->get_or_fail($child->id));
+        $this->repo->delete($this->repo->get_or_fail($parent->id));
+        $this->assertSame([], $this->repo->find_by_uuid($childuuid), 'The fixture must start absent.');
+
+        $this->assertSame(
+            2,
+            $this->import_as_question($xml),
+            'The file should have created the prototype it describes and the ancestor it needs.'
+        );
+
+        $landed = array_values($this->repo->find_by_uuid($childuuid));
+        $this->assertCount(1, $landed);
+        $this->assertSame('imported_child', $landed[0]->name);
+        $this->assertSame(
+            'BASE TEMPLATE',
+            $this->repo->chain_for($landed[0]->id)->resolve()->get('template'),
+            'The ancestor must have been created too, so the chain resolves as it did.'
+        );
+        $this->assertSame(
+            '5, 10, ...',
+            $this->repo->chain_for($landed[0]->id)->resolve()->get('penaltyregime'),
+            "And the child's own override must survive as an override."
+        );
+
+        // The same file again: adopted by uuid, so nothing is duplicated and
+        // nothing of the recipient's is rewritten.
+        $versions = count($this->repo->history($landed[0]->id));
+        $this->import_as_question($xml);
+        $this->assertCount(1, $this->repo->find_by_uuid($childuuid), 'A second import duplicated the prototype.');
+        $this->assertCount(1, $this->repo->find_by_uuid($parentuuid), 'A second import duplicated the ancestor.');
+        $this->assertSame(
+            $versions,
+            count($this->repo->history($landed[0]->id)),
+            'This door must not add versions: that is the manager import, which asks first.'
+        );
+    }
+
+    /**
+     * Import a prototype file the way Moodle's question import would.
+     *
+     * Both halves of what core does for each question, in its order: the
+     * question type reads the XML, and then the save path is called with the
+     * result.
+     *
+     * The rows core inserts between the two are stood in for by `contextid`,
+     * which is the first thing `question_contextid()` looks at. A real import
+     * has no such property -- `importprocess()` sets `context`, not
+     * `contextid` -- and the helper falls through to a query on the question's
+     * own id, which by then exists because core inserted it before calling the
+     * save path. Setting it here is what lets the test skip those three
+     * inserts; it is not a shape the import produces.
+     *
+     * @param string $xml the file.
+     * @return int how many prototypes the manager holds that it did not before.
+     */
+    private function import_as_question(string $xml): int {
+        $format = new \qformat_xml();
+        $parsed = $this->parse_xml($xml);
+        $before = count($this->repo->list_for_course($this->courseid));
+
+        foreach ($parsed['quiz']['#']['question'] as $questionxml) {
+            $qtype = \question_bank::get_qtype('coderunner');
+            $imported = $qtype->import_from_xml($questionxml, null, $format);
+            $this->assertNotFalse($imported);
+
+            $imported->contextid = \context_course::instance($this->courseid)->id;
+            $qtype->set_prototype_reference($imported);
+        }
+
+        return count($this->repo->list_for_course($this->courseid)) - $before;
     }
 
     /**

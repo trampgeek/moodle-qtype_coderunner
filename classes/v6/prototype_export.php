@@ -15,7 +15,7 @@
 // along with CodeRunner.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Writing a prototype as a CodeRunner 5 prototype question.
+ * Writing prototypes as a Moodle XML file both CodeRunner versions can read.
  *
  * @package   qtype_coderunner
  * @copyright 2026 Richard Lobb, The University of Canterbury
@@ -28,30 +28,50 @@ use local_coderunner_manager\prototype;
 use local_coderunner_manager\prototype_repository;
 
 /**
- * A prototype export a CodeRunner 5 site can read.
+ * **One file, read two ways (decision 36).** There is no CodeRunner 5 export
+ * and no CodeRunner 6 export; there is a prototype export, and each version
+ * reads the half it understands.
  *
- * A 6.0 *question* file already imports into 5.x, because
- * `question_type::import_from_xml()` reads only the names in the importing
- * site's own `extra_question_fields()`. What a 5.x site cannot do is build the
- * question type: `get_prototype()` looks a single name up among the prototype
- * questions in the bank and does not recurse, so 5.x inheritance is one level
- * deep, and `jobrunner.php` refuses a question whose prototype object is
- * missing before it looks at a single field.
- *
- * So the chain is resolved into **one prototype question** (`prototypetype` 2,
- * `coderunnertype` the leaf's name, every inherited field set), which the
- * recipient imports beside the questions file. The questions find it by name.
+ * *What CodeRunner 5 reads.* Each prototype becomes **one prototype question**
+ * with its chain resolved into it (`prototypetype` 2, `coderunnertype` the
+ * prototype's name, every inherited field set). It needs that because
+ * `get_prototype()` looks a single name up among the prototype questions in
+ * the bank and does not recurse, so 5.x inheritance is one level deep, and
+ * `jobrunner.php` refuses a question whose prototype object is missing before
+ * it looks at a single field. The recipient imports this file and then the
+ * questions file, in that order, and the questions find their type by name.
  * This is the only place flattening happens: it is a property of a prototype
  * export and never of a question export (decision 33).
  *
- * **One-way.** CodeRunner 5 XML has nowhere to carry a uuid or a chain, so
- * such a file re-imported here arrives as a legacy prototype question and is
- * converted as one, and the resolved prototype has no chain of its own, so the
- * recipient's copy diverges as soon as a parent is edited here.
+ * *What CodeRunner 6 reads.* `<prototypeuuid>` and `<prototypechain>`, written
+ * by {@see chain_transport}, which is where the question export's chain comes
+ * from too. The resolved columns beside them are write-only to a 6.0 site: the
+ * chain is the authority, and a file whose columns disagree with it -- a
+ * hand-edited one -- is read from the chain.
  *
- * Deletable in one piece when phase 4 drops the legacy columns.
+ * Neither half can see the other. A 5.x site reads only the names in its own
+ * `extra_question_fields()`, so the two CodeRunner 6 elements are invisible
+ * there; a 6.0 importer reads the chain and ignores the columns.
+ *
+ * **What it costs, since the file carries both:** about twice the size.
+ * Measured on the development site, `python3_scratchpad` is 245 KB of resolved
+ * payload beside 242 KB of chain. What it buys is one emitter, one button, and
+ * no question about formats that a question author has any way to answer.
+ *
+ * **A chain's definition is written once per file**, which comes free from
+ * `chain_transport`'s per-file state: exporting a library whose prototypes
+ * share ancestors does not repeat those ancestors' support files. On the
+ * development site that is 24% of a whole-library export, nearly all of it one
+ * prototype that four others inherit from.
+ *
+ * The resolved copy has no chain of its own, so a CodeRunner 5 recipient's
+ * copy diverges as soon as a parent is edited here. A 6.0 recipient's does
+ * not: it is matched by uuid and updated as a new version.
+ *
+ * The resolved half is deletable in one piece when phase 4 drops the legacy
+ * columns, which is what leaves this class holding both.
  */
-class legacy_prototype_export {
+class prototype_export {
     /** @var int What CodeRunner 5 stored for a user-defined prototype. */
     private const USER_PROTOTYPE = 2;
 
@@ -70,14 +90,74 @@ class legacy_prototype_export {
      * @return string the file's contents.
      */
     public static function file(prototype $prototype, ?prototype_repository $repo = null): string {
+        return self::file_for([$prototype], $repo);
+    }
+
+    /**
+     * The whole Moodle XML file for a selection of prototypes.
+     *
+     * **One `qformat_xml` for the file**, because that object is what
+     * `chain_transport` keys its per-file state by: it is how the second
+     * prototype to need an ancestor knows the first has already written it.
+     * Giving each prototype its own format object would write every ancestor
+     * once per selection, which for a library sharing a parent is that
+     * parent's support files repeated per child.
+     *
+     * **Written in chain order, parents before children**, so that an importer
+     * can take the file in document order: a child's `<parentuuid>` names a
+     * prototype it has already seen. The selection's own order is not that
+     * order -- the library page lists remotely-parented roots first and then
+     * the tree, and in any case an author ticks boxes in whatever order they
+     * like -- so it is sorted here rather than trusted.
+     *
+     * @param prototype[] $prototypes the prototypes to write.
+     * @param prototype_repository|null $repo the repository to read through.
+     * @return string the file's contents.
+     */
+    public static function file_for(array $prototypes, ?prototype_repository $repo = null): string {
         $repo ??= new prototype_repository();
         $format = new \qformat_xml();
 
         $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<quiz>\n";
-        $xml .= self::question($prototype, $repo, $format);
+        foreach (self::in_chain_order($prototypes, $repo) as $prototype) {
+            $xml .= self::question($prototype, $repo, $format);
+        }
         $xml .= "</quiz>\n";
 
         return $xml;
+    }
+
+    /**
+     * The selection, ancestors before descendants.
+     *
+     * Depth within the whole prototype tree, which orders a selection
+     * correctly however it was made: a prototype's ancestors are all shallower
+     * than it, so sorting by depth puts any that are also selected ahead of
+     * it. Prototypes at the same depth keep the order they arrived in, which
+     * is the library page's, so a file's questions read in the order the author
+     * saw them ticked.
+     *
+     * Ancestors that are *not* selected need no place here. They travel as
+     * definitions inside `<prototypechain>`, where they are already root-first.
+     *
+     * @param prototype[] $prototypes the selection.
+     * @param prototype_repository $repo the repository to read through.
+     * @return prototype[] the selection, shallowest first.
+     */
+    private static function in_chain_order(array $prototypes, prototype_repository $repo): array {
+        $ordered = array_values($prototypes);
+        $depths = [];
+        foreach ($ordered as $i => $prototype) {
+            // The chain includes the prototype itself, so its length is the
+            // depth plus one; only the ordering matters, not the offset.
+            $depths[$i] = count($repo->chain_prototypes($prototype->id));
+        }
+
+        // A stable sort, so that equal depths keep the selection's order:
+        // PHP's sort is stable since 8.0, which this plugin requires.
+        uasort($depths, fn($a, $b) => $a <=> $b);
+
+        return array_map(fn($i) => $ordered[$i], array_keys($depths));
     }
 
     /**
@@ -93,7 +173,18 @@ class legacy_prototype_export {
      * it looks in `qtype_coderunner/datafile` under the question's own id, and
      * a prototype's files live in the manager's area under its version's. They
      * are spliced into the `<testcases>` element the writer always emits,
-     * which is where CodeRunner 5 reads a question's files from.
+     * which is where CodeRunner 5 reads a question's files from. They are the
+     * **merged** set, inherited files included, since the point of the resolved
+     * copy is that it inherits nothing.
+     *
+     * **The CodeRunner 6 half is spliced in beside them**, before the closing
+     * tag, and asked for by prototype id rather than left to
+     * `export_to_xml()`: that method writes the chain for a question's
+     * `prototypeid` column, which this question data deliberately leaves null
+     * because a local id means nothing in a shareable file. So the chain is
+     * requested here explicitly, through the same `chain_transport` the
+     * question export uses and with the same format object, which is what
+     * makes the per-file deduplication cover a whole selection.
      *
      * @param prototype $prototype the prototype to write.
      * @param prototype_repository $repo the repository to read through.
@@ -114,6 +205,14 @@ class legacy_prototype_export {
             $at = strpos($xml, $closing);
             if ($at !== false) {
                 $xml = substr($xml, 0, $at) . $format->write_files($files) . substr($xml, $at);
+            }
+        }
+
+        $chain = chain_transport::write_for_prototype($prototype->id, $format, $repo);
+        if ($chain !== '') {
+            $at = strrpos($xml, '</question>');
+            if ($at !== false) {
+                $xml = substr($xml, 0, $at) . $chain . substr($xml, $at);
             }
         }
 

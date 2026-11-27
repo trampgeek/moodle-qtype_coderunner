@@ -406,10 +406,20 @@ class qtype_coderunner extends question_type {
             // A legacy prototype question is not a question with a prototype.
             $question->prototypeid = null;
             $question->overrides = null;
-            // Imported, it is a prototype waiting to be made: the sweep's
-            // snapshot_user_prototypes() pass is exactly what turns it into one.
             if (!$fromform) {
-                $this->request_prototype_sweep();
+                // A prototype export file fed to Moodle's own question import
+                // rather than the manager's, which is the obvious thing to try
+                // (decision 36). It carries a uuid, so the prototype goes
+                // straight into the manager and the question left behind is
+                // cleanup rather than the authority.
+                //
+                // Otherwise it is a prototype waiting to be made -- a
+                // CodeRunner 5 file, or a 6.0 one from before the uuid -- and
+                // the sweep's snapshot_user_prototypes() pass is exactly what
+                // turns it into one, by name.
+                if (!$this->adopt_imported_prototype($question)) {
+                    $this->request_prototype_sweep();
+                }
             }
             return;
         }
@@ -425,6 +435,47 @@ class qtype_coderunner extends question_type {
         if ($question->prototypeid === null) {
             $this->request_prototype_sweep();
         }
+    }
+
+    /**
+     * Put an imported prototype into the manager, where it belongs.
+     *
+     * **The question-import door (decision 36).** A prototype export is a
+     * `<quiz>` of `<question>` elements, so Moodle's own question import
+     * accepts it, and core offers no way to refuse a question and act instead:
+     * `import_from_xml()` returning falsy means *not my type*, and the rows
+     * are written before the question type is consulted (decision 34). So the
+     * stray prototype questions are tolerated and the prototype itself is
+     * taken from the payload here.
+     *
+     * **It never changes a prototype already here.** `adopt_or_create()`
+     * adopts on a uuid match and writes nothing, so importing a library this
+     * site already has is idempotent: no duplicate, no name clash, and no
+     * silent edit of the recipient's own version. Adding incoming content as a
+     * new version is the *manager's* import, which shows the author what will
+     * change first -- this door has nobody to show it to.
+     *
+     * Nothing is said to whoever ran the import, deliberately: a question
+     * type's only channel there is `$result->notice`, and `importprocess()`
+     * returns from inside its own loop when that is set, abandoning the rest
+     * of the file while reporting success.
+     *
+     * @param object $question the question being saved.
+     * @return bool true if the payload was recognised and handled.
+     */
+    protected function adopt_imported_prototype($question): bool {
+        $uuid = (string) ($question->prototypeuuid ?? '');
+        if ($uuid === '') {
+            return false;
+        }
+
+        $coursecontext = $this->question_context($question)->get_course_context(false);
+
+        return \qtype_coderunner\v6\chain_transport::adopt_or_create(
+            $uuid,
+            $question->prototypechain ?? [],
+            $coursecontext ? (int) $coursecontext->instanceid : SITEID
+        ) !== null;
     }
 
     /**
