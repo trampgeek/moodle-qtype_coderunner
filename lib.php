@@ -61,6 +61,43 @@ function qtype_coderunner_reload_cache_definitions_after_ttl_update(string $call
 }
 
 /**
+ * Add a link to the CodeRunner management dashboard on the site home page.
+ *
+ * The site home had no such link at all, so the only way to the site-scope
+ * prototype library was to enter a course, follow the dashboard there, and
+ * then strip the course id out of the URL -- which the author reported on
+ * 27 November.
+ */
+function qtype_coderunner_extend_navigation_frontpage(
+    navigation_node $navref,
+    stdClass $course,
+    context_course $context
+): void {
+    // The **system** context, not the front page course's. The dashboard asks
+    // for the capability there when it is reached without a course id
+    // (`management.php`, the `else` branch), so asking anywhere else would
+    // offer a link to a page that then refuses it. In practice that means
+    // administrators, which is what the site home needs: anybody may look at
+    // it, and the site's CodeRunner settings are nobody else's business.
+    if (!has_capability('qtype/coderunner:management', context_system::instance())) {
+        return;
+    }
+
+    // No course id, which is what makes it the site's own dashboard rather
+    // than the front page course's. The same distinction the prototype
+    // library draws, and the reason the author could only reach the site view
+    // by editing the URL by hand.
+    $navref->add(
+        get_string('mgmt_navlink', 'qtype_coderunner'),
+        new moodle_url('/question/type/coderunner/management.php'),
+        navigation_node::TYPE_SETTING,
+        null,
+        'coderunnermanagement',
+        new pix_icon('i/settings', '')
+    );
+}
+
+/**
  * Add a link to the CodeRunner management dashboard in the course administration navigation.
  * Visible to anyone with the qtype/coderunner:management capability in the course context.
  */
@@ -74,12 +111,16 @@ function qtype_coderunner_extend_navigation_course(
             '/question/type/coderunner/management.php',
             ['courseid' => $course->id]
         );
+        // Keyed, so that other code can find it. The prototype manager's own
+        // link is placed directly after this one and needs to be able to say
+        // which node it means; a null key becomes the child count, which is a
+        // number that moves whenever anything else is added.
         $navref->add(
             get_string('mgmt_navlink', 'qtype_coderunner'),
             $url,
             navigation_node::TYPE_SETTING,
             null,
-            null,
+            'coderunnermanagement',
             new pix_icon('i/settings', '')
         );
     }
